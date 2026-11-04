@@ -26,7 +26,7 @@ button,input{font:inherit;color:inherit}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* HERO */
-.hero{position:relative;min-height:clamp(560px,78vh,860px);min-height:clamp(560px,78svh,860px);display:flex;flex-direction:column;overflow:hidden;isolation:isolate}
+.hero{position:relative;min-height:clamp(440px,62vh,700px);min-height:clamp(440px,62svh,700px);display:flex;flex-direction:column;overflow:hidden;isolation:isolate}
 #ocean,#oceanFallback{position:absolute;inset:0;width:100%;height:100%;z-index:-2}
 .hero::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(70% 45% at 22% 62%,rgba(4,18,26,.42),transparent 72%),linear-gradient(180deg,rgba(4,18,26,.28) 0%,rgba(4,18,26,0) 22%,rgba(4,18,26,0) 55%,rgba(4,18,26,.55) 85%,#04121A 100%)}
 .bar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top,0px)) 20px 0;max-width:1180px;width:100%;margin:0 auto}
@@ -37,7 +37,7 @@ button,input{font:inherit;color:inherit}
 .glassbtn{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--edge);background:rgba(4,18,26,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer}
 .glassbtn.icon{width:44px;padding:0;justify-content:center}
 .glassbtn[aria-pressed="true"]{background:var(--gold);color:#1A1405;border-color:var(--gold)}
-.heroBody{flex:1;display:flex;flex-direction:column;justify-content:flex-start;gap:16px;max-width:1180px;width:100%;margin:0 auto;padding:clamp(48px,9vh,110px) 20px 56px}
+.heroBody{flex:1;display:flex;flex-direction:column;justify-content:flex-start;gap:16px;max-width:1180px;width:100%;margin:0 auto;padding:clamp(48px,9vh,110px) 20px 44px}
 .kicker{font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.45);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .kicker .q{font-size:13px;padding:5px 12px;border-radius:999px;font-weight:800}
 .decision{font-size:clamp(40px,6.6vw,80px);font-weight:800;line-height:1;max-width:16ch;text-shadow:0 2px 30px rgba(0,0,0,.45)}
@@ -68,6 +68,32 @@ button,input{font:inherit;color:inherit}
 .ans .l i{display:none}
 .ans .v{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:clamp(16px,2.3vw,22px);line-height:1.15;margin-top:4px}
 .ans .s{font-size:13px;color:#CFE2E5;margin-top:2px}
+
+/* HAUT DE PAGE : lecture en un coup d'œil */
+.spotk{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:15px;font-weight:700;color:rgba(255,255,255,.9);text-shadow:0 1px 4px rgba(0,0,0,.45)}
+.spotbtn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:800;color:#fff;padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.45)}
+.spotbtn:hover{border-bottom-color:#fff}.spotbtn:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:4px}
+.verdict{margin:2px 0 0;display:flex;align-items:baseline;gap:6px 18px;flex-wrap:wrap;line-height:1;text-shadow:0 2px 30px rgba(0,0,0,.45)}
+.verdict .vq{font-family:Unbounded,system-ui,sans-serif;font-weight:800;font-size:clamp(36px,5.6vw,68px);letter-spacing:-.02em}
+.verdict .vn{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:clamp(20px,2.6vw,30px);color:#fff}
+.slot{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;font-size:16px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.slot .chip{font-size:14px;font-weight:800;padding:6px 12px;border-radius:999px;color:#0B1A14;text-shadow:none}
+.slot .chip.none{background:rgba(4,18,26,.6);color:#fff;border:1px solid var(--edge)}
+.ans .val{font-family:Unbounded,system-ui,sans-serif;font-weight:800;font-size:clamp(20px,2.6vw,30px);line-height:1.1;margin-top:6px;letter-spacing:-.01em}
+.ans .sub{font-size:14px;color:#CFE2E5;margin-top:4px;font-weight:600}
+.week7{display:flex;gap:8px;margin-top:4px;max-width:1000px}
+.wkp{flex:1 1 0;min-width:0;cursor:pointer;border-radius:14px;border:1px solid var(--edge);background:color-mix(in srgb,var(--tint) 22%,rgba(4,18,26,.62));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit}
+.wkp .d{font-size:12px;font-weight:700;color:#CFE2E5}.wkp .m{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:14px}
+.wkp .q{width:18px;height:4px;border-radius:4px;background:var(--tint)}
+.wkp:hover{border-color:color-mix(in srgb,var(--tint) 70%,transparent)}
+.wkp[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 1px #fff}
+@media (max-width:520px){ .answers{grid-template-columns:1fr!important;gap:8px} #tSize{grid-column:auto!important}
+  .ans{display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center;gap:2px 10px;padding:10px 14px 10px 16px;border-radius:16px}
+  .ans::before{left:0;right:auto;top:12px;bottom:12px;width:3px;height:auto;border-radius:0 3px 3px 0}
+  .ans .l{grid-row:1/3;font-size:11px;letter-spacing:.06em} .ans .tip{display:none}
+  .ans .val{margin:0;font-size:18px} .ans .sub{margin:0;font-size:12px}
+  .heroBody{padding-bottom:40px}
+  .week7{gap:4px} .wkp{padding:6px 2px;border-radius:12px} .wkp .m{font-size:12px} }
 
 /* SCRUBBER */
 .scrub{background:rgba(4,18,26,.55);border:1px solid var(--edge);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:26px;padding:16px 18px 14px;display:grid;grid-template-columns:minmax(0,1fr);gap:12px;max-width:900px}
@@ -260,7 +286,7 @@ footer a{color:var(--aqua)}
 .spec dd{text-align:right;font-weight:800}
 
 /* HEURE PAR HEURE */
-.hourly{position:relative;z-index:2;margin-top:-30px;margin-bottom:26px}
+.hourly{position:relative;z-index:2;margin-top:-8px;margin-bottom:26px}
 .hourly > *{}
 .hhead{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px}
 .hhead .h2s{margin-right:auto}
@@ -586,7 +612,9 @@ function summarise(date, list, sun){
   const max = best.score;
   // fenêtre continue autour du meilleur créneau
   const bi = day.indexOf(best); let a=bi,b=bi;
-  while(a>0 && day[a-1].score>=max-0.5) a--; while(b<day.length-1 && day[b+1].score>=max-0.5) b++;
+  while(b-a<3){ const L=a>0&&day[a-1].score>=max-0.3?day[a-1].score:-1, R=b<day.length-1&&day[b+1].score>=max-0.3?day[b+1].score:-1;
+    if(L<0&&R<0) break; if(L>=R) a--; else b++; }
+  if(a===b){ if(b<day.length-1&&(a===0||day[b+1].score>=day[a-1].score)) b++; else if(a>0) a--; } // au moins 2 h
   const win = day.slice(a,b+1);
   const hs = day.map(h=>h.H); const lo=Math.min(...hs), hi=Math.max(...hs);
   const size = (hi-lo<0.15)? '≈ '+fmt(hi)+' m' : fmt(lo)+'–'+fmt(hi)+' m';
@@ -613,6 +641,22 @@ const QC = ['var(--q0)','var(--q1)','var(--q2)','var(--q3)','var(--q4)'];
 const QHEX = ['#55626A','#7FA7C4','#45C4B0','#F5C451','#FF7A45'];
 const qpill = sc => `<span class="qpill" style="background:${QC[sc]};${sc<2?'color:#fff':''}">${TAGS[sc]}</span>`;
 const windWord = {lisse:'Glassy', offshore:'Offshore', 'side-off':'Side-off', 'de côté':'De côté', onshore:'Onshore'};
+const HEAD = ['Pas de surf','Micro-surf','Petit surf','Bon surf','Très bon surf'];
+function headline(day){ if(!day.list||day.tag==='—') return 'Pas de données'; if(day.verdict.startsWith('Ça sature')) return 'Trop gros'; return (day.score||0)<0.6?'Pas de surf':HEAD[day.sc]; }
+function tidePhase(h){ return h.phase==='basse'?'Basse':h.phase==='haute'?'Haute':h.phase==='mi'?(h.rising?'Montante':'Descendante'):'—'; }
+function reasonOf(h){
+  const sw = (h.T||0)>=11?'houle longue':(h.T||0)>=8?'houle moyenne':'mer du vent';
+  const wi = {lisse:'pas de vent', offshore:'vent de terre', 'side-off':'vent side-off', 'de côté':'vent de côté', onshore:'vent de mer'}[h.wind]||'';
+  const td = h.phase==='mi'?(h.rising?'marée montante':'marée descendante'):h.phase?'marée '+h.phase:'';
+  return [sw,wi,td].filter(Boolean).join(', ');
+}
+function slotHtml(day,k){
+  if(!day.list||day.tag==='—') return '';
+  if(day.verdict.startsWith('Ça sature')) return `<span class="chip none">Pas de créneau</span>Trop gros pour ce spot : cherche un spot plus abrité.`;
+  if((day.score||0)<0.6||!day.win) return `<span class="chip none">Pas de créneau</span>Vagues trop petites pour ce spot ${k===0?'aujourd’hui':'ce jour-là'}.`;
+  const a=day.win[0].hour, b=day.win[day.win.length-1].hour+1, past=k===0&&new Date().getHours()>=b;
+  return `<span class="chip" style="background:${QHEX[day.sc]}">Meilleur créneau ${a}h – ${b}h${past?' (passé)':''}</span>${reasonOf(day.best)}`;
+}
 const slotOf = h => h<11?'ce matin':h<14?'à midi':h<18?'cet après-midi':'en fin de journée';
 const slotOfDay = h => h<11?'matin':h<14?'midi':h<18?'après-midi':'soir';
 const shortBody = h => h<0.3?'À plat':h<0.6?'Genoux':h<0.9?'Taille':h<1.3?'Poitrine':h<1.7?'Épaules':h<2.2?'Tête':'Gros';
@@ -1117,7 +1161,7 @@ function render(){
   const d=state.data[state.spot], s=d.spot, k=state.day, day=d.days[k];
   const isFav=state.fav.includes(s.name), sst=d.hours.find(h=>h.sst!=null)?.sst;
   const now=new Date();
-  state.hour = k===0 ? clamp(now.getHours()+Math.round(now.getMinutes()/15)/4,6,21) : clamp(day.best?.hour||10,6,21);
+  state.hour = (day.score||0)>=0.6 && day.best ? day.best.hour : k===0 ? clamp(now.getHours()+Math.round(now.getMinutes()/15)/4,6,21) : 10;
   if(day.sun){ ocean.rise=hDec(day.sun.rise); ocean.set=hDec(day.sun.set); }
   Object.assign(ocean,{lat:s.lat,lon:s.lon,ori:s.ori??270,date:day.date}); ocean.setAz=solar(s.lat,s.lon,day.date,day.sun?hDec(day.sun.set):18).az;
   const dayLabel = k===0?'Aujourd’hui':k===1?'Demain':DAYS_LONG[new Date(day.date+'T12:00').getDay()].replace(/^./,c=>c.toUpperCase());
@@ -1138,15 +1182,15 @@ function render(){
       </div>
     </div>
     <div class="heroBody">
-      <div class="kicker in"><span>${dayLabel} · ${s.commune} · ${s.region}</span></div>
-      <h1 class="decision in d1">${s.name}</h1>
-      <div class="kicker in d1" style="margin-top:-4px">${qpill(day.sc||0)}${tip('note','Comment est calculée la note ?')}${windowText(day)!=='—'?`<span class="q" style="background:rgba(4,18,26,.55);color:#fff;border:1px solid color-mix(in srgb,var(--ambSun) 60%,transparent)">Meilleures conditions prévues ${windowText(day)}</span>`:''}</div>
-      <p class="spotline in d2" style="margin:0">${day.verdict}</p>
+      <p class="spotk in" style="margin:0"><button class="spotbtn" id="spotBtn" aria-label="Changer de spot (actuel : ${s.name})">${s.name} · ${s.region}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><span>${dayLabel} · <span id="heroHr"></span></span></p>
+      <h1 class="verdict in d1"><span class="sr">${s.name} : </span><span class="vq" style="color:${QHEX[day.sc||0]}">${headline(day)}</span><span class="vn" id="heroNum"></span></h1>
+      <p class="slot in d2" style="margin:0">${slotHtml(day,k)}</p>
       <div class="answers in d3" aria-live="polite">
-        <div class="ans" id="tSize"><div class="l"><i style="background:var(--aqua)"></i>Taille${tip('taille','Que signifie la taille ?')}</div><div class="huge" id="szV">—</div><span style="display:inline-flex;align-items:center"><span class="period" id="szP"></span>${tip('periode','Qu’est-ce que la période ?')}</span>${sparkSvg(day)}</div>
-        <div class="ans" id="tWind"><div class="l"><i style="background:var(--gold)"></i>Vent${tip('vent','Offshore, onshore, rafales : explications')}</div><div class="row">${relDiag()}<div><div class="mid" id="wdV"></div><div class="wlabel" id="wdL"></div><div class="tidetxt" id="wdS"></div></div></div></div>
-        <div class="ans" id="tTide"><div class="l"><i style="background:var(--lilac)"></i>Marée${tip('maree','Comment lire la marée ?')}</div><div class="mid" id="tdV"></div><div class="tidewrap">${tideSvg2(day)}<label class="sr" for="tideRange">Heure sur la courbe de marée</label><input id="tideRange" type="range" min="6" max="21" step="0.25" value="${state.hour}"></div><div class="tidetxt" id="tdS"></div></div>
+        <div class="ans" id="tSize"><div class="l">Vagues${tip('taille','Que signifie la taille ?')}</div><div class="val" id="szV">—</div><div class="sub" id="szP"></div></div>
+        <div class="ans" id="tWind"><div class="l">Vent${tip('vent','Offshore, onshore, rafales : explications')}</div><div class="val" id="wdL">—</div><div class="sub" id="wdS"></div></div>
+        <div class="ans" id="tTide"><div class="l">Marée${tip('maree','Comment lire la marée ?')}</div><div class="val" id="tdV">—</div><div class="sub" id="tdS"></div></div>
       </div>
+      <nav class="week7 in d3" aria-label="La semaine à ${s.name}">${d.days.map((x,j)=>x.tag==='—'?'':`<button class="wkp" data-d="${j}" aria-pressed="${j===k}" style="--tint:${QHEX[x.sc||0]}" aria-label="${j===0?'Aujourd’hui':j===1?'Demain':x.label} : ${x.tag}${x.avgH?', '+fmt(x.avgH)+' m':''}"><span class="d">${j===0?'Auj.':x.label.split(' ')[0]}</span><span class="m">${x.avgH?fmt(x.avgH):'—'}</span><span class="q"></span></button>`).join('')}</nav>
     </div>
   </header>
   <section class="hourly wrap" aria-labelledby="sHour">
@@ -1226,22 +1270,15 @@ function updateLive(){
   if(!h||h.H==null){ $('szV').textContent='—'; return; }
   const sc=Math.round(h.score||0);
   $('nowLbl').innerHTML=`${hhmm(state.hour)} · <span style="color:${QHEX[sc]}">${TAGS[sc]}</span>`;
-  $('szV').innerHTML=`${fmt(h.H)}<small>m</small>`;
+  $('heroHr').textContent=`conditions à ${hhmm(state.hour)}`;
+  $('heroNum').textContent=`${fmt(h.H)} m · ${Math.round(h.T||0)} s`;
+  $('szV').textContent=`${fmt(h.H)} m`;
   $('szP').textContent=`${Math.round(h.T||0)} s · ${periodTxt(h.T||0)}`;
-
-  const sd=$('szDot'), sl=$('szLine'); if(sd){ const mx=+sd.dataset.mx, x=X16(state.hour); sd.setAttribute('cx',x); sd.setAttribute('cy',36-h.H/mx*30); sl.setAttribute('x1',x); sl.setAttribute('x2',x); }
-  $('wdV').textContent=`${Math.round(h.v)} km/h`;
   $('wdL').textContent=windWord[h.wind]; $('wdL').style.color=windCol(h.wind);
-  $('wdS').textContent=`de ${sector(h.wd)}${h.gust?' · rafales '+Math.round(h.gust):''}`;
-  const rel=((h.wd+180-s.ori)%360+360)%360; const ar=$('wdArrow'); if(ar) ar.setAttribute('transform',`translate(36 34) rotate(${rel.toFixed(0)})`);
-  const exact=exactTides(state.spot,day.date); const ex=exact||extremes(day.list).map(x=>({t:x.t,type:x.t==='Pleine mer'?'PM':'BM',hm:x.h+'h',hd:x.h})); const next=ex.find(x=>x.hd>state.hour);
-  const phase = h.phase==='basse'?'Basse':h.phase==='haute'?'Haute':h.phase==='mi'?(h.rising?'Montante':'Descendante'):'—';
-  $('tdV').textContent=phase+(h.tideN!=null?' · '+Math.round(h.tideN*100)+' %':'');
-  $('tdS').innerHTML=`<span class="tchips">${ex.map(x=>`<span class="tchip${next&&x===next?' next':''}">${x.type} ${x.hm}</span>`).join('')}</span>`+(exact?'':'<span class="tapprox">Heures approximatives</span>');
-  const td=$('tdDot'), tl=$('tdLine');
-  if(td){ const a=day.list.find(x=>x.hour===Math.floor(state.hour)), b=day.list.find(x=>x.hour===Math.min(23,Math.floor(state.hour)+1));
-    const f=state.hour-Math.floor(state.hour), n=(a&&a.tideN!=null)?(b&&b.tideN!=null?a.tideN+(b.tideN-a.tideN)*f:a.tideN):null;
-    const x=X16(state.hour); tl.setAttribute('x1',x); tl.setAttribute('x2',x); if(n!=null){ td.setAttribute('cx',x); td.setAttribute('cy',8+(1-n)*40); } }
+  $('wdS').textContent=`${Math.round(h.v)} km/h, de ${sector(h.wd)}${h.gust?' · rafales '+Math.round(h.gust):''}`;
+  const exact=exactTides(state.spot,day.date); const ex=exact||extremes(day.list).map(x=>({t:x.t,type:x.t==='Pleine mer'?'PM':'BM',hm:x.h+'h',hd:x.h}));
+  $('tdV').textContent=tidePhase(h);
+  $('tdS').textContent=ex.length?(exact?'':'≈ ')+ex.filter(x=>x.hd>=5&&x.hd<=22).map(x=>x.type+' '+x.hm).join(' · '):'Horaires indisponibles';
   const rs=$('roseSwell'), rw=$('roseWind'); if(rs&&h.D!=null) rs.setAttribute('transform',`rotate(${h.D.toFixed(0)})`); if(rw&&h.wd!=null) rw.setAttribute('transform',`rotate(${h.wd.toFixed(0)})`);
   ocean.hourT=state.hour; kick();
 }
@@ -1278,7 +1315,8 @@ function bind(){
     document.getElementById('cPrev').onclick=()=>to(idx()-1); document.getElementById('cNext').onclick=()=>to(idx()+1);
     ct.addEventListener('scroll',()=>{ const n=idx(); dots.forEach((d,j)=>d.classList.toggle('on',j===n)); },{passive:true}); }
   initMap();
-  document.querySelectorAll('.daycard').forEach(b=>b.onclick=()=>{ state.day=+b.dataset.d; render(); window.scrollTo({top:0,behavior:REDUCED?'auto':'smooth'}); });
+  document.getElementById('spotBtn').onclick=()=>document.getElementById('openPicker').click();
+  document.querySelectorAll('.daycard,.wkp').forEach(b=>b.onclick=()=>{ state.day=+b.dataset.d; render(); window.scrollTo({top:0,behavior:REDUCED?'auto':'smooth'}); });
   document.querySelectorAll('.topit').forEach(b=>b.onclick=()=>go(+b.dataset.i));
   document.querySelectorAll('.spotdot').forEach(g=>{ g.addEventListener('click',()=>go(+g.dataset.i)); g.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();go(+g.dataset.i);} }); });
 }
