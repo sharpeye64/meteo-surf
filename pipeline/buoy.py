@@ -33,7 +33,8 @@ def parse_ndbc(text):
 
 
 # Copernicus → noms NDBC utilisés dans la suite du code (premier nom présent retenu).
-COPERNICUS_VARS = {"WVHT": ("VGHS", "VHM0", "VAVH"), "DPD": ("VTPK",), "MWD": ("VDIR", "VMDR"), "WTMP": ("TEMP",)}
+COPERNICUS_VARS = {"WVHT": ("VGHS", "VHM0", "VAVH"), "DPD": ("VTPK",), "APD": ("VGTA", "VTM02"),
+                   "MWD": ("VDIR", "VMDR"), "WTMP": ("TEMP",)}
 
 
 def _copernicus_series(ds, names):
@@ -111,6 +112,9 @@ def clean(df):
     df.loc[(df["WVHT"] <= 0) | (df["WVHT"] > 20), "WVHT"] = np.nan
     if "DPD" in df:
         df.loc[(df["DPD"] < 2) | (df["DPD"] > 25), "DPD"] = np.nan
+        # La période pic ne peut pas être plus courte que la période moyenne (vu sur 62001 : Tp 2 s, Tmoy 5 s).
+        if "APD" in df:
+            df.loc[df["DPD"] < df["APD"], "DPD"] = np.nan
     jump = df["WVHT"].diff().abs() > 2.5
     df.loc[jump, "WVHT"] = np.nan
     return df

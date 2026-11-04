@@ -64,8 +64,10 @@ def fake_copernicus_nc():
     hs = np.array([1.6 + 0.05 * math.sin(h) for h in range(n)])[:, None]
     hs_qc = np.ones((n, 1), dtype="int8"); hs_qc[5] = 4  # une valeur rejetée par le QC
     tp = np.where(np.arange(n) % 3 == 0, np.nan, 13.0)[:, None]
+    tp[-2] = 2.0  # période pic incohérente (< période moyenne) : doit être rejetée
     ds = xr.Dataset({"VGHS": (("TIME", "DEPTH"), hs), "VGHS_QC": (("TIME", "DEPTH"), hs_qc),
-                     "VTPK": (("TIME", "DEPTH"), tp), "VDIR": (("TIME", "DEPTH"), np.full((n, 1), 290.0)),
+                     "VTPK": (("TIME", "DEPTH"), tp), "VGTA": (("TIME", "DEPTH"), np.full((n, 1), 5.0)),
+"VDIR": (("TIME", "DEPTH"), np.full((n, 1), 290.0)),
                      "TEMP": (("TIME", "DEPTH"), np.full((n, 1), 16.5)),
                      "TIME_QC": (("TIME",), np.ones(n, dtype="int8"))}, coords={"TIME": t})
     fd, path = tempfile.mkstemp(suffix=".nc"); os.close(fd)
