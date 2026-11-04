@@ -55,4 +55,4 @@ Si `forecast.json` est absent, le site interroge Open-Meteo directement (mode se
 - **Open-Meteo** (CC BY 4.0) : gratuit en usage non commercial. Pour un usage commercial, il faut un abonnement.
 - **Ifremer MARC** : Licence Ouverte.
 - **Mesures REFMAR** : © Shom, Licence Ouverte. Nos horaires de marée sont un calcul indépendant, **non officiel**. Pour afficher les prédictions officielles, il faut une licence Shom.
-- **Bouée Gascogne** : Météo-France, relayée par la NOAA (NDBC).
+- **Bouée Gascogne** : Météo-France, diffusée par Copernicus Marine In Situ (accès libre). La NOAA (NDBC) sert de secours.

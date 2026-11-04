@@ -34,8 +34,16 @@ MARC_OPENDAP_URLS = [
     "http://tds1.ifremer.fr/thredds/dodsC/MARC-WW3_NORGAS_2MIN-FOR_FULL_TIME_SERIE",
 ]
 
-# Bouée Gascogne (Météo-France, WMO 62001), au large à 45,2° N / 5° O. Relayée par la NOAA (NDBC).
+# Bouée Gascogne (Météo-France, WMO 62001), au large à 45,2° N / 5° O.
+# Source principale : Copernicus Marine In Situ (IBI, temps réel), accès public sans compte.
+# Un fichier NetCDF par jour : {base}/{AAAAMMJJ}/GL_TS_MO_6200001_{AAAAMMJJ}.nc (code Copernicus 6200001).
+# Si l'adresse change, parcourir {base} (liste S3) ou le catalogue https://data.marine.copernicus.eu.
+# Secours : NOAA NDBC (aucune donnée pour cette bouée en novembre 2026, gardé au cas où le relais reprend).
 GASCOGNE = {"id": "62001", "lat": 45.2, "lon": -5.0,
+            "copernicus_base": "https://s3.waw3-1.cloudferro.com/mdl-native-03/native/"
+                               "INSITU_IBI_PHYBGCWAV_DISCRETE_MYNRT_013_033/"
+                               "cmems_obs-ins_ibi_phybgcwav_mynrt_na_irr_202311/latest",
+            "copernicus_code": "6200001",
             "url": "https://www.ndbc.noaa.gov/data/realtime2/62001.txt"}
 # Correction des modèles à partir de la bouée : fenêtre de comparaison et bornes de sécurité.
 BUOY_COMPARE_HOURS = 12

@@ -15,7 +15,8 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
 1. Noms des modèles de vagues Open-Meteo (`config.WAVE_MODELS`) : le code essaie plusieurs noms et ignore ceux refusés.
 2. MARC : URL OPeNDAP (`config.MARC_OPENDAP_URLS`) et noms de variables (`marc.py` : HS/TP/FP/DIR). En cas d'échec,
    ouvrir le dataset et afficher `list(ds.variables)`, puis ajuster. Catalogue : marc.ifremer.fr / sextant.ifremer.fr.
-3. Bouée 62001 : format NDBC realtime2 ; la période (DPD) est souvent manquante, auquel cas on prend celle du modèle.
+3. Bouée 62001 : source Copernicus Marine In Situ (fichier NetCDF journalier, code 6200001, `config.GASCOGNE`), NDBC en secours
+   (NDBC ne publiait plus cette bouée en novembre 2026). Période pic absente → on prend celle du modèle.
 4. Format des fichiers REFMAR téléchargés (`tools/fit_tides.py:read_refmar`) : séparateur et colonnes peuvent varier.
 5. Volume d'appels Open-Meteo : environ 30 points × (1 + 4 modèles) + vent toutes les 3 h. Rester sous les limites gratuites.
 

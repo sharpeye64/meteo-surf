@@ -1179,7 +1179,7 @@ function render(){
     </section>
   </div></div>
   <div class="wrap">
-    <footer>${state.mode==='server'&&state.meta?`Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}. `:''}Prototype non commercial. Données via <a href="https://open-meteo.com/">Open-Meteo</a> (CC BY 4.0) : vagues Météo-France MFWAM (Copernicus Marine), DWD EWAM, ECMWF WAM, NOAA GFS-Wave ; vent Météo-France AROME, DWD ICON, NOAA GFS, ECMWF IFS. Modèle côtier Ifremer MARC (Licence Ouverte). Bouée Gascogne : Météo-France, via NOAA NDBC. Marées : calcul harmonique indépendant à partir des mesures REFMAR (© Shom, Licence Ouverte). Verdict calculé selon les réglages de chaque spot. Marée indicative.</footer>
+    <footer>${state.mode==='server'&&state.meta?`Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}. `:''}Prototype non commercial. Données via <a href="https://open-meteo.com/">Open-Meteo</a> (CC BY 4.0) : vagues Météo-France MFWAM (Copernicus Marine), DWD EWAM, ECMWF WAM, NOAA GFS-Wave ; vent Météo-France AROME, DWD ICON, NOAA GFS, ECMWF IFS. Modèle côtier Ifremer MARC (Licence Ouverte). Bouée Gascogne : Météo-France, via Copernicus Marine In Situ. Marées : calcul harmonique indépendant à partir des mesures REFMAR (© Shom, Licence Ouverte). Verdict calculé selon les réglages de chaque spot. Marée indicative.</footer>
   </div>`;
 
   const cv=document.getElementById('ocean');

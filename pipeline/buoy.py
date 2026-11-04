@@ -29,7 +29,84 @@ def parse_ndbc(text):
     for c in ("WVHT", "DPD", "APD", "MWD", "WTMP"):
         if c in df:
             df[c] = pd.to_numeric(df[c], errors="coerce")
-    df = df.sort_values("time")
+    return clean(df)
+
+
+# Copernicus → noms NDBC utilisés dans la suite du code (premier nom présent retenu).
+COPERNICUS_VARS = {"WVHT": ("VGHS", "VHM0", "VAVH"), "DPD": ("VTPK",), "MWD": ("VDIR", "VMDR"), "WTMP": ("TEMP",)}
+
+
+def _copernicus_series(ds, names):
+    """Série temporelle d'une variable, sans les valeurs mal notées (QC Copernicus : 1 = bon, 2 = probablement bon)."""
+    for n in names:
+        if n not in ds:
+            continue
+        da = ds[n]
+        if f"{n}_QC" in ds:
+            da = da.where(ds[f"{n}_QC"].isin([1, 2]))
+        # Les autres dimensions (profondeur) : on garde le premier niveau renseigné à chaque heure.
+        a = da.transpose("TIME", ...).values.astype(float).reshape(da.sizes["TIME"], -1)
+        first = np.argmax(np.isfinite(a), axis=1)
+        return a[np.arange(len(a)), first]
+    return None
+
+
+def parse_copernicus(path):
+    import xarray as xr
+    with xr.open_dataset(path) as ds:
+        out = pd.DataFrame({"time": pd.to_datetime(ds["TIME"].values).tz_localize("UTC")})
+        for col, names in COPERNICUS_VARS.items():
+            v = _copernicus_series(ds, names)
+            out[col] = np.nan if v is None else v
+        if "TIME_QC" in ds:  # heures marquées comme fausses
+            out = out[np.isin(ds["TIME_QC"].values, [0, 1, 2])]
+    return out
+
+
+def load_copernicus(days=3):
+    """Fichiers journaliers des `days` derniers jours ; les jours absents (pas encore publiés) sont ignorés."""
+    import os
+    import tempfile
+    cfg = config.GASCOGNE
+    frames = []
+    today = pd.Timestamp.now("UTC").normalize()
+    for k in range(days):
+        d = (today - pd.Timedelta(days=k)).strftime("%Y%m%d")
+        url = f"{cfg['copernicus_base']}/{d}/GL_TS_MO_{cfg['copernicus_code']}_{d}.nc"
+        r = requests.get(url, timeout=60, headers={"User-Agent": "meteo-surf-prototype"})
+        if r.status_code == 404:
+            continue
+        r.raise_for_status()
+        fd, path = tempfile.mkstemp(suffix=".nc")
+        try:
+            with os.fdopen(fd, "wb") as f:
+                f.write(r.content)
+            frames.append(parse_copernicus(path))
+        finally:
+            os.remove(path)
+    if not frames:
+        raise RuntimeError("Copernicus : aucun fichier de la bouée sur les derniers jours")
+    df = pd.concat(frames).drop_duplicates("time", keep="last")
+    if "WVHT" not in df or df["WVHT"].notna().sum() == 0:
+        raise RuntimeError("Copernicus : pas de hauteur de vagues valide")
+    return clean(df)
+
+
+def load():
+    """Copernicus d'abord, NOAA NDBC en secours. Renvoie (mesures, nom de la source)."""
+    try:
+        return load_copernicus(), "Copernicus Marine"
+    except Exception as e_cop:
+        try:
+            r = requests.get(config.GASCOGNE["url"], timeout=60, headers={"User-Agent": "meteo-surf-prototype"})
+            r.raise_for_status()
+            return parse_ndbc(r.text), "NOAA NDBC"
+        except Exception as e_ndbc:
+            raise RuntimeError(f"{e_cop} | NDBC : {e_ndbc}") from None
+
+
+def clean(df):
+    df = df.sort_values("time").reset_index(drop=True)
     # Contrôles simples : valeurs physiquement plausibles et sauts brutaux.
     df.loc[(df["WVHT"] <= 0) | (df["WVHT"] > 20), "WVHT"] = np.nan
     if "DPD" in df:
@@ -52,9 +129,7 @@ def haversine_km(a, b):
 
 def fetch(spots):
     cfg = config.GASCOGNE
-    r = requests.get(cfg["url"], timeout=60, headers={"User-Agent": "meteo-surf-prototype"})
-    r.raise_for_status()
-    df = parse_ndbc(r.text)
+    df, source = load()
     df = df[df["time"] >= df["time"].max() - pd.Timedelta("48h")]
     df["local"] = df["time"].dt.tz_convert(config.TIMEZONE).dt.tz_localize(None)
 
@@ -92,7 +167,7 @@ def fetch(spots):
 
     fmt = lambda t: t.strftime("%Y-%m-%dT%H:%M")
     return {
-        "id": cfg["id"], "lat": cfg["lat"], "lon": cfg["lon"],
+        "id": cfg["id"], "source": source, "lat": cfg["lat"], "lon": cfg["lon"],
         "latest": None if last is None else {
             "time": fmt(last["local"]), "hs": round(float(last["WVHT"]), 2),
             "tp": None if not np.isfinite(last.get("DPD", np.nan)) else round(float(last["DPD"]), 1),

@@ -48,8 +48,37 @@ def fake_marc():
 
 
 class FakeResp:
-    def __init__(self, text): self.text = text
-    def raise_for_status(self): pass
+    def __init__(self, text="", content=b"", status_code=200):
+        self.text, self.content, self.status_code = text, content, status_code
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise RuntimeError(f"HTTP {self.status_code}")
+
+
+def fake_copernicus_nc():
+    """Fichier au format Copernicus In Situ : variables (TIME, DEPTH) + drapeaux QC."""
+    import os, tempfile
+    now = pd.Timestamp.now("UTC").floor("h").tz_localize(None)
+    t = pd.date_range(now - pd.Timedelta(hours=47), now, freq="h")
+    n = len(t)
+    hs = np.array([1.6 + 0.05 * math.sin(h) for h in range(n)])[:, None]
+    hs_qc = np.ones((n, 1), dtype="int8"); hs_qc[5] = 4  # une valeur rejetée par le QC
+    tp = np.where(np.arange(n) % 3 == 0, np.nan, 13.0)[:, None]
+    ds = xr.Dataset({"VGHS": (("TIME", "DEPTH"), hs), "VGHS_QC": (("TIME", "DEPTH"), hs_qc),
+                     "VTPK": (("TIME", "DEPTH"), tp), "VDIR": (("TIME", "DEPTH"), np.full((n, 1), 290.0)),
+                     "TEMP": (("TIME", "DEPTH"), np.full((n, 1), 16.5)),
+                     "TIME_QC": (("TIME",), np.ones(n, dtype="int8"))}, coords={"TIME": t})
+    fd, path = tempfile.mkstemp(suffix=".nc"); os.close(fd)
+    ds.to_netcdf(path)
+    data = open(path, "rb").read(); os.remove(path)
+    return data
+
+
+def fake_buoy_get(url, *a, **k):
+    if "cloudferro" in url:  # Copernicus : seul le fichier du jour existe
+        today = pd.Timestamp.now("UTC").strftime("%Y%m%d")
+        return FakeResp(content=fake_copernicus_nc()) if today in url else FakeResp(status_code=404)
+    return fake_ndbc()
 
 
 def fake_ndbc(*a, **k):
@@ -64,10 +93,18 @@ def fake_ndbc(*a, **k):
 
 openmeteo.get = fake_get
 marc.open_dataset = fake_marc
-buoy.requests.get = fake_ndbc
+buoy.requests.get = fake_buoy_get
 build.main()
 data = json.loads(config.OUTPUT_FILE.read_text())
 s = data["spots"][0]
 print("modèles :", [m["key"] for m in data["meta"]["wave_models"]], "· correction bouée :", data["meta"]["buoy_correction"])
 print("bouée :", data["gascogne"]["latest"], "· trajet vers", s["name"], ":", data["gascogne"]["eta_hours"][s["name"]], "h")
 print("mix 1res heures :", s["marine"]["wave_height"][:4], "· erreurs :", data["meta"]["errors"])
+assert data["gascogne"]["source"] == "Copernicus Marine", data["meta"]["errors"]
+assert data["gascogne"]["latest"]["hs"] > 0 and len(data["gascogne"]["obs"]) >= 24
+
+# Secours : Copernicus indisponible → NOAA NDBC.
+buoy.requests.get = lambda url, *a, **k: FakeResp(status_code=503) if "cloudferro" in url else fake_ndbc()
+g = buoy.fetch([{"name": "x", "lat": 43.5, "lon": -1.5}])
+assert g["source"] == "NOAA NDBC" and g["latest"]["hs"] > 0
+print("bouée OK (Copernicus + secours NDBC)")
