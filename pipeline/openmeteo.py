@@ -1,0 +1,104 @@
+"""Récupération des prévisions Open-Meteo (vagues multi-modèles, vent multi-modèles, eau, soleil)."""
+import math
+import time
+
+import requests
+
+from . import config
+
+MARINE = "https://marine-api.open-meteo.com/v1/marine"
+FORECAST = "https://api.open-meteo.com/v1/forecast"
+session = requests.Session()
+session.headers["User-Agent"] = "meteo-surf-prototype (non commercial)"
+
+
+def get(url, params, tries=3):
+    for attempt in range(tries):
+        r = session.get(url, params=params, timeout=60)
+        if r.status_code == 429 and attempt < tries - 1:
+            time.sleep(20 * (attempt + 1))
+            continue
+        if r.status_code == 400:
+            raise ValueError(r.json().get("reason", "requête invalide"))
+        r.raise_for_status()
+        time.sleep(config.REQUEST_PAUSE_S)
+        data = r.json()
+        return data if isinstance(data, list) else [data]
+    raise RuntimeError("Open-Meteo : trop de requêtes")
+
+
+def sea_point(spot, km=3.0):
+    """Point à quelques km au large, dans l'axe de la plage, pour viser une maille « mer »."""
+    d = km / 111.0
+    ori = math.radians(spot["ori"])
+    return (spot["lat"] + d * math.cos(ori),
+            spot["lon"] + d * math.sin(ori) / math.cos(math.radians(spot["lat"])))
+
+
+def grid(points, step=0.03):
+    """Regroupe les points qui tombent dans la même maille de modèle."""
+    uniq, index, mapping = [], {}, []
+    for p in points:
+        key = (round(p[0] / step), round(p[1] / step))
+        if key not in index:
+            index[key] = len(uniq)
+            uniq.append(p)
+        mapping.append(index[key])
+    return uniq, mapping
+
+
+def ll(points):
+    return {"latitude": ",".join(f"{p[0]:.4f}" for p in points),
+            "longitude": ",".join(f"{p[1]:.4f}" for p in points)}
+
+
+def fetch(spots):
+    common = {"timezone": config.TIMEZONE, "forecast_days": config.FORECAST_DAYS}
+    sea_pts, sea_map = grid([sea_point(s) for s in spots])
+    land_pts, land_map = grid([(s["lat"], s["lon"]) for s in spots])
+
+    base = get(MARINE, {**ll(sea_pts), **common, "cell_selection": "sea", "hourly": ",".join([
+        "wave_height", "wave_period", "wave_direction", "swell_wave_height", "swell_wave_period",
+        "swell_wave_direction", "sea_level_height_msl", "sea_surface_temperature"])})
+
+    wave_models, wave_labels = {}, {}
+    for key, label, _w, names in config.WAVE_MODELS:
+        for name in names:
+            try:
+                wave_models[key] = get(MARINE, {**ll(sea_pts), **common, "cell_selection": "sea",
+                                                "hourly": "wave_height,wave_period,wave_direction", "models": name})
+                wave_labels[key] = label
+                break
+            except ValueError:
+                continue
+
+    wind = get(FORECAST, {**ll(land_pts), **common, "hourly": "wind_speed_10m,wind_direction_10m,wind_gusts_10m",
+                          "daily": "sunrise,sunset", "models": ",".join(m[2] for m in config.WIND_MODELS)})
+
+    out = []
+    for i, _s in enumerate(spots):
+        m = base[sea_map[i]]["hourly"]
+        w_raw = wind[land_map[i]]
+        wh = w_raw["hourly"]
+
+        def pick(var):
+            return wh.get(f"{var}_meteofrance_seamless") or wh.get(var)
+
+        out.append({
+            "marine": {k: m.get(k) for k in m},
+            "wave_models": {k: v[sea_map[i]]["hourly"]["wave_height"] for k, v in wave_models.items()},
+            "wind": {"time": wh["time"], "wind_speed_10m": pick("wind_speed_10m"),
+                     "wind_direction_10m": pick("wind_direction_10m"), "wind_gusts_10m": pick("wind_gusts_10m")},
+            "wind_models": {k: wh.get(f"wind_speed_10m_{api}") for k, _l, api in config.WIND_MODELS
+                            if wh.get(f"wind_speed_10m_{api}")},
+            "daily": w_raw.get("daily", {}),
+        })
+    return out, wave_labels
+
+
+def model_at_point(lat, lon, past_days=2):
+    """Prévision de vagues (mix par défaut) au point de la bouée, avec les jours passés pour comparer."""
+    d = get(MARINE, {"latitude": lat, "longitude": lon, "timezone": config.TIMEZONE, "past_days": past_days,
+                     "forecast_days": 2, "cell_selection": "sea",
+                     "hourly": "wave_height,wave_period,swell_wave_period,wave_direction"})[0]
+    return d["hourly"]

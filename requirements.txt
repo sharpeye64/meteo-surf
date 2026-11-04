@@ -1,0 +1,6 @@
+requests>=2.31
+numpy>=1.26
+pandas>=2.1
+xarray>=2024.1
+netCDF4>=1.6.5
+utide>=0.3
