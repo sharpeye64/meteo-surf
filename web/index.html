@@ -77,8 +77,6 @@ button,input{font:inherit;color:inherit}
 .scrub .head span{font-size:13px;color:var(--muted)}
 .track{position:relative}
 .bar,.heroBody{position:relative;z-index:1}
-.seacap{font-size:12px;font-weight:700;color:rgba(255,255,255,.82);padding:6px 12px;border-radius:999px;background:rgba(4,18,26,.32);border:1px solid var(--edge);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);white-space:nowrap;margin-right:auto;margin-left:14px}
-@media (max-width:820px){.seacap{display:none}}
 .sunlbl{position:absolute;z-index:0;transform:translate(-50%,8px);font-size:12px;font-weight:700;color:rgba(255,255,255,.85);text-shadow:0 1px 6px rgba(0,0,0,.4);white-space:nowrap;pointer-events:none}
 .dayline{position:relative;height:118px;border-radius:18px;overflow:hidden;border:1px solid var(--edge)}
 .dayline svg.bg{position:absolute;inset:0;width:100%;height:100%}
@@ -637,7 +635,7 @@ function palette(h){
   const mix=(x,y)=>x.map((v,k)=>v+(y[k]-v)*f);
   return {sT:mix(a[1],b[1]), sB:mix(a[2],b[2]), sun:mix(a[3],b[3]), wD:mix(a[4],b[4]), wS:mix(a[5],b[5])};
 }
-const ocean = { gl:null, prog:null, u:{}, amp:0.5, ampT:0.5, hour:10, hourT:10, swL:100, swLT:100, swDir:270, swDirT:270, chop:1, chopT:1,
+const ocean = { gl:null, prog:null, u:{}, hour:10, hourT:10,
   lat:44, lon:-1.25, ori:270, setAz:245, date:null, t0:performance.now(), raf:0, visible:true };
 const DEG=Math.PI/180, wrap180=a=>((a%360)+540)%360-180;
 /* Position réelle du soleil (algorithme simplifié de l'Almanach, précision ~0,1°) pour une heure locale de Paris. */
@@ -704,7 +702,7 @@ function initOcean(canvas){
     float n=noise(vec2(ang*6.,t*.04))*.6+noise(vec2(ang*17.+4.,t*.07))*.4;
     return smoothstep(.42,.92,n)*exp(-length(a)*2.4)*smoothstep(-.01,.03,rd.y);
   }
-  /* houle réelle : longueur d'onde issue de la période, direction issue de la prévision, vagues par séries */
+  /* houle décorative : trois trains de vagues, arrivée par séries */
   float waves(vec2 p, float dist, out vec2 g){
     float h=0.; g=vec2(0.); float s=sqrt(swL/70.);
     for(int i=0;i<3;i++){
@@ -782,19 +780,18 @@ function drawOcean(now){
   const c=o.canvas, dpr=Math.min(window.devicePixelRatio||1,1.25);
   const W=Math.floor(c.clientWidth*dpr), H=Math.floor(c.clientHeight*dpr);
   if(c.width!==W||c.height!==H){c.width=W;c.height=H;gl.viewport(0,0,W,H);}
-  o.amp+= (o.ampT-o.amp)*0.06; o.hour+=(o.hourT-o.hour)*0.08;
-  o.swL+=(o.swLT-o.swL)*0.05; o.swDir+=wrap180(o.swDirT-o.swDir)*0.05; o.chop+=(o.chopT-o.chop)*0.05;
+  o.hour+=(o.hourT-o.hour)*0.08;
   const hc=canon(o.hour), p=palette(hc);
   const yaw=camYaw(W<H), S=solar(o.lat,o.lon,o.date,o.hour), rel=wrap180(S.az-yaw)*DEG, el=S.el*DEG;
   const night=clamp((-S.el-0.8)/6,0,1);
   const sd = night>0.5 ? [Math.sin(0.3)*Math.cos(0.2), Math.sin(0.2), Math.cos(0.3)*Math.cos(0.2)] : [Math.sin(rel)*Math.cos(el), Math.sin(el), Math.cos(rel)*Math.cos(el)];
-  const rs=clamp(wrap180(o.swDir-yaw),-75,75)*DEG;
-  gl.uniform2f(o.u.swD,-Math.sin(rs),-Math.cos(rs)); gl.uniform1f(o.u.swL,o.swL); gl.uniform1f(o.u.chop,o.chop);
-  gl.uniform2f(o.u.r,W,H); gl.uniform1f(o.u.t,REDUCED?8:(now-o.t0)/1000); gl.uniform1f(o.u.amp,o.amp); gl.uniform1f(o.u.night,night);
+  /* Mer décorative et calme, identique pour tous les spots : l'information est dans les cartes, pas dans l'animation. */
+  gl.uniform2f(o.u.swD,-0.12,-0.99); gl.uniform1f(o.u.swL,90); gl.uniform1f(o.u.chop,0.8);
+  gl.uniform2f(o.u.r,W,H); gl.uniform1f(o.u.t,REDUCED?8:(now-o.t0)/1000); gl.uniform1f(o.u.amp,0.55); gl.uniform1f(o.u.night,night);
   gl.uniform3fv(o.u.sT,p.sT); gl.uniform3fv(o.u.sB,p.sB); gl.uniform3fv(o.u.sun,p.sun); gl.uniform3fv(o.u.wD,p.wD); gl.uniform3fv(o.u.wS,p.wS); gl.uniform3fv(o.u.sd,sd);
   gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
 }
-function loop(now){ if(ocean.visible) drawOcean(now); ocean.raf = (REDUCED && Math.abs(ocean.amp-ocean.ampT)<0.002 && Math.abs(ocean.hour-ocean.hourT)<0.01) ? 0 : requestAnimationFrame(loop); }
+function loop(now){ if(ocean.visible) drawOcean(now); ocean.raf = (REDUCED && Math.abs(ocean.hour-ocean.hourT)<0.01) ? 0 : requestAnimationFrame(loop); }
 function kick(){ if(!ocean.raf) ocean.raf=requestAnimationFrame(loop); }
 
 /* ---------- vues ---------- */
@@ -1134,7 +1131,7 @@ function render(){
   <header class="hero">
     <canvas id="ocean" aria-hidden="true"></canvas>
     <div class="bar">
-      <span class="brand"><i></i>Météo surf</span><span class="seacap" id="seaCap"></span>
+      <span class="brand"><i></i>Météo surf</span>
       <div class="actions">
         <button class="glassbtn icon" id="favBtn" aria-pressed="${isFav}" aria-label="${isFav?'Retirer de mes spots':'Ajouter à mes spots'}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg></button>
         <button class="glassbtn" id="openPicker" aria-label="Changer de spot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span class="lbl">Changer de spot</span></button>
@@ -1215,22 +1212,11 @@ function render(){
 
   const cv=document.getElementById('ocean');
   if(!initOcean(cv)){ cv.insertAdjacentHTML('afterend',sceneSvg(day.avgH||0.4,state.hour)); cv.remove(); ocean.gl=null; }
-  ocean.ampT = clamp((day.avgH||0.3)/1.6,0.12,1.2); ocean.hourT=state.hour; seaTargets(d.days[k].list.find(x=>x.hour===Math.round(state.hour)),s);
-  if(!ocean.started){ Object.assign(ocean,{amp:ocean.ampT,hour:ocean.hourT,swL:ocean.swLT,swDir:ocean.swDirT,chop:ocean.chopT,started:true}); }
+  ocean.hourT=state.hour; if(!ocean.started){ ocean.hour=ocean.hourT; ocean.started=true; }
   if(ocean.gl){ const io=new IntersectionObserver(e=>{ocean.visible=e[0].isIntersecting; if(ocean.visible) kick();}); io.observe(cv); kick(); }
   updateLive(); bind(); markHour();
   const hs=document.querySelector('.hscroll'), hc=document.querySelector('.hhr.sel'); if(hs&&hc) hs.scrollLeft=Math.max(0,hc.offsetLeft-140);
 }
-/* Houle simulée = houle prévue : longueur d'onde (½ × 1,56·T², à l'échelle de la scène), direction, mer du vent. */
-function seaTargets(h,s){
-  if(!h) return;
-  if(h.T) ocean.swLT=clamp(0.5*1.56*h.T*h.T,30,220);
-  ocean.swDirT=h.D??s.ori??270;
-  ocean.chopT=clamp((h.v||0)/28,0.35,1.6)*(h.wind==='onshore'?1.3:h.wind==='lisse'?0.6:1);
-  const cap=document.getElementById('seaCap');
-  if(cap&&h.H!=null) cap.textContent=`Mer simulée à ${hhmm(state.hour)} · houle ${fmt(h.H)} m · ${Math.round(h.T||0)} s · ${sector(h.D??s.ori)}`;
-}
-
 function updateLive(){
   const d=state.data[state.spot], s=d.spot, day=d.days[state.day];
   const hr=Math.min(21,Math.round(state.hour)); const h=day.list.find(x=>x.hour===hr) || day.list[0];
@@ -1257,7 +1243,7 @@ function updateLive(){
     const f=state.hour-Math.floor(state.hour), n=(a&&a.tideN!=null)?(b&&b.tideN!=null?a.tideN+(b.tideN-a.tideN)*f:a.tideN):null;
     const x=X16(state.hour); tl.setAttribute('x1',x); tl.setAttribute('x2',x); if(n!=null){ td.setAttribute('cx',x); td.setAttribute('cy',8+(1-n)*40); } }
   const rs=$('roseSwell'), rw=$('roseWind'); if(rs&&h.D!=null) rs.setAttribute('transform',`rotate(${h.D.toFixed(0)})`); if(rw&&h.wd!=null) rw.setAttribute('transform',`rotate(${h.wd.toFixed(0)})`);
-  ocean.hourT=state.hour; ocean.ampT=clamp(h.H/1.6,0.12,1.2); seaTargets(h,s); kick();
+  ocean.hourT=state.hour; kick();
 }
 
 function renderPicker(){
