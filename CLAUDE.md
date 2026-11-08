@@ -46,6 +46,9 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   et s'incline avec la houle : `swellAt()` (JavaScript) recalcule les 3 trains de houle de `waves()` (GLSL) pour donner sa
   hauteur et sa pente. Si on change les constantes des vagues dans le shader, les changer AUSSI dans `swellAt()`, sinon la
   bouée flotte à côté de l'eau. Position : 46 m devant, à 72 % de la largeur (entre le texte et la boussole).
+  Une étiquette (`buoyLabelHtml`) affiche sa VRAIE dernière mesure (bouée Gascogne via Copernicus : hauteur, direction, âge) ;
+  la taille de la bouée et son mouvement, eux, ne dépendent pas de la mesure. Les données Copernicus ont souvent 12 à 30 h
+  de retard : l'étiquette passe en gris au-delà de 6 h. Flottante à côté de la bouée sur ordinateur, dans le flux sur mobile.
 - RÈGLES ANTI-BLOCAGE (l'ancienne version bloquait la page après quelques clics ; ne jamais les enfreindre) :
   1. UN SEUL canvas, `#ocean`, hors de `#app`, créé une fois par `oceanInit()` ; `render()` ne le recrée jamais.
   2. Une seule boucle `oceanLoop` : 30 images/s max, en pause si la page est cachée ou hors écran.

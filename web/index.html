@@ -26,6 +26,13 @@ button,input{font:inherit;color:inherit}
 
 /* HERO */
 .hero{position:relative;min-height:clamp(440px,62vh,700px);min-height:clamp(440px,62svh,700px);display:flex;flex-direction:column;overflow:hidden;isolation:isolate}
+.buoylbl{position:absolute;left:min(calc(72% + 40px),calc(100% - 290px));top:calc(46.3% - 16px);z-index:2;display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:#fff;text-decoration:none;padding:5px 11px;border-radius:999px;background:rgba(4,18,26,.55);border:1px solid rgba(255,255,255,.3);white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.buoylbl:hover{background:rgba(4,18,26,.78);border-color:#fff}
+.buoylbl i{width:7px;height:7px;border-radius:50%;background:#FFC23D;box-shadow:0 0 8px #FFC23D;flex:none}
+.buoylbl.old i{background:#8A949A;box-shadow:none}
+.buoylbl small{font-weight:700;color:#CFE2E5;font-size:11px}
+.buoylbl.inl{display:none;position:static}
+@media (max-width:820px){.buoylbl.fl{display:none}.buoylbl.inl{display:inline-flex;align-self:flex-start;font-size:12px}}
 .sunt{font-size:13px;font-weight:700;color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.6)}
 .camlink{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#fff;text-decoration:none;padding:5px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.4);background:rgba(4,18,26,.38);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .camlink:hover{background:rgba(4,18,26,.62);border-color:#fff}
@@ -783,6 +790,14 @@ function drawArc(){
   let d=''; for(let i=0;i<=48;i++){ const [x,y]=sunScreen(r+(st-r)*i/48); d+=(i?' L':'M')+(x*1000).toFixed(1)+' '+((1-y)*1000).toFixed(1); }
   svg.innerHTML=`<path d="${d}" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1.2" stroke-dasharray="1 8" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
 }
+/* Étiquette posée à côté de la bouée : sa vraie dernière mesure (bouée Gascogne, via Copernicus Marine) et l'âge de cette mesure */
+function buoyLabelHtml(mode){
+  const g=state.gascogne, L=g&&g.latest; if(!L||L.hs==null) return '';
+  const ageH=(new Date()-new Date(L.time+':00'))/36e5;
+  const age=ageH<1?'à l’instant':ageH<36?`il y a ${Math.round(ageH)} h`:`il y a ${Math.round(ageH/24)} j`;
+  const parts=[`${fmt(L.hs)} m`]; if(L.tp) parts.push(`${Math.round(L.tp)} s`); if(L.dir!=null) parts.push(sector(L.dir));
+  return `<a class="buoylbl ${mode}${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de la bouée Météo-France 62001, au large (45,2° N, 5° O), via Copernicus Marine. Les mesures arrivent avec quelques heures de retard. Voir le radar."><i></i>Bouée Gascogne · ${parts.join(' · ')} <small>${age}</small></a>`;
+}
 function heroSunTimes(){
   const el=document.getElementById('sunT'); if(!el) return; const day=state.data[state.spot].days[state.day];
   el.textContent=day.sun?`↑ ${day.sun.rise.replace(':','h')} · ↓ ${day.sun.set.replace(':','h')}`:'';
@@ -1458,7 +1473,7 @@ function render(){
   { const pw0=dayMedOf(day,'Heff'); state.gearCtx = pw0==null ? null : {pw:pw0, h:dayMedOf(day,'H'), t:dayMedOf(day,'T')}; }
   document.getElementById('app').innerHTML=`
   <header class="hero">
-    <svg class="sunarc" id="sunarc" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <svg class="sunarc" id="sunarc" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"></svg>${buoyLabelHtml('fl')}
     <div class="bar">
       <span class="brand"><i></i>Météo surf</span>
       <div class="actions">
@@ -1469,7 +1484,7 @@ function render(){
     <div class="heroBody">
       <div class="herotop"><div class="hlead"><p class="spotk in" style="margin:0"><button class="spotbtn" id="spotBtn" aria-label="Changer de spot (actuel : ${s.name})">${s.name} · ${s.region}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><span>${dayLabel} · <span id="heroHr"></span></span><span class="sunt" id="sunT"></span>${camHtml(s)}</p>
       <h1 class="verdict in d1"><span class="sr">${s.name} : </span><span class="vq" id="heroSize">—</span><span class="vn" id="heroNum"></span></h1>
-      <p class="slot in d2" style="margin:0" id="heroTrust"></p></div></div>
+      <p class="slot in d2" style="margin:0" id="heroTrust"></p>${buoyLabelHtml('inl')}</div></div>
       <div class="herobot"><div class="hbl"><div class="answers in d3" aria-live="polite">
         <div class="ans" id="tSize"><div class="l">Vagues${tip('taille','Que signifie la taille ?')}</div><div class="val" id="szV">—</div><div class="sub" id="szP"></div><div class="sub sub2" id="szS"></div></div>
         <div class="ans" id="tWind"><div class="l">Vent${tip('vent','Offshore, onshore, rafales : explications')}</div><div class="val" id="wdL">—</div><div class="sub" id="wdS"></div><div class="sub sub2" id="wdA"></div></div>
