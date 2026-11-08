@@ -37,8 +37,12 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   et la construction, donc toujours indiquer « à vérifier chez le shaper ». Ajouter une famille ou un modèle = ajouter une
   entrée à `GEAR` avec uniquement des dimensions vérifiées. Les coefficients litres/kg sont des repères, pas une norme.
 
-- Haut de page = « océan illustré » choisi par l'utilisateur : SVG statique (4 couches de vagues, soleil à sa vraie position,
-  reflet), couleurs recalculées à chaque changement d'heure par `skyUpdate()`. Décor propre à chaque spot via `sceneOf()` :
+- Haut de page = « océan illustré » choisi par l'utilisateur : SVG statique (4 couches de vagues, reflet). Le soleil suit un
+  ARC SYMBOLIQUE de gauche à droite, du lever au coucher, au rythme de l'heure choisie (pas la position astronomique : face à
+  l'ouest il serait hors cadre) ; la lune et les étoiles prennent le relais la nuit. Au premier chargement, le soleil glisse
+  du lever vers l'heure actuelle (2,4 s, désactivé si prefers-reduced-motion). Les couleurs passent par des transitions CSS
+  (`@property`), le soleil par un court glissement `skyGo()` (quelques dizaines d'images, puis plus rien).
+  Pas de soleil « attrapable » ni de zone cliquable dans le ciel : c'était la source des régressions au clic. Décor propre à chaque spot via `sceneOf()` :
   montagnes basques ou pins des Landes à l'horizon, plus un élément (phare, jetée, rochers, falaises, dunes) selon le spot.
 - Webcams : liens externes seulement (`CAMS` dans index.html), jamais d'intégration ni de rediffusion (conditions d'utilisation
   des tiers). Sources : pages Surf-Forecast par spot, Quiksilver pour Saint-Jean-de-Luz et Hendaye ; pour les autres spots,
