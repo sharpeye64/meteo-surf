@@ -24,16 +24,25 @@ def fake_get(url, params, tries=3):
         hourly = {"time": tt, "wave_height": [round(f * (1.2 + 0.3 * math.sin(i / 10)), 2) for i in range(len(tt))],
                   "wave_period": [9] * len(tt), "wave_direction": [295] * len(tt), "swell_wave_height": [1.0] * len(tt),
                   "swell_wave_period": [12] * len(tt), "swell_wave_direction": [295] * len(tt),
+                  "secondary_swell_wave_height": [0.4] * len(tt), "secondary_swell_wave_period": [8] * len(tt),
+                  "secondary_swell_wave_direction": [235] * len(tt), "wind_wave_height": [0.2] * len(tt),
+                  "wind_wave_period": [5] * len(tt), "wind_wave_direction": [270] * len(tt),
                   "sea_level_height_msl": [math.sin(i / 12.42 * 2 * math.pi) for i in range(len(tt))],
                   "sea_surface_temperature": [16.8] * len(tt)}
         return [{"hourly": hourly}] * n
     hourly = {"time": TIMES}
     for _k, _l, api in config.WIND_MODELS:
         hourly[f"wind_speed_10m_{api}"] = [10 + i % 12 for i in range(len(TIMES))]
+        if api == "meteofrance_seamless":  # AROME s'arrête avant la fin : le vent doit être complété par un autre modèle
+            hourly[f"wind_speed_10m_{api}"][-48:] = [None] * 48
         hourly[f"wind_direction_10m_{api}"] = [100 if i % 24 < 12 else 280 for i in range(len(TIMES))]
         hourly[f"wind_gusts_10m_{api}"] = [20] * len(TIMES)
-    daily = {"time": [TIMES[i][:10] for i in range(0, len(TIMES), 24)], "sunrise": [d[:10] + "T08:05" for d in TIMES[::24]],
-             "sunset": [d[:10] + "T17:50" for d in TIMES[::24]]}
+    # Comme l'API réelle avec plusieurs modèles : lever/coucher suffixés par modèle
+    daily = {"time": [TIMES[i][:10] for i in range(0, len(TIMES), 24)],
+             "sunrise_meteofrance_seamless": [d[:10] + "T08:05" for d in TIMES[::24]],
+             "sunset_meteofrance_seamless": [d[:10] + "T17:50" for d in TIMES[::24]],
+             "sunrise_icon_seamless": [d[:10] + "T08:06" for d in TIMES[::24]],
+             "sunset_icon_seamless": [d[:10] + "T17:51" for d in TIMES[::24]]}
     return [{"hourly": hourly, "daily": daily}] * n
 
 
@@ -103,6 +112,12 @@ print("modèles :", [m["key"] for m in data["meta"]["wave_models"]], "· correct
 print("bouée :", data["gascogne"]["latest"], "· trajet vers", s["name"], ":", data["gascogne"]["eta_hours"][s["name"]], "h")
 print("mix 1res heures :", s["marine"]["wave_height"][:4], "· erreurs :", data["meta"]["errors"])
 assert data["gascogne"]["source"] == "Copernicus Marine", data["meta"]["errors"]
+w0 = data["spots"][0]["wind"]["wind_speed_10m"]
+assert all(v is not None for v in w0), "le vent doit être complété quand AROME s'arrête"
+assert data["spots"][0]["marine"]["secondary_swell_wave_height"][0] == 0.4
+d0 = data["spots"][0]["daily"]
+assert d0["sunrise"][0].endswith("T08:05") and d0["sunset"][0].endswith("T17:50") and len(d0) == 3, d0.keys()
+print("vent complété sur", len(w0), "heures · houle secondaire présente")
 assert data["gascogne"]["latest"]["hs"] > 0 and len(data["gascogne"]["obs"]) >= 24
 
 # Secours : Copernicus indisponible → NOAA NDBC.

@@ -52,6 +52,27 @@ def ll(points):
             "longitude": ",".join(f"{p[1]:.4f}" for p in points)}
 
 
+WIND_FALLBACK = ("meteofrance_seamless", "icon_seamless", "ecmwf_ifs025", "gfs_seamless")
+
+
+def fill_wind(wh, var):
+    """Vent d'AROME ; quand il s'arrête (environ 4 jours), heure par heure : ICON, puis ECMWF, puis GFS."""
+    series = [wh.get(f"{var}_{m}") for m in WIND_FALLBACK]
+    series = [s for s in series if s] or [wh.get(var)]
+    n = len(series[0] or [])
+    return [next((s[i] for s in series if s and i < len(s) and s[i] is not None), None) for i in range(n)]
+
+
+def clean_daily(daily):
+    """Avec plusieurs modèles, Open-Meteo suffixe lever/coucher (sunrise_icon_seamless…) : on garde une seule série."""
+    out = {"time": daily.get("time", [])}
+    for var in ("sunrise", "sunset"):
+        key = var if daily.get(var) else next((k for k in daily if k.startswith(var + "_") and daily[k]), None)
+        if key:
+            out[var] = daily[key]
+    return out
+
+
 def fetch(spots):
     common = {"timezone": config.TIMEZONE, "forecast_days": config.FORECAST_DAYS}
     sea_pts, sea_map = grid([sea_point(s) for s in spots])
@@ -59,7 +80,9 @@ def fetch(spots):
 
     base = get(MARINE, {**ll(sea_pts), **common, "cell_selection": "sea", "hourly": ",".join([
         "wave_height", "wave_period", "wave_direction", "swell_wave_height", "swell_wave_period",
-        "swell_wave_direction", "sea_level_height_msl", "sea_surface_temperature"])})
+        "swell_wave_direction", "secondary_swell_wave_height", "secondary_swell_wave_period",
+        "secondary_swell_wave_direction", "wind_wave_height", "wind_wave_period", "wind_wave_direction",
+        "sea_level_height_msl", "sea_surface_temperature"])})
 
     wave_models, wave_labels = {}, {}
     for key, label, _w, names in config.WAVE_MODELS:
@@ -82,7 +105,7 @@ def fetch(spots):
         wh = w_raw["hourly"]
 
         def pick(var):
-            return wh.get(f"{var}_meteofrance_seamless") or wh.get(var)
+            return fill_wind(wh, var)
 
         out.append({
             "marine": {k: m.get(k) for k in m},
@@ -91,7 +114,7 @@ def fetch(spots):
                      "wind_direction_10m": pick("wind_direction_10m"), "wind_gusts_10m": pick("wind_gusts_10m")},
             "wind_models": {k: wh.get(f"wind_speed_10m_{api}") for k, _l, api in config.WIND_MODELS
                             if wh.get(f"wind_speed_10m_{api}")},
-            "daily": w_raw.get("daily", {}),
+            "daily": clean_daily(w_raw.get("daily", {})),
         })
     return out, wave_labels
 

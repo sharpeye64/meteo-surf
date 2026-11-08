@@ -81,6 +81,7 @@ button,input{font:inherit;color:inherit}
 .slot .chip.none{background:rgba(4,18,26,.6);color:#fff;border:1px solid var(--edge)}
 .ans .val{font-family:Unbounded,system-ui,sans-serif;font-weight:800;font-size:clamp(20px,2.6vw,30px);line-height:1.1;margin-top:6px;letter-spacing:-.01em}
 .ans .sub{font-size:14px;color:#CFE2E5;margin-top:4px;font-weight:600}
+.ans .sub2{font-size:13px;color:#9FB7BD;margin-top:2px}.ans .sub2:empty{display:none}
 .week7{display:flex;gap:8px;margin-top:4px;max-width:1000px}
 .wkp{flex:1 1 0;min-width:0;cursor:pointer;border-radius:14px;border:1px solid var(--edge);background:color-mix(in srgb,var(--tint) 22%,rgba(4,18,26,.62));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit}
 .wkp .d{font-size:12px;font-weight:700;color:#CFE2E5}.wkp .m{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:14px}
@@ -90,7 +91,7 @@ button,input{font:inherit;color:inherit}
 @media (max-width:520px){ .answers{grid-template-columns:1fr!important;gap:8px} #tSize{grid-column:auto!important}
   .ans{display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center;gap:2px 10px;padding:10px 14px 10px 16px;border-radius:16px}
   .ans::before{left:0;right:auto;top:12px;bottom:12px;width:3px;height:auto;border-radius:0 3px 3px 0}
-  .ans .l{grid-row:1/3;font-size:11px;letter-spacing:.06em} .ans .tip{display:none}
+  .ans .l{grid-row:1/span 3;font-size:11px;letter-spacing:.06em} .ans .tip{display:none}
   .ans .val{margin:0;font-size:18px} .ans .sub{margin:0;font-size:12px}
   .heroBody{padding-bottom:40px}
   .week7{gap:4px} .wkp{padding:6px 2px;border-radius:12px} .wkp .m{font-size:12px} }
@@ -292,7 +293,7 @@ footer a{color:var(--aqua)}
 .hhead .h2s{margin-right:auto}
 .hnow{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:15px}
 .hscroll{overflow-x:auto;border-radius:24px;border:1px solid color-mix(in srgb,var(--ambSun) 20%,rgba(255,255,255,.1));background:rgba(6,20,28,.78);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-.hgrid{display:grid;grid-template-rows:42px 96px 34px 58px 62px;min-width:980px;position:relative}
+.hgrid{display:grid;grid-template-rows:42px 96px 44px 58px 62px;min-width:980px;position:relative}
 .hlab{grid-column:1;position:sticky;left:0;z-index:3;display:flex;align-items:center;padding:0 14px;font-size:12px;font-weight:800;color:var(--muted);background:rgba(6,20,28,.96);border-right:1px solid var(--edge);letter-spacing:.02em}
 .hlab small{font-weight:600;margin-left:4px;opacity:.8}
 .hc{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:inherit;font:inherit;padding:0;cursor:pointer}
@@ -304,7 +305,7 @@ footer a{color:var(--aqua)}
 .hwave{flex-direction:column;justify-content:flex-end;gap:5px;padding-bottom:8px}
 .hwave b{font-family:Unbounded,system-ui,sans-serif;font-size:13px}
 .hwave span{width:60%;max-width:30px;border-radius:6px 6px 3px 3px}
-.hper{font-weight:700;font-size:13px;border-top:1px solid var(--edge)}
+.hper{font-weight:700;font-size:13px;border-top:1px solid var(--edge);flex-direction:column;gap:0;line-height:1.15}.hper small{font-size:11px;font-weight:700;color:#9FB7BD}
 .hwind{flex-direction:column;gap:2px;font-weight:800;font-size:13px;border-top:1px solid var(--edge)}
 .hwind svg{display:block}
 .htide{position:relative;border-top:1px solid var(--edge);z-index:1;pointer-events:none}
@@ -318,6 +319,7 @@ footer a{color:var(--aqua)}
 .radar{position:relative;z-index:2;margin:6px auto 26px}
 .radar .h2s{margin-right:0}
 .rlive{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:700;margin-left:auto}
+.rlive.old{color:var(--gold)}.rlive.old i{background:#8A949A;animation:none!important}
 .rlive i{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 0 rgba(255,182,72,.6)}
 @media (prefers-reduced-motion:no-preference){.rlive i{animation:ping 2s infinite}@keyframes ping{0%{box-shadow:0 0 0 0 rgba(255,182,72,.6)}100%{box-shadow:0 0 0 10px rgba(255,182,72,0)}}}
 .rgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) minmax(0,1fr);gap:14px}
@@ -475,7 +477,7 @@ const MARINE = 'https://marine-api.open-meteo.com/v1/marine?', FORECAST='https:/
 const modelName = {};
 async function loadLive(){
   const sea=gridPoints(SPOTS.map(seaPoint)), land=gridPoints(SPOTS.map(s=>[s.lat,s.lon]));
-  const mUrl = MARINE+llq(sea.pts)+COMMON+'&cell_selection=sea&hourly=wave_height,wave_period,wave_direction,swell_wave_height,swell_wave_period,swell_wave_direction,sea_level_height_msl,sea_surface_temperature';
+  const mUrl = MARINE+llq(sea.pts)+COMMON+'&cell_selection=sea&hourly=wave_height,wave_period,wave_direction,swell_wave_height,swell_wave_period,swell_wave_direction,secondary_swell_wave_height,secondary_swell_wave_period,secondary_swell_wave_direction,wind_wave_height,wind_wave_period,wind_wave_direction,sea_level_height_msl,sea_surface_temperature';
   const wUrl = FORECAST+llq(land.pts)+COMMON+'&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m&daily=sunrise,sunset&models=meteofrance_seamless';
   const [Mu,Wu] = await Promise.all([ getJSON(mUrl).catch(e=>{throw new Error('vagues : '+e.message)}), getJSON(wUrl).catch(e=>{throw new Error('vent : '+e.message)}) ]);
   state.raw = SPOTS.map((s,i)=>({ m: structuredClone(Mu[sea.map[i]]), w: structuredClone(Wu[land.map[i]]) }));
@@ -557,12 +559,17 @@ function analyse(s, m, w){
   const t = m.hourly.time, hours=[];
   const lvl = m.hourly.sea_level_height_msl || [];
   for(let i=0;i<t.length;i++){
-    const H = m.hourly.wave_height[i];
-    const sw = m.hourly.swell_wave_height?.[i];
-    const T = (sw!=null && H && sw>=0.4*H) ? m.hourly.swell_wave_period[i] : m.hourly.wave_period[i];
-    const D = m.hourly.wave_direction[i];
+    const mh=m.hourly, g=k=>mh[k]?.[i];
+    const H = g('wave_height'), sw = g('swell_wave_height');
+    const swDom = sw!=null && H && sw>=0.4*H && g('swell_wave_period')!=null;
+    const T = swDom ? g('swell_wave_period') : g('wave_period');
+    const D = swDom && g('swell_wave_direction')!=null ? g('swell_wave_direction') : g('wave_direction');
+    // Deuxième train : houle secondaire, sinon mer du vent, seulement s'il compte vraiment (visible pour qui lit la mer)
+    let sec=null; const s2=g('secondary_swell_wave_height'), w2=g('wind_wave_height');
+    if(s2!=null && s2>=0.25 && s2>=0.25*(sw||H||0) && g('secondary_swell_wave_period')>=6) sec={kind:'houle secondaire',H:s2,T:g('secondary_swell_wave_period'),D:g('secondary_swell_wave_direction')};
+    else if(w2!=null && w2>=0.3 && w2>=0.4*(H||0) && g('wind_wave_period')!=null) sec={kind:'mer du vent',H:w2,T:g('wind_wave_period'),D:g('wind_wave_direction')};
     const v = w.hourly.wind_speed_10m[i], wd = w.hourly.wind_direction_10m[i];
-    hours.push({time:t[i], date:t[i].slice(0,10), hour:+t[i].slice(11,13), H, T, D, v, wd, gust:w.hourly.wind_gusts_10m[i], lvl:lvl[i], sst:m.hourly.sea_surface_temperature?.[i]});
+    hours.push({time:t[i], date:t[i].slice(0,10), hour:+t[i].slice(11,13), H, T, D, sec, v, wd, gust:w.hourly.wind_gusts_10m[i], lvl:lvl[i], sst:m.hourly.sea_surface_temperature?.[i]});
   }
   hours.forEach((h,i)=>{ h.models={}; h.wmodels={};
     for(const k in (m._models||{})){ const v=m._models[k][i]; if(v!=null) h.models[k]=v; }
@@ -597,7 +604,8 @@ function analyse(s, m, w){
     if(h.saturated) sc=Math.min(sc,1);
     h.score = clamp(sc,0,4);
   });
-  const sun = {}; (w.daily?.time||[]).forEach((d,i)=>sun[d]={rise:w.daily.sunrise[i].slice(11,16), set:w.daily.sunset[i].slice(11,16)});
+  const sun = {}; const dl=w.daily||{}, srK=Object.keys(dl).find(k=>k.startsWith('sunrise')), ssK=Object.keys(dl).find(k=>k.startsWith('sunset'));
+  (dl.time||[]).forEach((d,i)=>{ const r=srK&&dl[srK][i], s2=ssK&&dl[ssK][i]; if(r&&s2) sun[d]={rise:r.slice(11,16), set:s2.slice(11,16)}; });
   const days = Object.keys(byDate).slice(0,7).map(date=>summarise(date, byDate[date], sun[date]));
   return {spot:s, hours, days};
 }
@@ -931,7 +939,7 @@ const TIPS = {
   eau:'Température de l’eau en surface, issue d’un modèle océanique. Elle peut varier de 1 à 2 °C selon les courants et les remontées d’eau froide.',
   combi:'Conseil indicatif selon la température de l’eau. Les deux chiffres sont l’épaisseur du néoprène : le premier pour le torse (au chaud), le second pour les bras et les jambes (pour la mobilité). Adapte selon ta frilosité et le vent.',
   modeles:'Comme Windguru, on croise plusieurs <b>modèles de vagues</b> : Météo-France MFWAM, DWD EWAM (maille de 5 km sur l’Europe), ECMWF WAM et NOAA GFS-Wave. La taille affichée est une <b>moyenne pondérée</b>, qui donne plus de poids aux modèles les plus fins sur notre côte.<br><br>Le bouton « Comparer les modèles » affiche chaque modèle heure par heure. Le vent vient d’AROME (Météo-France), comparé à ICON, GFS et ECMWF.',
-  radar:'La <b>bouée Gascogne</b> (Météo-France) flotte au large, à environ 300 km de la côte. Elle mesure l’état de mer réel : houle et mer du vent mélangées.<br><br>La houle met plusieurs heures à arriver jusqu’aux spots. Sa vitesse dépend de sa <b>période</b> : environ 0,78 × période en m/s, soit à peu près 35 km/h pour une houle de 12 s.<br><br>On compare aussi la bouée aux modèles : s’ils sous-estiment ou surestiment ce qu’elle mesure, on <b>corrige</b> les 24 prochaines heures. Les mesures temps réel ne sont pas validées et sont filtrées.',
+  radar:'La <b>bouée Gascogne</b> (Météo-France) flotte au large, à environ 300 km de la côte. Elle mesure l’état de mer réel : houle et mer du vent mélangées.<br><br>La houle met plusieurs heures à arriver jusqu’aux spots. Sa vitesse dépend de sa <b>période</b> : environ 0,78 × période en m/s, soit à peu près 35 km/h pour une houle de 12 s.<br><br>On compare aussi la bouée aux modèles : s’ils sous-estiment ou surestiment ce qu’elle mesure, on <b>corrige</b> les 24 prochaines heures. Les mesures arrivent avec quelques heures de retard (l’heure de la dernière est affichée), ne sont pas validées et sont filtrées : la période pic, notamment, est parfois aberrante et on la remplace alors par celle du modèle.',
   planche:'Suggestion selon la taille des vagues. Ton niveau, ton gabarit et le spot comptent autant : prends ce qui te fait le plus surfer.'
 };
 let tipN=0;
@@ -949,19 +957,24 @@ window.addEventListener('scroll',()=>{ if(tipOwner) hideTip(true); },{passive:tr
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') hideTip(true); });
 document.addEventListener('click',e=>{ if(!e.target.closest('.tipbtn,#tipLayer')) hideTip(true); });
 let hourlyRows=5;
+function windNote(hrs){
+  if(!(state.windModels||[]).some(m=>m.key==='arome')) return '';
+  const f=hrs.find(h=>h.v!=null&&h.wmodels&&h.wmodels.arome==null); if(!f) return '';
+  return `Vent à partir de ${f.hour}h : modèle ICON (AROME ne va pas plus loin, la fiabilité baisse). `;
+}
 function hourlyHtml(day,hrs){
   const rise=day.sun?hDec(day.sun.rise):8, set=day.sun?hDec(day.sun.set):18;
   const winA=day.win&&day.score>=0.6?day.win[0].hour:99, winB=day.win&&day.score>=0.6?day.win[day.win.length-1].hour:-1;
   const mx=Math.max(1,...hrs.map(h=>h.H||0)); let c='';
   const lab=(row,txt)=>`<div class="hlab" style="grid-row:${row}">${txt}</div>`;
-  c+=lab(1,'')+lab(2,'Vagues <small>m</small>')+lab(3,'Période')+lab(4,'Vent <small>km/h</small>')+lab(5,'Marée');
+  c+=lab(1,'')+lab(2,'Vagues <small>m</small>')+lab(3,'Période <small>· dir.</small>')+lab(4,'Vent <small>km/h</small>')+lab(5,'Marée');
   hrs.forEach((h,i)=>{
     const col=i+2, sc=Math.round(h.score||0), nt=(h.hour<Math.floor(rise)||h.hour>Math.floor(set))?' night':'', wn=(h.hour>=winA&&h.hour<=winB)?' win':'';
     const sun = h.hour===Math.floor(rise)?'<span class="hsun">Lever</span>':h.hour===Math.floor(set)?'<span class="hsun">Coucher</span>':'';
     const cls=`hc${nt}${wn}`;
     c+=`<button class="${cls} hhr" data-h="${h.hour}" style="grid-column:${col};grid-row:1" aria-label="${h.hour}h : ${h.H!=null?fmt(h.H)+' m, '+Math.round(h.T)+' s, vent '+Math.round(h.v)+' km/h '+windWord[h.wind]:'pas de données'}">${h.hour}h${sun}</button>`;
     c+=`<div class="${cls} hwave" data-h="${h.hour}" style="grid-column:${col};grid-row:2"><b>${h.H!=null?fmt(h.H):'—'}</b><span style="height:${h.H!=null?Math.max(6,h.H/mx*58).toFixed(0):0}px;background:${QHEX[sc]}"></span></div>`;
-    c+=`<div class="${cls} hper" data-h="${h.hour}" style="grid-column:${col};grid-row:3;opacity:${h.T?clamp(.45+(h.T-6)/10,.45,1):.4}">${h.T?Math.round(h.T)+' s':'—'}</div>`;
+    c+=`<div class="${cls} hper" data-h="${h.hour}" style="grid-column:${col};grid-row:3;opacity:${h.T?clamp(.45+(h.T-6)/10,.45,1):.4}">${h.T?Math.round(h.T)+' s':'—'}${h.D!=null?`<small>${sector(h.D)}</small>`:''}</div>`;
     c+=`<div class="${cls} hwind" data-h="${h.hour}" style="grid-column:${col};grid-row:4"><svg width="20" height="20" viewBox="-10 -10 20 20" style="transform:rotate(${(h.wd||0)+180}deg)" aria-hidden="true"><path d="M0 -9 L6 5 L0 2 L-6 5 Z" fill="${windCol(h.wind)}"/></svg><span>${h.v!=null?Math.round(h.v):'—'}</span></div>`;
   });
   const tl=hrs.filter(h=>h.tideN!=null);
@@ -987,12 +1000,16 @@ function markHour(){
 function radarHtml(s){
   const g=state.gascogne; if(!g||!g.latest) return '';
   const L=g.latest, eta=g.eta_hours?.[s.name];
+  const tObs=new Date(L.time+':00'), d0=new Date(), ageH=(d0-tObs)/36e5, hh=L.time.slice(11,13)+'h'+L.time.slice(14,16);
+  const dayWord=t=>{ const y=new Date(d0); y.setDate(d0.getDate()-1), tm=new Date(d0); tm.setDate(d0.getDate()+1);
+    return t.toDateString()===d0.toDateString()?'aujourd’hui':t.toDateString()===tm.toDateString()?'demain':t.toDateString()===y.toDateString()?'hier':DAYS_LONG[t.getDay()]; };
+  const liveLbl=`Bouée au large · dernière mesure ${tObs.toDateString()===d0.toDateString()?'':dayWord(tObs)+' '}${hh}${ageH>=3?` (il y a ${Math.round(ageH)} h)`:''}`;
   let arrive='';
-  if(eta!=null){ const t=new Date(L.time+':00'); t.setMinutes(t.getMinutes()+Math.round(eta*60)); const d0=new Date(); const sameDay=t.toDateString()===d0.toDateString();
-    const tomorrow=new Date(d0); tomorrow.setDate(d0.getDate()+1); const lab=sameDay?'aujourd’hui':t.toDateString()===tomorrow.toDateString()?'demain':DAYS_LONG[t.getDay()];
-    arrive=`<div class="rk">Arrivée au spot · ${s.name}</div><div class="rv">${lab} vers ${t.getHours()}h</div><div class="rs">≈ ${Math.round(eta)} h de trajet</div>`; }
+  if(eta!=null){ const t=new Date(tObs); t.setMinutes(t.getMinutes()+Math.round(eta*60));
+    const passed=t<d0-36e5;
+    arrive=`<div class="rk">Arrivée au spot · ${s.name}</div><div class="rv">${passed?'Déjà arrivée':dayWord(t)+' vers '+t.getHours()+'h'}</div><div class="rs">${passed?`vers ${t.getHours()}h ${dayWord(t)}, `:''}≈ ${Math.round(eta)} h de trajet après la mesure</div>`; }
   const ratio=g.ratio; const pctTxt=ratio?Math.round((ratio-1)*100):null;
-  const corr = ratio==null ? 'Pas assez de mesures récentes pour comparer aux modèles.' : Math.abs(pctTxt)<8 ? 'Les modèles collent à la mesure : aucune correction.' : `Les modèles ${pctTxt>0?'sous-estiment':'surestiment'} la houle de ${Math.abs(pctTxt)} % : correction appliquée aux 24 prochaines heures.`;
+  const corr = ratio==null ? 'Pas assez de mesures récentes pour comparer aux modèles.' : Math.abs(pctTxt)<8 ? 'Les modèles collent à la mesure : aucune correction.' : `Les modèles ${pctTxt>0?'sous-estiment':'surestiment'} la houle de ${Math.abs(pctTxt)} % : correction appliquée aux 24 heures qui suivent la mesure.`;
   const obs=g.obs||[], mod=(g.model||[]).filter(m=>obs.length&&m.t>=obs[0].t&&m.t<=obs[obs.length-1].t);
   let spark='';
   if(obs.length>3){ const all=[...obs.map(o=>o.hs),...mod.map(o=>o.hs)], mx=Math.max(...all)*1.15, mn=Math.min(...all)*0.85;
@@ -1000,7 +1017,7 @@ function radarHtml(s){
     const po=obs.map(o=>X(o.t)+' '+Y(o.hs)).join(' L'), pm=mod.map(o=>X(o.t)+' '+Y(o.hs)).join(' L');
     spark=`<svg viewBox="0 0 300 78" preserveAspectRatio="none" class="rspark" role="img" aria-label="Hauteur mesurée par la bouée sur 48 heures, comparée au modèle"><path d="M${po} L300 78 L0 78Z" fill="rgba(255,182,72,.16)"/>${pm?`<path d="M${pm}" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.5" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>`:''}<path d="M${po}" fill="none" stroke="var(--gold)" stroke-width="2.2" vector-effect="non-scaling-stroke"/></svg><div class="rleg"><span><i style="background:var(--gold)"></i>Mesuré</span><span><i class="dash"></i>Modèle</span><span>48 dernières heures</span></div>`; }
   return `<section class="radar wrap" aria-labelledby="sRadar">
-    <div class="hhead"><h2 class="h2s" id="sRadar">Radar Gascogne</h2>${tip('radar','Comment fonctionne le radar ?')}<span class="rlive"><i></i>Bouée au large · mesure de ${L.time.slice(11,13)}h${L.time.slice(14,16)}</span></div>
+    <div class="hhead"><h2 class="h2s" id="sRadar">Radar Gascogne</h2>${tip('radar','Comment fonctionne le radar ?')}<span class="rlive${ageH>6?' old':''}"><i></i>${liveLbl}</span></div>
     <div class="rgrid">
       <div class="rcard"><div class="rk">Au large maintenant</div><div class="rbig">${fmt(L.hs)}<small>m</small></div><div class="rs">${L.tp?Math.round(L.tp)+' s · '+periodTxt(L.tp):(g.period_used?'≈ '+Math.round(g.period_used)+' s (modèle)':'période non transmise')}${L.dir!=null?' · du '+sector(L.dir):''}${L.sst!=null?' · eau '+fmt(L.sst)+' °C':''}</div></div>
       <div class="rcard">${spark||'<div class="rs">Historique indisponible.</div>'}</div>
@@ -1186,7 +1203,7 @@ function render(){
       <h1 class="verdict in d1"><span class="sr">${s.name} : </span><span class="vq" style="color:${QHEX[day.sc||0]}">${headline(day)}</span><span class="vn" id="heroNum"></span></h1>
       <p class="slot in d2" style="margin:0">${slotHtml(day,k)}</p>
       <div class="answers in d3" aria-live="polite">
-        <div class="ans" id="tSize"><div class="l">Vagues${tip('taille','Que signifie la taille ?')}</div><div class="val" id="szV">—</div><div class="sub" id="szP"></div></div>
+        <div class="ans" id="tSize"><div class="l">Vagues${tip('taille','Que signifie la taille ?')}</div><div class="val" id="szV">—</div><div class="sub" id="szP"></div><div class="sub sub2" id="szS"></div></div>
         <div class="ans" id="tWind"><div class="l">Vent${tip('vent','Offshore, onshore, rafales : explications')}</div><div class="val" id="wdL">—</div><div class="sub" id="wdS"></div></div>
         <div class="ans" id="tTide"><div class="l">Marée${tip('maree','Comment lire la marée ?')}</div><div class="val" id="tdV">—</div><div class="sub" id="tdS"></div></div>
       </div>
@@ -1195,8 +1212,8 @@ function render(){
   </header>
   <section class="hourly wrap" aria-labelledby="sHour">
     <div class="hhead"><h2 class="h2s" id="sHour">Heure par heure</h2><span class="hnow" id="nowLbl"></span>${tip('modeles','D’où viennent les prévisions ?')}<button class="playbtn" id="cmpBtn" aria-pressed="${!!state.cmp}">${state.cmp?'Masquer les modèles':'Comparer les modèles'}</button><button class="playbtn" id="playDay"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>Lancer la journée</button></div>
-    <div class="hscroll"><div class="hgrid" style="grid-template-columns:${state.cmp?150:96}px repeat(${hrs.length},minmax(54px,1fr));grid-template-rows:42px 96px 34px 58px 62px${state.cmp?' '+'34px '.repeat((state.models||[]).length+(state.windModels||[]).length):''}">${hourlyHtml(day,hrs)}</div></div>
-    <p class="hnote">Touche une heure : le soleil se place à ce moment de la journée. Couleur des barres : qualité. Flèches : sens du vent (turquoise offshore, ambre de côté, corail onshore).</p>
+    <div class="hscroll"><div class="hgrid" style="grid-template-columns:${state.cmp?150:96}px repeat(${hrs.length},minmax(54px,1fr));grid-template-rows:42px 96px 44px 58px 62px${state.cmp?' '+'34px '.repeat((state.models||[]).length+(state.windModels||[]).length):''}">${hourlyHtml(day,hrs)}</div></div>
+    <p class="hnote">${windNote(hrs)}Touche une heure : le soleil se place à ce moment de la journée. Couleur des barres : qualité. Flèches : sens du vent (turquoise offshore, ambre de côté, corail onshore).</p>
   </section>
 
   ${radarHtml(s)}
@@ -1271,9 +1288,10 @@ function updateLive(){
   const sc=Math.round(h.score||0);
   $('nowLbl').innerHTML=`${hhmm(state.hour)} · <span style="color:${QHEX[sc]}">${TAGS[sc]}</span>`;
   $('heroHr').textContent=`conditions à ${hhmm(state.hour)}`;
-  $('heroNum').textContent=`${fmt(h.H)} m · ${Math.round(h.T||0)} s`;
+  $('heroNum').textContent=`${fmt(h.H)} m · ${Math.round(h.T||0)} s · ${h.D!=null?sector(h.D):''}`;
   $('szV').textContent=`${fmt(h.H)} m`;
-  $('szP').textContent=`${Math.round(h.T||0)} s · ${periodTxt(h.T||0)}`;
+  $('szP').textContent=`${h.D!=null?sector(h.D)+' · ':''}${Math.round(h.T||0)} s · ${periodTxt(h.T||0)}`;
+  $('szS').textContent=h.sec?`+ ${h.sec.kind} ${fmt(h.sec.H)} m · ${Math.round(h.sec.T)} s${h.sec.D!=null?' · '+sector(h.sec.D):''}`:'';
   $('wdL').textContent=windWord[h.wind]; $('wdL').style.color=windCol(h.wind);
   $('wdS').textContent=`${Math.round(h.v)} km/h, de ${sector(h.wd)}${h.gust?' · rafales '+Math.round(h.gust):''}`;
   const exact=exactTides(state.spot,day.date); const ex=exact||extremes(day.list).map(x=>({t:x.t,type:x.t==='Pleine mer'?'PM':'BM',hm:x.h+'h',hd:x.h}));

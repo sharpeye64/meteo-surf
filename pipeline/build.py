@@ -66,8 +66,17 @@ def main():
         meta["sources"]["tides"] = "Calcul harmonique indépendant à partir des mesures REFMAR (© Shom, Licence Ouverte)"
 
     # Correction bouée : décroît de la valeur mesurée à 0 sur BUOY_CORRECTION_HOURS.
-    now = pd.Timestamp(datetime.now()).floor("h")
+    now = pd.Timestamp.now(tz=config.TIMEZONE).tz_localize(None).floor("h")  # heure locale, comme les prévisions
     ratio = gascogne and gascogne.get("ratio")
+    # La correction part de l'heure de la dernière mesure (pas de « maintenant ») : une mesure déjà ancienne
+    # ne corrige donc que les heures qui la suivent.
+    if ratio and gascogne.get("latest"):
+        t_obs = pd.Timestamp(gascogne["latest"]["time"]).floor("h")
+        if (now - t_obs) / pd.Timedelta("1h") > config.BUOY_MAX_AGE_HOURS:
+            ratio = None
+            meta["errors"]["gascogne_age"] = "mesure de la bouée trop ancienne : modèles non corrigés"
+        else:
+            now = t_obs
     corr = [1.0] * len(times)
     if ratio:
         for j, t in enumerate(times):

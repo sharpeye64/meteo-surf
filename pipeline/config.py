@@ -48,7 +48,8 @@ GASCOGNE = {"id": "62001", "lat": 45.2, "lon": -5.0,
 # Correction des modèles à partir de la bouée : fenêtre de comparaison et bornes de sécurité.
 BUOY_COMPARE_HOURS = 12
 BUOY_RATIO_BOUNDS = (0.75, 1.35)
-BUOY_CORRECTION_HOURS = 24  # la correction décroît linéairement jusqu'à 0 sur cette durée
+BUOY_CORRECTION_HOURS = 24  # la correction décroît linéairement jusqu'à 0 sur cette durée, à partir de la mesure
+BUOY_MAX_AGE_HOURS = 36     # au-delà, la mesure est trop ancienne : on ne corrige pas les modèles
 
 # Ports de marée : les constantes harmoniques sont calculées par tools/fit_tides.py
 # à partir des mesures REFMAR (Shom, Licence Ouverte) déposées dans tides/raw/.
