@@ -47,8 +47,8 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
 - `pipeline/seo.py` (appelé par `build.py`, jamais bloquant) écrit `web/spots/<slug>/index.html` (une page par spot avec vrai
   texte, tableau des 7 jours, JSON-LD, balises canonical/Open Graph, spots voisins), `web/spots/index.html` (index par région),
   `web/sitemap.xml`, `web/robots.txt`. Ces fichiers sont générés (ignorés par git) et publiés avec le site.
-- L'adresse publique vient de `config.SITE_URL` (variable `METEO_SITE_URL` dans `.github/workflows/update.yml`) : à régler sur
-  le nom de domaine définitif, puis ajouter un fichier `web/CNAME`. Les pages de spots mènent à `./?spot=<slug>` (le site lit ce
+- L'adresse publique est https://houlalah.fr (`config.SITE_URL`, variable `METEO_SITE_URL` dans `.github/workflows/update.yml`, fichier
+  `web/CNAME`). Le DNS et le domaine personnalisé dans Settings > Pages sont réglés à la main par l'utilisateur. Les pages de spots mènent à `./?spot=<slug>` (le site lit ce
   paramètre, met à jour le titre de l'onglet et l'adresse selon le spot).
 - À faire quand le domaine est branché : déclarer le sitemap dans Google Search Console / Bing Webmaster, image de partage
   (og:image), vérifier les Core Web Vitals (l'océan WebGL est lourd sur mobile).

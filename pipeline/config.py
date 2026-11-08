@@ -10,7 +10,7 @@ HISTORY_DIR = ROOT / "history"  # archive prévision/réalité (branche git « h
 
 # Adresse publique du site (pages de référencement, sitemap). À remplacer par le nom de domaine une fois branché :
 # variable METEO_SITE_URL dans .github/workflows/update.yml.
-SITE_URL = os.environ.get("METEO_SITE_URL", "https://sharpeye64.github.io/meteo-surf").rstrip("/")
+SITE_URL = os.environ.get("METEO_SITE_URL", "https://houlalah.fr").rstrip("/")
 
 TIMEZONE = "Europe/Paris"
 FORECAST_DAYS = 7

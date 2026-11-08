@@ -42,6 +42,7 @@ jobs:
       - name: Construire forecast.json
         env:
           METEO_ARCHIVE: "1"
+          METEO_SITE_URL: "https://houlalah.fr"
         run: python -m pipeline.build
       - name: Enregistrer l'archive
         continue-on-error: true   # un échec d'archivage ne doit jamais empêcher la publication du site
