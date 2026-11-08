@@ -18,7 +18,7 @@
 :root{transition:--amb .8s ease,--ambSun .8s ease}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--abyss)}
-body{margin:0;background:radial-gradient(1400px 900px at 70% 620px,color-mix(in srgb,var(--amb) 34%,transparent),transparent 70%),radial-gradient(900px 700px at 10% 1500px,color-mix(in srgb,var(--ambSun) 12%,transparent),transparent 70%),var(--abyss);background-attachment:scroll;color:var(--text);font-family:Manrope,system-ui,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body{margin:0;background:radial-gradient(1500px 760px at 70% 980px,color-mix(in srgb,var(--amb) 28%,transparent),transparent 70%),radial-gradient(900px 700px at 10% 1500px,color-mix(in srgb,var(--ambSun) 12%,transparent),transparent 70%),var(--abyss);background-attachment:scroll;color:var(--text);font-family:Manrope,system-ui,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
 h1,h2,h3,.disp{font-family:Unbounded,system-ui,sans-serif;margin:0;letter-spacing:-.02em}
 button,input{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:10px}
@@ -867,20 +867,20 @@ function initOcean(canvas){
       vec3 sss=wS*vec3(.6,1.1,1.05)*pow(crest,3.)*.55*(.4+.6*max(sd.y,0.))*(1.-night*.7);
       col=body*(.55+.45*crest)+sss;
       col+=sun*max(dot(n,sd),0.)*.07*(1.-night);
-      col=mix(col,rs,fres*.85);
+      col=mix(col,rs,fres*.78);
       float sp=max(dot(rf,sd),0.);
       /* chemin de lumière : micro-facettes qui scintillent sous le soleil */
       vec3 nm=normalize(n+vec3(noise(p.xz*2.3+vec2(t*1.4,0.))-.5,0.,noise(p.xz*2.1+vec2(0.,-t*1.2)+7.)-.5)*.32);
       float sp2=max(dot(reflect(rd,nm),sd),0.);
-      float tw=step(.86,hash(floor(gl_FragCoord.xy/1.5)+floor(t*7.)*vec2(1.7,9.2)));
+      float tw=smoothstep(.74,.96,noise(gl_FragCoord.xy/2.6+vec2(t*4.,-t*6.)));
       col+=sun*(pow(sp2,200.)*2.4*tw*(.35+.65*lowSun()) + pow(sp,1400.)*5. + pow(sp,90.)*.3*(.3+.7*lowSun()) + pow(sp,14.)*.05)*(1.-night*.6);
       float foam=smoothstep(.72,1.,crest)*smoothstep(.25,1.,amp)*exp(-dist*.02)*smoothstep(.45,.75,fbm(p.xz*.35+t*.2));
       col=mix(col,vec3(.88,.92,.95)*(1.-night*.6),foam*.55);
-      col=mix(col,sB,(1.-exp(-dist*.0035))*.85);
+      col=mix(col,mix(sB,wD*1.5+vec3(.02),.28),(1.-exp(-dist*.0035))*.82);
     }
     col=mix(col,1.-exp(-col*1.7),.55);
     vec2 v=gl_FragCoord.xy/r-.5; col*=1.-.22*dot(v,v)*1.8;
-    gl_FragColor=vec4(pow(col,vec3(.98)),1.);
+    col=pow(col,vec3(.98)); col+=(hash(gl_FragCoord.xy+fract(t))-.5)/255.; gl_FragColor=vec4(col,1.);
   }`;
   const mk=(type,src)=>{const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;};
   try{
