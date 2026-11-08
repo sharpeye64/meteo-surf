@@ -29,7 +29,10 @@ def fake_get(url, params, tries=3):
                   "wind_wave_period": [5] * len(tt), "wind_wave_direction": [270] * len(tt),
                   "sea_level_height_msl": [math.sin(i / 12.42 * 2 * math.pi) for i in range(len(tt))],
                   "sea_surface_temperature": [16.8] * len(tt)}
-        return [{"hourly": hourly}] * n
+        res = [{"hourly": hourly}] * n
+        if params.get("models") == "ncep_gfswave025":  # maille « terre » : 0,00 m sur tout le premier point
+            res = [{"hourly": {**hourly, "wave_height": [0.0] * len(tt)}}] + res[1:]
+        return res
     hourly = {"time": TIMES}
     for _k, _l, api in config.WIND_MODELS:
         hourly[f"wind_speed_10m_{api}"] = [10 + i % 12 for i in range(len(TIMES))]
@@ -102,6 +105,10 @@ def fake_ndbc(*a, **k):
     return FakeResp("\n".join(lines))
 
 
+import os, tempfile
+_hist = tempfile.mkdtemp()
+os.environ["METEO_HISTORY_DIR"] = _hist     # archive de test : jamais dans le vrai dossier history/
+os.environ["METEO_ARCHIVE"] = "1"
 openmeteo.get = fake_get
 marc.open_dataset = fake_marc
 buoy.requests.get = fake_buoy_get
@@ -117,6 +124,39 @@ assert all(v is not None for v in w0), "le vent doit être complété quand AROM
 assert data["spots"][0]["marine"]["secondary_swell_wave_height"][0] == 0.4
 d0 = data["spots"][0]["daily"]
 assert d0["sunrise"][0].endswith("T08:05") and d0["sunset"][0].endswith("T17:50") and len(d0) == 3, d0.keys()
+# --- archive prévision/réalité : le passage a été enregistré, la fiabilité est « en cours de collecte »
+from pathlib import Path
+from pipeline import history
+runs = list((Path(_hist) / "runs").glob("*.jsonl")); obsf = list((Path(_hist) / "obs").glob("*.json"))
+assert runs and obsf, "l'archive doit contenir le passage et les mesures de la bouée"
+rec = json.loads(runs[0].read_text().splitlines()[0]); assert {"mfwam", "ecmwf"} <= set(rec["models"]) and "gfs" not in rec["models"], rec["models"].keys()  # gfs : maille terre simulée au point de la bouée
+assert data["reliability"]["status"] == "collecting", data["reliability"]
+
+# --- fiabilité : biais connus → chiffres attendus (mfwam +0,2 m, gfs −0,4 m par rapport à la mesure)
+_d2 = tempfile.mkdtemp(); T0 = pd.Timestamp("2026-10-01 00:00")
+truth = lambda t: 1.5 + 0.5 * math.sin(t / 10)
+hours = [T0 + pd.Timedelta(hours=h) for h in range(24 * 12)]
+history.record("2026-10-12T00:00", None, [{"t": t.strftime("%Y-%m-%dT%H:%M"), "hs": truth(i)} for i, t in enumerate(hours)], _d2)
+for r in range(0, 24 * 6, 3):
+    issued = T0 + pd.Timedelta(hours=r)
+    fc = {"mfwam": {"t0": issued.strftime("%Y-%m-%dT%H:00"), "hs": [truth(r + k) + 0.2 for k in range(97)]},
+          "gfs": {"t0": issued.strftime("%Y-%m-%dT%H:00"), "hs": [truth(r + k) - 0.4 for k in range(97)]}}
+    history.record(issued.strftime("%Y-%m-%dT%H:00"), fc, None, _d2)
+rel = history.reliability("2026-10-08 00:00", _d2)
+l24 = rel["leads"]["24"]
+assert rel["status"] == "ok" and rel["days_collected"] == 8, rel
+assert abs(l24["models"]["mfwam"]["bias"] - 0.2) < 0.02 and l24["models"]["mfwam"]["within30"] == 1.0, l24
+assert abs(l24["models"]["gfs"]["bias"] + 0.4) < 0.02 and l24["models"]["gfs"]["within30"] == 0.0, l24
+assert 0.04 < l24["mix"]["bias"] < 0.14, l24["mix"]   # (0,25×0,2 + 0,05×(−0,4)) / 0,30 ≈ +0,10
+print("fiabilité OK · mix 24 h :", l24["mix"])
+
+coef = data["tide_coef"]
+assert coef and len(coef) >= 6 and all(20 <= c <= 125 for v in coef.values() for c in v), coef
+print("coefficients :", {d[5:]: v for d, v in list(coef.items())[:3]})
+names = [s["name"] for s in data["spots"]]
+assert "gfs" not in data["spots"][0]["wave_models"], "un modèle à 0,00 m partout (maille terre) doit être écarté"
+assert any("gfs" in s["wave_models"] for s in data["spots"][1:]), "GFS doit rester là où il est valide"
+assert any("marc" in s["wave_models"] for s in data["spots"]), "MARC doit être présent"
 print("vent complété sur", len(w0), "heures · houle secondaire présente")
 assert data["gascogne"]["latest"]["hs"] > 0 and len(data["gascogne"]["obs"]) >= 24
 

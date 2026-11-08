@@ -2,6 +2,7 @@
 
     python -m tools.get_refmar socoa      # écrit tides/raw/socoa.txt
     python -m tools.get_refmar boucau     # écrit tides/raw/boucau.txt
+    python -m tools.get_refmar brest      # écrit tides/raw/brest.txt (sert au coefficient de marée)
 
 Données « validées temps différé » (une mesure toutes les 10 min, heure UTC). Elles sont publiées avec
 quelques mois de retard : par défaut on prend les 12 mois qui se terminent il y a 90 jours.
@@ -16,7 +17,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parent.parent
 URL = "https://services.data.shom.fr/maregraphie/observation/json/{}"
-STATIONS = {"socoa": 95, "boucau": 94}  # numéros REFMAR : Saint-Jean-de-Luz Socoa, Bayonne Boucau
+STATIONS = {"socoa": 95, "boucau": 94, "brest": 3}  # numéros REFMAR : Socoa, Bayonne Boucau, Brest (port de référence des coefficients)
 SOURCE_VALIDEE_10MIN = 3
 
 

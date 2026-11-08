@@ -10,7 +10,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from . import buoy, config, marc, openmeteo, tides
+from . import buoy, config, history, marc, openmeteo, tides
 
 
 def log(msg):
@@ -50,6 +50,19 @@ def main():
         meta["errors"]["gascogne"] = str(e)[:300]
         log(f"  bouée indisponible : {e}")
 
+    # Archive prévision/réalité : fiabilité mesurée sur les 30 derniers jours, puis ajout du passage en cours.
+    now_local = pd.Timestamp.now(tz=config.TIMEZONE).tz_localize(None).floor("h")
+    reliability = None
+    try:
+        reliability = history.reliability(now_local)
+        if history.archiving_enabled() and gascogne:
+            fc = openmeteo.models_at_point(gascogne["lat"], gascogne["lon"], now_local.strftime("%Y-%m-%dT%H:00"))
+            history.record(now_local.strftime("%Y-%m-%dT%H:00"), fc, gascogne.get("obs"))
+            log(f"  archive : {len(fc)} modèles, {len(gascogne.get('obs') or [])} mesures de la bouée")
+    except Exception as e:
+        meta["errors"]["history"] = str(e)[:300]
+        log(f"  archive indisponible : {e}")
+
     log("Marées (calcul harmonique)")
     start = times[0][:10] + "T00:00"
     tide_ports = {}
@@ -62,6 +75,13 @@ def main():
                 meta["errors"][f"tide_{port}"] = "constantes absentes : lancer tools/fit_tides.py"
         except Exception as e:
             meta["errors"][f"tide_{port}"] = str(e)[:300]
+    tide_coef = None
+    try:
+        tide_coef = tides.coefficients(start, config.FORECAST_DAYS)
+        if tide_coef is None:
+            meta["errors"]["tide_coef"] = "constantes de Brest absentes : lancer tools/get_refmar.py brest puis fit_tides"
+    except Exception as e:
+        meta["errors"]["tide_coef"] = str(e)[:300]
     if tide_ports:
         meta["sources"]["tides"] = "Calcul harmonique indépendant à partir des mesures REFMAR (© Shom, Licence Ouverte)"
 
@@ -93,7 +113,7 @@ def main():
     out_spots = []
     for i, s in enumerate(spots):
         d = om[i]
-        models = {k: v for k, v in d["wave_models"].items() if v}
+        models = {k: v for k, v in d["wave_models"].items() if v and any(x is not None for x in v)}
         if marc_data and any(v is not None for v in marc_data[i]["hs"]):
             models = {"marc": marc_data[i]["hs"], **models}
         mix = []
@@ -126,7 +146,7 @@ def main():
     meta["wave_models"] = [{"key": k, "label": labels[k]} for k in labels]
     meta["wind_models"] = [{"key": k, "label": l} for k, l, _a in config.WIND_MODELS]
     meta["buoy_correction"] = ratio
-    payload = {"meta": meta, "gascogne": gascogne, "spots": out_spots}
+    payload = {"meta": meta, "gascogne": gascogne, "tide_coef": tide_coef, "reliability": reliability, "spots": out_spots}
     config.OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     config.OUTPUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
     size = config.OUTPUT_FILE.stat().st_size / 1024

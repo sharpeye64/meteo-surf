@@ -3,4 +3,5 @@ __pycache__/
 .venv/
 web/data/forecast.json
 tides/raw/*
+history/
 !tides/raw/.gitkeep

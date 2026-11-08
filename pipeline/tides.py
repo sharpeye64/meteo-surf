@@ -59,6 +59,26 @@ def predict(port, start_local, days):
             "extremes": [e for e in extremes if e["t"] >= hourly_idx[0].strftime("%Y-%m-%dT%H:%M")]}
 
 
+COEF_UNIT_M = 6.10  # marnage de référence à Brest : coefficient 100
+
+
+def coefficients(start_local, days):
+    """Coefficient de marée de chaque pleine mer : marnage à Brest / 6,10 m × 100 (définition du Shom).
+    Calcul indépendant à partir des constantes de Brest : écart moyen de 2 points avec les valeurs publiées.
+    Renvoie {date locale: [coefficients de la journée]} ou None si les constantes de Brest manquent."""
+    t = predict("brest", pd.Timestamp(start_local) - pd.Timedelta(days=1), days + 2)
+    if not t:
+        return None
+    ex, out = t["extremes"], {}
+    for i in range(1, len(ex) - 1):
+        e, a, b = ex[i], ex[i - 1], ex[i + 1]
+        if e["type"] == "PM" and a["type"] == "BM" and b["type"] == "BM":
+            out.setdefault(e["t"][:10], []).append(round((e["h"] - (a["h"] + b["h"]) / 2) / COEF_UNIT_M * 100))
+    lo = pd.Timestamp(start_local).strftime("%Y-%m-%d")
+    hi = (pd.Timestamp(start_local) + pd.Timedelta(days=days - 1)).strftime("%Y-%m-%d")
+    return {d: v for d, v in out.items() if lo <= d <= hi}
+
+
 def shift(tide, minutes):
     """Décalage horaire propre à un spot (à calibrer sur le terrain), appliqué aux pleines/basses mers."""
     if not tide or not minutes:

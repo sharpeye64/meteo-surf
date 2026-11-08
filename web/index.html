@@ -74,19 +74,38 @@ button,input{font:inherit;color:inherit}
 .spotbtn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:800;color:#fff;padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.45)}
 .spotbtn:hover{border-bottom-color:#fff}.spotbtn:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:4px}
 .verdict{margin:2px 0 0;display:flex;align-items:baseline;gap:6px 18px;flex-wrap:wrap;line-height:1;text-shadow:0 2px 30px rgba(0,0,0,.45)}
-.verdict .vq{font-family:Unbounded,system-ui,sans-serif;font-weight:800;font-size:clamp(36px,5.6vw,68px);letter-spacing:-.02em}
+.verdict .vq{color:#fff;font-family:Unbounded,system-ui,sans-serif;font-weight:800;font-size:clamp(36px,5.6vw,68px);letter-spacing:-.02em}
 .verdict .vn{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:clamp(20px,2.6vw,30px);color:#fff}
 .slot{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;font-size:16px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .slot .chip{font-size:14px;font-weight:800;padding:6px 12px;border-radius:999px;color:#0B1A14;text-shadow:none}
 .slot .chip.none{background:rgba(4,18,26,.6);color:#fff;border:1px solid var(--edge)}
+.slot .chip.a3{background:#45C4B0}.slot .chip.a2{background:#F5C451}.slot .chip.a1{background:#FF7A45}
+.slot .trk{color:#CFE2E5;font-size:14px;font-weight:700;text-decoration:underline dotted;text-underline-offset:3px}.slot .trk:hover{color:#fff}
+.slot .tipbtn{margin-left:-4px}
+.dots{display:inline-flex;gap:3px;align-items:center}.dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.22)}
+.dots.a3 i.on{background:#45C4B0}.dots.a2 i.on{background:#F5C451}.dots.a1 i.on{background:#FF7A45}
+.hacc{border-top:1px solid var(--edge)}
+.hwave span{background:#8ED0EC}
+.wkp .cf{font-size:10px;font-weight:700;color:#9FB7BD;min-height:12px;white-space:nowrap}
+.rel{margin-top:34px}
+.relgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr);gap:14px;margin-top:10px}
+@media (max-width:900px){.relgrid{grid-template-columns:1fr}}
+.relc{border-radius:24px;border:1px solid var(--edge);background:rgba(255,255,255,.035);padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.relc .rk{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--muted)}
+.rm{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13px;font-weight:600}
+.rm .bar{height:6px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden}.rm .bar i{display:block;height:100%;background:#8ED0EC;border-radius:6px}
+.rm b{font-family:Unbounded,system-ui,sans-serif;font-size:13px}
+.rnote{font-size:13px;color:#9FB7BD;margin:0}.rbig{font-family:Unbounded,system-ui,sans-serif;font-weight:800;font-size:20px;margin:0}
+.rtab{width:100%;border-collapse:collapse;font-size:12.5px}.rtab th,.rtab td{padding:6px 4px;text-align:left;border-bottom:1px solid var(--edge)}
+.rtab thead th{font-size:11px;color:var(--muted);font-weight:700}.rtab tbody th{font-weight:800}
+.rsrc{margin:0;padding-left:18px;font-size:13px;color:#CFE2E5;display:flex;flex-direction:column;gap:6px}
 .ans .val{font-family:Unbounded,system-ui,sans-serif;font-weight:800;font-size:clamp(20px,2.6vw,30px);line-height:1.1;margin-top:6px;letter-spacing:-.01em}
 .ans .sub{font-size:14px;color:#CFE2E5;margin-top:4px;font-weight:600}
 .ans .sub2{font-size:13px;color:#9FB7BD;margin-top:2px}.ans .sub2:empty{display:none}
 .week7{display:flex;gap:8px;margin-top:4px;max-width:1000px}
-.wkp{flex:1 1 0;min-width:0;cursor:pointer;border-radius:14px;border:1px solid var(--edge);background:color-mix(in srgb,var(--tint) 22%,rgba(4,18,26,.62));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit}
+.wkp{flex:1 1 0;min-width:0;cursor:pointer;border-radius:14px;border:1px solid var(--edge);background:rgba(4,18,26,.62);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit}
 .wkp .d{font-size:12px;font-weight:700;color:#CFE2E5}.wkp .m{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:14px}
-.wkp .q{width:18px;height:4px;border-radius:4px;background:var(--tint)}
-.wkp:hover{border-color:color-mix(in srgb,var(--tint) 70%,transparent)}
+.wkp:hover{border-color:rgba(255,255,255,.5)}
 .wkp[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 1px #fff}
 @media (max-width:520px){ .answers{grid-template-columns:1fr!important;gap:8px} #tSize{grid-column:auto!important}
   .ans{display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center;gap:2px 10px;padding:10px 14px 10px 16px;border-radius:16px}
@@ -293,7 +312,7 @@ footer a{color:var(--aqua)}
 .hhead .h2s{margin-right:auto}
 .hnow{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:15px}
 .hscroll{overflow-x:auto;border-radius:24px;border:1px solid color-mix(in srgb,var(--ambSun) 20%,rgba(255,255,255,.1));background:rgba(6,20,28,.78);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-.hgrid{display:grid;grid-template-rows:42px 96px 44px 58px 62px;min-width:980px;position:relative}
+.hgrid{display:grid;grid-template-rows:42px 96px 44px 26px 58px 62px;min-width:980px;position:relative}
 .hlab{grid-column:1;position:sticky;left:0;z-index:3;display:flex;align-items:center;padding:0 14px;font-size:12px;font-weight:800;color:var(--muted);background:rgba(6,20,28,.96);border-right:1px solid var(--edge);letter-spacing:.02em}
 .hlab small{font-weight:600;margin-left:4px;opacity:.8}
 .hc{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:inherit;font:inherit;padding:0;cursor:pointer}
@@ -513,7 +532,7 @@ async function enrich(i){
 async function loadServer(){
   const r=await fetch('data/forecast.json',{cache:'no-cache'}); if(!r.ok) throw new Error('forecast.json '+r.status);
   const j=await r.json(); const byName={}; j.spots.forEach(x=>byName[x.name]=x);
-  state.meta=j.meta; state.gascogne=j.gascogne; state.tides={};
+  state.meta=j.meta; state.gascogne=j.gascogne; state.tides={}; state.reliability=j.reliability||null; state.coef=j.tide_coef||{};
   state.raw=SPOTS.map((s,i)=>{ const x=byName[s.name]; if(!x) throw new Error('spot absent : '+s.name);
     state.tides[i]=x.tide; return { m:{hourly:x.marine,_models:x.wave_models}, w:{hourly:x.wind,daily:x.daily,_models:x.wind_models}, done:true }; });
   const present=k=>state.raw.some(r=>r.m._models&&r.m._models[k]);
@@ -522,7 +541,7 @@ async function loadServer(){
   state.mode='server';
   state.data=SPOTS.map((s,i)=>analyse(s,state.raw[i].m,state.raw[i].w));
 }
-async function load(){ try{ await loadServer(); } catch(e){ console.info('Mode direct (pas de forecast.json) :', e.message); state.mode='live'; state.tides={}; await loadLive(); } }
+async function load(){ try{ await loadServer(); } catch(e){ console.info('Mode direct (pas de forecast.json) :', e.message); state.mode='live'; state.tides={}; state.coef={}; state.reliability=null; await loadLive(); } }
 // Pleines et basses mers à la minute (calcul harmonique) pour un jour donné, sinon null.
 function exactTides(i,date){ const t=state.tides&&state.tides[i]; if(!t) return null;
   return t.extremes.filter(x=>x.t.slice(0,10)===date).map(x=>({t:x.type==='PM'?'Pleine mer':'Basse mer', type:x.type, hm:x.t.slice(11,13)+'h'+x.t.slice(14,16), hd:+x.t.slice(11,13)+(+x.t.slice(14,16))/60, h:x.h})); }
@@ -649,21 +668,32 @@ const QC = ['var(--q0)','var(--q1)','var(--q2)','var(--q3)','var(--q4)'];
 const QHEX = ['#55626A','#7FA7C4','#45C4B0','#F5C451','#FF7A45'];
 const qpill = sc => `<span class="qpill" style="background:${QC[sc]};${sc<2?'color:#fff':''}">${TAGS[sc]}</span>`;
 const windWord = {lisse:'Glassy', offshore:'Offshore', 'side-off':'Side-off', 'de côté':'De côté', onshore:'Onshore'};
-const HEAD = ['Pas de surf','Micro-surf','Petit surf','Bon surf','Très bon surf'];
-function headline(day){ if(!day.list||day.tag==='—') return 'Pas de données'; if(day.verdict.startsWith('Ça sature')) return 'Trop gros'; return (day.score||0)<0.6?'Pas de surf':HEAD[day.sc]; }
 function tidePhase(h){ return h.phase==='basse'?'Basse':h.phase==='haute'?'Haute':h.phase==='mi'?(h.rising?'Montante':'Descendante'):'—'; }
-function reasonOf(h){
-  const sw = (h.T||0)>=11?'houle longue':(h.T||0)>=8?'houle moyenne':'mer du vent';
-  const wi = {lisse:'pas de vent', offshore:'vent de terre', 'side-off':'vent side-off', 'de côté':'vent de côté', onshore:'vent de mer'}[h.wind]||'';
-  const td = h.phase==='mi'?(h.rising?'marée montante':'marée descendante'):h.phase?'marée '+h.phase:'';
-  return [sw,wi,td].filter(Boolean).join(', ');
+const AGREE_TXT = ['','faible','moyen','fort'];
+/* Accord des modèles de houle à une heure donnée : écart entre le plus bas et le plus haut, comparé à 15 % de la hauteur. */
+function agreeOf(h){
+  const vs=Object.values(h.models||{}).filter(v=>v!=null); if(vs.length<2) return null;
+  const mn=Math.min(...vs), mx=Math.max(...vs), mean=vs.reduce((x,y)=>x+y,0)/vs.length, sp=mx-mn, tol=Math.max(0.15,0.15*mean);
+  return {lvl: sp<=tol?3:sp<=2*tol?2:1, sp, mn, mx, n:vs.length};
 }
-function slotHtml(day,k){
-  if(!day.list||day.tag==='—') return '';
-  if(day.verdict.startsWith('Ça sature')) return `<span class="chip none">Pas de créneau</span>Trop gros pour ce spot : cherche un spot plus abrité.`;
-  if((day.score||0)<0.6||!day.win) return `<span class="chip none">Pas de créneau</span>Vagues trop petites pour ce spot ${k===0?'aujourd’hui':'ce jour-là'}.`;
-  const a=day.win[0].hour, b=day.win[day.win.length-1].hour+1, past=k===0&&new Date().getHours()>=b;
-  return `<span class="chip" style="background:${QHEX[day.sc]}">Meilleur créneau ${a}h – ${b}h${past?' (passé)':''}</span>${reasonOf(day.best)}`;
+function dotsHtml(l){ return l?`<span class="dots a${l}" role="img" aria-label="Accord des modèles : ${AGREE_TXT[l]}"><i class="on"></i><i class="${l>=2?'on':''}"></i><i class="${l>=3?'on':''}"></i></span>`:''; }
+function dayMed(day){ const v=day.list.filter(h=>h.hour>=8&&h.hour<=19&&h.H!=null).map(h=>h.H).sort((x,y)=>x-y); return v.length?v[Math.floor(v.length/2)]:null; }
+function dayAgree(day){ const l=day.list.filter(h=>h.hour>=8&&h.hour<=19).map(agreeOf).filter(Boolean); return l.length?clamp(Math.round(l.reduce((x,y)=>x+y.lvl,0)/l.length),1,3):0; }
+function weekPill(x,j,k){
+  const m=dayMed(x), cf=state.coef&&state.coef[x.date], c=cf&&cf.length?Math.max(...cf):null, ag=dayAgree(x);
+  const lab=j===0?'Aujourd’hui':j===1?'Demain':x.label;
+  return `<button class="wkp" data-d="${j}" aria-pressed="${j===k}" aria-label="${lab} : ${m!=null?fmt(m)+' m':'pas de données'}${c?', coefficient '+c:''}${ag?', accord des modèles '+AGREE_TXT[ag]:''}"><span class="d">${j===0?'Auj.':x.label.split(' ')[0]}</span><span class="m">${m!=null?fmt(m):'—'}</span><span class="cf">${c?'coef '+c:''}</span>${dotsHtml(ag)}</button>`;
+}
+function trackLine(){
+  const r=state.reliability; if(!r) return '';
+  const l=r.leads&&r.leads['24'];
+  if(r.status==='ok'&&l) return `Écart mesuré à 24 h : ${fmt2(l.mix.mae)} m (${r.window_days} j, bouée)`;
+  return r.days_collected?`Fiabilité mesurée : collecte en cours (jour ${r.days_collected})`:'Fiabilité mesurée : collecte à venir';
+}
+function trustHtml(ag){
+  const chip = ag ? `<span class="chip a${ag.lvl}">Accord des modèles : ${AGREE_TXT[ag.lvl]}</span>${tip('accord','Que signifie l’accord des modèles ?')}<span>${ag.n} modèles de houle, ${fmt(ag.mn)===fmt(ag.mx)?'tous à '+fmt(ag.mn)+' m':'de '+fmt(ag.mn)+' à '+fmt(ag.mx)+' m'}</span>` : `<span class="chip none">Un seul modèle disponible</span>`;
+  const tl=trackLine();
+  return chip+(tl?`<a class="trk" href="#sRel">${tl}</a>`:'');
 }
 const slotOf = h => h<11?'ce matin':h<14?'à midi':h<18?'cet après-midi':'en fin de journée';
 const slotOfDay = h => h<11?'matin':h<14?'midi':h<18?'après-midi':'soir';
@@ -935,11 +965,12 @@ const TIPS = {
   taille:'<b>Hauteur significative</b> de la houle au large : la moyenne du tiers des plus grosses vagues. Au bord, elles peuvent paraître plus petites ou plus grosses selon le fond et l’exposition du spot.',
   periode:'<b>Temps entre deux vagues</b>, en secondes. Plus il est long, plus la houle vient de loin et a d’énergie : à hauteur égale, une houle de 14 s pousse bien plus qu’une de 7 s.<br><br>Moins de 8 s : mer du vent, vagues molles et désordonnées. 8 à 11 s : houle moyenne. 11 s et plus : houle longue, vagues puissantes et bien rangées.',
   vent:'<b>Offshore</b> : vent de terre vers la mer, il lisse et creuse les vagues. <b>Onshore</b> : de la mer vers la plage, il les écrase et hache le plan d’eau. <b>Side</b> : parallèle à la plage. <b>Glassy</b> : quasiment pas de vent, mer d’huile.<br><br>Les <b>rafales</b> sont les pointes de vent : un vent moyen faible avec de fortes rafales reste gênant.',
-  maree:'Les heures de <b>pleine mer (PM)</b> et <b>basse mer (BM)</b> sont calculées à la minute par la méthode harmonique, comme le fait le Shom, à partir des mesures des marégraphes officiels (REFMAR). C’est un calcul indépendant, non officiel : compte quelques minutes d’écart possible. <a href="https://maree.shom.fr/" target="_blank" rel="noopener noreferrer">Comparer avec le SHOM ↗</a><br><br>Le <b>pourcentage</b> indique où en est la marée entre la basse mer (0 %) et la pleine mer (100 %) de la journée. Beaucoup de spots ne marchent qu’à certains moments de la marée.<br><br><a href="https://maree.shom.fr/" target="_blank" rel="noopener noreferrer">Horaires officiels du SHOM ↗</a>',
+  maree:'Les heures de <b>pleine mer (PM)</b> et <b>basse mer (BM)</b> sont calculées à la minute par la méthode harmonique, comme le fait le Shom, à partir des mesures des marégraphes officiels (REFMAR). C’est un calcul indépendant, non officiel : compte quelques minutes d’écart possible. <a href="https://maree.shom.fr/" target="_blank" rel="noopener noreferrer">Comparer avec le SHOM ↗</a><br><br>Le <b>coefficient</b> (20 à 120) mesure la taille de la marée : plus il est haut, plus le marnage est grand. C’est un calcul indépendant à partir de Brest, avec un écart moyen de 2 points : pour la valeur officielle, voir le SHOM.<br><br>Le <b>pourcentage</b> indique où en est la marée entre la basse mer (0 %) et la pleine mer (100 %) de la journée. Beaucoup de spots ne marchent qu’à certains moments de la marée.<br><br><a href="https://maree.shom.fr/" target="_blank" rel="noopener noreferrer">Horaires officiels du SHOM ↗</a>',
   eau:'Température de l’eau en surface, issue d’un modèle océanique. Elle peut varier de 1 à 2 °C selon les courants et les remontées d’eau froide.',
   combi:'Conseil indicatif selon la température de l’eau. Les deux chiffres sont l’épaisseur du néoprène : le premier pour le torse (au chaud), le second pour les bras et les jambes (pour la mobilité). Adapte selon ta frilosité et le vent.',
   modeles:'Comme Windguru, on croise plusieurs <b>modèles de vagues</b> : Météo-France MFWAM, DWD EWAM (maille de 5 km sur l’Europe), ECMWF WAM et NOAA GFS-Wave. La taille affichée est une <b>moyenne pondérée</b>, qui donne plus de poids aux modèles les plus fins sur notre côte.<br><br>Le bouton « Comparer les modèles » affiche chaque modèle heure par heure. Le vent vient d’AROME (Météo-France), comparé à ICON, GFS et ECMWF.',
   radar:'La <b>bouée Gascogne</b> (Météo-France) flotte au large, à environ 300 km de la côte. Elle mesure l’état de mer réel : houle et mer du vent mélangées.<br><br>La houle met plusieurs heures à arriver jusqu’aux spots. Sa vitesse dépend de sa <b>période</b> : environ 0,78 × période en m/s, soit à peu près 35 km/h pour une houle de 12 s.<br><br>On compare aussi la bouée aux modèles : s’ils sous-estiment ou surestiment ce qu’elle mesure, on <b>corrige</b> les 24 prochaines heures. Les mesures arrivent avec quelques heures de retard (l’heure de la dernière est affichée), ne sont pas validées et sont filtrées : la période pic, notamment, est parfois aberrante et on la remplace alors par celle du modèle.',
+  accord:'Compare les modèles de houle entre eux pour l’heure choisie : écart entre le plus bas et le plus haut. <b>Fort</b> : moins de 0,15 m (ou 15 %). <b>Moyen</b> : jusqu’au double. <b>Faible</b> : au-delà.<br><br>Attention : des modèles d’accord entre eux ne sont pas forcément justes. Ce que mesure vraiment la fiabilité, c’est l’écart constaté avec la bouée, dans la section « Fiabilité des données ».',
   planche:'Suggestion selon la taille des vagues. Ton niveau, ton gabarit et le spot comptent autant : prends ce qui te fait le plus surfer.'
 };
 let tipN=0;
@@ -967,22 +998,23 @@ function hourlyHtml(day,hrs){
   const winA=day.win&&day.score>=0.6?day.win[0].hour:99, winB=day.win&&day.score>=0.6?day.win[day.win.length-1].hour:-1;
   const mx=Math.max(1,...hrs.map(h=>h.H||0)); let c='';
   const lab=(row,txt)=>`<div class="hlab" style="grid-row:${row}">${txt}</div>`;
-  c+=lab(1,'')+lab(2,'Vagues <small>m</small>')+lab(3,'Période <small>· dir.</small>')+lab(4,'Vent <small>km/h</small>')+lab(5,'Marée');
+  c+=lab(1,'')+lab(2,'Vagues <small>m</small>')+lab(3,'Période <small>· dir.</small>')+lab(4,'Accord')+lab(5,'Vent <small>km/h</small>')+lab(6,'Marée');
   hrs.forEach((h,i)=>{
     const col=i+2, sc=Math.round(h.score||0), nt=(h.hour<Math.floor(rise)||h.hour>Math.floor(set))?' night':'', wn=(h.hour>=winA&&h.hour<=winB)?' win':'';
     const sun = h.hour===Math.floor(rise)?'<span class="hsun">Lever</span>':h.hour===Math.floor(set)?'<span class="hsun">Coucher</span>':'';
     const cls=`hc${nt}${wn}`;
     c+=`<button class="${cls} hhr" data-h="${h.hour}" style="grid-column:${col};grid-row:1" aria-label="${h.hour}h : ${h.H!=null?fmt(h.H)+' m, '+Math.round(h.T)+' s, vent '+Math.round(h.v)+' km/h '+windWord[h.wind]:'pas de données'}">${h.hour}h${sun}</button>`;
-    c+=`<div class="${cls} hwave" data-h="${h.hour}" style="grid-column:${col};grid-row:2"><b>${h.H!=null?fmt(h.H):'—'}</b><span style="height:${h.H!=null?Math.max(6,h.H/mx*58).toFixed(0):0}px;background:${QHEX[sc]}"></span></div>`;
+    c+=`<div class="${cls} hwave" data-h="${h.hour}" style="grid-column:${col};grid-row:2"><b>${h.H!=null?fmt(h.H):'—'}</b><span style="height:${h.H!=null?Math.max(6,h.H/mx*58).toFixed(0):0}px"></span></div>`;
     c+=`<div class="${cls} hper" data-h="${h.hour}" style="grid-column:${col};grid-row:3;opacity:${h.T?clamp(.45+(h.T-6)/10,.45,1):.4}">${h.T?Math.round(h.T)+' s':'—'}${h.D!=null?`<small>${sector(h.D)}</small>`:''}</div>`;
-    c+=`<div class="${cls} hwind" data-h="${h.hour}" style="grid-column:${col};grid-row:4"><svg width="20" height="20" viewBox="-10 -10 20 20" style="transform:rotate(${(h.wd||0)+180}deg)" aria-hidden="true"><path d="M0 -9 L6 5 L0 2 L-6 5 Z" fill="${windCol(h.wind)}"/></svg><span>${h.v!=null?Math.round(h.v):'—'}</span></div>`;
+    c+=`<div class="${cls} hacc" data-h="${h.hour}" style="grid-column:${col};grid-row:4">${dotsHtml((agreeOf(h)||{}).lvl||0)}</div>`;
+    c+=`<div class="${cls} hwind" data-h="${h.hour}" style="grid-column:${col};grid-row:5"><svg width="20" height="20" viewBox="-10 -10 20 20" style="transform:rotate(${(h.wd||0)+180}deg)" aria-hidden="true"><path d="M0 -9 L6 5 L0 2 L-6 5 Z" fill="${windCol(h.wind)}"/></svg><span>${h.v!=null?Math.round(h.v):'—'}</span></div>`;
   });
   const tl=hrs.filter(h=>h.tideN!=null);
   if(tl.length>2){ const n=hrs.length, X=i=>((i+.5)/n*1000), Y=v=>(8+(1-v)*40);
     const pts=hrs.map((h,i)=>h.tideN!=null?[+X(i).toFixed(1),+Y(h.tideN).toFixed(1)]:null).filter(Boolean);
     const d=smooth(pts);
-    c+=`<div class="htide" style="grid-column:2/-1;grid-row:5"><svg viewBox="0 0 1000 56" preserveAspectRatio="none" aria-hidden="true"><path d="${d} L${pts[pts.length-1][0]} 56 L${pts[0][0]} 56 Z" fill="rgba(182,166,255,.18)"/><path d="${d}" fill="none" stroke="var(--lilac)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>${(exactTides(state.spot,day.date)||extremes(day.list).map(x=>({type:x.t==='Pleine mer'?'PM':'BM',hm:x.h+'h',hd:x.h}))).filter(x=>x.hd>=6&&x.hd<=21.5).map(x=>`<span class="hext" style="left:${((x.hd-6+.5)/n*100).toFixed(2)}%;top:${x.type==='PM'?2:30}px">${x.type} ${x.hm}</span>`).join('')}</div>`; }
-  let row=6;
+    c+=`<div class="htide" style="grid-column:2/-1;grid-row:6"><svg viewBox="0 0 1000 56" preserveAspectRatio="none" aria-hidden="true"><path d="${d} L${pts[pts.length-1][0]} 56 L${pts[0][0]} 56 Z" fill="rgba(182,166,255,.18)"/><path d="${d}" fill="none" stroke="var(--lilac)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>${(exactTides(state.spot,day.date)||extremes(day.list).map(x=>({type:x.t==='Pleine mer'?'PM':'BM',hm:x.h+'h',hd:x.h}))).filter(x=>x.hd>=6&&x.hd<=21.5).map(x=>`<span class="hext" style="left:${((x.hd-6+.5)/n*100).toFixed(2)}%;top:${x.type==='PM'?2:30}px">${x.type} ${x.hm}</span>`).join('')}</div>`; }
+  let row=7;
   if(state.cmp){
     (state.models||[]).forEach(md=>{ c+=lab(row,`<span class="mlab">${md.label}</span>`); hrs.forEach((h,i)=>{ const v=h.models?.[md.key]; c+=`<div class="hc hm${(h.hour>=winA&&h.hour<=winB)?' win':''}" data-h="${h.hour}" style="grid-column:${i+2};grid-row:${row}">${v!=null?fmt(v):'—'}</div>`; }); row++; });
     (state.windModels||[]).forEach(md=>{ c+=lab(row,`<span class="mlab">Vent ${md.label.replace('Météo-France ','').replace('DWD ','').replace('NOAA ','').replace('ECMWF ','ECMWF ')}</span>`); hrs.forEach((h,i)=>{ const v=h.wmodels?.[md.key]; c+=`<div class="hc hm" data-h="${h.hour}" style="grid-column:${i+2};grid-row:${row}">${v!=null?Math.round(v):'—'}</div>`; }); row++; });
@@ -996,6 +1028,40 @@ function markHour(){
   g.querySelectorAll('.hc.sel').forEach(x=>x.classList.remove('sel')); g.querySelectorAll(`.hc[data-h="${hr}"]`).forEach(x=>x.classList.add('sel'));
   const first=g.querySelector(`.hhr[data-h="${hr}"]`), sel=document.getElementById('hsel');
   if(first&&sel){ sel.style.gridColumn=first.style.gridColumn; }
+}
+const fmt2 = x => x.toFixed(2).replace('.',',');
+const shortModel = l => l.replace('Météo-France ','').replace('DWD ','').replace('NOAA ','').replace('Ifremer ','').replace(' (côtier)',' côtier');
+const dFr = d => d?d.slice(8,10)+'/'+d.slice(5,7):'';
+function relHtml(s){
+  const r=state.reliability, m=state.meta;
+  let tr;
+  if(r&&r.status==='ok'){
+    const rows=['24','48','72','96'].filter(L=>r.leads[L]).map(L=>{ const x=r.leads[L], best=Object.entries(x.models||{}).sort((u,v)=>u[1].mae-v[1].mae)[0];
+      const bl=best?((state.models||[]).find(mm=>mm.key===best[0])||{}).label||best[0]:'—';
+      return `<tr><th scope="row">${L} h avant</th><td>${fmt2(x.mix.mae)} m</td><td>${x.mix.bias>0?'+':''}${fmt2(x.mix.bias)} m</td><td>${Math.round(x.mix.within30*100)} %</td><td>${shortModel(bl)}</td></tr>`; }).join('');
+    tr=`<table class="rtab"><thead><tr><th></th><th>Écart</th><th>Biais</th><th>±0,3 m</th><th>Meilleur</th></tr></thead><tbody>${rows}</tbody></table><p class="rnote">Hauteur de vagues du mélange de modèles, ${r.window_days} derniers jours, comparée à la mesure de la bouée Gascogne (au large). Biais positif : les prévisions voient trop grand.</p>`;
+  } else {
+    tr=`<p class="rbig">Collecte en cours</p><p class="rnote">${r&&r.days_collected?'Depuis le '+dFr(r.since)+' ('+r.days_collected+' j) : ':''}chaque prévision est gardée, puis comparée à la mesure réelle de la bouée. L’écart à 24, 48, 72 et 96 h s’affichera dès qu’il y aura assez de mesures, en général après quelques jours.</p>`;
+  }
+  const gen=m&&m.generated?`${dFr(m.generated.slice(0,10))} à ${m.generated.slice(11,16).replace(':','h')}`:'—';
+  const src = state.mode==='server'
+    ? `<li>Prévisions calculées le ${gen}</li><li>Houle : ${(state.models||[]).length} modèles croisés</li><li>Vent : AROME, puis ICON au-delà d’environ 4 jours</li><li>Marées : calcul sur mesures REFMAR, écart moyen constaté 5 min</li><li>Coefficient : calcul indépendant, écart moyen 2 points</li>`
+    : `<li>Mode secours : sans bouée, sans modèle côtier ni marées exactes</li>`;
+  return `<section class="rel wrap" aria-labelledby="sRel">
+    <div class="hhead"><h2 class="h2s" id="sRel">Fiabilité des données</h2></div>
+    <div class="relgrid">
+      <div class="relc"><div class="rk">Accord des modèles à <span id="relHr">—</span></div><div id="relModels"></div></div>
+      <div class="relc"><div class="rk">Écart constaté sur la houle au large</div>${tr}</div>
+      <div class="relc"><div class="rk">Sources et fraîcheur</div><ul class="rsrc">${src}</ul></div>
+    </div></section>`;
+}
+function relUpdate(h,ag){
+  const el=document.getElementById('relModels'); if(!el) return;
+  const rows=(state.models||[]).map(md=>({l:shortModel(md.label),v:h.models&&h.models[md.key]})).filter(x=>x.v!=null);
+  const mx=Math.max(0.1,...rows.map(x=>x.v));
+  el.innerHTML=rows.map(x=>`<div class="rm"><span>${x.l}</span><span class="bar"><i style="width:${(x.v/mx*100).toFixed(0)}%"></i></span><b>${fmt(x.v)} m</b></div>`).join('')
+    +(ag?`<p class="rnote">Écart entre le plus bas et le plus haut : ${fmt(ag.sp)} m.</p>`:'');
+  const t=document.getElementById('relHr'); if(t) t.textContent=hhmm(state.hour);
 }
 function radarHtml(s){
   const g=state.gascogne; if(!g||!g.latest) return '';
@@ -1178,7 +1244,8 @@ function render(){
   const d=state.data[state.spot], s=d.spot, k=state.day, day=d.days[k];
   const isFav=state.fav.includes(s.name), sst=d.hours.find(h=>h.sst!=null)?.sst;
   const now=new Date();
-  state.hour = (day.score||0)>=0.6 && day.best ? day.best.hour : k===0 ? clamp(now.getHours()+Math.round(now.getMinutes()/15)/4,6,21) : 10;
+  { const rs0=day.sun?hDec(day.sun.rise):8, ss0=day.sun?hDec(day.sun.set):18;
+    state.hour = k===0 ? clamp(now.getHours()+Math.round(now.getMinutes()/15)/4, Math.ceil(rs0), Math.floor(ss0)) : 10; }
   if(day.sun){ ocean.rise=hDec(day.sun.rise); ocean.set=hDec(day.sun.set); }
   Object.assign(ocean,{lat:s.lat,lon:s.lon,ori:s.ori??270,date:day.date}); ocean.setAz=solar(s.lat,s.lon,day.date,day.sun?hDec(day.sun.set):18).az;
   const dayLabel = k===0?'Aujourd’hui':k===1?'Demain':DAYS_LONG[new Date(day.date+'T12:00').getDay()].replace(/^./,c=>c.toUpperCase());
@@ -1200,22 +1267,23 @@ function render(){
     </div>
     <div class="heroBody">
       <p class="spotk in" style="margin:0"><button class="spotbtn" id="spotBtn" aria-label="Changer de spot (actuel : ${s.name})">${s.name} · ${s.region}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><span>${dayLabel} · <span id="heroHr"></span></span></p>
-      <h1 class="verdict in d1"><span class="sr">${s.name} : </span><span class="vq" style="color:${QHEX[day.sc||0]}">${headline(day)}</span><span class="vn" id="heroNum"></span></h1>
-      <p class="slot in d2" style="margin:0">${slotHtml(day,k)}</p>
+      <h1 class="verdict in d1"><span class="sr">${s.name} : </span><span class="vq" id="heroSize">—</span><span class="vn" id="heroNum"></span></h1>
+      <p class="slot in d2" style="margin:0" id="heroTrust"></p>
       <div class="answers in d3" aria-live="polite">
         <div class="ans" id="tSize"><div class="l">Vagues${tip('taille','Que signifie la taille ?')}</div><div class="val" id="szV">—</div><div class="sub" id="szP"></div><div class="sub sub2" id="szS"></div></div>
-        <div class="ans" id="tWind"><div class="l">Vent${tip('vent','Offshore, onshore, rafales : explications')}</div><div class="val" id="wdL">—</div><div class="sub" id="wdS"></div></div>
-        <div class="ans" id="tTide"><div class="l">Marée${tip('maree','Comment lire la marée ?')}</div><div class="val" id="tdV">—</div><div class="sub" id="tdS"></div></div>
+        <div class="ans" id="tWind"><div class="l">Vent${tip('vent','Offshore, onshore, rafales : explications')}</div><div class="val" id="wdL">—</div><div class="sub" id="wdS"></div><div class="sub sub2" id="wdA"></div></div>
+        <div class="ans" id="tTide"><div class="l">Marée${tip('maree','Comment lire la marée ?')}</div><div class="val" id="tdV">—</div><div class="sub" id="tdS"></div><div class="sub sub2" id="tdC"></div></div>
       </div>
-      <nav class="week7 in d3" aria-label="La semaine à ${s.name}">${d.days.map((x,j)=>x.tag==='—'?'':`<button class="wkp" data-d="${j}" aria-pressed="${j===k}" style="--tint:${QHEX[x.sc||0]}" aria-label="${j===0?'Aujourd’hui':j===1?'Demain':x.label} : ${x.tag}${x.avgH?', '+fmt(x.avgH)+' m':''}"><span class="d">${j===0?'Auj.':x.label.split(' ')[0]}</span><span class="m">${x.avgH?fmt(x.avgH):'—'}</span><span class="q"></span></button>`).join('')}</nav>
+      <nav class="week7 in d3" aria-label="La semaine à ${s.name}">${d.days.map((x,j)=>x.tag==='—'?'':weekPill(x,j,k)).join('')}</nav>
     </div>
   </header>
   <section class="hourly wrap" aria-labelledby="sHour">
     <div class="hhead"><h2 class="h2s" id="sHour">Heure par heure</h2><span class="hnow" id="nowLbl"></span>${tip('modeles','D’où viennent les prévisions ?')}<button class="playbtn" id="cmpBtn" aria-pressed="${!!state.cmp}">${state.cmp?'Masquer les modèles':'Comparer les modèles'}</button><button class="playbtn" id="playDay"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>Lancer la journée</button></div>
-    <div class="hscroll"><div class="hgrid" style="grid-template-columns:${state.cmp?150:96}px repeat(${hrs.length},minmax(54px,1fr));grid-template-rows:42px 96px 44px 58px 62px${state.cmp?' '+'34px '.repeat((state.models||[]).length+(state.windModels||[]).length):''}">${hourlyHtml(day,hrs)}</div></div>
-    <p class="hnote">${windNote(hrs)}Touche une heure : le soleil se place à ce moment de la journée. Couleur des barres : qualité. Flèches : sens du vent (turquoise offshore, ambre de côté, corail onshore).</p>
+    <div class="hscroll"><div class="hgrid" style="grid-template-columns:${state.cmp?150:96}px repeat(${hrs.length},minmax(54px,1fr));grid-template-rows:42px 96px 44px 26px 58px 62px${state.cmp?' '+'34px '.repeat((state.models||[]).length+(state.windModels||[]).length):''}">${hourlyHtml(day,hrs)}</div></div>
+    <p class="hnote">${windNote(hrs)}Touche une heure pour la lire dans le haut de page. Points : accord des modèles de houle (3 = fort). Trait doré : créneau le plus favorable d’après les réglages du spot. Flèches : sens du vent (turquoise offshore, ambre de côté, corail onshore).</p>
   </section>
 
+  ${relHtml(s)}
   ${radarHtml(s)}
   <section class="gear wrap" aria-labelledby="sGearT">
     <h2 class="h2s" id="sGearT" style="margin:0 0 12px">L’équipement idéal</h2>
@@ -1285,10 +1353,15 @@ function updateLive(){
   const $=id=>document.getElementById(id);
   ['tideRange'].forEach(id=>{ const el=$(id); if(el && +el.value!==state.hour) el.value=state.hour; });
   if(!h||h.H==null){ $('szV').textContent='—'; return; }
-  const sc=Math.round(h.score||0);
-  $('nowLbl').innerHTML=`${hhmm(state.hour)} · <span style="color:${QHEX[sc]}">${TAGS[sc]}</span>`;
+  const ag=agreeOf(h);
+  $('nowLbl').textContent=hhmm(state.hour);
   $('heroHr').textContent=`conditions à ${hhmm(state.hour)}`;
-  $('heroNum').textContent=`${fmt(h.H)} m · ${Math.round(h.T||0)} s · ${h.D!=null?sector(h.D):''}`;
+  $('heroSize').textContent=`${fmt(h.H)} m`;
+  $('heroNum').textContent=`${Math.round(h.T||0)} s${h.D!=null?' · '+sector(h.D):''}`;
+  $('heroTrust').innerHTML=trustHtml(ag);
+  const wv=Object.values(h.wmodels||{}); $('wdA').textContent=wv.length>1?`${wv.length} modèles : ${Math.round(Math.min(...wv))} à ${Math.round(Math.max(...wv))} km/h`:'';
+  const cfd=state.coef&&state.coef[day.date]; $('tdC').textContent=cfd&&cfd.length?`Coefficient ${cfd.join(' · ')}`:'';
+  relUpdate(h,ag);
   $('szV').textContent=`${fmt(h.H)} m`;
   $('szP').textContent=`${h.D!=null?sector(h.D)+' · ':''}${Math.round(h.T||0)} s · ${periodTxt(h.T||0)}`;
   $('szS').textContent=h.sec?`+ ${h.sec.kind} ${fmt(h.sec.H)} m · ${Math.round(h.sec.T)} s${h.sec.D!=null?' · '+sector(h.sec.D):''}`:'';

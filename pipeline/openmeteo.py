@@ -63,6 +63,12 @@ def fill_wind(wh, var):
     return [next((s[i] for s in series if s and i < len(s) and s[i] is not None), None) for i in range(n)]
 
 
+def valid_hs(values):
+    """Hauteur de vagues = 0,00 m sur toute une série : maille « terre » du modèle (surtout GFS-Wave près de la côte),
+    pas une mer plate. On l'écarte pour ne pas tirer le mélange vers le bas."""
+    return [None if (v is not None and v <= 0.0) else v for v in values]
+
+
 def clean_daily(daily):
     """Avec plusieurs modèles, Open-Meteo suffixe lever/coucher (sunrise_icon_seamless…) : on garde une seule série."""
     out = {"time": daily.get("time", [])}
@@ -109,7 +115,7 @@ def fetch(spots):
 
         out.append({
             "marine": {k: m.get(k) for k in m},
-            "wave_models": {k: v[sea_map[i]]["hourly"]["wave_height"] for k, v in wave_models.items()},
+            "wave_models": {k: valid_hs(v[sea_map[i]]["hourly"]["wave_height"]) for k, v in wave_models.items()},
             "wind": {"time": wh["time"], "wind_speed_10m": pick("wind_speed_10m"),
                      "wind_direction_10m": pick("wind_direction_10m"), "wind_gusts_10m": pick("wind_gusts_10m")},
             "wind_models": {k: wh.get(f"wind_speed_10m_{api}") for k, _l, api in config.WIND_MODELS
@@ -117,6 +123,24 @@ def fetch(spots):
             "daily": clean_daily(w_raw.get("daily", {})),
         })
     return out, wave_labels
+
+
+def models_at_point(lat, lon, from_local, hours=97):
+    """Hauteur de vagues prévue par chaque modèle au point de la bouée, à partir de `from_local` (archive de fiabilité)."""
+    out = {}
+    for key, _label, _w, names in config.WAVE_MODELS:
+        for name in names:
+            try:
+                h = get(MARINE, {"latitude": lat, "longitude": lon, "timezone": config.TIMEZONE, "forecast_days": 6,
+                                 "cell_selection": "sea", "hourly": "wave_height", "models": name})[0]["hourly"]
+            except ValueError:
+                continue
+            i = next((j for j, t in enumerate(h["time"]) if t >= from_local), None)
+            hs = valid_hs(h["wave_height"][i:i + hours]) if i is not None else []
+            if any(x is not None for x in hs):
+                out[key] = {"t0": h["time"][i], "hs": hs}
+            break
+    return out
 
 
 def model_at_point(lat, lon, past_days=2):

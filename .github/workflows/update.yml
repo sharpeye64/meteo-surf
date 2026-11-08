@@ -8,7 +8,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write   # écriture de l'archive sur la branche « history » (jamais sur main)
   pages: write
   id-token: write
 
@@ -29,8 +29,28 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Test hors ligne
         run: python -m tests.test_offline
+      - name: Récupérer l'archive prévision/réalité (branche history)
+        run: |
+          git fetch --depth=1 origin history:history 2>/dev/null || true
+          if git show-ref --verify --quiet refs/heads/history; then
+            git worktree add history history
+          else
+            git worktree add --detach history
+            git -C history checkout --orphan history
+            git -C history rm -rf --quiet . || true
+          fi
       - name: Construire forecast.json
+        env:
+          METEO_ARCHIVE: "1"
         run: python -m pipeline.build
+      - name: Enregistrer l'archive
+        continue-on-error: true   # un échec d'archivage ne doit jamais empêcher la publication du site
+        run: |
+          cd history
+          git add -A
+          if git diff --cached --quiet; then echo "Rien de nouveau à archiver"; exit 0; fi
+          git -c user.name="meteo-surf-bot" -c user.email="actions@users.noreply.github.com" commit -q -m "Archive $(date -u +%FT%TZ)"
+          git push origin HEAD:history
       - uses: actions/upload-pages-artifact@v3
         with:
           path: web

@@ -61,7 +61,9 @@ def fetch(sea_points, target_times_local):
         iy, ix = np.unravel_index(np.argmin(dist), dist.shape)
         cell = sub.isel({lat_n: iy, lon_n: ix})
         src_t = pd.to_datetime(cell["time"].values)
-        x_src, x_dst = src_t.values.astype("int64"), t_utc.values.astype("int64")
+        # Même unité de temps des deux côtés (xarray récent décode en s/ms/µs, pas forcément en ns).
+        x_src = np.asarray(src_t.values, dtype="datetime64[ns]").astype("int64")
+        x_dst = np.asarray(t_utc.values, dtype="datetime64[ns]").astype("int64")
 
         def interp(values, angle=False):
             v = np.asarray(values, dtype=float)

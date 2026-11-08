@@ -26,6 +26,26 @@ Toutes les 3 heures, un robot (GitHub Actions) récupère les données, les croi
 5. Va dans l'onglet **Actions**, ouvre « Mise à jour des prévisions » et clique **Run workflow**.
 6. Au bout de 2 à 3 minutes, le site est en ligne à l'adresse affichée dans **Settings → Pages**.
 
+## Fiabilité mesurée (archive prévision / réalité)
+
+À chaque passage (toutes les 3 h), le robot garde dans la branche `history` du dépôt :
+- la hauteur de vagues prévue par chaque modèle au point de la bouée Gascogne, pour les 96 prochaines heures ;
+- les mesures horaires de la bouée.
+
+Il compare ensuite la prévision faite 24, 48, 72 et 96 h plus tôt à la mesure réelle, et le site affiche l'écart (section « Fiabilité des données »).
+Les chiffres apparaissent après quelques jours de collecte. Limite : la bouée est au large, elle vérifie les modèles de houle, pas le détail près des spots.
+Pour regarder l'archive : branche `history` sur GitHub (dossiers `runs/` et `obs/`).
+
+## Accord des modèles
+
+Pour chaque heure, le site compare les modèles de houle entre eux : fort (écart sous 0,15 m ou 15 %), moyen (jusqu'au double), faible (au-delà).
+Un modèle qui annonce 0,00 m sur toute la série (maille « terre », fréquent avec GFS-Wave près de la côte) est écarté du mélange.
+
+## Coefficient de marée
+
+Calculé pour Brest (station REFMAR 3) : marnage ÷ 6,10 m × 100. Écart moyen de 2 points avec les valeurs publiées (contrôle sur novembre 2026).
+Les constantes se rafraîchissent comme les autres ports : `python -m tools.get_refmar brest` puis `python -m tools.fit_tides tides/raw/brest.txt brest 48.38`.
+
 ## Marées exactes (déjà activées)
 
 Les constantes de Socoa et de Boucau-Bayonne sont dans `tides/constants/`, calculées sur un an de mesures REFMAR validées.

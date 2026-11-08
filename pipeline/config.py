@@ -5,6 +5,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SPOTS_FILE = ROOT / "pipeline" / "spots.json"
 TIDE_CONSTANTS_DIR = ROOT / "tides" / "constants"
 OUTPUT_FILE = ROOT / "web" / "data" / "forecast.json"
+HISTORY_DIR = ROOT / "history"  # archive prévision/réalité (branche git « history » dans GitHub Actions)
 
 TIMEZONE = "Europe/Paris"
 FORECAST_DAYS = 7
