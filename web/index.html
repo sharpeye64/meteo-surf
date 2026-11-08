@@ -5,25 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Houlala — prévisions surf, Lacanau → Hendaye</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2304121A'/%3E%3Cpath d='M8 36c6-12 12-12 18 0s12 12 18 0 8-8 12-4' fill='none' stroke='%23F2D3A2' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
-<meta name="theme-color" content="#04121A">
+<meta name="theme-color" content="#0A1114">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --abyss:#04121A; --deep:#0A2230; --glass:rgba(255,255,255,.07); --glass-2:rgba(255,255,255,.12); --edge:rgba(255,255,255,.14);
-  --text:#F3F1EC; --muted:#B5BFC2; --aqua:#3CD6B4; --gold:#FFB648; --onshore:#FF7A59; --coral:#FF7A59; --sand:#F2D3A2; --lilac:#B6A6FF; --dusk:#2B1C33;
+  --abyss:#0A1114; --deep:#142128; --glass:rgba(255,255,255,.07); --glass-2:rgba(255,255,255,.12); --edge:rgba(255,255,255,.14);
+  --text:#F2EFE8; --muted:#AEB6B4; --aqua:#8DBFB2; --gold:#E4C79B; --onshore:#D98C73; --coral:#D98C73; --sand:#E4C79B; --lilac:#A9A6C9; --dusk:#2B1C33;
   --q0:#55626A; --q1:#7FA7C4; --q2:#45C4B0; --q3:#F5C451; --q4:#FF7A45; --amb:#3A5C70; --ambSun:#FFD27A;
-  --gold-rgb:255,182,72; --aqua-rgb:60,214,180; --lilac-rgb:182,166,255; --coral-rgb:255,122,89; --sand-rgb:242,211,162; --ink-rgb:4,18,26; --ink2-rgb:5,16,23;
+  --gold-rgb:228,199,155; --aqua-rgb:141,191,178; --lilac-rgb:169,166,201; --coral-rgb:217,140,115; --sand-rgb:228,199,155; --ink-rgb:10,17,20; --ink2-rgb:10,17,20;
   color-scheme:dark;
 }
 @property --ambSun{syntax:'<color>';inherits:true;initial-value:#FFD27A}
 :root{transition:--amb .8s ease,--ambSun .8s ease}
-.palsw{position:fixed;left:12px;bottom:12px;z-index:50;display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:999px;background:rgba(var(--ink-rgb),.92);border:1px solid var(--edge);font-size:12px;font-weight:700;max-width:calc(100vw - 24px);overflow-x:auto}
-.palsw span{color:var(--muted);padding:0 4px}
-.palsw button{display:flex;align-items:center;gap:6px;border:1px solid transparent;background:none;border-radius:999px;padding:3px 8px 3px 3px;cursor:pointer;color:var(--text);white-space:nowrap}
-.palsw button i{width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,.3)}
-.palsw button[aria-pressed=true]{border-color:var(--text)}
-@media (max-width:700px){.palsw b{display:none}.palsw button{padding:3px}}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px);background:radial-gradient(1500px 760px at 70% 980px,color-mix(in srgb,var(--amb) 28%,transparent),transparent 70%),radial-gradient(900px 700px at 10% 1500px,color-mix(in srgb,var(--ambSun) 12%,transparent),transparent 70%),var(--abyss)}
 body{margin:0;background:transparent;color:var(--text);font-family:Manrope,system-ui,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -86,6 +80,18 @@ button,input{font:inherit;color:inherit}
 .ans::before{content:"";position:absolute;left:20px;right:20px;top:0;height:3px;border-radius:0 0 3px 3px;background:var(--acc)}
 #tSize{--acc:var(--aqua)}#tWind{--acc:var(--gold)}#tTide{--acc:var(--lilac)}
 #tWind .row{gap:18px;margin-top:10px}#tWind .reldiag{width:92px;height:92px}#wdV{font-family:Unbounded,system-ui,sans-serif;font-weight:800;font-size:clamp(26px,3vw,34px);letter-spacing:-.02em}#wdL{font-size:15px;margin-top:4px}#tdV{font-family:Unbounded,system-ui,sans-serif;font-weight:800;font-size:clamp(20px,2.2vw,26px);margin-top:6px}
+.ans .l .ic{color:var(--acc);flex:none}
+.ans .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ans .chips span{font-size:12px;font-weight:700;color:var(--text);padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1)}
+.ans:not(.size){display:flex;flex-direction:column}
+.ans .viz{margin-top:auto;padding-top:12px;min-height:58px}
+.ans .viz .vz,.ans .viz .tideline{width:100%;height:46px;display:block}
+.ans .wg{display:flex;align-items:center;gap:12px}
+.ans .wbar{position:relative;flex:1;height:6px;border-radius:6px;background:rgba(255,255,255,.12);margin-bottom:16px}
+.ans .wbar i{position:absolute;left:0;top:0;bottom:0;border-radius:6px}
+.ans .wbar b{position:absolute;top:-4px;width:2px;height:14px;background:#fff;border-radius:2px;transform:translateX(-1px)}
+.ans .wbar span{position:absolute;left:0;right:0;top:11px;display:flex;justify-content:space-between}
+.ans .wbar em{font-style:normal;font-size:10.5px;color:var(--muted);font-weight:700}
 .ans .l{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);font-weight:800;display:flex;align-items:center;gap:7px}
 .ans .l i{display:none}
 .ans .v{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:clamp(16px,2.3vw,22px);line-height:1.15;margin-top:4px}
@@ -129,8 +135,8 @@ button,input{font:inherit;color:inherit}
 .wkp .d{font-size:12px;font-weight:700;color:#CFE2E5}.wkp .m{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:14px}
 .wkp:hover{border-color:rgba(255,255,255,.5)}
 .wkp[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 1px #fff}
-@media (max-width:520px){ .answers{grid-template-columns:1fr!important;gap:8px} #tSize{grid-column:auto!important}
-  .ans{display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center;gap:2px 10px;padding:10px 14px 10px 16px;border-radius:16px}
+@media (max-width:520px){ .answers{grid-template-columns:1fr!important;gap:8px} #tSize{grid-column:auto!important} .ans .viz,.ans .chips span:nth-child(n+3){display:none} .ans .l .ic{display:none} .ans .chips{margin-top:2px}
+  .ans,.ans:not(.size){display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center;gap:2px 10px;padding:10px 14px 10px 16px;border-radius:16px}
   .ans::before{left:0;right:auto;top:12px;bottom:12px;width:3px;height:auto;border-radius:0 3px 3px 0}
   .ans .l{grid-row:1/span 3;font-size:11px;letter-spacing:.06em} .ans .tip{display:none}
   .ans .val{margin:0;font-size:18px} .ans .sub{margin:0;font-size:12px}
@@ -515,31 +521,6 @@ const DAYS_LONG = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','sam
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const state = { radarView:loadRadarView(), data:null, spot:0, day:0, hour:10, filter:'best', q:'', fav:loadFav(), weight:loadWeight() };
 
-/* ---- Palettes (sélecteur temporaire : on gardera une seule palette) ---- */
-const PALETTES={
-  vivant:{n:'Sable vivant',abyss:'#0F3040',deep:'#174657',text:'#FBF6EC',muted:'#BFD2D4',gold:'#F6CF8B',aqua:'#46D6C3',coral:'#FF8F6B',lilac:'#BBA9FF',sand:'#F6CF8B'},
-  lagon:{n:'Lagon',abyss:'#0B3B4A',deep:'#115468',text:'#F7FBFA',muted:'#BCD8DB',gold:'#FFD98A',aqua:'#2FE0CC',coral:'#FF9E7A',lilac:'#C2B4FF',sand:'#FFE2B0'},
-  solaire:{n:'Ardoise solaire',abyss:'#1B2F3A',deep:'#26434F',text:'#FFF8EE',muted:'#C5D3D6',gold:'#FFC46B',aqua:'#5FD6C0',coral:'#FF7F5C',lilac:'#C5B2FF',sand:'#FFD9A0'},
-  sable:{n:'Encre & sable',abyss:'#0A1114',deep:'#142128',text:'#F2EFE8',muted:'#AEB6B4',gold:'#E4C79B',aqua:'#8DBFB2',coral:'#D98C73',lilac:'#A9A6C9',sand:'#E4C79B'},
-  origine:{n:'Origine',abyss:'#04121A',deep:'#0A2230',text:'#F3F1EC',muted:'#B5BFC2',gold:'#FFB648',aqua:'#3CD6B4',coral:'#FF7A59',lilac:'#B6A6FF',sand:'#F2D3A2'}
-};
-function applyPalette(k){
-  const P=PALETTES[k]||PALETTES.vivant, r=document.documentElement.style, rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)).join(',');
-  ['abyss','deep','text','muted','gold','aqua','coral','lilac','sand'].forEach(c=>r.setProperty('--'+c,P[c]));
-  ['gold','aqua','coral','lilac','sand'].forEach(c=>r.setProperty('--'+c+'-rgb',rgb(P[c])));
-  const ink=rgb(P.abyss); r.setProperty('--ink-rgb',ink); r.setProperty('--ink2-rgb',ink);
-  r.setProperty('--onshore',P.coral);
-  const m=document.querySelector('meta[name=theme-color]'); if(m) m.content=P.abyss;
-  try{ localStorage.setItem('palette',k); }catch(e){}
-  document.querySelectorAll('.palsw button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k));
-}
-function paletteUi(){ if(document.querySelector('.palsw')) return;
-  const w=document.createElement('div'); w.className='palsw';
-  w.innerHTML='<span>Palette</span>'+Object.entries(PALETTES).map(([k,P])=>`<button type="button" data-k="${k}" aria-pressed="false" title="${P.n}"><i style="background:linear-gradient(135deg,${P.abyss} 0 45%,${P.gold} 45% 70%,${P.aqua} 70%)"></i><b>${P.n}</b></button>`).join('');
-  w.addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) applyPalette(b.dataset.k); });
-  document.body.appendChild(w);
-}
-{ let k='vivant'; try{ k=new URLSearchParams(location.search).get('p')||localStorage.getItem('palette')||'vivant'; }catch(e){} applyPalette(k); document.addEventListener('DOMContentLoaded',()=>{ paletteUi(); applyPalette(k); }); if(document.readyState!=='loading'){ paletteUi(); applyPalette(k); } }
 function loadRadarView(){ try{ return localStorage.getItem('radarView')==='cote'?'cote':'large'; }catch(e){ return 'large'; } }
 function saveRadarView(v){ try{ localStorage.setItem('radarView',v); }catch(e){} }
 function loadWeight(){ try{ const w=+localStorage.getItem('weight'); return w>=50&&w<=110?w:75; }catch(e){ return 75; } }
@@ -1526,6 +1507,19 @@ function compass(ori, wd, wind){
 function extremes(list){ const l=list.filter(h=>h.lvl!=null), out=[];
   for(let i=1;i<l.length-1;i++){ if(l[i].lvl>l[i-1].lvl&&l[i].lvl>=l[i+1].lvl) out.push({t:'Pleine mer',h:l[i].hour}); if(l[i].lvl<l[i-1].lvl&&l[i].lvl<=l[i+1].lvl) out.push({t:'Basse mer',h:l[i].hour}); }
   return out; }
+/* Petite houle dessinée : l'amplitude suit la hauteur, la longueur d'onde suit la période */
+function waveGlyph(H,T){
+  const amp=Math.min(1,Math.max(.12,H/3))*15, cyc=Math.max(1.6,6.2-(Math.min(16,Math.max(4,T))-4)/12*4.4), n=60, pts=[];
+  for(let i=0;i<=n;i++){ const x=i/n*160, y=24+Math.sin(i/n*cyc*6.2832)*amp*(0.75+0.25*Math.sin(i/n*6.2832*1.3)); pts.push(x.toFixed(1)+' '+y.toFixed(1)); }
+  const d='M'+pts.join(' L');
+  return `<svg viewBox="0 0 160 46" preserveAspectRatio="none" class="vz"><path d="${d} L160 46 L0 46Z" fill="rgba(var(--aqua-rgb),.18)"/><path d="${d}" fill="none" stroke="var(--aqua)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round"/></svg>`;
+}
+/* Vent : flèche vers où il souffle + jauge de vitesse (0 à 50 km/h) avec repère de rafale */
+function windGlyph(h){
+  const col=windCol(h.wind), sp=Math.min(1,(h.v||0)/50), g=h.gust?Math.min(1,h.gust/50):null;
+  return `<div class="wg"><svg width="38" height="38" viewBox="-19 -19 38 38"><circle r="17" fill="none" stroke="rgba(255,255,255,.22)"/><g style="transform:rotate(${(h.wd||0)+180}deg)"><path d="M0 -12 V10 M-5 -6 L0 -12 L5 -6" fill="none" stroke="${col}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
+  <div class="wbar"><i style="width:${(sp*100).toFixed(0)}%;background:${col}"></i>${g!=null?`<b style="left:${(g*100).toFixed(0)}%"></b>`:''}<span><em>0</em><em>25</em><em>50 km/h</em></span></div></div>`;
+}
 function tideSvg(list, hour){
   const pts=list.filter(h=>h.tideN!=null); if(pts.length<3) return '';
   const X=h=>(h/23*160).toFixed(1), Y=n=>(6+(1-n)*34).toFixed(1);
@@ -1563,9 +1557,9 @@ function render(){
       <h1 class="verdict in d1"><span class="sr">${s.name} : </span><span class="vq" id="heroSize">—</span><span class="vn" id="heroNum"></span></h1>
       <p class="slot in d2" style="margin:0" id="heroTrust"></p>${buoyLabelHtml('inl')}</div></div>
       <div class="herobot"><div class="hbl"><div class="answers in d3" aria-live="polite">
-        <div class="ans" id="tSize"><div class="l">Vagues${tip('taille','Que signifie la taille ?')}</div><div class="val" id="szV">—</div><div class="sub" id="szP"></div><div class="sub sub2" id="szS"></div></div>
-        <div class="ans" id="tWind"><div class="l">Vent${tip('vent','Offshore, onshore, rafales : explications')}</div><div class="val" id="wdL">—</div><div class="sub" id="wdS"></div><div class="sub sub2" id="wdA"></div></div>
-        <div class="ans" id="tTide"><div class="l">Marée${tip('maree','Comment lire la marée ?')}</div><div class="val" id="tdV">—</div><div class="sub" id="tdS"></div><div class="sub sub2" id="tdC"></div></div>
+        <div class="ans" id="tSize"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 3-3 5-2"/><path d="M2 18c2.5-4 5-4 7.5 0s5 4 7.5 0 3-2.5 5-1.6" opacity=".5"/></svg><span>Vagues</span>${tip('taille','Que signifie la taille ?')}</div><div class="val" id="szV">—</div><div class="chips" id="szP"></div><div class="sub sub2" id="szS"></div><div class="viz" id="szG" aria-hidden="true"></div></div>
+        <div class="ans" id="tWind"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span>Vent</span>${tip('vent','Offshore, onshore, rafales : explications')}</div><div class="val" id="wdL">—</div><div class="chips" id="wdS"></div><div class="sub sub2" id="wdA"></div><div class="viz" id="wdG" aria-hidden="true"></div></div>
+        <div class="ans" id="tTide"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M4 6l3-3 3 3"/><path d="M17 21v-8M14 18l3 3 3-3"/><path d="M2 14c1.7-1.5 3.3-1.5 5 0M10 10c1.7-1.5 3.3-1.5 5 0" opacity=".5"/></svg><span>Marée</span>${tip('maree','Comment lire la marée ?')}</div><div class="val" id="tdV">—</div><div class="chips" id="tdS"></div><div class="sub sub2" id="tdC"></div><div class="viz" id="tdG" aria-hidden="true"></div></div>
       </div>
       <nav class="week7 in d3" aria-label="La semaine à ${s.name}">${d.days.map((x,j)=>x.tag==='—'?'':weekPill(x,j,k,wmax)).join('')}</nav></div>${compassHtml(s)}</div>
     </div>
@@ -1659,13 +1653,16 @@ function updateLive(){
   const cfd=state.coef&&state.coef[day.date]; $('tdC').textContent=cfd&&cfd.length?`Coefficient ${cfd.join(' · ')}`:'';
   relUpdate(h,ag);
   $('szV').textContent=`${fmt(h.H)} m`;
-  $('szP').textContent=`${h.D!=null?sector(h.D)+' · ':''}${Math.round(h.T||0)} s · ${periodTxt(h.T||0)}`;
+  $('szP').innerHTML=[h.D!=null?sector(h.D):null,`${Math.round(h.T||0)} s`,periodTxt(h.T||0)].filter(Boolean).map(x=>`<span>${x}</span>`).join('');
+  $('szG').innerHTML=waveGlyph(h.H,h.T||8);
   $('szS').textContent=h.sec?`+ ${h.sec.kind} ${fmt(h.sec.H)} m · ${Math.round(h.sec.T)} s${h.sec.D!=null?' · '+sector(h.sec.D):''}`:'';
   $('wdL').textContent=windWord[h.wind]; $('wdL').style.color=windCol(h.wind);
-  $('wdS').textContent=`${Math.round(h.v)} km/h, de ${sector(h.wd)}${h.gust?' · rafales '+Math.round(h.gust):''}`;
+  $('wdS').innerHTML=[`${Math.round(h.v)} km/h`,`de ${sector(h.wd)}`,h.gust?`rafales ${Math.round(h.gust)}`:null].filter(Boolean).map(x=>`<span>${x}</span>`).join('');
+  $('wdG').innerHTML=windGlyph(h);
   const exact=exactTides(state.spot,day.date); const ex=exact||extremes(day.list).map(x=>({t:x.t,type:x.t==='Pleine mer'?'PM':'BM',hm:x.h+'h',hd:x.h}));
   $('tdV').textContent=tidePhase(h);
-  $('tdS').textContent=ex.length?(exact?'':'≈ ')+ex.filter(x=>x.hd>=5&&x.hd<=22).map(x=>x.type+' '+x.hm).join(' · '):'Horaires indisponibles';
+  $('tdS').innerHTML=ex.length?ex.filter(x=>x.hd>=5&&x.hd<=22).map(x=>`<span>${x.type==='PM'?'Haute':'Basse'} ${exact?'':'≈ '}${x.hm}</span>`).join(''):'<span>Horaires indisponibles</span>';
+  $('tdG').innerHTML=tideSvg(day.list,state.hour);
   const hs_=$('hcSwell'), hw_=$('hcWind');
   if(hs_&&h.D!=null){ hs_.setAttribute('transform',`rotate(${h.D.toFixed(0)})`); $('hcS').textContent=`Houle ${sector(h.D)} · ${Math.round(h.T||0)} s`; }
   if(hw_&&h.wd!=null){ hw_.setAttribute('transform',`rotate(${h.wd.toFixed(0)})`); const wc=windCol(h.wind); hw_.querySelector('line').setAttribute('stroke',wc); hw_.querySelector('path').setAttribute('fill',wc); $('hcWi').style.background=wc; $('hcW').textContent=`Vent ${sector(h.wd)} · ${Math.round(h.v)} km/h`; }
