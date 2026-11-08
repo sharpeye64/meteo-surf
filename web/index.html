@@ -787,11 +787,24 @@ function heroSunTimes(){
   const el=document.getElementById('sunT'); if(!el) return; const day=state.data[state.spot].days[state.day];
   el.textContent=day.sun?`↑ ${day.sun.rise.replace(':','h')} · ↓ ${day.sun.set.replace(':','h')}`:'';
 }
+/* Houle du shader recalculée côté JavaScript (3 trains de vagues) : hauteur et pente au point de la bouée */
+function swellAt(px,pz,t,amp,swL,swD){
+  let h=0,gx=0,gz=0; const s=Math.sqrt(swL/70);
+  for(let i=0;i<3;i++){
+    const a0=i===0?0:(i===1?.2:-.26), c=Math.cos(a0), sn=Math.sin(a0);
+    const dx=c*swD[0]-sn*swD[1], dz=sn*swD[0]+c*swD[1];
+    const L=swL*(i===0?1:(i===1?.83:.66)); let a=(i===0?.55:(i===1?.26:.15))*s*amp;
+    const k=6.2832/L, w=Math.sqrt(9.81*k), x=(dx*px+dz*pz)*k, ph=x-w*t*.9+i*2.1;
+    if(i===0) a*=.55+.45*Math.sin(x/7-w*t*.9/14+1.3);
+    const sv=Math.sin(ph); h+=a*(sv+.18*sv*sv); const g=a*k*Math.cos(ph)*(1+.36*sv); gx+=g*dx; gz+=g*dz;
+  }
+  return {h,gx,gz};
+}
 function oceanBuild(){
   const gl=OC.gl; if(!gl) return false;
   const vs=`attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}`;
   const fs=`precision highp float;
-  uniform vec2 r,swD;uniform float t,amp,night,swL,chop;uniform vec3 sT,sB,sun,wD,wS,sd;
+  uniform vec2 r,swD,bt;uniform float t,amp,night,swL,chop,bl;uniform vec3 sT,sB,sun,wD,wS,sd,bb;
   const float F=1.2; const float PITCH=-0.10;
   float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
   float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
@@ -848,10 +861,62 @@ function oceanBuild(){
       h+=a*sin(ph)*fade; g+=a*k*dd*cos(ph)*fade*att; }
     return h;
   }
+
+  /* ---- Bouée de mesure de la houle : coque jaune (dôme), bande noire, panneau solaire, mât et lanterne clignotante ---- */
+  const float BS=1.25; const vec3 BH=vec3(1.0,.5,1.0)*BS;                 /* dôme : rayon 1 m, hauteur 0,5 m au-dessus de l'eau */
+  vec3 BX,AX,BZ;
+  void setB(){ AX=normalize(vec3(-bt.x,1.,-bt.y)); BX=normalize(cross(vec3(0.,0.,1.),AX)); BZ=cross(AX,BX); }   /* elle suit la pente de la houle */
+  vec3 toL(vec3 v){ return vec3(dot(v,BX),dot(v,AX),dot(v,BZ)); }
+  vec3 toW(vec3 v){ return BX*v.x+AX*v.y+BZ*v.z; }
+  vec2 raySeg(vec3 ro,vec3 rd,vec3 a,vec3 b){      /* distance rayon-segment et position le long du rayon */
+    vec3 ba=b-a, oa=ro-a; float bab=dot(ba,ba), bard=dot(ba,rd), baoa=dot(ba,oa), rdoa=dot(rd,oa);
+    float s=clamp((baoa-bard*rdoa)/max(bab-bard*bard,1e-4),0.,1.); float tt=max(s*bard-rdoa,0.);
+    return vec2(length(a+ba*s-(ro+rd*tt)),tt);
+  }
+  vec3 hullShade(vec3 base,vec3 n,vec3 rd,float gloss){
+    float dif=max(dot(n,sd),0.);
+    vec3 amb=sky(normalize(vec3(n.x,max(n.y,.2),n.z)))*.55+wS*.28+vec3(.10,.09,.08)*(1.-night*.8);
+    vec3 hv=normalize(sd-rd); float sp=pow(max(dot(n,hv),0.),70.)*gloss;
+    float rim=pow(1.-max(dot(n,-rd),0.),3.);
+    float fr=.04+.96*pow(1.-max(dot(n,-rd),0.),5.);
+    return base*(amb+sun*dif*.95*(1.-night*.85)) + sun*sp*.9*(1.-night*.8) + sky(reflect(rd,n))*(rim*.3+fr*.45)*gloss;
+  }
+  vec4 over(vec4 a,vec4 b){ float al=a.a+b.a*(1.-a.a); return vec4((a.rgb*a.a+b.rgb*b.a*(1.-a.a))/max(al,1e-4),al); }
+  vec4 buoy(vec3 ro,vec3 rd,float tmax,out vec3 glow){
+    vec3 lamp=bb+toW(vec3(0.,1.78*BS,0.));
+    vec3 ol=lamp-ro; float tl=dot(ol,rd); float dl=length(ol-rd*max(tl,0.));
+    glow=vec3(1.,.74,.22)*bl*(exp(-dl*dl*18.)*.9+exp(-dl*dl*1.6)*.16)*step(0.,tl);   /* halo de la lanterne */
+    vec3 oc=bb+vec3(0.,.9*BS,0.)-ro; float tc=dot(oc,rd);
+    if(tc<=0.||length(oc-rd*tc)>2.6*BS) return vec4(0.);                                  /* rayon loin de la bouée : rien à calculer */
+    float pw=tc/(r.y*F);                                                              /* taille d'un pixel à cette distance, en mètres */
+    vec3 lo=toL(ro-bb), ld=toL(rd);
+    vec4 hull=vec4(0.); float th=1e9;
+    vec3 so=lo/BH, sv=ld/BH; float A=dot(sv,sv), B=dot(so,sv), C=dot(so,so)-1., h=B*B-A*C;
+    if(h>0.){
+      float t0=(-B-sqrt(h))/A; vec3 pl=lo+ld*t0;
+      if(t0>0.&&t0<tmax&&pl.y>-.03){
+        vec3 nl=normalize(pl/(BH*BH)); float yy=clamp(pl.y/BH.y,0.,1.);
+        vec3 base=vec3(1.,.74,.02);
+        base=mix(vec3(.025),base,smoothstep(.16,.24,yy));                                 /* bande noire à la flottaison */
+        base=mix(base,vec3(.9),(1.-smoothstep(0.,.03,abs(yy-.30)))*.55);                  /* liseré blanc */
+        base=mix(base,vec3(.035,.06,.14),smoothstep(.78,.86,nl.y));                       /* panneau solaire sur le dessus */
+        base*=.72+.28*smoothstep(0.,.3,yy);                                               /* salissures près de l'eau */
+        hull=vec4(hullShade(base,toW(nl),rd,.65),smoothstep(0.,max(2.4*pw/BH.x,.02),h/A)); th=t0;
+      }
+    }
+    vec2 sm=raySeg(ro,rd,bb+toW(vec3(0.,.46*BS,0.)),bb+toW(vec3(0.,1.62*BS,0.)));          /* mât */
+    vec4 mast=vec4(hullShade(vec3(.7,.71,.73),normalize(-rd+vec3(0.,.35,0.)),rd,.3),clamp((.05*BS-sm.x)/max(pw,1e-3)*.5+.5,0.,1.)*step(sm.y,tmax));
+    vec2 sl=raySeg(ro,rd,bb+toW(vec3(0.,1.62*BS,0.)),bb+toW(vec3(0.,1.86*BS,0.)));        /* lanterne */
+    vec3 lens=mix(hullShade(vec3(.5,.35,.05),normalize(-rd),rd,.9),vec3(1.,.84,.38)*2.3,clamp(bl*1.1,0.,1.));
+    vec4 lampv=vec4(lens,clamp((.13*BS-sl.x)/max(pw,1e-3)*.5+.5,0.,1.)*step(sl.y,tmax));
+    vec4 res=over(lampv,mast);
+    res = th<min(sm.y,sl.y) ? over(hull,res) : over(res,hull);
+    return res;
+  }
   void main(){
     vec2 q=gl_FragCoord.xy/r-.5; q.x*=r.x/r.y;
     vec3 rd=normalize(vec3(q.x,q.y+PITCH,F)); vec3 ro=vec3(0.,2.4,0.);
-    vec3 col; float mu=dot(rd,sd);
+    vec3 col; float mu=dot(rd,sd); setB(); float tw=rd.y<0.?(-ro.y/rd.y):1e9;
     if(rd.y>0.){
       col=sky(rd);
       if(night>.5){ vec2 sp=gl_FragCoord.xy/1.6; col+=vec3(.9)*step(.9978,hash(floor(sp)))*smoothstep(.05,.4,rd.y)*(night*2.-1.); }
@@ -871,7 +936,7 @@ function oceanBuild(){
       float cosT=max(dot(n,-rd),0.);
       float fres=.02+.98*pow(1.-cosT,5.);
       vec3 rf=reflect(rd,n); rf.y=max(rf.y,.002);
-      vec3 rs=sky(rf);
+      vec3 rs=sky(rf); { vec3 g2; vec4 bR=buoy(p+vec3(0.,.02,0.),rf,1e9,g2); rs=mix(rs,bR.rgb,bR.a); rs+=g2; }   /* reflet de la bouée dans l'eau déformée */
       float far=clamp(dist/140.,0.,1.);
       vec3 body=mix(wS*1.05,wD,pow(far,.5));
       float crest=clamp(h/(amp*.9*s+.05)*.5+.5,0.,1.);
@@ -886,9 +951,11 @@ function oceanBuild(){
       float tw=smoothstep(.74,.96,noise(gl_FragCoord.xy/2.6+vec2(t*4.,-t*6.)));
       col+=sun*(pow(sp2,200.)*2.4*tw*(.35+.65*lowSun()) + pow(sp,1400.)*5. + pow(sp,90.)*.3*(.3+.7*lowSun()) + pow(sp,14.)*.05)*(1.-night*.6);
       float foam=0.; if(crest>.72) foam=smoothstep(.72,1.,crest)*smoothstep(.25,1.,amp)*exp(-dist*.02)*smoothstep(.45,.75,fbm(p.xz*.35+t*.2));
+      foam=max(foam,exp(-pow((length(p.xz-bb.xz)-1.2*BS)/.2,2.))*1.3);                       /* écume autour de la coque */
       col=mix(col,vec3(.88,.92,.95)*(1.-night*.6),foam*.55);
       col=mix(col,mix(sB,wD*1.5+vec3(.02),.28),(1.-exp(-dist*.0035))*.82);
     }
+    { vec3 g1; vec4 bu=buoy(ro,rd,tw,g1); col=mix(col,bu.rgb,bu.a); col+=g1; }
     col=mix(col,1.-exp(-col*1.7),.55);
     vec2 v=gl_FragCoord.xy/r-.5; col*=1.-.22*dot(v,v)*1.8;
     col=pow(col,vec3(.98)); col+=(hash(gl_FragCoord.xy+fract(t))-.5)/255.; gl_FragColor=vec4(col,1.);
@@ -900,9 +967,9 @@ function oceanBuild(){
     gl.useProgram(pr);
     const b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
     const loc=gl.getAttribLocation(pr,'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
-    ['r','t','amp','night','sT','sB','sun','wD','wS','sd','swD','swL','chop'].forEach(n=>OC.u[n]=gl.getUniformLocation(pr,n));
+    ['r','t','amp','night','sT','sB','sun','wD','wS','sd','swD','swL','chop','bb','bt','bl'].forEach(n=>OC.u[n]=gl.getUniformLocation(pr,n));
     return true;
-  }catch(e){ return false; }
+  }catch(e){ console.warn('Océan : shader non compilé', e.message); return false; }
 }
 function oceanInit(){
   if(OC.canvas) return;                                   // jamais deux fois
@@ -931,7 +998,10 @@ function oceanDraw(now){
   const night=clamp((-deg-0.8)/6,0,1);
   const sd=night>0.5?[Math.sin(0.3)*Math.cos(0.38),Math.sin(0.38),Math.cos(0.3)*Math.cos(0.38)]:sv;   // la nuit : lune à place fixe
   gl.uniform2f(OC.u.swD,-0.12,-0.99); gl.uniform1f(OC.u.swL,90); gl.uniform1f(OC.u.chop,0.8);         // mer calme et décorative
-  gl.uniform2f(OC.u.r,W,H); gl.uniform1f(OC.u.t,REDUCED?8:(now-OC.t0)/1000); gl.uniform1f(OC.u.amp,0.55); gl.uniform1f(OC.u.night,night);
+  const tsec=REDUCED?8:(now-OC.t0)/1000, bz=46, bx=bz*(0.72-.5)*(W/H)/OC_F, sw=swellAt(bx,bz,tsec,0.55,90,[-0.12,-0.99]);
+  const ph5=(tsec%5)/5, flash=Math.min(1,Math.max(0,ph5/.04))*(1-Math.min(1,Math.max(0,(ph5-.16)/.1)));   // un éclat toutes les 5 s
+  gl.uniform3f(OC.u.bb,bx,sw.h*0.9,bz); gl.uniform2f(OC.u.bt,sw.gx*0.9,sw.gz*0.9); gl.uniform1f(OC.u.bl,0.06+flash*(0.3+0.7*night));
+  gl.uniform2f(OC.u.r,W,H); gl.uniform1f(OC.u.t,tsec); gl.uniform1f(OC.u.amp,0.55); gl.uniform1f(OC.u.night,night);
   gl.uniform3fv(OC.u.sT,p.sT); gl.uniform3fv(OC.u.sB,p.sB); gl.uniform3fv(OC.u.sun,p.sun); gl.uniform3fv(OC.u.wD,p.wD); gl.uniform3fv(OC.u.wS,p.wS); gl.uniform3fv(OC.u.sd,sd);
   gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
 }

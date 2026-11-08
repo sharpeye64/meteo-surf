@@ -41,6 +41,11 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   arc symbolique de gauche à droite (`sunVec`, jamais hors cadre) qui glisse du lever vers l'heure actuelle au chargement,
   rayons, reflet, lune et étoiles la nuit, arc pointillé (`drawArc`). Sans arbres ni montagnes : l'utilisateur a trouvé les
   décors dessinés « cheap » (ils ont été retirés).
+- Bouée de mesure de la houle posée sur l'eau, dessinée DANS le shader (`buoy()` : coque jaune en dôme, bande noire, panneau
+  solaire, mât, lanterne qui éclate toutes les 5 s, reflet dans l'eau déformée, écume autour de la coque). Elle monte, descend
+  et s'incline avec la houle : `swellAt()` (JavaScript) recalcule les 3 trains de houle de `waves()` (GLSL) pour donner sa
+  hauteur et sa pente. Si on change les constantes des vagues dans le shader, les changer AUSSI dans `swellAt()`, sinon la
+  bouée flotte à côté de l'eau. Position : 46 m devant, à 72 % de la largeur (entre le texte et la boussole).
 - RÈGLES ANTI-BLOCAGE (l'ancienne version bloquait la page après quelques clics ; ne jamais les enfreindre) :
   1. UN SEUL canvas, `#ocean`, hors de `#app`, créé une fois par `oceanInit()` ; `render()` ne le recrée jamais.
   2. Une seule boucle `oceanLoop` : 30 images/s max, en pause si la page est cachée ou hors écran.
