@@ -62,7 +62,15 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   « webcam la plus proche » à moins de 15 km. Tourisme Landes (officiel) bloque les vérifications automatiques : non utilisé.
   Les caméras sont gérées par des tiers et peuvent être hors ligne : le dire.
 
+- Radar : bascule « Large » (bouée Gascogne 62001, Copernicus, retard 12-30 h, calcul d'arrivée de la houle) / « Côte »
+  (bouée CANDHIS la plus proche du spot : Cap Ferret 03302, Anglet 06402, Saint-Jean-de-Luz 06403 ; mesures toutes les 30 min,
+  fraîches ; comparée à notre prévision du spot). `pipeline/candhis.py` lit les pages publiques (1 requête par bouée et par passage,
+  heures TU converties en heure de Paris ; positions des bouées approximatives, servent seulement à choisir la plus proche).
+  Licence Ouverte Etalab 2.0, mesures temps réel non validées : le dire. Allosurf et sites similaires : pas d'API ni de conditions
+  de réutilisation, ne pas les utiliser.
+
 ## Pistes suivantes
-- Bouée CANDHIS d'Anglet (Licence Ouverte) en « vérité terrain » près de la côte, avec comparaison H1/3 et TH1/3.
+- Archiver aussi les mesures CANDHIS (fiabilité près de la côte) : aujourd'hui seule la bouée Gascogne alimente `history/`.
+- Clé d'API CANDHIS officielle (demande par mail à l'équipe Candhis) pour remplacer la lecture des pages publiques.
 - Coefficient de marée, calibration `tide_offset_min` par spot, réglages de spots validés sur le terrain.
 - Statistiques publiques de fiabilité (écart prévision / bouée).

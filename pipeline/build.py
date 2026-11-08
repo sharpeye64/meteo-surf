@@ -10,7 +10,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from . import buoy, config, history, marc, openmeteo, tides
+from . import buoy, candhis, config, history, marc, openmeteo, tides
 
 
 def log(msg):
@@ -49,6 +49,18 @@ def main():
     except Exception as e:
         meta["errors"]["gascogne"] = str(e)[:300]
         log(f"  bouée indisponible : {e}")
+
+    log("Bouées côtières CANDHIS")
+    coast = []
+    try:
+        coast, cerr = candhis.fetch_all()
+        for k, v in cerr.items():
+            meta["errors"][f"candhis_{k}"] = v
+        if coast:
+            meta["sources"]["candhis"] = "Bouées côtières CANDHIS (Cerema, Licence Ouverte 2.0, temps réel non validé)"
+    except Exception as e:
+        meta["errors"]["candhis"] = str(e)[:300]
+        log(f"  CANDHIS indisponible : {e}")
 
     # Archive prévision/réalité : fiabilité mesurée sur les 30 derniers jours, puis ajout du passage en cours.
     now_local = pd.Timestamp.now(tz=config.TIMEZONE).tz_localize(None).floor("h")
@@ -146,7 +158,7 @@ def main():
     meta["wave_models"] = [{"key": k, "label": labels[k]} for k in labels]
     meta["wind_models"] = [{"key": k, "label": l} for k, l, _a in config.WIND_MODELS]
     meta["buoy_correction"] = ratio
-    payload = {"meta": meta, "gascogne": gascogne, "tide_coef": tide_coef, "reliability": reliability, "spots": out_spots}
+    payload = {"meta": meta, "gascogne": gascogne, "coast": coast, "tide_coef": tide_coef, "reliability": reliability, "spots": out_spots}
     config.OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     config.OUTPUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
     size = config.OUTPUT_FILE.stat().st_size / 1024

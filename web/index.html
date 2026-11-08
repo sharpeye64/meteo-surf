@@ -389,6 +389,9 @@ footer .fgen{margin-top:22px;color:#9FB7BD}
 .rlive.old{color:var(--gold)}.rlive.old i{background:#8A949A;animation:none!important}
 .rlive i{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 0 rgba(255,182,72,.6)}
 @media (prefers-reduced-motion:no-preference){.rlive i{animation:ping 2s infinite}@keyframes ping{0%{box-shadow:0 0 0 0 rgba(255,182,72,.6)}100%{box-shadow:0 0 0 10px rgba(255,182,72,0)}}}
+.rtog{display:inline-flex;margin-left:12px;padding:3px;border-radius:999px;background:rgba(5,16,23,.7);border:1px solid rgba(255,182,72,.3)}
+.rtog button{font:inherit;font-size:13px;font-weight:700;color:var(--muted);background:none;border:0;border-radius:999px;padding:5px 14px;cursor:pointer}
+.rtog button[aria-pressed=true]{background:var(--gold);color:#1a1205}
 .rgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) minmax(0,1fr);gap:14px}
 @media (max-width:820px){.rgrid{grid-template-columns:1fr}}
 .rcard{border-radius:24px;padding:18px 20px;background:linear-gradient(165deg,rgba(255,182,72,.12),rgba(5,16,23,.86) 60%);border:1px solid rgba(255,182,72,.3);display:flex;flex-direction:column;justify-content:center;gap:4px}
@@ -502,7 +505,9 @@ const TAGS = ['Flat','Micro','Petit','Bon','Très bon'];
 const DAYS_FR = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 const DAYS_LONG = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const state = { data:null, spot:0, day:0, hour:10, filter:'best', q:'', fav:loadFav(), weight:loadWeight() };
+const state = { radarView:loadRadarView(), data:null, spot:0, day:0, hour:10, filter:'best', q:'', fav:loadFav(), weight:loadWeight() };
+function loadRadarView(){ try{ return localStorage.getItem('radarView')==='cote'?'cote':'large'; }catch(e){ return 'large'; } }
+function saveRadarView(v){ try{ localStorage.setItem('radarView',v); }catch(e){} }
 function loadWeight(){ try{ const w=+localStorage.getItem('weight'); return w>=50&&w<=110?w:75; }catch(e){ return 75; } }
 function saveWeight(w){ try{ localStorage.setItem('weight',String(w)); }catch(e){} }
 function loadFav(){ try{ return JSON.parse(localStorage.getItem('fav')||'[]'); }catch(e){ return []; } }
@@ -584,7 +589,7 @@ async function enrich(i){
 async function loadServer(){
   const r=await fetch('data/forecast.json',{cache:'no-cache'}); if(!r.ok) throw new Error('forecast.json '+r.status);
   const j=await r.json(); const byName={}; j.spots.forEach(x=>byName[x.name]=x);
-  state.meta=j.meta; state.gascogne=j.gascogne; state.tides={}; state.reliability=j.reliability||null; state.coef=j.tide_coef||{};
+  state.meta=j.meta; state.gascogne=j.gascogne; state.coast=j.coast||[]; state.tides={}; state.reliability=j.reliability||null; state.coef=j.tide_coef||{};
   state.raw=SPOTS.map((s,i)=>{ const x=byName[s.name]; if(!x) throw new Error('spot absent : '+s.name);
     state.tides[i]=x.tide; return { m:{hourly:x.marine,_models:x.wave_models}, w:{hourly:x.wind,daily:x.daily,_models:x.wind_models}, done:true }; });
   const present=k=>state.raw.some(r=>r.m._models&&r.m._models[k]);
@@ -1137,6 +1142,9 @@ tipLayer.addEventListener('mouseenter',()=>clearTimeout(tipTimer)); tipLayer.add
 window.addEventListener('scroll',()=>{ if(tipOwner) hideTip(true); },{passive:true});
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') hideTip(true); });
 document.addEventListener('click',e=>{ if(!e.target.closest('.tipbtn,#tipLayer')) hideTip(true); });
+document.addEventListener('click',e=>{ const b=e.target.closest('.rtog button'); if(!b||!state.data) return;
+  state.radarView=b.dataset.rv; saveRadarView(state.radarView);
+  const sec=b.closest('.radar'); if(sec){ const t=document.createElement('div'); t.innerHTML=radarHtml(state.data[state.spot].spot); sec.replaceWith(t.firstElementChild); } });
 let hourlyRows=5;
 function windNote(hrs){
   if(!(state.windModels||[]).some(m=>m.key==='arome')) return '';
@@ -1214,7 +1222,44 @@ function relUpdate(h,ag){
   const t=document.getElementById('relHr'); if(t) t.textContent=hhmm(state.hour);
 }
 function radarHtml(s){
-  const g=state.gascogne; if(!g||!g.latest) return '';
+  const g=state.gascogne, hasL=!!(g&&g.latest), coast=nearestCoast(s), hasC=!!coast;
+  if(!hasL&&!hasC) return '';
+  const view=(state.radarView==='cote'&&hasC)||!hasL?'cote':'large';
+  const r=view==='cote'?radarCoast(s,coast):radarLarge(s);
+  const tog=hasL&&hasC?`<div class="rtog" role="group" aria-label="Choisir la bouée"><button type="button" data-rv="large" aria-pressed="${view==='large'}">Large</button><button type="button" data-rv="cote" aria-pressed="${view==='cote'}">Côte</button></div>`:'';
+  return `<section class="radar wrap" aria-labelledby="sRadar">
+    <div class="hhead"><h2 class="h2s" id="sRadar">${view==='cote'?'Radar côte':'Radar Gascogne'}</h2>${tip('radar','Comment fonctionne le radar ?')}${tog}<span class="rlive${r.ageH>(view==='cote'?3:6)?' old':''}"><i></i>${r.liveLbl}</span></div>
+    ${r.grid}
+  </section>`;
+}
+function nearestCoast(s){
+  const c=(state.coast||[]).filter(b=>b.latest&&b.latest.hs!=null); if(!c.length) return null;
+  return c.map(b=>({b,km:hav(s,b)})).sort((x,y)=>x.km-y.km)[0];
+}
+function ageTxt(ageH){ return ageH<1?'à l’instant':ageH<36?`il y a ${Math.round(ageH)} h`:`il y a ${Math.round(ageH/24)} j`; }
+function radarCoast(s,c){
+  const b=c.b, L=b.latest, tObs=new Date(L.time+':00'), ageH=(new Date()-tObs)/36e5, hh=L.time.slice(11,13)+'h'+L.time.slice(14,16);
+  const liveLbl=`Bouée ${b.name} · dernière mesure ${hh}${ageH>=1?` (${ageTxt(ageH)})`:''}`;
+  const d=state.data[state.spot], byT={}; d.hours.forEach(h=>{ if(h.H!=null) byT[h.time.slice(0,13)]=h.H; });
+  const obs=b.obs||[], fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null);
+  const fNow=byT[L.time.slice(0,13)];
+  let cmp='Pas de prévision à comparer pour cette heure.';
+  if(fNow!=null){ const diff=fNow-L.hs, ad=Math.abs(diff);
+    cmp=ad<0.15?`Notre prévision pour ${s.name} (${fmt(fNow)} m) colle à la mesure.`:`Notre prévision pour ${s.name} donnait ${fmt(fNow)} m à cette heure : ${diff>0?'plus haut':'plus bas'} que la mesure de ${fmt(ad)} m.`; }
+  let spark='';
+  if(obs.length>3){ const all=[...obs.map(o=>o.hs),...fc.map(o=>o.hs)], mx=Math.max(...all)*1.15, mn=Math.min(...all)*0.85;
+    const t0=new Date(obs[0].t).getTime(), t1=new Date(obs[obs.length-1].t).getTime(); const X=t=>((new Date(t).getTime()-t0)/(t1-t0||1)*300).toFixed(1), Y=v=>(70-(v-mn)/(mx-mn||1)*60).toFixed(1);
+    const po=obs.map(o=>X(o.t)+' '+Y(o.hs)).join(' L'), pm=fc.map(o=>X(o.t)+' '+Y(o.hs)).join(' L');
+    spark=`<svg viewBox="0 0 300 78" preserveAspectRatio="none" class="rspark" role="img" aria-label="Hauteur mesurée par la bouée ${b.name} sur 48 heures, comparée à notre prévision"><path d="M${po} L300 78 L0 78Z" fill="rgba(255,182,72,.16)"/>${pm?`<path d="M${pm}" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.5" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>`:''}<path d="M${po}" fill="none" stroke="var(--gold)" stroke-width="2.2" vector-effect="non-scaling-stroke"/></svg><div class="rleg"><span><i style="background:var(--gold)"></i>Mesuré</span><span><i class="dash"></i>Prévision ${s.name}</span><span>48 dernières heures</span></div>`; }
+  const grid=`<div class="rgrid">
+      <div class="rcard"><div class="rk">${b.name} · à ${Math.round(c.km)} km du spot</div><div class="rbig">${fmt(L.hs)}<small>m</small></div><div class="rs">${L.tp?Math.round(L.tp)+' s · '+periodTxt(L.tp):'période non transmise'}${L.dir!=null?' · du '+sector(L.dir):''}${L.hmax!=null?' · max '+fmt(L.hmax)+' m':''}${L.sst!=null?' · eau '+fmt(L.sst)+' °C':''}</div></div>
+      <div class="rcard">${spark||'<div class="rs">Historique indisponible.</div>'}</div>
+      <div class="rcard"><div class="rk">Prévision contre mesure</div><div class="rs rcorr">${cmp}</div><div class="rs">Bouée posée par 20 à 50 m de fond, pas sur le spot : un écart de quelques dizaines de cm est normal. Mesures temps réel non validées · Cerema CANDHIS (Licence Ouverte).</div></div>
+    </div>`;
+  return {grid,liveLbl,ageH};
+}
+function radarLarge(s){
+  const g=state.gascogne;
   const L=g.latest, eta=g.eta_hours?.[s.name];
   const tObs=new Date(L.time+':00'), d0=new Date(), ageH=(d0-tObs)/36e5, hh=L.time.slice(11,13)+'h'+L.time.slice(14,16);
   const dayWord=t=>{ const y=new Date(d0); y.setDate(d0.getDate()-1), tm=new Date(d0); tm.setDate(d0.getDate()+1);
@@ -1232,14 +1277,12 @@ function radarHtml(s){
     const t0=new Date(obs[0].t).getTime(), t1=new Date(obs[obs.length-1].t).getTime(); const X=t=>((new Date(t).getTime()-t0)/(t1-t0||1)*300).toFixed(1), Y=v=>(70-(v-mn)/(mx-mn||1)*60).toFixed(1);
     const po=obs.map(o=>X(o.t)+' '+Y(o.hs)).join(' L'), pm=mod.map(o=>X(o.t)+' '+Y(o.hs)).join(' L');
     spark=`<svg viewBox="0 0 300 78" preserveAspectRatio="none" class="rspark" role="img" aria-label="Hauteur mesurée par la bouée sur 48 heures, comparée au modèle"><path d="M${po} L300 78 L0 78Z" fill="rgba(255,182,72,.16)"/>${pm?`<path d="M${pm}" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.5" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>`:''}<path d="M${po}" fill="none" stroke="var(--gold)" stroke-width="2.2" vector-effect="non-scaling-stroke"/></svg><div class="rleg"><span><i style="background:var(--gold)"></i>Mesuré</span><span><i class="dash"></i>Modèle</span><span>48 dernières heures</span></div>`; }
-  return `<section class="radar wrap" aria-labelledby="sRadar">
-    <div class="hhead"><h2 class="h2s" id="sRadar">Radar Gascogne</h2>${tip('radar','Comment fonctionne le radar ?')}<span class="rlive${ageH>6?' old':''}"><i></i>${liveLbl}</span></div>
-    <div class="rgrid">
+  const grid=`<div class="rgrid">
       <div class="rcard"><div class="rk">Au large maintenant</div><div class="rbig">${fmt(L.hs)}<small>m</small></div><div class="rs">${L.tp?Math.round(L.tp)+' s · '+periodTxt(L.tp):(g.period_used?'≈ '+Math.round(g.period_used)+' s (modèle)':'période non transmise')}${L.dir!=null?' · du '+sector(L.dir):''}${L.sst!=null?' · eau '+fmt(L.sst)+' °C':''}</div></div>
       <div class="rcard">${spark||'<div class="rs">Historique indisponible.</div>'}</div>
       <div class="rcard">${arrive}<div class="rs rcorr">${corr}</div></div>
-    </div>
-  </section>`;
+    </div>`;
+  return {grid,liveLbl,ageH};
 }
 /* Exemples de planches : modèles réels, dimensions et volumes des fiches des fabricants (Pyzel) ou de plusieurs
    revendeurs concordants. Elles varient selon l'année et la construction : toujours à vérifier chez le shaper.

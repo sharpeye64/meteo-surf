@@ -88,7 +88,18 @@ def fake_copernicus_nc():
     return data
 
 
+def fake_candhis_html(*a, **k):
+    now = pd.Timestamp.now("UTC").floor("30min")
+    rows = "".join(
+        f"<tr><td><span>{(now - pd.Timedelta(minutes=30 * i)):%d/%m/%Y} </span></td><td><span>{(now - pd.Timedelta(minutes=30 * i)):%H:%M} </span></td>"
+        f"<td><span>{1.2 + 0.1 * math.sin(i / 3):.1f} </span></td><td><span>2.0 </span></td><td><span>9.5 </span></td><td><span>290 </span></td><td><span>20 </span></td><td><span>16.5 </span></td></tr>"
+        for i in range(96))
+    return FakeResp("<table><thead><tr><th>Date</th></tr></thead><tbody>" + rows + "</tbody></table>")
+
+
 def fake_buoy_get(url, *a, **k):
+    if "candhis" in url:
+        return fake_candhis_html()
     if "cloudferro" in url:  # Copernicus : seul le fichier du jour existe
         today = pd.Timestamp.now("UTC").strftime("%Y%m%d")
         return FakeResp(content=fake_copernicus_nc()) if today in url else FakeResp(status_code=404)
@@ -159,6 +170,11 @@ assert any("gfs" in s["wave_models"] for s in data["spots"][1:]), "GFS doit rest
 assert any("marc" in s["wave_models"] for s in data["spots"]), "MARC doit être présent"
 print("vent complété sur", len(w0), "heures · houle secondaire présente")
 assert data["gascogne"]["latest"]["hs"] > 0 and len(data["gascogne"]["obs"]) >= 24
+
+assert len(data["coast"]) == 3, data["meta"]["errors"]
+c0 = data["coast"][1]
+assert c0["name"] == "Anglet" and c0["latest"]["hs"] > 0 and c0["latest"]["tp"] == 9.5 and len(c0["obs"]) >= 40
+print("CANDHIS OK :", [b["name"] for b in data["coast"]], c0["latest"])
 
 # Secours : Copernicus indisponible → NOAA NDBC.
 buoy.requests.get = lambda url, *a, **k: FakeResp(status_code=503) if "cloudferro" in url else fake_ndbc()
