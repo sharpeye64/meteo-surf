@@ -29,12 +29,12 @@ button,input{font:inherit;color:inherit}
 
 /* HERO */
 .hero{position:relative;min-height:clamp(440px,62vh,700px);min-height:clamp(440px,62svh,700px);display:flex;flex-direction:column;overflow:hidden;isolation:isolate}
-.buoylbl{position:absolute;left:min(calc(72% + 40px),calc(100% - 290px));top:calc(46.3% - 16px);z-index:2;display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:#fff;text-decoration:none;padding:5px 11px;border-radius:999px;background:rgba(var(--ink-rgb),.55);border:1px solid rgba(255,255,255,.3);white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.buoylbl{position:absolute;left:min(72%,calc(100% - 170px));transform:translateX(-50%);top:calc(46.3% - 92px);z-index:2;display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:#fff;text-decoration:none;padding:5px 11px;border-radius:999px;background:rgba(var(--ink-rgb),.55);border:1px solid rgba(255,255,255,.3);white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.5)}
 .buoylbl:hover{background:rgba(var(--ink-rgb),.78);border-color:#fff}
 .buoylbl i{width:7px;height:7px;border-radius:50%;background:#FFC23D;box-shadow:0 0 8px #FFC23D;flex:none}
 .buoylbl.old i{background:#8A949A;box-shadow:none}
 .buoylbl small{font-weight:700;color:#CFE2E5;font-size:11px}
-.buoylbl.inl{display:none;position:static}
+.buoylbl.inl{display:none;position:static;transform:none}
 @media (max-width:820px){.buoylbl.fl{display:none}.buoylbl.inl{display:inline-flex;align-self:flex-start;font-size:12px}}
 .sunt{font-size:13px;font-weight:700;color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.6)}
 .camlink{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#fff;text-decoration:none;padding:5px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.4);background:rgba(var(--ink-rgb),.38);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -84,7 +84,8 @@ button,input{font:inherit;color:inherit}
 .ans .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .ans .chips span{font-size:12px;font-weight:700;color:var(--text);padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1)}
 .ans:not(.size){display:flex;flex-direction:column}
-.ans .viz{margin-top:auto;padding-top:12px;min-height:58px}
+.ans .viz{margin-top:auto;padding-top:10px;min-height:50px}
+#tTide .chips span{padding:3px 7px;font-size:11.5px}
 .ans .viz .vz,.ans .viz .tideline{width:100%;height:46px;display:block}
 .ans .wg{display:flex;align-items:center;gap:12px}
 .ans .wbar{position:relative;flex:1;height:6px;border-radius:6px;background:rgba(255,255,255,.12);margin-bottom:16px}
@@ -115,7 +116,7 @@ button,input{font:inherit;color:inherit}
 .hacc{border-top:1px solid var(--edge)}
 .wkp .cf{font-size:10px;font-weight:700;color:#9FB7BD;min-height:12px;white-space:nowrap}
 .rel{margin-top:34px}
-.relgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr);gap:14px;margin-top:10px}
+.relgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:14px;margin-top:10px}
 @media (max-width:900px){.relgrid{grid-template-columns:1fr}}
 .relc{border-radius:24px;border:1px solid var(--edge);background:rgba(255,255,255,.035);padding:18px 20px;display:flex;flex-direction:column;gap:10px}
 .relc .rk{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--muted)}
@@ -1206,26 +1207,21 @@ const fmt2 = x => x.toFixed(2).replace('.',',');
 const shortModel = l => l.replace('Météo-France ','').replace('DWD ','').replace('NOAA ','').replace('Ifremer ','').replace(' (côtier)',' côtier');
 const dFr = d => d?d.slice(8,10)+'/'+d.slice(5,7):'';
 function relHtml(s){
-  const r=state.reliability, m=state.meta;
+  const r=state.reliability;
   let tr;
   if(r&&r.status==='ok'){
     const rows=['24','48','72','96'].filter(L=>r.leads[L]).map(L=>{ const x=r.leads[L], best=Object.entries(x.models||{}).sort((u,v)=>u[1].mae-v[1].mae)[0];
       const bl=best?((state.models||[]).find(mm=>mm.key===best[0])||{}).label||best[0]:'—';
       return `<tr><th scope="row">${L} h avant</th><td>${fmt2(x.mix.mae)} m</td><td>${x.mix.bias>0?'+':''}${fmt2(x.mix.bias)} m</td><td>${Math.round(x.mix.within30*100)} %</td><td>${shortModel(bl)}</td></tr>`; }).join('');
-    tr=`<table class="rtab"><thead><tr><th></th><th>Écart</th><th>Biais</th><th>±0,3 m</th><th>Meilleur</th></tr></thead><tbody>${rows}</tbody></table><p class="rnote">Hauteur de vagues du mélange de modèles, ${r.window_days} derniers jours, comparée à la mesure de la bouée Gascogne (au large). Biais positif : les prévisions voient trop grand.</p>`;
+    tr=`<table class="rtab"><thead><tr><th></th><th>Écart</th><th>Biais</th><th>±0,3 m</th><th>Meilleur</th></tr></thead><tbody>${rows}</tbody></table><p class="rnote">Moyenne sur ${r.window_days} jours, bouée Gascogne. Biais + : prévision trop haute.</p>`;
   } else {
-    tr=`<p class="rempty">Collecte en cours</p><div class="prog" role="img" aria-label="Collecte : jour ${r&&r.days_collected||0} sur environ 4"><i style="width:${Math.max(6,Math.min(100,((r&&r.days_collected)||0)/4*100)).toFixed(0)}%"></i></div><p class="rnote">${r&&r.days_collected?'Depuis le '+dFr(r.since)+' ('+r.days_collected+' j) : ':''}chaque prévision est gardée, puis comparée à la mesure réelle de la bouée. L’écart à 24, 48, 72 et 96 h s’affichera dès qu’il y aura assez de mesures, en général après quelques jours.</p>`;
+    tr=`<p class="rempty">Collecte en cours</p><div class="prog" role="img" aria-label="Collecte : jour ${r&&r.days_collected||0} sur environ 4"><i style="width:${Math.max(6,Math.min(100,((r&&r.days_collected)||0)/4*100)).toFixed(0)}%"></i></div><p class="rnote">${r&&r.days_collected?'Jour '+r.days_collected+' sur 4 environ avant les premiers résultats.':'Les premiers résultats arrivent dans quelques jours.'}</p>`;
   }
-  const gen=m&&m.generated?`${dFr(m.generated.slice(0,10))} à ${m.generated.slice(11,16).replace(':','h')}`:'—';
-  const src = state.mode==='server'
-    ? `<li>Prévisions calculées le ${gen}</li><li>Houle : ${(state.models||[]).length} modèles croisés</li><li>Vent : AROME, puis ICON au-delà d’environ 4 jours</li><li>Marées : calcul sur mesures REFMAR, écart moyen constaté 5 min</li><li>Coefficient : calcul indépendant, écart moyen 2 points</li>`
-    : `<li>Mode secours : sans bouée, sans modèle côtier ni marées exactes</li>`;
   return `<section class="rel wrap" aria-labelledby="sRel">
     <div class="hhead"><h2 class="h2s" id="sRel">Fiabilité des données</h2></div>
     <div class="relgrid">
       <div class="relc"><div class="rk">Accord des modèles à <span id="relHr">—</span></div><div id="relModels"></div></div>
-      <div class="relc"><div class="rk">Écart constaté sur la houle au large</div>${tr}</div>
-      <div class="relc"><div class="rk">Sources et fraîcheur</div><ul class="rsrc">${src}</ul></div>
+      <div class="relc"><div class="rk">Écart avec la bouée</div>${tr}</div>
     </div></section>`;
 }
 function relUpdate(h,ag){
@@ -1233,7 +1229,7 @@ function relUpdate(h,ag){
   const rows=(state.models||[]).map(md=>({l:shortModel(md.label),v:h.models&&h.models[md.key]})).filter(x=>x.v!=null);
   const mx=Math.max(0.1,...rows.map(x=>x.v));
   el.innerHTML=rows.map(x=>`<div class="rm"><span>${x.l}</span><span class="bar"><i style="width:${(x.v/mx*100).toFixed(0)}%"></i></span><b>${fmt(x.v)} m</b></div>`).join('')
-    +(ag?`<p class="rnote">Écart entre le plus bas et le plus haut : ${fmt(ag.sp)} m.</p>`:'');
+    +(ag?`<p class="rnote">Écart entre modèles : ${fmt(ag.sp)} m</p>`:'');
   const t=document.getElementById('relHr'); if(t) t.textContent=hhmm(state.hour);
 }
 function radarHtml(s){
@@ -1507,19 +1503,6 @@ function compass(ori, wd, wind){
 function extremes(list){ const l=list.filter(h=>h.lvl!=null), out=[];
   for(let i=1;i<l.length-1;i++){ if(l[i].lvl>l[i-1].lvl&&l[i].lvl>=l[i+1].lvl) out.push({t:'Pleine mer',h:l[i].hour}); if(l[i].lvl<l[i-1].lvl&&l[i].lvl<=l[i+1].lvl) out.push({t:'Basse mer',h:l[i].hour}); }
   return out; }
-/* Petite houle dessinée : l'amplitude suit la hauteur, la longueur d'onde suit la période */
-function waveGlyph(H,T){
-  const amp=Math.min(1,Math.max(.12,H/3))*15, cyc=Math.max(1.6,6.2-(Math.min(16,Math.max(4,T))-4)/12*4.4), n=60, pts=[];
-  for(let i=0;i<=n;i++){ const x=i/n*160, y=24+Math.sin(i/n*cyc*6.2832)*amp*(0.75+0.25*Math.sin(i/n*6.2832*1.3)); pts.push(x.toFixed(1)+' '+y.toFixed(1)); }
-  const d='M'+pts.join(' L');
-  return `<svg viewBox="0 0 160 46" preserveAspectRatio="none" class="vz"><path d="${d} L160 46 L0 46Z" fill="rgba(var(--aqua-rgb),.18)"/><path d="${d}" fill="none" stroke="var(--aqua)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round"/></svg>`;
-}
-/* Vent : flèche vers où il souffle + jauge de vitesse (0 à 50 km/h) avec repère de rafale */
-function windGlyph(h){
-  const col=windCol(h.wind), sp=Math.min(1,(h.v||0)/50), g=h.gust?Math.min(1,h.gust/50):null;
-  return `<div class="wg"><svg width="38" height="38" viewBox="-19 -19 38 38"><circle r="17" fill="none" stroke="rgba(255,255,255,.22)"/><g style="transform:rotate(${(h.wd||0)+180}deg)"><path d="M0 -12 V10 M-5 -6 L0 -12 L5 -6" fill="none" stroke="${col}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
-  <div class="wbar"><i style="width:${(sp*100).toFixed(0)}%;background:${col}"></i>${g!=null?`<b style="left:${(g*100).toFixed(0)}%"></b>`:''}<span><em>0</em><em>25</em><em>50 km/h</em></span></div></div>`;
-}
 function tideSvg(list, hour){
   const pts=list.filter(h=>h.tideN!=null); if(pts.length<3) return '';
   const X=h=>(h/23*160).toFixed(1), Y=n=>(6+(1-n)*34).toFixed(1);
@@ -1557,8 +1540,8 @@ function render(){
       <h1 class="verdict in d1"><span class="sr">${s.name} : </span><span class="vq" id="heroSize">—</span><span class="vn" id="heroNum"></span></h1>
       <p class="slot in d2" style="margin:0" id="heroTrust"></p>${buoyLabelHtml('inl')}</div></div>
       <div class="herobot"><div class="hbl"><div class="answers in d3" aria-live="polite">
-        <div class="ans" id="tSize"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 3-3 5-2"/><path d="M2 18c2.5-4 5-4 7.5 0s5 4 7.5 0 3-2.5 5-1.6" opacity=".5"/></svg><span>Vagues</span>${tip('taille','Que signifie la taille ?')}</div><div class="val" id="szV">—</div><div class="chips" id="szP"></div><div class="sub sub2" id="szS"></div><div class="viz" id="szG" aria-hidden="true"></div></div>
-        <div class="ans" id="tWind"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span>Vent</span>${tip('vent','Offshore, onshore, rafales : explications')}</div><div class="val" id="wdL">—</div><div class="chips" id="wdS"></div><div class="sub sub2" id="wdA"></div><div class="viz" id="wdG" aria-hidden="true"></div></div>
+        <div class="ans" id="tSize"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 3-3 5-2"/><path d="M2 18c2.5-4 5-4 7.5 0s5 4 7.5 0 3-2.5 5-1.6" opacity=".5"/></svg><span>Vagues</span>${tip('taille','Que signifie la taille ?')}</div><div class="val" id="szV">—</div><div class="chips" id="szP"></div><div class="sub sub2" id="szS"></div></div>
+        <div class="ans" id="tWind"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span>Vent</span>${tip('vent','Offshore, onshore, rafales : explications')}</div><div class="val" id="wdL">—</div><div class="chips" id="wdS"></div></div>
         <div class="ans" id="tTide"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M4 6l3-3 3 3"/><path d="M17 21v-8M14 18l3 3 3-3"/><path d="M2 14c1.7-1.5 3.3-1.5 5 0M10 10c1.7-1.5 3.3-1.5 5 0" opacity=".5"/></svg><span>Marée</span>${tip('maree','Comment lire la marée ?')}</div><div class="val" id="tdV">—</div><div class="chips" id="tdS"></div><div class="sub sub2" id="tdC"></div><div class="viz" id="tdG" aria-hidden="true"></div></div>
       </div>
       <nav class="week7 in d3" aria-label="La semaine à ${s.name}">${d.days.map((x,j)=>x.tag==='—'?'':weekPill(x,j,k,wmax)).join('')}</nav></div>${compassHtml(s)}</div>
@@ -1649,19 +1632,16 @@ function updateLive(){
   $('heroSize').textContent=`${fmt(h.H)} m`;
   $('heroNum').textContent=`${Math.round(h.T||0)} s${h.D!=null?' · '+sector(h.D):''}`;
   $('heroTrust').innerHTML=trustHtml(ag);
-  const wv=Object.values(h.wmodels||{}); $('wdA').textContent=wv.length>1?`${wv.length} modèles : ${Math.round(Math.min(...wv))} à ${Math.round(Math.max(...wv))} km/h`:'';
   const cfd=state.coef&&state.coef[day.date]; $('tdC').textContent=cfd&&cfd.length?`Coefficient ${cfd.join(' · ')}`:'';
   relUpdate(h,ag);
   $('szV').textContent=`${fmt(h.H)} m`;
   $('szP').innerHTML=[h.D!=null?sector(h.D):null,`${Math.round(h.T||0)} s`,periodTxt(h.T||0)].filter(Boolean).map(x=>`<span>${x}</span>`).join('');
-  $('szG').innerHTML=waveGlyph(h.H,h.T||8);
   $('szS').textContent=h.sec?`+ ${h.sec.kind} ${fmt(h.sec.H)} m · ${Math.round(h.sec.T)} s${h.sec.D!=null?' · '+sector(h.sec.D):''}`:'';
   $('wdL').textContent=windWord[h.wind]; $('wdL').style.color=windCol(h.wind);
   $('wdS').innerHTML=[`${Math.round(h.v)} km/h`,`de ${sector(h.wd)}`,h.gust?`rafales ${Math.round(h.gust)}`:null].filter(Boolean).map(x=>`<span>${x}</span>`).join('');
-  $('wdG').innerHTML=windGlyph(h);
   const exact=exactTides(state.spot,day.date); const ex=exact||extremes(day.list).map(x=>({t:x.t,type:x.t==='Pleine mer'?'PM':'BM',hm:x.h+'h',hd:x.h}));
   $('tdV').textContent=tidePhase(h);
-  $('tdS').innerHTML=ex.length?ex.filter(x=>x.hd>=5&&x.hd<=22).map(x=>`<span>${x.type==='PM'?'Haute':'Basse'} ${exact?'':'≈ '}${x.hm}</span>`).join(''):'<span>Horaires indisponibles</span>';
+  $('tdS').innerHTML=ex.length?ex.filter(x=>x.hd>=5&&x.hd<=22).map(x=>`<span>${x.type} ${exact?'':'≈ '}${x.hm}</span>`).join(''):'<span>Horaires indisponibles</span>';
   $('tdG').innerHTML=tideSvg(day.list,state.hour);
   const hs_=$('hcSwell'), hw_=$('hcWind');
   if(hs_&&h.D!=null){ hs_.setAttribute('transform',`rotate(${h.D.toFixed(0)})`); $('hcS').textContent=`Houle ${sector(h.D)} · ${Math.round(h.T||0)} s`; }
