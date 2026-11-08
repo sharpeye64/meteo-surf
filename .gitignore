@@ -5,3 +5,6 @@ web/data/forecast.json
 tides/raw/*
 history/
 !tides/raw/.gitkeep
+web/spots/
+web/sitemap.xml
+web/robots.txt

@@ -1,4 +1,4 @@
-# Contexte pour Claude Code — le site s’appelle Houlala (wordmark minuscule + trait de vague)
+# Contexte pour Claude Code — le site s’appelle Houlalah (nom de domaine disponible avec le h final) (wordmark minuscule « houlalah » + trait de vague)
 
 Prototype de site de prévisions surf (côte Lacanau → Hendaye) pour concurrencer Yadusurf. L'utilisateur
 n'est pas développeur : expliquer en français, simplement, une étape à la fois.
@@ -31,11 +31,27 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   modèles seulement). La section « La semaine » du bas a été retirée (doublon du bandeau du haut). Le tri du sélecteur de
   spot se fait par taille. Le score interne (`h.score`, `day.sc`) existe encore pour le trait doré, mais ne s'affiche plus.
 
-- Bandeau « L'équipement idéal » : exemple de planche réelle (table `GEAR` dans `web/index.html`) choisi d'après la puissance
-  de la houle (taille × période × exposition), puis ajusté au poids (liste déroulante, mémorisée). Dimensions et volumes
-  relevés en novembre 2026 sur les fiches Pyzel et sur des revendeurs concordants ; les revendeurs divergent selon l'année
-  et la construction, donc toujours indiquer « à vérifier chez le shaper ». Ajouter une famille ou un modèle = ajouter une
-  entrée à `GEAR` avec uniquement des dimensions vérifiées. Les coefficients litres/kg sont des repères, pas une norme.
+- Bandeau « L'équipement idéal » : on annonce seulement un TYPE de planche (Mid-length, Groveler, Shortboard, Step-up, Gun),
+  avec une fourchette de longueur et de volume (table `GEAR` dans `web/index.html`), choisi d'après la puissance de la houle
+  (taille × période × exposition) puis ajusté au poids (liste déroulante, mémorisée). Pas de marque ni de modèle : l'utilisateur
+  ne veut pas de précision excessive. Les coefficients litres/kg sont des repères, pas une norme.
+- Le trait doré « créneau favorable » de la frise horaire est désactivé (`winA=99,winB=-1`) : on y réfléchira plus tard.
+  Le score interne (`h.score`) existe encore mais ne s'affiche plus.
+- Bas de page : « Marées de la semaine » (horaires, coefficient, lever/coucher du soleil sur 7 jours) a remplacé « Le spot »,
+  qui répétait le haut de page. « Fiabilité des données » est le dernier bandeau (2 cartes courtes, pas de « sources »).
+- Bandeaux Vagues / Vent / Marée du haut de page : icône fine + valeur + pastilles ; la marée a sa courbe du jour en fond de
+  carte avec un point à l'heure choisie (hauteur interpolée). Pas de ligne « jour · heure · soleil » ni de bouton webcam texte :
+  la webcam est une icône à côté de l'étoile.
+
+## SEO
+- `pipeline/seo.py` (appelé par `build.py`, jamais bloquant) écrit `web/spots/<slug>/index.html` (une page par spot avec vrai
+  texte, tableau des 7 jours, JSON-LD, balises canonical/Open Graph, spots voisins), `web/spots/index.html` (index par région),
+  `web/sitemap.xml`, `web/robots.txt`. Ces fichiers sont générés (ignorés par git) et publiés avec le site.
+- L'adresse publique vient de `config.SITE_URL` (variable `METEO_SITE_URL` dans `.github/workflows/update.yml`) : à régler sur
+  le nom de domaine définitif, puis ajouter un fichier `web/CNAME`. Les pages de spots mènent à `./?spot=<slug>` (le site lit ce
+  paramètre, met à jour le titre de l'onglet et l'adresse selon le spot).
+- À faire quand le domaine est branché : déclarer le sitemap dans Google Search Console / Bing Webmaster, image de partage
+  (og:image), vérifier les Core Web Vitals (l'océan WebGL est lourd sur mobile).
 
 - Haut de page = OCÉAN ANIMÉ (WebGL, shader dans `oceanBuild()`), voulu par l'utilisateur : ciel et mer qui bougent, soleil sur un
   arc symbolique de gauche à droite (`sunVec`, jamais hors cadre) qui glisse du lever vers l'heure actuelle au chargement,

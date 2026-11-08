@@ -176,6 +176,15 @@ c0 = data["coast"][1]
 assert c0["name"] == "Anglet" and c0["latest"]["hs"] > 0 and c0["latest"]["tp"] == 9.5 and len(c0["obs"]) >= 40
 print("CANDHIS OK :", [b["name"] for b in data["coast"]], c0["latest"])
 
+import re as _re
+sm = (config.ROOT / "web" / "sitemap.xml").read_text(encoding="utf-8")
+assert sm.count("<url>") == len(data["spots"]) + 2, sm.count("<url>")
+assert "Sitemap:" in (config.ROOT / "web" / "robots.txt").read_text()
+pg = (config.ROOT / "web" / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
+assert "<h1>Prévisions surf à Lacanau</h1>" in pg and "application/ld+json" in pg and 'rel="canonical"' in pg and "<table>" in pg
+assert "Houlalah" in (config.ROOT / "web" / "spots" / "index.html").read_text(encoding="utf-8")
+print("SEO OK :", len(data["spots"]), "pages de spots + index + sitemap")
+
 # Secours : Copernicus indisponible → NOAA NDBC.
 buoy.requests.get = lambda url, *a, **k: FakeResp(status_code=503) if "cloudferro" in url else fake_ndbc()
 g = buoy.fetch([{"name": "x", "lat": 43.5, "lon": -1.5}])

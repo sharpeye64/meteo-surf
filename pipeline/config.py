@@ -1,4 +1,5 @@
 """Réglages centraux du pipeline de prévision."""
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -6,6 +7,10 @@ SPOTS_FILE = ROOT / "pipeline" / "spots.json"
 TIDE_CONSTANTS_DIR = ROOT / "tides" / "constants"
 OUTPUT_FILE = ROOT / "web" / "data" / "forecast.json"
 HISTORY_DIR = ROOT / "history"  # archive prévision/réalité (branche git « history » dans GitHub Actions)
+
+# Adresse publique du site (pages de référencement, sitemap). À remplacer par le nom de domaine une fois branché :
+# variable METEO_SITE_URL dans .github/workflows/update.yml.
+SITE_URL = os.environ.get("METEO_SITE_URL", "https://sharpeye64.github.io/meteo-surf").rstrip("/")
 
 TIMEZONE = "Europe/Paris"
 FORECAST_DAYS = 7

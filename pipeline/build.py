@@ -10,7 +10,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from . import buoy, candhis, config, history, marc, openmeteo, tides
+from . import buoy, candhis, config, seo, history, marc, openmeteo, tides
 
 
 def log(msg):
@@ -161,6 +161,12 @@ def main():
     payload = {"meta": meta, "gascogne": gascogne, "coast": coast, "tide_coef": tide_coef, "reliability": reliability, "spots": out_spots}
     config.OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     config.OUTPUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+    try:
+        n = seo.generate(payload)
+        log(f"SEO : {n} pages de spots + sitemap.xml + robots.txt ({config.SITE_URL})")
+    except Exception as e:  # le référencement ne doit jamais empêcher la publication des prévisions
+        meta["errors"]["seo"] = str(e)[:300]
+        log(f"  pages SEO non générées : {e}")
     size = config.OUTPUT_FILE.stat().st_size / 1024
     log(f"OK : {config.OUTPUT_FILE.relative_to(config.ROOT)} ({size:.0f} Ko) · erreurs : {list(meta['errors']) or 'aucune'}")
 
