@@ -13,12 +13,11 @@
   --q0:#55626A; --q1:#7FA7C4; --q2:#45C4B0; --q3:#F5C451; --q4:#FF7A45; --amb:#3A5C70; --ambSun:#FFD27A;
   color-scheme:dark;
 }
-@property --amb{syntax:'<color>';inherits:true;initial-value:#3A5C70}
 @property --ambSun{syntax:'<color>';inherits:true;initial-value:#FFD27A}
 :root{transition:--amb .8s ease,--ambSun .8s ease}
 *{box-sizing:border-box}
-html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--abyss)}
-body{margin:0;background:radial-gradient(1500px 760px at 70% 980px,color-mix(in srgb,var(--amb) 28%,transparent),transparent 70%),radial-gradient(900px 700px at 10% 1500px,color-mix(in srgb,var(--ambSun) 12%,transparent),transparent 70%),var(--abyss);background-attachment:scroll;color:var(--text);font-family:Manrope,system-ui,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:radial-gradient(1500px 760px at 70% 980px,color-mix(in srgb,var(--amb) 28%,transparent),transparent 70%),radial-gradient(900px 700px at 10% 1500px,color-mix(in srgb,var(--ambSun) 12%,transparent),transparent 70%),var(--abyss)}
+body{margin:0;background:transparent;color:var(--text);font-family:Manrope,system-ui,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
 h1,h2,h3,.disp{font-family:Unbounded,system-ui,sans-serif;margin:0;letter-spacing:-.02em}
 button,input{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:10px}
@@ -27,41 +26,18 @@ button,input{font:inherit;color:inherit}
 
 /* HERO */
 .hero{position:relative;min-height:clamp(440px,62vh,700px);min-height:clamp(440px,62svh,700px);display:flex;flex-direction:column;overflow:hidden;isolation:isolate}
-@property --c1{syntax:'<color>';inherits:true;initial-value:#14204a}
-@property --c2{syntax:'<color>';inherits:true;initial-value:#2b4a7a}
-@property --c3{syntax:'<color>';inherits:true;initial-value:#8fb7d6}
-@property --c4{syntax:'<color>';inherits:true;initial-value:#2b6a86}
-@property --c5{syntax:'<color>';inherits:true;initial-value:#0b2a3a}
-@property --w1{syntax:'<color>';inherits:true;initial-value:#2b5f9a}
-@property --w2{syntax:'<color>';inherits:true;initial-value:#1a5a8f}
-@property --w3{syntax:'<color>';inherits:true;initial-value:#0f5c86}
-@property --w4{syntax:'<color>';inherits:true;initial-value:#0a4a70}
-@property --silh{syntax:'<color>';inherits:true;initial-value:#2a4a62}
-@property --silh2{syntax:'<color>';inherits:true;initial-value:#0a1a24}
-@property --sunc{syntax:'<color>';inherits:true;initial-value:#ffd27a}
-.skybg{--tdur:.9s;position:absolute;inset:0;z-index:-2;overflow:hidden;
-  background:linear-gradient(180deg,var(--c1) 0%,var(--c2) 18%,var(--c3) 36%,var(--c4) 36.4%,var(--c5) 100%);
-  transition:--c1 var(--tdur) ease,--c2 var(--tdur) ease,--c3 var(--tdur) ease,--c4 var(--tdur) ease,--c5 var(--tdur) ease,--w1 var(--tdur) ease,--w2 var(--tdur) ease,--w3 var(--tdur) ease,--w4 var(--tdur) ease,--silh var(--tdur) ease,--silh2 var(--tdur) ease,--sunc var(--tdur) ease}
-.skybg.notrans{transition:none}
-.skybg .arc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.skybg .stars{position:absolute;left:0;right:0;top:0;width:100%;height:36%;opacity:var(--stars,0);transition:opacity 1.2s;pointer-events:none}
-.skybg .sunb,.skybg .moonb{position:absolute;left:12%;top:36%;width:0;height:0;transition:opacity .7s;pointer-events:none}
-.sunb .glow{position:absolute;width:620px;height:620px;margin:-310px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--sunc) 58%,transparent) 0,transparent 62%)}
-.sunb .disc{position:absolute;width:36px;height:36px;margin:-18px;border-radius:50%;background:radial-gradient(circle,#fffdf0 0%,#fff3cf 55%,var(--sunc) 100%);box-shadow:0 0 34px 14px color-mix(in srgb,var(--sunc) 72%,transparent)}
-.moonb .mglow{position:absolute;width:300px;height:300px;margin:-150px;border-radius:50%;background:radial-gradient(circle,rgba(190,210,255,.28) 0,transparent 62%)}
-.moonb .mdisc{position:absolute;width:28px;height:28px;margin:-14px;border-radius:50%;background:radial-gradient(circle at 38% 36%,#fff 0%,#e8efff 60%,#c4d2f2 100%);box-shadow:0 0 24px 8px rgba(190,210,255,.35)}
-.skybg .far{position:absolute;left:0;right:0;bottom:64%;height:78px;pointer-events:none}
-.skybg .far svg{display:block;width:100%;height:100%;fill:var(--silh,#2a4a62)}
-.skybg .waves{position:absolute;left:0;right:0;bottom:0;height:64%;width:100%;display:block}
-.skybg .glit{position:absolute;left:var(--gx,50%);top:36%;width:16%;height:26%;transform:translateX(-50%);opacity:0;transition:opacity .7s;pointer-events:none;fill:var(--gsun,#ffd9a0);overflow:visible}
-.skybg .mark{position:absolute;left:54%;bottom:calc(64% - 8px);width:clamp(96px,11vw,160px);height:auto;fill:var(--silh2,#0a1a24);pointer-events:none}
-.sunt{font-size:13px;font-weight:700;color:#e3eef0;opacity:.9}
+.sunt{font-size:13px;font-weight:700;color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.6)}
 .camlink{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#fff;text-decoration:none;padding:5px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.4);background:rgba(4,18,26,.38);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .camlink:hover{background:rgba(4,18,26,.62);border-color:#fff}
-@media (max-width:520px){.skybg .mark{left:60%}}
-.hero::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(60% 40% at 20% 30%,rgba(4,18,26,.34),transparent 72%),linear-gradient(180deg,rgba(4,18,26,.3) 0%,rgba(4,18,26,0) 20%,rgba(4,18,26,0) 62%,rgba(4,18,26,.5) 86%,#04121A 100%)}
+.hero::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(70% 45% at 22% 62%,rgba(4,18,26,.42),transparent 72%),linear-gradient(180deg,rgba(4,18,26,.28) 0%,rgba(4,18,26,0) 22%,rgba(4,18,26,0) 55%,rgba(4,18,26,.55) 85%,#04121A 100%)}
 .bar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top,0px)) 20px 0;max-width:1180px;width:100%;margin:0 auto}
 .brand{font-family:Unbounded,system-ui,sans-serif;font-weight:800;font-size:17px;display:flex;align-items:center;gap:8px;white-space:nowrap}
+#ocean{position:absolute;top:0;left:0;width:100%;height:640px;z-index:-1;display:block;pointer-events:none}
+.sunarc{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+/* les verres dépolis par-dessus une animation obligent à reflouter chaque image : on les retire dans le haut de page */
+.hero .ans,.hero .glassbtn,.hero .hcomp,.hero .wkp,.hero .camlink,.hero .scrub{backdrop-filter:none;-webkit-backdrop-filter:none}
+.hero .ans{background:linear-gradient(165deg,color-mix(in srgb,var(--acc) 20%,rgba(5,16,23,.9)) 0%,rgba(5,16,23,.88) 60%)}
+.hero .hcomp,.hero .wkp{background:rgba(4,18,26,.62)}
 @media (max-width:520px){ .glassbtn .lbl{display:none} #openPicker{width:44px;padding:0;justify-content:center} .scrub .head span{display:none} .hero::after{background:linear-gradient(180deg,rgba(4,18,26,.55) 0%,rgba(4,18,26,.25) 35%,rgba(4,18,26,.35) 60%,rgba(4,18,26,.9) 100%)} .heroBody{gap:16px;padding-top:24px} }
 .brand i{width:12px;height:12px;border-radius:50%;background:conic-gradient(var(--aqua),var(--gold),var(--coral),var(--lilac),var(--aqua));box-shadow:0 0 14px rgba(255,182,72,.6)}
 .actions{display:flex;gap:8px}
@@ -101,7 +77,7 @@ button,input{font:inherit;color:inherit}
 .ans .s{font-size:13px;color:#CFE2E5;margin-top:2px}
 
 /* HAUT DE PAGE : lecture en un coup d'œil */
-.spotk{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:15px;font-weight:700;color:rgba(255,255,255,.9);text-shadow:0 1px 4px rgba(0,0,0,.45)}
+.spotk{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:15px;font-weight:700;color:rgba(255,255,255,.9);text-shadow:0 1px 5px rgba(0,0,0,.7),0 0 16px rgba(0,0,0,.35)}
 .spotbtn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:800;color:#fff;padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.45)}
 .spotbtn:hover{border-bottom-color:#fff}.spotbtn:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:4px}
 .verdict{margin:2px 0 0;display:flex;align-items:baseline;gap:6px 18px;flex-wrap:wrap;line-height:1;text-shadow:0 2px 30px rgba(0,0,0,.45)}
@@ -495,6 +471,7 @@ dialog::backdrop{background:rgba(2,10,14,.7);backdrop-filter:blur(4px)}
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
+<canvas id="ocean" aria-hidden="true"></canvas>
 <div id="app"><div class="loading"><div class="disp">On regarde l’océan…</div><div class="loader" aria-hidden="true"></div><div style="color:var(--muted)">Prévisions de 58 spots, de Lacanau à Hendaye</div></div></div>
 
 <dialog id="picker" aria-labelledby="pkTitle">
@@ -787,100 +764,210 @@ function palette(h){
   return {sT:mix(a[1],b[1]), sB:mix(a[2],b[2]), sun:mix(a[3],b[3]), wD:mix(a[4],b[4]), wS:mix(a[5],b[5])};
 }
 const ocean = { rise:8, set:18 };
-/* ---------- Fond du haut : océan illustré, STATIQUE (aucune animation, aucun canvas) ---------- */
-/* Décor propre à chaque spot : arrière-plan selon la région, élément de premier plan selon le spot. */
-function sceneOf(s){
-  const b=(s.bottom||'').toLowerCase(), t=(s.type||'').toLowerCase(), basque=s.region==='Pays Basque';
-  let mark='dunes';
-  if(/jet|digue/.test(b)||s.name==="L'Estacade") mark='jetty';
-  else if(['La Grande Plage','La Côte des Basques','Le Cap Ferret'].includes(s.name)) mark='lighthouse';
-  else if(/reef|point/.test(t)||/récif/.test(b)) mark='rocks';
-  else if(/roche/.test(b)) mark='cliffs';
-  else if(basque) mark='none';
-  return {base:basque?'basque':'landes', mark};
+/* ---------- Océan animé (WebGL) ----------
+   Règles qui évitent les blocages d'avant : UN SEUL canvas, créé une fois au démarrage et jamais recréé ; une seule boucle,
+   30 images/s au plus, en pause quand la page est cachée ou hors écran ; qualité réduite automatiquement si l'appareil est
+   lent, puis image fixe en dernier recours. Le canvas vit hors de #app : réafficher la page ne le touche pas. */
+const OC = { gl:null, canvas:null, u:{}, lost:false, raf:0, visible:true, last:0, t0:performance.now(), hour:null, hourT:10,
+  quality:1, frames:0, dtSum:0, still:false, introUntil:0, ro:null };
+const OC_F=1.2, OC_PITCH=-0.10;
+/* Arc du soleil : de gauche à droite, du lever au coucher (symbolique : toujours dans le cadre) */
+function sunVec(h,portrait){ const hc=canon(h), p=(hc-7.6)/10.6, AZ=portrait?0.13:0.5, EL=portrait?0.30:0.29;
+  const az=(clamp(p,-.1,1.1)-.5)*2*AZ, el=-0.035+Math.sin(clamp(p,0,1)*Math.PI)*EL-(p<0?(-p)*0.6:0)-(p>1?(p-1)*0.6:0);
+  return [Math.sin(az)*Math.cos(el), Math.sin(el), Math.cos(az)*Math.cos(el)]; }
+function sunScreen(h){ const c=OC.canvas; if(!c) return [0.5,0.5]; const asp=c.clientWidth/Math.max(1,c.clientHeight), v=sunVec(h,asp<1);
+  return [0.5+(OC_F*v[0]/v[2])/asp, 0.5+OC_F*v[1]/v[2]-OC_PITCH]; }
+function drawArc(){
+  const svg=document.getElementById('sunarc'); if(!svg||!state.data) return;
+  const day=state.data[state.spot].days[state.day], r=day.sun?hDec(day.sun.rise):8, st=day.sun?hDec(day.sun.set):18;
+  let d=''; for(let i=0;i<=48;i++){ const [x,y]=sunScreen(r+(st-r)*i/48); d+=(i?' L':'M')+(x*1000).toFixed(1)+' '+((1-y)*1000).toFixed(1); }
+  svg.innerHTML=`<path d="${d}" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1.2" stroke-dasharray="1 8" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
 }
-const MARKS = {
-  lighthouse:`<path d="M18 120 Q40 104 62 108 Q92 100 124 120Z"/><path d="M72 108 L78 54 L92 54 L98 108Z"/><rect x="68" y="47" width="32" height="7" rx="2"/><rect x="76" y="32" width="16" height="15" rx="2"/><path d="M73 32 L84 17 L95 32Z"/>`,
-  jetty:`<rect x="0" y="100" width="160" height="6" rx="2"/><path d="M12 106h4v16h-4zM40 106h4v16h-4zM68 106h4v16h-4zM96 106h4v16h-4zM124 106h4v16h-4z"/><rect x="146" y="78" width="4" height="24"/><circle cx="148" cy="76" r="5"/>`,
-  rocks:`<path d="M8 120 L26 90 L42 99 L54 120Z"/><path d="M58 120 L76 74 L98 88 L110 120Z"/><path d="M106 120 L122 96 L142 103 L152 120Z"/>`,
-  cliffs:`<path d="M16 120 L16 72 Q20 50 46 46 L70 44 Q88 34 106 40 L134 46 Q152 52 160 62 L160 120Z"/><circle cx="48" cy="44" r="6"/><circle cx="64" cy="41" r="7"/><circle cx="88" cy="36" r="6"/><circle cx="112" cy="40" r="6"/>`,
-  dunes:`<path d="M0 120 Q30 80 70 93 Q96 70 130 91 Q150 83 160 97 L160 120Z"/><path d="M104 88 l5 -22 l5 22Z M118 90 l4 -17 l4 17Z M132 92 l5 -20 l5 20Z"/>`
-};
-function farSvg(base){
-  if(base==='basque') return `<svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path style="opacity:.55" d="M480 90 L540 66 L600 70 L660 48 L720 56 L780 38 L840 48 L900 30 L960 48 L1030 40 L1100 60 L1200 52 L1200 90Z"/><path d="M560 90 L620 70 L680 74 L740 52 L790 58 L850 28 L890 38 L930 14 L970 34 L1010 30 L1070 56 L1130 48 L1200 62 L1200 90Z"/></svg>`;
-  let pines=''; for(let i=0;i<64;i++){ const x=620+i*9.2, h=14+((i*37)%17); pines+=`M${x.toFixed(1)} 90 l4.5 -${h} l4.5 ${h}Z `; }
-  return `<svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M500 90 Q700 78 900 84 T1200 80 L1200 90Z"/><path d="${pines}"/></svg>`;
+function heroSunTimes(){
+  const el=document.getElementById('sunT'); if(!el) return; const day=state.data[state.spot].days[state.day];
+  el.textContent=day.sun?`↑ ${day.sun.rise.replace(':','h')} · ↓ ${day.sun.set.replace(':','h')}`:'';
 }
-function skyScene(s){
-  const sc=sceneOf(s);
-  let stars=''; for(let i=0;i<46;i++){ const x=(i*173+i*i*29)%1000, y=(i*97+i*i*13)%330, r=(.8+((i*7)%10)/10*1.1).toFixed(1); stars+=`<circle cx="${x}" cy="${y}" r="${r}" opacity="${(.45+((i*13)%10)/18).toFixed(2)}"/>`; }
-  return `<svg class="arc" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><path fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2" stroke-dasharray="1 9" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
-    <svg class="stars" viewBox="0 0 1000 360" preserveAspectRatio="none" aria-hidden="true" fill="#fff">${stars}</svg>
-    <div class="sunb"><i class="glow"></i><i class="disc"></i></div>
-    <div class="moonb"><i class="mglow"></i><i class="mdisc"></i></div>
-    <div class="far">${farSvg(sc.base)}</div>
-    <svg class="waves" viewBox="0 0 1200 400" preserveAspectRatio="none">
-      <path fill="var(--w1)" d="M0 8 C150 2 280 14 430 8 S720 0 870 10 S1030 4 1200 8 L1200 400 L0 400Z"/>
-      <path fill="var(--w2)" d="M0 70 C130 54 250 84 400 68 S660 52 820 70 S1020 64 1200 68 L1200 400 L0 400Z"/>
-      <path fill="var(--w3)" d="M0 150 C160 126 270 170 440 150 S720 128 900 152 S1050 146 1200 148 L1200 400 L0 400Z"/>
-      <path fill="var(--w4)" d="M0 240 C140 214 290 262 470 240 S780 216 960 244 S1070 236 1200 238 L1200 400 L0 400Z"/>
-      <path fill="none" stroke="rgba(255,255,255,.34)" stroke-width="1.6" d="M0 70 C130 54 250 84 400 68 S660 52 820 70 S1020 64 1200 68"/>
-      <path fill="none" stroke="rgba(255,255,255,.26)" stroke-width="1.6" d="M0 150 C160 126 270 170 440 150 S720 128 900 152 S1050 146 1200 148"/>
-    </svg>
-    <svg class="glit" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><rect x="46" y="5" width="8" height="2.2" rx="1.1" opacity="1.00"/><rect x="40" y="16" width="14" height="2.2" rx="1.1" opacity="0.95"/><rect x="44" y="27" width="10" height="2.2" rx="1.1" opacity="0.90"/><rect x="36" y="38" width="22" height="2.2" rx="1.1" opacity="0.85"/><rect x="42" y="49" width="15" height="2.2" rx="1.1" opacity="0.80"/><rect x="32" y="60" width="30" height="2.2" rx="1.1" opacity="0.75"/><rect x="40" y="71" width="20" height="2.2" rx="1.1" opacity="0.70"/><rect x="28" y="82" width="36" height="2.2" rx="1.1" opacity="0.65"/><rect x="38" y="93" width="26" height="2.2" rx="1.1" opacity="0.60"/></svg>
-    ${sc.mark!=='none'?`<svg class="mark" viewBox="0 0 160 124" aria-hidden="true">${MARKS[sc.mark]}</svg>`:''}`;
-}
-/* Le soleil traverse le ciel de gauche à droite, du lever au coucher, au rythme de l'heure choisie ; la lune prend le relais la nuit.
-   Position symbolique (pas astronomique) : lisible et toujours dans le cadre. Aucun dessin continu : un court glissement
-   (quelques dizaines d'images) quand l'heure change, puis rien. */
-const SKY = { cur:null, raf:0, intro:true };
-function skyGeom(){ const portrait=innerWidth<innerHeight; return {hz:36, A:portrait?20:23, x0:portrait?14:12, w:portrait?72:76}; }
-function skyPlace(h){
-  const sc=document.getElementById('sky'); if(!sc) return;
-  const g=skyGeom(), rise=ocean.rise||8, set=ocean.set||18;
-  const p=(h-rise)/(set-rise), pc=clamp(p,-0.1,1.1), sunVis=p>-0.07&&p<1.07;
-  const sx=g.x0+g.w*pc, sy=g.hz-g.A*Math.sin(Math.PI*pc);
-  const nl=24-set+rise, pn=h>set?(h-set)/nl:h<rise?(h+24-set)/nl:null;
-  const mx=pn==null?0:g.x0+g.w*pn, my=pn==null?0:g.hz-g.A*0.9*Math.sin(Math.PI*pn);
-  const sun=sc.querySelector('.sunb'), moon=sc.querySelector('.moonb'), gl=sc.querySelector('.glit');
-  sun.style.left=sx.toFixed(2)+'%'; sun.style.top=sy.toFixed(2)+'%'; sun.style.opacity=sunVis?1:0;
-  moon.style.left=mx.toFixed(2)+'%'; moon.style.top=my.toFixed(2)+'%'; moon.style.opacity=(!sunVis&&pn!=null)?1:0;
-  gl.style.left=((!sunVis&&pn!=null)?mx:sx).toFixed(2)+'%';
-  gl.style.opacity=(sunVis?0.25+0.75*(1-Math.sin(Math.PI*clamp(p,0,1))):(pn!=null?0.2:0)).toFixed(2);
-}
-function skyColors(el,h){
-  const p=palette(canon(h)), rgb=v=>`rgb(${v.map(x=>Math.round(clamp(x,0,1)*255)).join(',')})`, mixc=(u,v,t)=>u.map((x,i)=>x+(v[i]-x)*t);
-  const rise=ocean.rise||8, set=ocean.set||18, edge=Math.min(h-rise,set-h);
-  const day=clamp((edge+0.6)/1.2,0,1), warm=clamp(1-edge/2.2,0,1)*day;   // jour plein / nuit ; reflet chaud près du lever et du coucher
-  const put=(n,v)=>el.style.setProperty(n,v);
-  put('--c1',rgb(p.sT)); put('--c2',rgb(mixc(p.sT,p.sB,.55))); put('--c3',rgb(p.sB)); put('--c4',rgb(mixc(p.sB,p.wS,.5))); put('--c5',rgb(p.wD));
-  const vivid=[[.17,.37,.60],[.10,.35,.56],[.06,.30,.48],[.04,.17,.30]], base=[mixc(p.wS,p.sB,.32),mixc(p.wS,p.wD,.22),mixc(p.wS,p.wD,.55),mixc(p.wS,p.wD,.86)];
-  base.forEach((b,i)=>{ let c=mixc(b,vivid[i],day*.88); if(i<2) c=mixc(c,p.sun,.2*warm*(i?.6:1)); put('--w'+(i+1),rgb(c)); });
-  put('--silh',rgb(mixc(p.sB,p.wD,.5))); put('--silh2',rgb(mixc(p.wD,[0,0,0],.5))); put('--sunc',rgb(p.sun)); put('--gsun',rgb(p.sun));
-  put('--stars',(1-day).toFixed(2));
-}
-function skyGo(target,dur){
-  if(SKY.raf){ cancelAnimationFrame(SKY.raf); SKY.raf=0; }
-  if(REDUCED||playing||SKY.cur==null||Math.abs(target-SKY.cur)<0.04){ SKY.cur=target; skyPlace(target); return; }
-  const from=SKY.cur, t0=performance.now(), d=dur||clamp(Math.abs(target-from)*170+450,500,1800);
-  const step=now=>{ const f=Math.min(1,(now-t0)/d), e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2; SKY.cur=from+(target-from)*e; skyPlace(SKY.cur); SKY.raf=f<1?requestAnimationFrame(step):0; };
-  SKY.raf=requestAnimationFrame(step);
-}
-function skyUpdate(){
-  const el=document.getElementById('sky'); if(!el) return;
-  const g=skyGeom(), day=state.data[state.spot].days[state.day];
-  // arc pointillé du lever au coucher + heures réelles
-  let d=''; for(let i=0;i<=40;i++){ const q=i/40; d+=(i?' L':'M')+((g.x0+g.w*q)*10).toFixed(1)+' '+((g.hz-g.A*Math.sin(Math.PI*q))*10).toFixed(1); }
-  el.querySelector('.arc path').setAttribute('d',d);
-  const st=document.getElementById('sunT'); if(st) st.textContent=day.sun?`↑ ${day.sun.rise.replace(':','h')} · ↓ ${day.sun.set.replace(':','h')}`:'';
-  const intro=SKY.intro&&!REDUCED&&!playing;
-  if(!el.dataset.init){   // nouvel élément (affichage de la page, changement de spot ou de jour) : on repart d'où on en était
-    el.dataset.init='1'; const h0=SKY.cur!=null?SKY.cur:(intro?(ocean.rise||8):state.hour);
-    el.classList.add('notrans'); skyColors(el,h0); SKY.cur=h0; skyPlace(h0); void el.offsetWidth; el.classList.remove('notrans');
+function oceanBuild(){
+  const gl=OC.gl; if(!gl) return false;
+  const vs=`attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}`;
+  const fs=`precision highp float;
+  uniform vec2 r,swD;uniform float t,amp,night,swL,chop;uniform vec3 sT,sB,sun,wD,wS,sd;
+  const float F=1.2; const float PITCH=-0.10;
+  float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+  float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
+  float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*noise(p);p=mat2(1.6,1.2,-1.2,1.6)*p+vec2(3.1,1.7);a*=.5;}return v;}
+  vec2 rot(vec2 v,float a){float c=cos(a),s=sin(a);return vec2(c*v.x-s*v.y,s*v.x+c*v.y);}
+  float lowSun(){return smoothstep(.32,.0,sd.y);}
+  vec3 sky(vec3 rd){
+    float y=max(rd.y,0.);
+    vec3 c=mix(sB,sT,pow(y,.42));
+    float mu=max(dot(rd,sd),0.);
+    c+=sun*(pow(mu,4.)*.26*(.35+.65*lowSun())+pow(mu,32.)*.35+pow(mu,420.)*.75)*(1.-night*.75);
+    /* soleil dans le dos et bas : ombre de la Terre (bleu) surmontée de la ceinture de Vénus (rose) */
+    vec2 ah=-sd.xz/max(length(sd.xz),1e-3);
+    float anti=max(dot(normalize(vec2(rd.x,rd.z)),ah),0.);
+    float behind=smoothstep(.15,-.35,sd.z)*lowSun()*(1.-night)*smoothstep(-.11,0.,sd.y);
+    c=mix(c,c*vec3(.55,.62,.9),behind*exp(-y*38.)*.55*(.5+.5*anti));
+    c+=vec3(.98,.56,.64)*behind*exp(-pow((y-.075)/.05,2.))*.26*(.45+.55*anti);
+    c=mix(c,sB,exp(-y*22.)*.3);
+    return c;
   }
-  el.style.setProperty('--tdur', playing?'0s':intro?'2.4s':'.9s');
-  skyColors(el,state.hour); skyGo(state.hour,intro?2400:0);
-  SKY.intro=false;
+  vec4 clouds(vec3 rd){
+    if(rd.y<.004) return vec4(0.);
+    float d=1./rd.y; vec2 p=rd.xz*d*.55+vec2(t*.012,t*.004);
+    float n=fbm(p*.8)+.45*fbm(p*2.4+7.);
+    float m=smoothstep(.86,1.22,n)*smoothstep(.004,.09,rd.y);
+    float sh=fbm(p*.8+normalize(sd.xz+1e-4)*.06);
+    float mu=max(dot(rd,sd),0.);
+    vec3 base=mix(sT*.55+sB*.45, vec3(.92,.94,.97)*(.55+.45*(1.-night)), .35*(1.-night));
+    vec3 c=base*(.75+.35*clamp((n-sh)*4.+.5,0.,1.)) + sun*(.25+.9*pow(mu,5.)+1.4*pow(mu,40.)*lowSun())*(1.-night*.8)*.55;
+    c=mix(c, sB, smoothstep(.12,.0,rd.y)*.6);
+    return vec4(c,m*.92);
+  }
+  /* rayons crépusculaires : secteurs lumineux autour du soleil quand il est bas, devant nous */
+  float rays(vec3 rd){
+    if(sd.z<.05) return 0.;
+    vec2 a=rd.xy/rd.z-sd.xy/sd.z; float ang=atan(a.y,a.x);
+    float n=noise(vec2(ang*6.,t*.04))*.6+noise(vec2(ang*17.+4.,t*.07))*.4;
+    return smoothstep(.42,.92,n)*exp(-length(a)*2.4)*smoothstep(-.01,.03,rd.y);
+  }
+  /* houle décorative : trois trains de vagues, arrivée par séries */
+  float waves(vec2 p, float dist, out vec2 g){
+    float h=0.; g=vec2(0.); float s=sqrt(swL/70.);
+    for(int i=0;i<3;i++){
+      float fi=float(i);
+      vec2 D=rot(swD, i==0?0.:(i==1?.2:-.26));
+      float L=swL*(i==0?1.:(i==1?.83:.66));
+      float a=(i==0?.55:(i==1?.26:.15))*s*amp;
+      float k=6.2832/L; float w=sqrt(9.81*k); float x=dot(D,p)*k; float ph=x-w*t*.9+fi*2.1;
+      if(i==0) a*=.55+.45*sin(x/7.-w*t*.9/14.+1.3);
+      float sn=sin(ph); h+=a*(sn+.18*sn*sn); g+=a*k*D*cos(ph)*(1.+.36*sn); }
+    float att=exp(-dist*.012);
+    for(int i=0;i<5;i++){ float fi=float(i); float ang=fi*2.39+.6; vec2 dd=vec2(cos(ang),sin(ang)); float Lw=9.*pow(.72,fi); float k=6.2832/Lw; float w=sqrt(9.81*k);
+      float ph=dot(dd,p)*k-w*t+fi*1.7; float a=.045*pow(.78,fi)*(.5+.5*amp)*chop; float fade=exp(-dist*(.004+.012*fi));
+      h+=a*sin(ph)*fade; g+=a*k*dd*cos(ph)*fade*att; }
+    return h;
+  }
+  void main(){
+    vec2 q=gl_FragCoord.xy/r-.5; q.x*=r.x/r.y;
+    vec3 rd=normalize(vec3(q.x,q.y+PITCH,F)); vec3 ro=vec3(0.,2.4,0.);
+    vec3 col; float mu=dot(rd,sd);
+    if(rd.y>0.){
+      col=sky(rd);
+      if(night>.5){ vec2 sp=gl_FragCoord.xy/1.6; col+=vec3(.9)*step(.9978,hash(floor(sp)))*smoothstep(.05,.4,rd.y)*(night*2.-1.); }
+      /* disque : aplati et assombri au bord (réfraction, assombrissement centre-bord) */
+      float disc=0., limb=1.;
+      if(sd.z>.02){ vec2 dv=rd.xy/rd.z-sd.xy/sd.z; dv.y/=mix(.8,1.,smoothstep(0.,.1,sd.y)); float rr=length(dv)/.0125; disc=smoothstep(1.,.86,rr); limb=1.-.4*rr*rr; }
+      vec4 cl=clouds(rd);
+      vec3 dcol=(sun*(night>.5?1.05:1.75)+vec3(.16))*limb;
+      col=mix(col,dcol,disc*(1.-cl.a*.85));
+      col=mix(col,cl.rgb,cl.a);
+      col+=sun*rays(rd)*.32*lowSun()*(1.-night)*(1.-cl.a*.4);
+      col+=sun*pow(max(mu,0.),900.)*.8*(1.-cl.a);
+    } else {
+      float dist=-ro.y/rd.y; vec3 p=ro+rd*dist;
+      vec2 g; float h=waves(p.xz,dist,g); float s=sqrt(swL/70.);
+      vec3 n=normalize(vec3(-g.x,1.,-g.y));
+      float cosT=max(dot(n,-rd),0.);
+      float fres=.02+.98*pow(1.-cosT,5.);
+      vec3 rf=reflect(rd,n); rf.y=max(rf.y,.002);
+      vec3 rs=sky(rf);
+      float far=clamp(dist/140.,0.,1.);
+      vec3 body=mix(wS*1.05,wD,pow(far,.5));
+      float crest=clamp(h/(amp*.9*s+.05)*.5+.5,0.,1.);
+      vec3 sss=wS*vec3(.6,1.1,1.05)*pow(crest,3.)*.55*(.4+.6*max(sd.y,0.))*(1.-night*.7);
+      col=body*(.55+.45*crest)+sss;
+      col+=sun*max(dot(n,sd),0.)*.07*(1.-night);
+      col=mix(col,rs,fres*.78);
+      float sp=max(dot(rf,sd),0.);
+      /* chemin de lumière : micro-facettes qui scintillent sous le soleil */
+      vec3 nm=normalize(n+vec3(noise(p.xz*2.3+vec2(t*1.4,0.))-.5,0.,noise(p.xz*2.1+vec2(0.,-t*1.2)+7.)-.5)*.32);
+      float sp2=max(dot(reflect(rd,nm),sd),0.);
+      float tw=smoothstep(.74,.96,noise(gl_FragCoord.xy/2.6+vec2(t*4.,-t*6.)));
+      col+=sun*(pow(sp2,200.)*2.4*tw*(.35+.65*lowSun()) + pow(sp,1400.)*5. + pow(sp,90.)*.3*(.3+.7*lowSun()) + pow(sp,14.)*.05)*(1.-night*.6);
+      float foam=0.; if(crest>.72) foam=smoothstep(.72,1.,crest)*smoothstep(.25,1.,amp)*exp(-dist*.02)*smoothstep(.45,.75,fbm(p.xz*.35+t*.2));
+      col=mix(col,vec3(.88,.92,.95)*(1.-night*.6),foam*.55);
+      col=mix(col,mix(sB,wD*1.5+vec3(.02),.28),(1.-exp(-dist*.0035))*.82);
+    }
+    col=mix(col,1.-exp(-col*1.7),.55);
+    vec2 v=gl_FragCoord.xy/r-.5; col*=1.-.22*dot(v,v)*1.8;
+    col=pow(col,vec3(.98)); col+=(hash(gl_FragCoord.xy+fract(t))-.5)/255.; gl_FragColor=vec4(col,1.);
+  }`;
+  const mk=(type,src)=>{ const sh=gl.createShader(type); gl.shaderSource(sh,src); gl.compileShader(sh); if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh)); return sh; };
+  try{
+    const pr=gl.createProgram(); gl.attachShader(pr,mk(gl.VERTEX_SHADER,vs)); gl.attachShader(pr,mk(gl.FRAGMENT_SHADER,fs)); gl.linkProgram(pr);
+    if(!gl.getProgramParameter(pr,gl.LINK_STATUS)) return false;
+    gl.useProgram(pr);
+    const b=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,b); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+    const loc=gl.getAttribLocation(pr,'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+    ['r','t','amp','night','sT','sB','sun','wD','wS','sd','swD','swL','chop'].forEach(n=>OC.u[n]=gl.getUniformLocation(pr,n));
+    return true;
+  }catch(e){ return false; }
+}
+function oceanInit(){
+  if(OC.canvas) return;                                   // jamais deux fois
+  const c=document.getElementById('ocean'); if(!c) return; OC.canvas=c;
+  try{ OC.gl=c.getContext('webgl',{antialias:false,premultipliedAlpha:false,powerPreference:'low-power'}); }catch(e){ OC.gl=null; }
+  if(OC.gl&&!oceanBuild()) OC.gl=null;
+  c.addEventListener('webglcontextlost',e=>{ e.preventDefault(); OC.lost=true; });
+  c.addEventListener('webglcontextrestored',()=>{ OC.lost=false; if(!oceanBuild()) OC.gl=null; oceanKick(); });
+  if('IntersectionObserver' in window) new IntersectionObserver(e=>{ OC.visible=e[0].isIntersecting; if(OC.visible) oceanKick(); }).observe(c);
+  if('ResizeObserver' in window) OC.ro=new ResizeObserver(()=>oceanSync());
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) oceanKick(); });
+  OC.still=REDUCED;
+}
+function oceanDraw(now){
+  const c=OC.canvas; if(!c) return;
+  if(!OC.gl){   // sans WebGL : simple dégradé de ciel et de mer
+    const p=palette(canon(OC.hour??state.hour)), rgb=v=>`rgb(${v.map(x=>Math.round(clamp(x,0,1)*255)).join(',')})`;
+    c.style.background=`linear-gradient(180deg,${rgb(p.sT)} 0%,${rgb(p.sB)} 46%,${rgb(p.wS)} 52%,${rgb(p.wD)} 100%)`; return;
+  }
+  if(OC.lost) return;
+  const gl=OC.gl, dpr=Math.min(window.devicePixelRatio||1,1.25)*OC.quality;
+  const W=Math.max(2,Math.floor(c.clientWidth*dpr)), H=Math.max(2,Math.floor(c.clientHeight*dpr));
+  if(c.width!==W||c.height!==H){ c.width=W; c.height=H; gl.viewport(0,0,W,H); }
+  OC.hour+=(OC.hourT-OC.hour)*(now<OC.introUntil?0.025:0.08);        // glissement doux de l'heure : soleil et couleurs
+  const p=palette(canon(OC.hour)), sv=sunVec(OC.hour,W<H), deg=Math.asin(clamp(sv[1],-1,1))*180/Math.PI;
+  const night=clamp((-deg-0.8)/6,0,1);
+  const sd=night>0.5?[Math.sin(0.3)*Math.cos(0.38),Math.sin(0.38),Math.cos(0.3)*Math.cos(0.38)]:sv;   // la nuit : lune à place fixe
+  gl.uniform2f(OC.u.swD,-0.12,-0.99); gl.uniform1f(OC.u.swL,90); gl.uniform1f(OC.u.chop,0.8);         // mer calme et décorative
+  gl.uniform2f(OC.u.r,W,H); gl.uniform1f(OC.u.t,REDUCED?8:(now-OC.t0)/1000); gl.uniform1f(OC.u.amp,0.55); gl.uniform1f(OC.u.night,night);
+  gl.uniform3fv(OC.u.sT,p.sT); gl.uniform3fv(OC.u.sB,p.sB); gl.uniform3fv(OC.u.sun,p.sun); gl.uniform3fv(OC.u.wD,p.wD); gl.uniform3fv(OC.u.wS,p.wS); gl.uniform3fv(OC.u.sd,sd);
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+}
+function oceanLoop(now){
+  OC.raf=0;
+  if(!OC.gl||OC.lost||document.hidden||!OC.visible) return;           // en pause : reprend au retour (oceanKick)
+  const dt=now-OC.last;
+  if(dt<32){ OC.raf=requestAnimationFrame(oceanLoop); return; }       // 30 images/s au plus
+  OC.last=now;
+  if(dt<250){                                                          // qualité adaptative : on mesure, on réduit si trop lent
+    OC.dtSum+=dt; OC.frames++;
+    if(OC.frames>=30){ const avg=OC.dtSum/OC.frames; OC.frames=0; OC.dtSum=0;
+      if(avg>52){ if(OC.quality>0.46) OC.quality=Math.max(0.45,OC.quality*0.75); else OC.still=true; } }
+  }
+  oceanDraw(now);
+  const settling=Math.abs(OC.hour-OC.hourT)>0.01;
+  if(OC.still&&!settling) return;                                      // trop lent ou mouvement réduit : image fixe
+  OC.raf=requestAnimationFrame(oceanLoop);
+}
+function oceanKick(){ if(!OC.raf&&OC.gl&&!OC.lost&&!document.hidden&&OC.visible) OC.raf=requestAnimationFrame(oceanLoop); }
+/* Le canvas prend la hauteur du haut de page (qui change selon le contenu et l'écran) */
+function oceanSync(){
+  const c=OC.canvas, hero=document.querySelector('.hero'); if(!c||!hero) return;
+  const h=hero.offsetHeight; if(h&&Math.abs(c.offsetHeight-h)>1) c.style.height=h+'px';
+  if(OC.ro){ OC.ro.disconnect(); OC.ro.observe(hero); }
+  if(OC.hour==null) OC.hour=OC.hourT;
+  if(!OC.raf){ OC.hour=OC.hourT; oceanDraw(performance.now()); }
+  drawArc();
+}
+function oceanUpdate(){
+  if(!OC.canvas) return;
+  OC.hourT=state.hour;
+  if(OC.hour==null){ const intro=!REDUCED&&!document.hidden; OC.hour=intro?(ocean.rise||8):state.hour; if(intro) OC.introUntil=performance.now()+4500; }
+  heroSunTimes();
+  oceanKick();
+  if(!OC.raf){ OC.hour=OC.hourT; oceanDraw(performance.now()); }
 }
 
 /* ---------- Webcams : liens vers des pages externes (pas d'intégration, pas de rediffusion) ---------- */
@@ -1301,7 +1388,7 @@ function render(){
   { const pw0=dayMedOf(day,'Heff'); state.gearCtx = pw0==null ? null : {pw:pw0, h:dayMedOf(day,'H'), t:dayMedOf(day,'T')}; }
   document.getElementById('app').innerHTML=`
   <header class="hero">
-    <div id="sky" class="skybg" aria-hidden="true">${skyScene(s)}</div>
+    <svg class="sunarc" id="sunarc" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"></svg>
     <div class="bar">
       <span class="brand"><i></i>Météo surf</span>
       <div class="actions">
@@ -1390,7 +1477,7 @@ function render(){
     </footer>
   </div>`;
 
-  updateLive(); bind(); markHour();
+  oceanSync(); updateLive(); bind(); markHour();
   const hs=document.querySelector('.hscroll'), hc=document.querySelector('.hhr.sel'); if(hs&&hc) hs.scrollLeft=Math.max(0,hc.offsetLeft-140);
 }
 function updateLive(){
@@ -1421,7 +1508,7 @@ function updateLive(){
   if(hs_&&h.D!=null){ hs_.setAttribute('transform',`rotate(${h.D.toFixed(0)})`); $('hcS').textContent=`Houle ${sector(h.D)} · ${Math.round(h.T||0)} s`; }
   if(hw_&&h.wd!=null){ hw_.setAttribute('transform',`rotate(${h.wd.toFixed(0)})`); const wc=windCol(h.wind); hw_.querySelector('line').setAttribute('stroke',wc); hw_.querySelector('path').setAttribute('fill',wc); $('hcWi').style.background=wc; $('hcW').textContent=`Vent ${sector(h.wd)} · ${Math.round(h.v)} km/h`; }
   const rs=$('roseSwell'), rw=$('roseWind'); if(rs&&h.D!=null) rs.setAttribute('transform',`rotate(${h.D.toFixed(0)})`); if(rw&&h.wd!=null) rw.setAttribute('transform',`rotate(${h.wd.toFixed(0)})`);
-  skyUpdate();
+  oceanUpdate();
 }
 
 function renderPicker(){
@@ -1469,6 +1556,8 @@ document.getElementById('q').addEventListener('input',e=>{state.q=e.target.value
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{state.filter=b.dataset.f; renderPicker();});
 
 async function start(){
+  oceanInit();
+  window.addEventListener('resize',()=>{ if(state.data) oceanSync(); });
   try{
     await load();
     const favIdx = state.data.findIndex(x=>state.fav.includes(x.spot.name));

@@ -37,21 +37,22 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   et la construction, donc toujours indiquer « à vérifier chez le shaper ». Ajouter une famille ou un modèle = ajouter une
   entrée à `GEAR` avec uniquement des dimensions vérifiées. Les coefficients litres/kg sont des repères, pas une norme.
 
-- Haut de page = « océan illustré » choisi par l'utilisateur : SVG statique (4 couches de vagues, reflet). Le soleil suit un
-  ARC SYMBOLIQUE de gauche à droite, du lever au coucher, au rythme de l'heure choisie (pas la position astronomique : face à
-  l'ouest il serait hors cadre) ; la lune et les étoiles prennent le relais la nuit. Au premier chargement, le soleil glisse
-  du lever vers l'heure actuelle (2,4 s, désactivé si prefers-reduced-motion). Les couleurs passent par des transitions CSS
-  (`@property`), le soleil par un court glissement `skyGo()` (quelques dizaines d'images, puis plus rien).
-  Pas de soleil « attrapable » ni de zone cliquable dans le ciel : c'était la source des régressions au clic. Décor propre à chaque spot via `sceneOf()` :
-  montagnes basques ou pins des Landes à l'horizon, plus un élément (phare, jetée, rochers, falaises, dunes) selon le spot.
+- Haut de page = OCÉAN ANIMÉ (WebGL, shader dans `oceanBuild()`), voulu par l'utilisateur : ciel et mer qui bougent, soleil sur un
+  arc symbolique de gauche à droite (`sunVec`, jamais hors cadre) qui glisse du lever vers l'heure actuelle au chargement,
+  rayons, reflet, lune et étoiles la nuit, arc pointillé (`drawArc`). Sans arbres ni montagnes : l'utilisateur a trouvé les
+  décors dessinés « cheap » (ils ont été retirés).
+- RÈGLES ANTI-BLOCAGE (l'ancienne version bloquait la page après quelques clics ; ne jamais les enfreindre) :
+  1. UN SEUL canvas, `#ocean`, hors de `#app`, créé une fois par `oceanInit()` ; `render()` ne le recrée jamais.
+  2. Une seule boucle `oceanLoop` : 30 images/s max, en pause si la page est cachée ou hors écran.
+  3. Qualité adaptative : si la moyenne dépasse 52 ms par image, la résolution baisse par paliers, puis l'eau se fige.
+  4. Pas de `backdrop-filter` sur les éléments du haut de page (reflouter chaque image coûte très cher).
+  5. Le fond de page (`html`) doit porter le dégradé et `body` rester transparent : sinon le fond du `body` se peint
+     par-dessus le canvas (z-index négatif) et l'océan disparaît.
+  Test à refaire après toute modif du fond : 60 `render()` d'affilée => toujours 1 canvas, même contexte WebGL.
 - Webcams : liens externes seulement (`CAMS` dans index.html), jamais d'intégration ni de rediffusion (conditions d'utilisation
   des tiers). Sources : pages Surf-Forecast par spot, Quiksilver pour Saint-Jean-de-Luz et Hendaye ; pour les autres spots,
   « webcam la plus proche » à moins de 15 km. Tourisme Landes (officiel) bloque les vérifications automatiques : non utilisé.
   Les caméras sont gérées par des tiers et peuvent être hors ligne : le dire.
-- Fond du haut de page : SANS WebGL ni
-  animation continue. La version WebGL recréait un contexte graphique à chaque changement de spot ou de jour sans libérer
-  l'ancien : après quelques clics la page se bloquait (constaté par l'utilisateur, novembre 2026). Ne pas réintroduire de
-  canvas animé ; si un effet est voulu, le tester avec 60 changements de spot d'affilée.
 
 ## Pistes suivantes
 - Bouée CANDHIS d'Anglet (Licence Ouverte) en « vérité terrain » près de la côte, avec comparaison H1/3 et TH1/3.
