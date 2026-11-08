@@ -17,9 +17,6 @@ from . import config
 SECTORS = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSO", "SO", "OSO", "O", "ONO", "NO", "NNO"]
 DAYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
 BRAND = "Houlalah"
-from . import logo as _logo
-FAVICON = _logo.favicon_uri()
-MARK = _logo.inline_svg(24, cls="mk")
 
 
 def slugify(name):
@@ -85,7 +82,7 @@ CSS = """:root{--bg:#0A1114;--card:#142128;--text:#F2EFE8;--muted:#AEB6B4;--sand
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 a{color:var(--sand)}main{max-width:900px;margin:0 auto;padding:24px 20px 60px}
 header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
-.brand{font-weight:700;text-decoration:none;color:var(--text);letter-spacing:.01em;display:inline-flex;align-items:center;gap:9px}.mk{display:block}
+.brand{font-weight:700;text-decoration:none;color:var(--text);letter-spacing:.01em;display:inline-flex;align-items:center;gap:9px}.mk{display:block;width:auto;height:26px}.bw{display:block;width:auto;height:15px}
 h1{font-size:clamp(28px,5vw,42px);line-height:1.1;margin:0 0 12px}h2{font-size:20px;margin:34px 0 12px}
 .lead{font-size:18px;color:var(--text);margin:0 0 20px}.muted{color:var(--muted);font-size:14px}
 .cta{display:inline-block;background:var(--sand);color:#1A1405;font-weight:700;padding:12px 20px;border-radius:999px;text-decoration:none;margin:6px 0 10px}
@@ -108,9 +105,9 @@ def page(site, title, desc, canonical, body, jsonld, base="../../"):
 <meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}"><meta property="og:url" content="{esc(canonical)}"><meta property="og:image" content="{site}/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{site}/og.png"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc)}">
 <meta name="theme-color" content="#0A1114">
-<link rel="icon" href="{FAVICON}">
+<link rel="icon" href="{base}brand/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="{base}brand/apple-touch-icon.png">
 <style>{CSS}</style>{ld}</head><body><main>
-<header><a class="brand" href="{base}">{MARK}{BRAND.lower()}</a><a class="muted" href="{base}spots/">Tous les spots</a></header>
+<header><a class="brand" href="{base}"><img class="mk" src="{base}brand/symbol.svg" alt="" height="26"><img class="bw" src="{base}brand/wordmark.svg" alt="{BRAND}" height="15"></a><a class="muted" href="{base}spots/">Tous les spots</a></header>
 <div class="prose">{body}</div>
 <footer><nav aria-label="Informations"><a href="{base}comment-ca-marche/">Comment ça marche</a> · <a href="{base}mentions-legales/">Mentions légales</a> · <a href="{base}confidentialite/">Confidentialité</a></nav><br>Prévisions calculées à partir de plusieurs modèles (Météo-France, DWD, ECMWF, NOAA, Ifremer) via Open-Meteo, corrigées avec les bouées. Estimations : à confirmer sur place. {BRAND} est un prototype non commercial.</footer>
 </main></body></html>"""

@@ -45,24 +45,18 @@ for i, (amp, alpha) in enumerate([(7, 120), (10, 90), (14, 60), (18, 40)]):
     d.line(pts, fill=col, width=3 * S, joint="curve")
 d.line([(0, hy), (W * S, hy)], fill=lerp((31, 58, 66), SAND, .35), width=2 * S)
 
-# logo : le h dont l'arche devient houle (géométrie unique : pipeline/logo.py) + « oulalah »
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from pipeline import logo as _logo
-
-lx = 84 * S
-k = (124 / 140) * S                              # hauteur du symbole : 124 px
-oy = 88 * S
-ox = lx - _logo.VIEWBOX[0] * k
-P = lambda x, y: (ox + x * k, oy + y * k)
-d.polygon([P(x, y) for x, y in _logo.tail_outline()], fill=SAND)
-sx, sy, sw_, sh, sr = _logo.STEM
-d.rounded_rectangle([P(sx, sy), P(sx + sw_, sy + sh)], radius=sr * k, fill=SAND)
-text_x = P(_logo.VIEWBOX[0] + _logo.VIEWBOX[2], 0)[0] + 18 * S
-d.text((text_x, P(0, 130)[1]), "houlalah", font=font("seguibl.ttf", 104), fill=(244, 240, 232), anchor="ls")
-d.text((lx, 262 * S), "Prévisions surf, de Lacanau à Hendaye", font=font("segoeuib.ttf", 40), fill=SAND)
-d.text((lx, 322 * S), "Houle · vent · marée · coefficient", font=font("segoeui.ttf", 34), fill=MUTED)
-d.text((lx, 540 * S), "58 spots · croisés entre plusieurs modèles · vérifiés avec les bouées", font=font("segoeui.ttf", 26), fill=(150, 160, 158))
+# logo fourni (symbole + mot, empilés), collé tel quel depuis web/brand/lockup.png
+lock = Image.open(OUT.parent / "brand" / "lockup.png").convert("RGBA")
+lw = 400 * S
+lock = lock.resize((lw, int(lw * lock.height / lock.width)), Image.LANCZOS)
+lx, ly = 84 * S, 52 * S
+img.paste(lock, (lx, ly), lock)
+d = ImageDraw.Draw(img)
+tx = lx + lw + 64 * S                               # colonne de texte à droite du logo
+d.text((tx, 118 * S), "Prévisions surf", font=font("segoeuib.ttf", 52), fill=SAND)
+d.text((tx, 184 * S), "de Lacanau à Hendaye", font=font("segoeuib.ttf", 52), fill=SAND)
+d.text((tx, 262 * S), "Houle · vent · marée · coefficient", font=font("segoeui.ttf", 30), fill=MUTED)
+d.text((84 * S, 540 * S), "58 spots · croisés entre plusieurs modèles · vérifiés avec les bouées", font=font("segoeui.ttf", 26), fill=(150, 160, 158))
 
 OUT.parent.mkdir(parents=True, exist_ok=True)
 img.resize((W, H), Image.LANCZOS).save(OUT, optimize=True)

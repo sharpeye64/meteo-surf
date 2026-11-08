@@ -44,16 +44,17 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   la webcam est une icône à côté de l'étoile.
 
 ## Logo
-- Logo Houlalah : un « h » en aplat sable dont l'arche se prolonge en une houle qui s'effile (raccord fluide, pointe arrondie),
-  suivi du mot « houlalah » en minuscules. Idée de départ fournie par l'utilisateur (image générée), redessinée en vecteur.
-  Géométrie unique dans `pipeline/logo.py` (STEM, CENTER, W0/W1) : en-tête du site, pages de spots, icône d'onglet (carré arrondi
-  sable, symbole sombre) et `tools/make_og.py` pour `web/og.png`. Pour le changer : modifier `logo.py`, relancer
-  `python -m tools.make_og`, puis reporter `logo.inline_svg()` et `logo.favicon_uri()` dans `web/index.html`.
-  J'ai testé « oulalah » à côté du symbole (pour éviter le h en double) : moins lisible que le mot entier, abandonné.
+- Le logo est celui FOURNI par l'utilisateur (`brand/logo-source.webp` : un « h » dont l'arche devient une houle, avec le mot
+  « houlalah » en dessous). Il ne faut PAS le redessiner : `tools/trace_logo.py` le vectorise fidèlement (calque de contour,
+  sans retouche) vers `web/brand/` (`symbol.svg`, `wordmark.svg`, `lockup.svg`, `lockup.png`), puis `tools/brand_assets.py`
+  produit `favicon.svg`, `apple-touch-icon.png` et `icon-512.png`. `tools/make_og.py` colle `lockup.png` dans `web/og.png`.
+  En-tête et pages de spots utilisent `brand/symbol.svg` + `brand/wordmark.svg`. Couleur d'origine : sable #E9C694.
+  Pour changer de logo : remplacer `brand/logo-source.webp`, relancer `python -m tools.trace_logo`, `tools.brand_assets`, `tools.make_og`.
+- Anciennes pistes (redessinées par Claude : rond et houles, boussole, aileron, h en trait) abandonnées.
 - À faire côté juridique : recherche d'antériorité « Houlalah » sur la base de marques de l'INPI avant de s'y installer ; un
-  logo généré par IA est difficile à protéger, d'où le redessin en vecteur.
-- Direction artistique : pistes présentées (Profondeur sombre, Papier de mer clair, Signal technique) ; recommandation = océan
-  immersif sombre en haut de page + thème clair lisible en plein soleil. Choix à confirmer avec l'utilisateur.
+  logo généré par IA est difficile à protéger.
+- Direction artistique : pistes présentées (Profondeur sombre, Papier de mer clair, Signal technique, thème à deux faces) ; à
+  confirmer avec l'utilisateur. Il a demandé d'abandonner les maquettes : ne rien appliquer sans demande.
 
 ## SEO
 - `pipeline/seo.py` (appelé par `build.py`, jamais bloquant) écrit `web/spots/<slug>/index.html` (une page par spot avec vrai

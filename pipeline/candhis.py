@@ -59,11 +59,18 @@ def fetch_station(st):
 
 
 def fetch_all():
-    """Toutes les bouées lisibles ; les échecs sont renvoyés à part, sans bloquer les autres."""
+    """Toutes les bouées lisibles ; les échecs sont renvoyés à part, sans bloquer les autres.
+    Le site du Cerema répond parfois lentement : chaque bouée est retentée une fois."""
+    import time
     out, errors = [], {}
     for st in STATIONS:
-        try:
-            out.append(fetch_station(st))
-        except Exception as e:
-            errors[st["id"]] = str(e)[:200]
+        for essai in (1, 2):
+            try:
+                out.append(fetch_station(st))
+                errors.pop(st["id"], None)
+                break
+            except Exception as e:
+                errors[st["id"]] = str(e)[:200]
+                if essai == 1:
+                    time.sleep(4)
     return out, errors
