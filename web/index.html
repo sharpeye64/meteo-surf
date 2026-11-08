@@ -84,7 +84,13 @@ button,input{font:inherit;color:inherit}
 .ans .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .ans .chips span{font-size:12px;font-weight:700;color:var(--text);padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1)}
 .ans:not(.size){display:flex;flex-direction:column}
-.ans .viz{margin-top:auto;padding-top:10px;min-height:50px}
+.ans .trow{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.ans .coef{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
+#tTide .viz{position:absolute;left:0;right:0;bottom:0;height:54px;margin:0;padding:0;min-height:0;border-radius:0 0 24px 24px;overflow:hidden;opacity:.9;pointer-events:none}
+#tTide .viz .tideline{height:100%}
+#tTide .tnow{position:absolute;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(var(--lilac-rgb),.4),0 0 12px rgba(255,255,255,.6)}
+@media (min-width:521px){#tTide{padding-bottom:52px}}
+.ans .rng{margin-top:10px}
 #tTide .chips span{padding:3px 7px;font-size:11.5px}
 .ans .viz .vz,.ans .viz .tideline{width:100%;height:46px;display:block}
 .ans .wg{display:flex;align-items:center;gap:12px}
@@ -136,7 +142,7 @@ button,input{font:inherit;color:inherit}
 .wkp .d{font-size:12px;font-weight:700;color:#CFE2E5}.wkp .m{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:14px}
 .wkp:hover{border-color:rgba(255,255,255,.5)}
 .wkp[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 1px #fff}
-@media (max-width:520px){ .answers{grid-template-columns:1fr!important;gap:8px} #tSize{grid-column:auto!important} .ans .viz,.ans .chips span:nth-child(n+3){display:none} .ans .l .ic{display:none} .ans .chips{margin-top:2px}
+@media (max-width:520px){ .answers{grid-template-columns:1fr!important;gap:8px} #tSize{grid-column:auto!important} .ans .viz,.ans .rng,.ans .chips span:nth-child(n+3){display:none} .ans .l .ic{display:none} .ans .chips{margin-top:2px}
   .ans,.ans:not(.size){display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center;gap:2px 10px;padding:10px 14px 10px 16px;border-radius:16px}
   .ans::before{left:0;right:auto;top:12px;bottom:12px;width:3px;height:auto;border-radius:0 3px 3px 0}
   .ans .l{grid-row:1/span 3;font-size:11px;letter-spacing:.06em} .ans .tip{display:none}
@@ -1096,6 +1102,11 @@ function camFor(spot){
   for(const x of state.data){ const c=CAMS[x.spot.name]; if(!c) continue; const km=hav(spot,x.spot); if(km<=15&&(!best||km<best.km)) best={km, name:x.spot.name, c}; }
   return best?{u:best.c[0], src:best.c[1], near:{name:best.name, km:best.km}}:null;
 }
+function camBtn(spot){
+  const c=camFor(spot); if(!c) return '';
+  const txt=c.near?`Webcam la plus proche : ${c.near.name} (${c.near.km<1?'< 1':Math.round(c.near.km)} km)`:'Webcam du spot';
+  return `<a class="glassbtn icon" href="${c.u}" target="_blank" rel="noopener noreferrer" aria-label="${txt}, nouvel onglet" title="${txt}. Page ${c.src}, qui s’ouvre dans un nouvel onglet. Les caméras sont gérées par des tiers : elles peuvent être hors ligne."><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="12.5" r="3.5"/></svg></a>`;
+}
 function camHtml(spot){
   const c=camFor(spot); if(!c) return '';
   const txt=c.near?`Webcam la plus proche : ${c.near.name} (${c.near.km<1?'< 1':Math.round(c.near.km)} km)`:'Webcam';
@@ -1503,6 +1514,15 @@ function compass(ori, wd, wind){
 function extremes(list){ const l=list.filter(h=>h.lvl!=null), out=[];
   for(let i=1;i<l.length-1;i++){ if(l[i].lvl>l[i-1].lvl&&l[i].lvl>=l[i+1].lvl) out.push({t:'Pleine mer',h:l[i].hour}); if(l[i].lvl<l[i-1].lvl&&l[i].lvl<=l[i+1].lvl) out.push({t:'Basse mer',h:l[i].hour}); }
   return out; }
+/* Courbe de marée du jour, en fond de carte, avec un point à l'heure choisie (hauteur interpolée entre deux heures) */
+function tideCard(list,hour){
+  const pts=list.filter(h=>h.tideN!=null); if(pts.length<3) return '';
+  const X=h=>h/23*160, Y=n=>6+(1-n)*34;
+  const d='M'+pts.map(h=>X(h.hour).toFixed(1)+' '+Y(h.tideN).toFixed(1)).join(' L');
+  const h0=Math.max(pts[0].hour,Math.min(pts[pts.length-1].hour,hour)), a=[...pts].reverse().find(h=>h.hour<=h0)||pts[0], b=pts.find(h=>h.hour>=h0)||a;
+  const n=a.hour===b.hour?a.tideN:a.tideN+(b.tideN-a.tideN)*(h0-a.hour)/(b.hour-a.hour);
+  return `<svg viewBox="0 0 160 46" preserveAspectRatio="none" class="tideline"><path d="${d} L${X(pts[pts.length-1].hour).toFixed(1)} 46 L${X(pts[0].hour).toFixed(1)} 46Z" fill="rgba(var(--lilac-rgb),.2)"/><path d="${d}" fill="none" stroke="var(--lilac)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg><i class="tnow" style="left:${(X(h0)/160*100).toFixed(2)}%;top:${(Y(n)/46*100).toFixed(2)}%"></i>`;
+}
 function tideSvg(list, hour){
   const pts=list.filter(h=>h.tideN!=null); if(pts.length<3) return '';
   const X=h=>(h/23*160).toFixed(1), Y=n=>(6+(1-n)*34).toFixed(1);
@@ -1531,18 +1551,19 @@ function render(){
     <div class="bar">
       <a class="brand" href="./" aria-label="Houlala, accueil"><svg width="30" height="16" viewBox="0 0 30 16" fill="none" stroke="var(--sand)" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M2 9c3-6 6-6 9 0s6 6 9 0 4-4 8-2"/></svg>houlala</a>
       <div class="actions">
+        ${camBtn(s)}
         <button class="glassbtn icon" id="favBtn" aria-pressed="${isFav}" aria-label="${isFav?'Retirer de mes spots':'Ajouter à mes spots'}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg></button>
         <button class="glassbtn" id="openPicker" aria-label="Changer de spot (actuel : ${s.name})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span class="lbl">${s.name}</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lbl"><path d="M6 9l6 6 6-6"/></svg></button>
       </div>
     </div>
     <div class="heroBody">
-      <div class="herotop"><div class="hlead"><p class="spotk in" style="margin:0"><button class="spotbtn" id="spotBtn" aria-label="Changer de spot (actuel : ${s.name})">${s.name} · ${s.region}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><span>${dayLabel} · <span id="heroHr"></span></span><span class="sunt" id="sunT"></span>${camHtml(s)}</p>
+      <div class="herotop"><div class="hlead"><p class="spotk in" style="margin:0"><button class="spotbtn" id="spotBtn" aria-label="Changer de spot (actuel : ${s.name})">${s.name} · ${s.region}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></p>
       <h1 class="verdict in d1"><span class="sr">${s.name} : </span><span class="vq" id="heroSize">—</span><span class="vn" id="heroNum"></span></h1>
       <p class="slot in d2" style="margin:0" id="heroTrust"></p>${buoyLabelHtml('inl')}</div></div>
       <div class="herobot"><div class="hbl"><div class="answers in d3" aria-live="polite">
-        <div class="ans" id="tSize"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 3-3 5-2"/><path d="M2 18c2.5-4 5-4 7.5 0s5 4 7.5 0 3-2.5 5-1.6" opacity=".5"/></svg><span>Vagues</span>${tip('taille','Que signifie la taille ?')}</div><div class="val" id="szV">—</div><div class="chips" id="szP"></div><div class="sub sub2" id="szS"></div></div>
-        <div class="ans" id="tWind"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span>Vent</span>${tip('vent','Offshore, onshore, rafales : explications')}</div><div class="val" id="wdL">—</div><div class="chips" id="wdS"></div></div>
-        <div class="ans" id="tTide"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M4 6l3-3 3 3"/><path d="M17 21v-8M14 18l3 3 3-3"/><path d="M2 14c1.7-1.5 3.3-1.5 5 0M10 10c1.7-1.5 3.3-1.5 5 0" opacity=".5"/></svg><span>Marée</span>${tip('maree','Comment lire la marée ?')}</div><div class="val" id="tdV">—</div><div class="chips" id="tdS"></div><div class="sub sub2" id="tdC"></div><div class="viz" id="tdG" aria-hidden="true"></div></div>
+        <div class="ans" id="tSize"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 3-3 5-2"/><path d="M2 18c2.5-4 5-4 7.5 0s5 4 7.5 0 3-2.5 5-1.6" opacity=".5"/></svg><span>Vagues</span>${tip('taille','Que signifie la taille ?')}</div><div class="val" id="szV">—</div><div class="chips" id="szP"></div><div class="sub sub2" id="szS"></div><div class="sub sub2 rng" id="szR"></div></div>
+        <div class="ans" id="tWind"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span>Vent</span>${tip('vent','Offshore, onshore, rafales : explications')}</div><div class="val" id="wdL">—</div><div class="chips" id="wdS"></div><div class="sub sub2 rng" id="wdR"></div></div>
+        <div class="ans" id="tTide"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M4 6l3-3 3 3"/><path d="M17 21v-8M14 18l3 3 3-3"/><path d="M2 14c1.7-1.5 3.3-1.5 5 0M10 10c1.7-1.5 3.3-1.5 5 0" opacity=".5"/></svg><span>Marée</span>${tip('maree','Comment lire la marée ?')}</div><div class="trow"><div class="val" id="tdV">—</div><span class="coef" id="tdC"></span></div><div class="chips" id="tdS"></div><div class="viz" id="tdG" aria-hidden="true"></div></div>
       </div>
       <nav class="week7 in d3" aria-label="La semaine à ${s.name}">${d.days.map((x,j)=>x.tag==='—'?'':weekPill(x,j,k,wmax)).join('')}</nav></div>${compassHtml(s)}</div>
     </div>
@@ -1628,13 +1649,15 @@ function updateLive(){
   if(!h||h.H==null){ $('szV').textContent='—'; return; }
   const ag=agreeOf(h);
   $('nowLbl').textContent=hhmm(state.hour);
-  $('heroHr').textContent=`conditions à ${hhmm(state.hour)}`;
   $('heroSize').textContent=`${fmt(h.H)} m`;
   $('heroNum').textContent=`${Math.round(h.T||0)} s${h.D!=null?' · '+sector(h.D):''}`;
   $('heroTrust').innerHTML=trustHtml(ag);
-  const cfd=state.coef&&state.coef[day.date]; $('tdC').textContent=cfd&&cfd.length?`Coefficient ${cfd.join(' · ')}`:'';
+  const cfd=state.coef&&state.coef[day.date]; $('tdC').textContent=cfd&&cfd.length?`coef ${cfd.join(' · ')}`:'';
   relUpdate(h,ag);
   $('szV').textContent=`${fmt(h.H)} m`;
+  { const dl=day.list.filter(x=>x.hour>=7&&x.hour<=20), hv=dl.map(x=>x.H).filter(v=>v!=null), vv=dl.map(x=>x.v).filter(v=>v!=null);
+    $('szR').textContent=hv.length?`Journée : ${fmt(Math.min(...hv))} à ${fmt(Math.max(...hv))} m`:'';
+    $('wdR').textContent=vv.length?`Journée : ${Math.round(Math.min(...vv))} à ${Math.round(Math.max(...vv))} km/h`:''; }
   $('szP').innerHTML=[h.D!=null?sector(h.D):null,`${Math.round(h.T||0)} s`,periodTxt(h.T||0)].filter(Boolean).map(x=>`<span>${x}</span>`).join('');
   $('szS').textContent=h.sec?`+ ${h.sec.kind} ${fmt(h.sec.H)} m · ${Math.round(h.sec.T)} s${h.sec.D!=null?' · '+sector(h.sec.D):''}`:'';
   $('wdL').textContent=windWord[h.wind]; $('wdL').style.color=windCol(h.wind);
@@ -1642,7 +1665,7 @@ function updateLive(){
   const exact=exactTides(state.spot,day.date); const ex=exact||extremes(day.list).map(x=>({t:x.t,type:x.t==='Pleine mer'?'PM':'BM',hm:x.h+'h',hd:x.h}));
   $('tdV').textContent=tidePhase(h);
   $('tdS').innerHTML=ex.length?ex.filter(x=>x.hd>=5&&x.hd<=22).map(x=>`<span>${x.type} ${exact?'':'≈ '}${x.hm}</span>`).join(''):'<span>Horaires indisponibles</span>';
-  $('tdG').innerHTML=tideSvg(day.list,state.hour);
+  $('tdG').innerHTML=tideCard(day.list,state.hour);
   const hs_=$('hcSwell'), hw_=$('hcWind');
   if(hs_&&h.D!=null){ hs_.setAttribute('transform',`rotate(${h.D.toFixed(0)})`); $('hcS').textContent=`Houle ${sector(h.D)} · ${Math.round(h.T||0)} s`; }
   if(hw_&&h.wd!=null){ hw_.setAttribute('transform',`rotate(${h.wd.toFixed(0)})`); const wc=windCol(h.wind); hw_.querySelector('line').setAttribute('stroke',wc); hw_.querySelector('path').setAttribute('fill',wc); $('hcWi').style.background=wc; $('hcW').textContent=`Vent ${sector(h.wd)} · ${Math.round(h.v)} km/h`; }
