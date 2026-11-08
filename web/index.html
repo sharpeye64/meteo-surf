@@ -246,6 +246,22 @@ footer a{color:var(--aqua)}
 @media (max-width:820px){.gearrow{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -20px;padding:0 20px 6px;scrollbar-width:none}.gcard{flex:0 0 80%;scroll-snap-align:start}.lmap{min-height:400px}}
 .gcard{position:relative;border-radius:26px;padding:20px 20px 18px;background:radial-gradient(220px 200px at 100% 100%,color-mix(in srgb,var(--glow) 30%,transparent),transparent 70%),linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.025));border:1px solid color-mix(in srgb,var(--ambSun) 20%,rgba(255,255,255,.1));backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 
+.wsel{margin-left:auto;font-size:13px;font-weight:700;color:var(--muted);display:inline-flex;align-items:center;gap:8px}
+.wsel select{background:rgba(4,18,26,.55);color:#fff;border:1px solid var(--edge);border-radius:999px;padding:6px 10px;font:inherit;font-weight:800}
+.gearbox{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:14px}
+@media (max-width:820px){.gearbox{grid-template-columns:1fr}}
+.gboard,.gsuit{border-radius:26px;padding:22px 24px;border:1px solid var(--edge);background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02))}
+.gsuit{background:radial-gradient(240px 200px at 100% 100%,color-mix(in srgb,var(--glow,#B6A6FF) 22%,transparent),transparent 70%),linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02))}
+.gtype{font-size:13px;font-weight:800;color:var(--sand);margin-top:6px}
+.gboard .gv{margin-top:2px}
+.bsvg{display:block;width:100%;max-width:440px;height:auto;margin:14px auto 6px}
+.gdim{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:16px;font-weight:600}
+.gdim b{font-family:Unbounded,system-ui,sans-serif;font-weight:700}
+.gdim .gl{margin-left:auto;font-family:Unbounded,system-ui,sans-serif;font-weight:800;font-size:20px;color:var(--aqua)}
+.gwhy{font-size:12.5px;color:#9FB7BD;margin:8px 0 0}
+.tbar{margin-top:10px}.tb{position:relative;height:8px;border-radius:8px;background:linear-gradient(90deg,#6FA3B8,#3CD6B4 55%,#FF7A59)}
+.tb i{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(0,0,0,.25);transform:translate(-50%,-50%)}
+.tl{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:#A3B3B8;margin-top:6px}
 .gart{height:84px;display:flex;align-items:center}
 .gart svg{max-width:100%;height:auto}
 .bigval{font-family:Unbounded,system-ui,sans-serif;font-weight:800;font-size:clamp(36px,4vw,46px);letter-spacing:-.03em;line-height:1}
@@ -453,7 +469,9 @@ const TAGS = ['Flat','Micro','Petit','Bon','Très bon'];
 const DAYS_FR = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 const DAYS_LONG = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const state = { data:null, spot:0, day:0, hour:10, filter:'best', q:'', fav:loadFav() };
+const state = { data:null, spot:0, day:0, hour:10, filter:'best', q:'', fav:loadFav(), weight:loadWeight() };
+function loadWeight(){ try{ const w=+localStorage.getItem('weight'); return w>=50&&w<=110?w:75; }catch(e){ return 75; } }
+function saveWeight(w){ try{ localStorage.setItem('weight',String(w)); }catch(e){} }
 function loadFav(){ try{ return JSON.parse(localStorage.getItem('fav')||'[]'); }catch(e){ return []; } }
 function saveFav(){ try{ localStorage.setItem('fav', JSON.stringify(state.fav)); }catch(e){} }
 
@@ -572,7 +590,6 @@ function bodySize(h){
   if(h<0.3) return 'à plat'; if(h<0.6) return 'aux genoux'; if(h<0.9) return 'à la taille';
   if(h<1.3) return 'à la poitrine'; if(h<1.7) return 'aux épaules'; if(h<2.2) return 'à la tête'; return 'au-dessus de la tête';
 }
-function board(h){ if(h<=0.6) return 'Longboard'; if(h<=1.0) return 'Fish ou longboard'; if(h<=1.6) return 'Shortboard'; return 'Shortboard, voire step-up'; }
 
 function analyse(s, m, w){
   const off = (s.ori+180)%360;
@@ -660,7 +677,7 @@ function summarise(date, list, sun){
     const late = day.filter(h=>h.hour>=15);
     if(late.length && late.every(h=>h.wind==='onshore') && best.wind!=='onshore') verdict += ' Le vent rentre onshore l’après-midi.';
   }
-  return {date,label,score:Math.round(max*10)/10,sc,tag:TAGS[sc],verdict,size,best,win,list,sun,board:board(avgH),avgH};
+  return {date,label,score:Math.round(max*10)/10,sc,tag:TAGS[sc],verdict,size,best,win,list,sun,avgH};
 }
 
 
@@ -922,7 +939,7 @@ const TIPS = {
   modeles:'Comme Windguru, on croise plusieurs <b>modèles de vagues</b> : Météo-France MFWAM, DWD EWAM (maille de 5 km sur l’Europe), ECMWF WAM et NOAA GFS-Wave. La taille affichée est une <b>moyenne pondérée</b>, qui donne plus de poids aux modèles les plus fins sur notre côte.<br><br>Le bouton « Comparer les modèles » affiche chaque modèle heure par heure. Le vent vient d’AROME (Météo-France), comparé à ICON, GFS et ECMWF.',
   radar:'La <b>bouée Gascogne</b> (Météo-France) flotte au large, à environ 300 km de la côte. Elle mesure l’état de mer réel : houle et mer du vent mélangées.<br><br>La houle met plusieurs heures à arriver jusqu’aux spots. Sa vitesse dépend de sa <b>période</b> : environ 0,78 × période en m/s, soit à peu près 35 km/h pour une houle de 12 s.<br><br>On compare aussi la bouée aux modèles : s’ils sous-estiment ou surestiment ce qu’elle mesure, on <b>corrige</b> les 24 prochaines heures. Les mesures arrivent avec quelques heures de retard (l’heure de la dernière est affichée), ne sont pas validées et sont filtrées : la période pic, notamment, est parfois aberrante et on la remplace alors par celle du modèle.',
   accord:'Compare les modèles de houle entre eux pour l’heure choisie : écart entre le plus bas et le plus haut. <b>Fort</b> : moins de 0,15 m (ou 15 %). <b>Moyen</b> : jusqu’au double. <b>Faible</b> : au-delà.<br><br>Attention : des modèles d’accord entre eux ne sont pas forcément justes. Ce que mesure vraiment la fiabilité, c’est l’écart constaté avec la bouée, dans la section « Fiabilité des données ».',
-  planche:'Suggestion selon la taille des vagues. Ton niveau, ton gabarit et le spot comptent autant : prends ce qui te fait le plus surfer.'
+  planche:'Exemple de planche réelle, choisi d’après la <b>puissance</b> de la houle (taille × période, corrigée par l’orientation du spot) puis ajusté à ton poids pour un surfeur confirmé. Ce n’est pas une publicité : ce sont des modèles courants, pour donner un ordre de grandeur de longueur, de largeur et de volume.<br><br>Dimensions et volumes d’après les fiches des fabricants et des revendeurs. Ils changent selon l’année et la construction : vérifie chez ton shaper. Ton niveau, ta planche habituelle et le spot comptent autant.'
 };
 let tipN=0;
 function tip(key,label){ return `<span class="tip"><button type="button" class="tipbtn" data-k="${key}" aria-label="${label}" aria-expanded="false">i</button></span>`; }
@@ -1042,6 +1059,66 @@ function radarHtml(s){
     </div>
   </section>`;
 }
+/* Exemples de planches : modèles réels, dimensions et volumes des fiches des fabricants (Pyzel) ou de plusieurs
+   revendeurs concordants. Elles varient selon l'année et la construction : toujours à vérifier chez le shaper.
+   coef = litres par kg pour un surfeur confirmé ; profil = largeur relative le long de la planche (nez -> talon). */
+const GEAR_STEPS = [[0.6,'mid'],[1.0,'small'],[1.7,'perf'],[2.4,'stepup'],[99,'gun']];
+const GEAR = {
+  mid:{label:'Mid-length', model:'Channel Islands CI Mid', coef:0.62, fins:'2+1', tail:'round',
+    prof:[[0,0],[.03,.45],[.1,.78],[.25,.96],[.45,1],[.65,.95],[.82,.78],[.93,.5],[1,.26]],
+    why:'Peu de puissance : de la longueur et du volume pour ramer tôt et garder de la vitesse.',
+    rows:[["7'0\"",null,null,44.9],["7'2\"",'21 1/4"','2 13/16"',47.3],["7'6\"",null,null,51.8]]},
+  small:{label:'Planche de petites vagues', model:'Lost Puddle Jumper OG', coef:0.48, fins:'quad', tail:'squash',
+    prof:[[0,0],[.03,.35],[.1,.7],[.25,.93],[.45,1],[.65,.97],[.82,.86],[.93,.7],[1,.52]],
+    why:'Houle faible à moyenne : une planche large et épaisse qui garde de la vitesse dans la mousse.',
+    rows:[["5'4\"",'20"','2 1/2"',29.5],["5'8\"",'21 1/2"','2 5/8"',36.0],["6'2\"",'22 1/2"','2 7/8"',44.7]]},
+  perf:{label:'Shortboard de performance', model:'Pyzel Shadow', coef:0.39, fins:'thruster', tail:'round',
+    prof:[[0,0],[.04,.28],[.12,.6],[.25,.86],[.42,1],[.6,.96],[.78,.8],[.9,.58],[.97,.38],[1,.3]],
+    why:'Houle moyenne : volume contenu pour tourner court et rester sensible.',
+    rows:[["5'8\"",null,null,24.8],["5'10\"",null,null,27.1],["5'11\"",'18 7/8"','2 3/8"',28.0],["6'0\"",'19 1/8"','2 7/16"',29.4],["6'3\"",null,null,33.8],["6'4\"",'19 3/4"','2 11/16"',35.3],["6'6\"",'19 7/8"','2 3/4"',37.2]]},
+  stepup:{label:'Semi step-up', model:'Pyzel Ghost', coef:0.45, fins:'thruster', tail:'round',
+    prof:[[0,0],[.05,.3],[.14,.62],[.28,.88],[.44,1],[.62,.95],[.8,.74],[.92,.48],[1,.3]],
+    why:'Houle costaude : un peu plus de longueur et de volume pour prendre la vague tôt et tenir la ligne.',
+    rows:[["6'0\"",'19 3/8"','2 9/16"',29.9],["6'2\"",'19 5/8"','2 11/16"',32.7],["6'3\"",'19 7/8"','2 3/4"',34.3],["6'6\"",'20 1/2"','3"',40.1]]},
+  gun:{label:'Step-up / gun', model:'Pyzel Padillac', coef:0.58, fins:'thruster', tail:'pin',
+    prof:[[0,0],[.04,.3],[.13,.62],[.27,.88],[.45,1],[.62,.94],[.8,.7],[.93,.4],[1,0]],
+    why:'Grosse houle : longueur, volume et talon fin pour ramer tôt et garder le contrôle.',
+    rows:[["6'10\"",'19 3/4"','2 3/4"',38.3],["7'0\"",'19 7/8"','2 7/8"',41.4],["7'4\"",'20 1/4"','3"',45.8],["7'6\"",'20 3/8"','3 1/8"',49.1],["7'10\"",'20 1/2"','3 1/4"',53.3],["8'0\"",'20 5/8"','3 3/8"',57.0]]}
+};
+const inchesOf = ft => { const m=ft.match(/(\d+)'(\d+)/); return m?(+m[1])*12+(+m[2]):72; };
+const num = s => { const m=s.match(/(\d+)(?: (\d+)\/(\d+))?/); return m?(+m[1])+(m[2]?(+m[2])/(+m[3]):0):19; };
+function gearKey(pw){ return GEAR_STEPS.find(([mx])=>pw<mx)[1]; }
+function pickBoard(g,kg){ const t=kg*g.coef; return g.rows.reduce((a,r)=>Math.abs(r[3]-t)<Math.abs(a[3]-t)?r:a); }
+/* Vue de dessus à l'échelle (3 m = toute la largeur) : contour selon le profil de la famille, longueur et largeur réelles. */
+function boardSvg(g,row){
+  const L=inchesOf(row[0]), W=row[1]?num(row[1]):19.5, sc=300/120, x0=(320-L*sc)/2, cy=38, hwMax=W/2*sc;
+  const top=g.prof.map(([f,w])=>[x0+f*L*sc, cy-w*hwMax]), bot=g.prof.map(([f,w])=>[x0+f*L*sc, cy+w*hwMax]).reverse();
+  const cr=pts=>{ let d=''; for(let i=0;i<pts.length-1;i++){ const a=pts[i-1]||pts[i], b=pts[i], c=pts[i+1], e=pts[i+2]||c;
+    d+=` C${(b[0]+(c[0]-a[0])/6).toFixed(1)} ${(b[1]+(c[1]-a[1])/6).toFixed(1)} ${(c[0]-(e[0]-b[0])/6).toFixed(1)} ${(c[1]-(e[1]-b[1])/6).toFixed(1)} ${c[0].toFixed(1)} ${c[1].toFixed(1)}`; } return d; };
+  const path=`M${top[0][0].toFixed(1)} ${top[0][1].toFixed(1)}${cr(top)} L${bot[0][0].toFixed(1)} ${bot[0][1].toFixed(1)}${cr(bot)} Z`;
+  const fx=f=>x0+f*L*sc, fin=(f,dy,h=9)=>`<path d="M${fx(f)} ${cy+dy} l-${h*0.9} ${h*0.25} l${h*0.9} ${h*0.25} z" fill="#1B2A31" opacity=".85"/>`;
+  const fins = g.fins==='quad' ? fin(.86,-hwMax*.62)+fin(.86,hwMax*.62-3)+fin(.93,-hwMax*.3,7)+fin(.93,hwMax*.3-2,7)
+    : g.fins==='2+1' ? fin(.87,-hwMax*.6)+fin(.87,hwMax*.6-3)+fin(.94,-2,10) : fin(.87,-hwMax*.6)+fin(.87,hwMax*.6-3)+fin(.93,-2,10);
+  const y2=cy+hwMax+14;
+  return `<svg class="bsvg" viewBox="0 0 320 ${(cy+hwMax+26).toFixed(0)}" role="img" aria-label="${g.model}, ${row[0]}, vue de dessus à l’échelle"><ellipse cx="160" cy="${(cy+hwMax+4).toFixed(0)}" rx="${(L*sc/2).toFixed(0)}" ry="5" fill="#000" opacity=".22"/><path d="${path}" fill="#F3E7D0" stroke="rgba(255,255,255,.75)" stroke-width="1.2"/><path d="M${fx(.04)} ${cy} H${fx(.97)}" stroke="#C9A36B" stroke-width="1" opacity=".8"/>${fins}<path d="M${x0.toFixed(1)} ${y2} H${(x0+L*sc).toFixed(1)} M${x0.toFixed(1)} ${y2-4} v8 M${(x0+L*sc).toFixed(1)} ${y2-4} v8" stroke="rgba(255,255,255,.45)" stroke-width="1"/><text x="160" y="${y2-5}" text-anchor="middle" font-size="10" font-weight="700" fill="#CFE2E5" font-family="Manrope, system-ui, sans-serif">${row[0].replace('"','”')}</text></svg>`;
+}
+function dayMedOf(day,key){ const v=day.list.filter(h=>h.hour>=8&&h.hour<=19&&h[key]!=null).map(h=>h[key]).sort((x,y)=>x-y); return v.length?v[Math.floor(v.length/2)]:null; }
+function gearBoardHtml(){
+  const c=state.gearCtx; if(!c||c.pw==null) return `<div class="gk">Planche</div><div class="gv">—</div><p class="gs">Pas de prévision exploitable pour ce jour.</p>`;
+  const g=GEAR[gearKey(c.pw)], row=pickBoard(g,state.weight), dims=[row[1]&&row[1],row[2]&&row[2]].filter(Boolean);
+  return `<div class="gk">Exemple de planche${tip('planche','Comment est choisie cette planche ?')}</div>
+    <div class="gtype">${g.label}</div>
+    <div class="gv">${g.model}</div>
+    ${boardSvg(g,row)}
+    <div class="gdim"><b>${row[0].replace('"','”')}</b>${dims.length?' × '+dims.join(' × ').replace(/"/g,'”'):''}<span class="gl">${fmt(row[3])} L</span></div>
+    <p class="gs">${g.why}</p>
+    <p class="gwhy">Puissance estimée ${fmt(c.pw)} m (houle de ${fmt(c.h)} m, ${Math.round(c.t)} s, selon l’orientation du spot) · volume visé ≈ ${Math.round(state.weight*g.coef)} L pour ${state.weight} kg.</p>`;
+}
+function tempBar(t){
+  if(t==null) return '';
+  const f=clamp((t-8)/16,0,1)*100;
+  return `<div class="tbar" role="img" aria-label="Eau à ${fmt(t)} degrés"><div class="tb"><i style="left:${f.toFixed(1)}%"></i></div><div class="tl"><span>8°</span><span>16°</span><span>24°</span></div></div>`;
+}
 function suitOf(t){ return t>=21?['2 mm ou shorty','Pas besoin d’accessoires']:t>=18?['3/2 mm','Sans chaussons']:t>=15?['4/3 mm','Chaussons facultatifs']:t>=12?['5/4 mm','Chaussons conseillés']:['5/4 mm','Chaussons, gants et cagoule']; }
 const X16 = h => ((h-6)/15*160);
 function sparkSvg(day){
@@ -1058,19 +1135,6 @@ function tideSvg2(day){
 }
 function relDiag(){
   return `<svg class="reldiag" width="72" height="72" viewBox="0 0 72 72" role="img" aria-labelledby="wdL"><defs><linearGradient id="rdSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B6E86"/><stop offset="1" stop-color="#2E9AAE"/></linearGradient></defs><rect width="72" height="72" fill="url(#rdSea)"/><path d="M0 46 Q18 41 36 46 T72 46 V72 H0Z" fill="#E7C99A"/><path d="M0 46 Q18 41 36 46 T72 46" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="2"/><text x="36" y="13" text-anchor="middle" font-size="8" font-weight="800" fill="#fff" fill-opacity=".85" font-family="Manrope, system-ui, sans-serif">MER</text><text x="36" y="67" text-anchor="middle" font-size="8" font-weight="800" fill="#5B4523" font-family="Manrope, system-ui, sans-serif">PLAGE</text><g id="wdArrow" transform="translate(36 34)" style="transition:transform .35s"><path d="M0 -16 L8 -4 L2.5 -6 L2.5 14 L-2.5 14 L-2.5 -6 L-8 -4 Z" fill="#fff" stroke="#04121A" stroke-width="1"/></g></svg>`;
-}
-function boardArt(b){
-  const rest=/repos/i.test(b), long=/^Long/.test(b), fish=/^Fish/.test(b);
-  const shape = long ? 'M14 26 Q8 32 14 38 C70 50 178 50 204 40 Q214 32 204 24 C178 14 70 14 14 26 Z'
-    : fish ? 'M12 20 L26 32 L12 44 C66 56 150 52 204 32 C150 12 66 8 12 20 Z'
-    : 'M16 23 Q11 32 16 41 C70 53 158 49 210 32 C158 15 70 11 16 23 Z';
-  return `<svg width="220" height="64" viewBox="0 0 220 64" role="img" aria-label="${b}"><defs><linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${rest?'#6B7A80':'#FFF6E6'}"/><stop offset="1" stop-color="${rest?'#4A5860':'#F2D3A2'}"/></linearGradient></defs><ellipse cx="110" cy="56" rx="92" ry="5" fill="#000" opacity=".25"/><path d="${shape}" fill="url(#bg1)" stroke="rgba(255,255,255,.6)" stroke-width="1"/><path d="M${fish?28:20} 32 H${long?204:fish?200:206}" stroke="#C9A36B" stroke-width="1" opacity=".7"/><rect x="${fish?30:20}" y="25" width="30" height="14" rx="5" fill="#04121A" opacity="${rest?0:.55}"/><path d="M${fish?34:24} 28 h22 M${fish?34:24} 32 h22 M${fish?34:24} 36 h22" stroke="rgba(255,255,255,.18)" stroke-width="1"/>${long?'':'<circle cx="150" cy="32" r="0"/>'}</svg>`;
-}
-function waterGauge(t){
-  if(t==null) return '';
-  const f=clamp((t-8)/16,0,1), a=Math.PI*(1-f), cx=60, cy=60, r=46;
-  const x=cx+Math.cos(a)*r, y=cy-Math.sin(a)*r;
-  return `<svg width="130" height="72" viewBox="0 0 120 70" role="img" aria-label="Eau à ${fmt(t)} degrés"><defs><linearGradient id="wg2" x1="0" x2="1"><stop offset="0" stop-color="#6FA3B8"/><stop offset=".55" stop-color="#3CD6B4"/><stop offset="1" stop-color="#FF7A59"/></linearGradient></defs><path d="M14 60 A46 46 0 0 1 106 60" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="9" stroke-linecap="round"/><path d="M14 60 A46 46 0 0 1 ${x.toFixed(1)} ${y.toFixed(1)}" fill="none" stroke="url(#wg2)" stroke-width="9" stroke-linecap="round"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7" fill="#fff"/><text x="14" y="69" font-size="8" fill="#A3B3B8" text-anchor="middle" font-family="Manrope, system-ui, sans-serif" font-weight="700">8°</text><text x="106" y="69" font-size="8" fill="#A3B3B8" text-anchor="middle" font-family="Manrope, system-ui, sans-serif" font-weight="700">24°</text></svg>`;
 }
 function suitArt(t){
   if(t==null) return '';
@@ -1205,6 +1269,7 @@ function render(){
   const winA=day.win&&day.score>=0.6?day.win[0].hour:99, winB=day.win&&day.score>=0.6?day.win[day.win.length-1].hour:-1;
   const maxH=Math.max(1,...hrs.map(h=>h.H||0));
 
+  { const pw0=dayMedOf(day,'Heff'); state.gearCtx = pw0==null ? null : {pw:pw0, h:dayMedOf(day,'H'), t:dayMedOf(day,'T')}; }
   document.getElementById('app').innerHTML=`
   <header class="hero">
     <canvas id="ocean" aria-hidden="true"></canvas>
@@ -1236,11 +1301,17 @@ function render(){
   ${relHtml(s)}
   ${radarHtml(s)}
   <section class="gear wrap" aria-labelledby="sGearT">
-    <h2 class="h2s" id="sGearT" style="margin:0 0 12px">L’équipement idéal</h2>
-    <div class="gearrow">
-      <article class="gcard" style="--glow:var(--sand)"><div class="gart">${boardArt((day.score||0)>=0.6?day.board:'Repos')}</div><div class="gk" id="sGear">Planche conseillée${tip('planche','Pourquoi cette planche ?')}</div><div class="gv">${(day.score||0)>=0.6?day.board:'Journée repos'}</div><div class="gs">${(day.score||0)>=0.6?'Pour des vagues de '+fmt(day.avgH)+' m':'Pas de vagues à surfer'}</div></article>
-      <article class="gcard" style="--glow:var(--coral)"><div class="gart">${waterGauge(sst)}</div><div class="gk">Température de l’eau${tip('eau','D’où vient la température de l’eau ?')}</div><div class="gv">${sst!=null?fmt(sst)+' °C':'—'}</div></article>
-      <article class="gcard" style="--glow:var(--lilac)"><div class="gart"><span class="bigval">${sst!=null?suitOf(sst)[0]:'—'}</span></div><div class="gk">Combinaison conseillée${tip('combi','Que signifie 4/3 mm ?')}</div><div class="gs">${sst!=null?suitOf(sst)[1]:''}</div></article>
+    <div class="hhead"><h2 class="h2s" id="sGearT">L’équipement idéal</h2><label class="wsel">Pour <select id="wSel" aria-label="Votre poids">${[55,60,65,70,75,80,85,90,95,100].map(w=>`<option value="${w}"${w===state.weight?' selected':''}>${w} kg</option>`).join('')}</select> · surfeur confirmé</label></div>
+    <div class="gearbox">
+      <article class="gboard" id="gBoard">${gearBoardHtml()}</article>
+      <article class="gsuit">
+        <div class="gk">Combinaison${tip('combi','Que signifie 4/3 mm ?')}</div>
+        <div class="bigval">${sst!=null?suitOf(sst)[0]:'—'}</div>
+        <p class="gs">${sst!=null?suitOf(sst)[1]:''}</p>
+        <div class="gk" style="margin-top:22px">Eau${tip('eau','D’où vient la température de l’eau ?')}</div>
+        <div class="gv">${sst!=null?fmt(sst)+' °C':'—'}</div>
+        ${tempBar(sst)}
+      </article>
     </div>
   </section>
 
@@ -1336,12 +1407,14 @@ function renderPicker(){
 function refreshModels(){ const i=state.spot; enrich(i).then(ch=>{ if(ch && state.spot===i){ const h=state.hour, y=scrollY; render(); state.hour=h; updateLive(); scrollTo(0,y); } else if(state.spot===i){ const g=document.querySelector('#szC'); if(g) updateLive(); } }).catch(()=>{}); }
 function go(i){ state.spot=i; render(); refreshModels(); window.scrollTo({top:0,behavior:REDUCED?'auto':'smooth'}); }
 function bind(){
+  { const ws=document.getElementById('wSel'); if(ws) ws.onchange=()=>{ state.weight=+ws.value; saveWeight(state.weight); const el=document.getElementById('gBoard'); if(el){ el.innerHTML=gearBoardHtml(); bindTips(el); } }; }
   document.getElementById('openPicker').onclick=()=>{ renderPicker(); document.getElementById('picker').showModal(); document.getElementById('q').focus(); };
   document.getElementById('favBtn').onclick=()=>{ const n=state.data[state.spot].spot.name; state.fav=state.fav.includes(n)?state.fav.filter(x=>x!==n):[...state.fav,n]; saveFav(); render(); };
   document.querySelectorAll('.hgrid .hc').forEach(c=>{ c.addEventListener('click',()=>{ if(playing){cancelAnimationFrame(playing);playing=0;} state.hour=+c.dataset.h; updateLive(); }); });
   document.getElementById('playDay').onclick=playDay;
   document.getElementById('cmpBtn').onclick=()=>{ state.cmp=!state.cmp; const y=scrollY; render(); scrollTo(0,y); };
-  document.querySelectorAll('.tipbtn').forEach(b=>{ b.onmouseenter=()=>showTip(b); b.onmouseleave=()=>hideTip(); b.onfocus=()=>showTip(b); b.onblur=()=>hideTip(); b.onclick=e=>{ e.stopPropagation(); (tipOwner===b&&tipLayer.classList.contains('on'))?hideTip(true):showTip(b); }; });
+  bindTips(document);
+  function bindTips(root){ root.querySelectorAll('.tipbtn').forEach(b=>{ b.onmouseenter=()=>showTip(b); b.onmouseleave=()=>hideTip(); b.onfocus=()=>showTip(b); b.onblur=()=>hideTip(); b.onclick=e=>{ e.stopPropagation(); (tipOwner===b&&tipLayer.classList.contains('on'))?hideTip(true):showTip(b); }; }); }
   const tr=document.getElementById('tideRange'); if(tr) tr.addEventListener('input',e=>{ if(playing){cancelAnimationFrame(playing);playing=0;} state.hour=+e.target.value; updateLive(); });
   document.querySelectorAll('.nearit').forEach(b=>{ b.onclick=()=>go(+b.dataset.i); const i=+b.dataset.i; b.onmouseenter=()=>{ const el=markers[i]?.getElement()?.querySelector('.mk'); el&&el.classList.add('hl'); }; b.onmouseleave=()=>{ const el=markers[i]?.getElement()?.querySelector('.mk'); el&&el.classList.remove('hl'); }; });
   const ct=null;

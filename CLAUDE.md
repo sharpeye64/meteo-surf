@@ -31,6 +31,12 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   modèles seulement). La section « La semaine » du bas a été retirée (doublon du bandeau du haut). Le tri du sélecteur de
   spot se fait par taille. Le score interne (`h.score`, `day.sc`) existe encore pour le trait doré, mais ne s'affiche plus.
 
+- Bandeau « L'équipement idéal » : exemple de planche réelle (table `GEAR` dans `web/index.html`) choisi d'après la puissance
+  de la houle (taille × période × exposition), puis ajusté au poids (liste déroulante, mémorisée). Dimensions et volumes
+  relevés en novembre 2026 sur les fiches Pyzel et sur des revendeurs concordants ; les revendeurs divergent selon l'année
+  et la construction, donc toujours indiquer « à vérifier chez le shaper ». Ajouter une famille ou un modèle = ajouter une
+  entrée à `GEAR` avec uniquement des dimensions vérifiées. Les coefficients litres/kg sont des repères, pas une norme.
+
 ## Pistes suivantes
 - Bouée CANDHIS d'Anglet (Licence Ouverte) en « vérité terrain » près de la côte, avec comparaison H1/3 et TH1/3.
 - Coefficient de marée, calibration `tide_offset_min` par spot, réglages de spots validés sur le terrain.
