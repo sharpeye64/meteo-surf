@@ -37,7 +37,14 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   et la construction, donc toujours indiquer « à vérifier chez le shaper ». Ajouter une famille ou un modèle = ajouter une
   entrée à `GEAR` avec uniquement des dimensions vérifiées. Les coefficients litres/kg sont des repères, pas une norme.
 
-- Fond du haut de page : simple dégradé CSS ciel/mer calculé par `skyUpdate()` (soleil à sa vraie position), SANS WebGL ni
+- Haut de page = « océan illustré » choisi par l'utilisateur : SVG statique (4 couches de vagues, soleil à sa vraie position,
+  reflet), couleurs recalculées à chaque changement d'heure par `skyUpdate()`. Décor propre à chaque spot via `sceneOf()` :
+  montagnes basques ou pins des Landes à l'horizon, plus un élément (phare, jetée, rochers, falaises, dunes) selon le spot.
+- Webcams : liens externes seulement (`CAMS` dans index.html), jamais d'intégration ni de rediffusion (conditions d'utilisation
+  des tiers). Sources : pages Surf-Forecast par spot, Quiksilver pour Saint-Jean-de-Luz et Hendaye ; pour les autres spots,
+  « webcam la plus proche » à moins de 15 km. Tourisme Landes (officiel) bloque les vérifications automatiques : non utilisé.
+  Les caméras sont gérées par des tiers et peuvent être hors ligne : le dire.
+- Fond du haut de page : SANS WebGL ni
   animation continue. La version WebGL recréait un contexte graphique à chaque changement de spot ou de jour sans libérer
   l'ancien : après quelques clics la page se bloquait (constaté par l'utilisateur, novembre 2026). Ne pas réintroduire de
   canvas animé ; si un effet est voulu, le tester avec 60 changements de spot d'affilée.
