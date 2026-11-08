@@ -85,6 +85,11 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   Licence Ouverte Etalab 2.0, mesures temps réel non validées : le dire. Allosurf et sites similaires : pas d'API ni de conditions
   de réutilisation, ne pas les utiliser.
 
+- Mobile : pas d'accord des modèles, pas de pastille bouée dans le haut, pas de boutons « Comparer / Lancer la journée » ;
+  la légende sous la frise horaire est supprimée partout (seul l'avertissement sur le vent AROME/ICON reste). Le choix du poids est
+  supprimé : la planche n'affiche plus de volume (il dépend du poids). Idée à reprendre : version « Light » et version « Pro »
+  (comparaison des modèles, volume selon le poids, lecture de la journée) pour ceux qui veulent aller plus loin.
+
 ## Pistes suivantes
 - Archiver aussi les mesures CANDHIS (fiabilité près de la côte) : aujourd'hui seule la bouée Gascogne alimente `history/`.
 - Clé d'API CANDHIS officielle (demande par mail à l'équipe Candhis) pour remplacer la lecture des pages publiques.
