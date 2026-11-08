@@ -85,7 +85,6 @@ button,input{font:inherit;color:inherit}
 .dots{display:inline-flex;gap:3px;align-items:center}.dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.22)}
 .dots.a3 i.on{background:#45C4B0}.dots.a2 i.on{background:#F5C451}.dots.a1 i.on{background:#FF7A45}
 .hacc{border-top:1px solid var(--edge)}
-.hwave span{background:#8ED0EC}
 .wkp .cf{font-size:10px;font-weight:700;color:#9FB7BD;min-height:12px;white-space:nowrap}
 .rel{margin-top:34px}
 .relgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr);gap:14px;margin-top:10px}
@@ -353,9 +352,12 @@ footer .fgen{margin-top:22px;color:#9FB7BD}
 .hsun{font-size:10px;font-weight:800;color:var(--ambSun);letter-spacing:.02em}
 .hwave{flex-direction:column;justify-content:flex-end;gap:5px;padding-bottom:8px}
 .hwave b{font-family:Unbounded,system-ui,sans-serif;font-size:13px}
-.hwave span{width:60%;max-width:30px;border-radius:6px 6px 3px 3px}
-.hper{font-weight:700;font-size:13px;border-top:1px solid var(--edge);flex-direction:column;gap:0;line-height:1.15}.hper small{font-size:11px;font-weight:700;color:#9FB7BD}
-.hwind{flex-direction:column;gap:2px;font-weight:800;font-size:13px;border-top:1px solid var(--edge)}
+.hwave .bb{display:flex;align-items:flex-end;justify-content:center;gap:3px;width:100%}
+.hwave .p{display:block;width:24px;border-radius:8px 8px 3px 3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.hwave .s2{display:block;width:7px;border-radius:4px 4px 2px 2px;background:rgba(255,255,255,.6)}
+.hper{font-weight:700;font-size:13px;border-top:1px solid var(--edge);flex-direction:column;gap:0;line-height:1.15}.hper{box-shadow:inset 0 0 0 100px rgba(142,208,236,var(--pa,0))}
+.hper small{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:#B4C6CB}
+.hwind{flex-direction:column;gap:2px;font-weight:800;font-size:13px;border-top:1px solid var(--edge);box-shadow:inset 0 0 0 100px rgba(255,255,255,var(--wa,0))}
 .hwind svg{display:block}
 .htide{position:relative;border-top:1px solid var(--edge);z-index:1;pointer-events:none}
 .htide svg{position:absolute;inset:0;width:100%;height:100%}
@@ -708,6 +710,8 @@ function agreeOf(h){
   return {lvl: sp<=tol?3:sp<=2*tol?2:1, sp, mn, mx, n:vs.length};
 }
 const medTxt = day => { const m=dayMed(day); return m!=null?fmt(m)+' m':'—'; };
+function periodColor(T){ if(!T) return 'rgba(255,255,255,.2)'; const t=clamp((T-6)/10,0,1), h=208-44*t, sat=58+14*t;
+  return `linear-gradient(180deg,hsl(${h.toFixed(0)} ${sat.toFixed(0)}% ${(76-8*t).toFixed(0)}%),hsl(${h.toFixed(0)} ${sat.toFixed(0)}% ${(52-6*t).toFixed(0)}%))`; }
 function dotsHtml(l){ return l?`<span class="dots a${l}" role="img" aria-label="Accord des modèles : ${AGREE_TXT[l]}"><i class="on"></i><i class="${l>=2?'on':''}"></i><i class="${l>=3?'on':''}"></i></span>`:''; }
 function dayMed(day){ const v=day.list.filter(h=>h.hour>=8&&h.hour<=19&&h.H!=null).map(h=>h.H).sort((x,y)=>x-y); return v.length?v[Math.floor(v.length/2)]:null; }
 function dayAgree(day){ const l=day.list.filter(h=>h.hour>=8&&h.hour<=19).map(agreeOf).filter(Boolean); return l.length?clamp(Math.round(l.reduce((x,y)=>x+y.lvl,0)/l.length),1,3):0; }
@@ -986,10 +990,10 @@ function hourlyHtml(day,hrs){
     const sun = h.hour===Math.floor(rise)?'<span class="hsun">Lever</span>':h.hour===Math.floor(set)?'<span class="hsun">Coucher</span>':'';
     const cls=`hc${nt}${wn}`;
     c+=`<button class="${cls} hhr" data-h="${h.hour}" style="grid-column:${col};grid-row:1" aria-label="${h.hour}h : ${h.H!=null?fmt(h.H)+' m, '+Math.round(h.T)+' s, vent '+Math.round(h.v)+' km/h '+windWord[h.wind]:'pas de données'}">${h.hour}h${sun}</button>`;
-    c+=`<div class="${cls} hwave" data-h="${h.hour}" style="grid-column:${col};grid-row:2"><b>${h.H!=null?fmt(h.H):'—'}</b><span style="height:${h.H!=null?Math.max(6,h.H/mx*58).toFixed(0):0}px"></span></div>`;
-    c+=`<div class="${cls} hper" data-h="${h.hour}" style="grid-column:${col};grid-row:3;opacity:${h.T?clamp(.45+(h.T-6)/10,.45,1):.4}">${h.T?Math.round(h.T)+' s':'—'}${h.D!=null?`<small>${sector(h.D)}</small>`:''}</div>`;
+    c+=`<div class="${cls} hwave" data-h="${h.hour}" style="grid-column:${col};grid-row:2"><b>${h.H!=null?fmt(h.H):'—'}</b><div class="bb"><span class="p" style="height:${h.H!=null?Math.max(6,h.H/mx*58).toFixed(0):0}px;background:${periodColor(h.T)}"></span>${h.sec?`<span class="s2" title="${h.sec.kind} ${fmt(h.sec.H)} m, ${Math.round(h.sec.T)} s" style="height:${Math.max(4,h.sec.H/mx*58).toFixed(0)}px"></span>`:''}</div></div>`;
+    c+=`<div class="${cls} hper" data-h="${h.hour}" style="grid-column:${col};grid-row:3;--pa:${h.T?(clamp((h.T-6)/10,0,1)*.3).toFixed(2):0}">${h.T?Math.round(h.T)+' s':'—'}${h.D!=null?`<small><svg width="9" height="9" viewBox="-5 -5 10 10" style="transform:rotate(${(h.D+180)%360}deg)" aria-hidden="true"><path d="M0 -5 L3.5 4 L0 2 L-3.5 4Z" fill="currentColor"/></svg>${sector(h.D)}</small>`:''}</div>`;
     c+=`<div class="${cls} hacc" data-h="${h.hour}" style="grid-column:${col};grid-row:4">${dotsHtml((agreeOf(h)||{}).lvl||0)}</div>`;
-    c+=`<div class="${cls} hwind" data-h="${h.hour}" style="grid-column:${col};grid-row:5"><svg width="20" height="20" viewBox="-10 -10 20 20" style="transform:rotate(${(h.wd||0)+180}deg)" aria-hidden="true"><path d="M0 -9 L6 5 L0 2 L-6 5 Z" fill="${windCol(h.wind)}"/></svg><span>${h.v!=null?Math.round(h.v):'—'}</span></div>`;
+    c+=`<div class="${cls} hwind" data-h="${h.hour}" style="grid-column:${col};grid-row:5;--wa:${h.v!=null?(clamp(h.v/45,0,1)*.16).toFixed(2):0}"><svg width="20" height="20" viewBox="-10 -10 20 20" style="transform:rotate(${(h.wd||0)+180}deg)" aria-hidden="true"><path d="M0 -9 L6 5 L0 2 L-6 5 Z" fill="${windCol(h.wind)}"/></svg><span>${h.v!=null?Math.round(h.v):'—'}</span></div>`;
   });
   const tl=hrs.filter(h=>h.tideN!=null);
   if(tl.length>2){ const n=hrs.length, X=i=>((i+.5)/n*1000), Y=v=>(8+(1-v)*40);
@@ -1329,7 +1333,7 @@ function render(){
   <section class="hourly wrap" aria-labelledby="sHour">
     <div class="hhead"><h2 class="h2s" id="sHour">Heure par heure</h2><span class="hnow" id="nowLbl"></span>${tip('modeles','D’où viennent les prévisions ?')}<button class="playbtn" id="cmpBtn" aria-pressed="${!!state.cmp}">${state.cmp?'Masquer les modèles':'Comparer les modèles'}</button><button class="playbtn" id="playDay"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>Lancer la journée</button></div>
     <div class="hscroll"><div class="hgrid" style="grid-template-columns:${state.cmp?150:96}px repeat(${hrs.length},minmax(54px,1fr));grid-template-rows:42px 96px 44px 26px 58px 62px${state.cmp?' '+'34px '.repeat((state.models||[]).length+(state.windModels||[]).length):''}">${hourlyHtml(day,hrs)}</div></div>
-    <p class="hnote">${windNote(hrs)}Touche une heure pour la lire dans le haut de page. Points : accord des modèles de houle (3 = fort). Trait doré : créneau le plus favorable d’après les réglages du spot. Flèches : sens du vent (turquoise offshore, ambre de côté, corail onshore).</p>
+    <p class="hnote">${windNote(hrs)}Touche une heure pour la lire dans le haut de page. Barres : hauteur de la houle, du bleu (période courte) au vert d’eau (période longue) ; barre fine : seconde houle. Points : accord des modèles (3 = fort). Trait doré : créneau le plus favorable d’après les réglages du spot. Flèches du vent : turquoise offshore, ambre de côté, corail onshore.</p>
   </section>
 
   ${relHtml(s)}
