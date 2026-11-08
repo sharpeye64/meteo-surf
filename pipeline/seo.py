@@ -90,7 +90,8 @@ table{width:100%;border-collapse:collapse;background:var(--card);border-radius:1
 th,td{padding:10px 12px;text-align:left;border-top:1px solid rgba(255,255,255,.08);font-size:15px}thead th{border-top:0;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
 ul.near{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
 ul.near a{display:block;background:var(--card);border-radius:14px;padding:12px 14px;text-decoration:none;color:var(--text)}ul.near small{display:block;color:var(--muted)}
-.grp{margin-top:26px}.grp h2{color:var(--sand)}footer{margin-top:44px;color:var(--muted);font-size:13px}"""
+.grp{margin-top:26px}.grp h2{color:var(--sand)}footer{margin-top:44px;color:var(--muted);font-size:13px}footer nav{margin-bottom:6px}footer a{color:var(--muted)}
+.prose p,.prose li{max-width:68ch}.prose ul{padding-left:20px}"""
 
 
 def page(site, title, desc, canonical, body, jsonld, base="../../"):
@@ -107,8 +108,8 @@ def page(site, title, desc, canonical, body, jsonld, base="../../"):
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230A1114'/%3E%3Cpath d='M8 36c6-12 12-12 18 0s12 12 18 0 8-8 12-4' fill='none' stroke='%23E4C79B' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>{CSS}</style>{ld}</head><body><main>
 <header><a class="brand" href="{base}">〰 {BRAND.lower()}</a><a class="muted" href="{base}spots/">Tous les spots</a></header>
-{body}
-<footer>Prévisions calculées à partir de plusieurs modèles (Météo-France, DWD, ECMWF, NOAA, Ifremer) via Open-Meteo, corrigées avec les bouées. Estimations : à confirmer sur place. {BRAND} est un prototype non commercial.</footer>
+<div class="prose">{body}</div>
+<footer><nav aria-label="Informations"><a href="{base}comment-ca-marche/">Comment ça marche</a> · <a href="{base}mentions-legales/">Mentions légales</a> · <a href="{base}confidentialite/">Confidentialité</a></nav><br>Prévisions calculées à partir de plusieurs modèles (Météo-France, DWD, ECMWF, NOAA, Ifremer) via Open-Meteo, corrigées avec les bouées. Estimations : à confirmer sur place. {BRAND} est un prototype non commercial.</footer>
 </main></body></html>"""
 
 
@@ -199,10 +200,15 @@ def generate(payload, out_dir=None, site=None):
         d = base / sp["slug"]
         d.mkdir()
         (d / "index.html").write_text(spot_page(site, sp, spots, payload, now), encoding="utf-8")
+    from . import pages
+    for spec in pages.ALL:
+        d = root / spec["slug"]
+        d.mkdir(exist_ok=True)
+        (d / "index.html").write_text(pages.render(site, spec), encoding="utf-8")
     day = now.strftime("%Y-%m-%d")
-    urls = [(f"{site}/", "hourly", "1.0"), (f"{site}/spots/", "daily", "0.8")] + [(f"{site}/spots/{s['slug']}/", "hourly", "0.7") for s in spots]
+    urls = [(f"{site}/", "hourly", "1.0"), (f"{site}/spots/", "daily", "0.8")] + [(f"{site}/{c['slug']}/", "monthly", "0.5") for c in pages.ALL] + [(f"{site}/spots/{s['slug']}/", "hourly", "0.7") for s in spots]
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join(
         f"<url><loc>{u}</loc><lastmod>{day}</lastmod><changefreq>{f}</changefreq><priority>{p}</priority></url>\n" for u, f, p in urls) + "</urlset>\n"
     (root / "sitemap.xml").write_text(sm, encoding="utf-8")
     (root / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {site}/sitemap.xml\n", encoding="utf-8")
-    return len(spots) + 1
+    return len(spots) + 1 + len(pages.ALL)

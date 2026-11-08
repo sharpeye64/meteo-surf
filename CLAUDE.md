@@ -50,6 +50,10 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
 - L'adresse publique est https://houlalah.fr (`config.SITE_URL`, variable `METEO_SITE_URL` dans `.github/workflows/update.yml`, fichier
   `web/CNAME`). Le DNS et le domaine personnalisé dans Settings > Pages sont réglés à la main par l'utilisateur. Les pages de spots mènent à `./?spot=<slug>` (le site lit ce
   paramètre, met à jour le titre de l'onglet et l'adresse selon le spot).
+- `pipeline/pages.py` génère 3 pages de contenu (`/comment-ca-marche/`, `/mentions-legales/`, `/confidentialite/`), listées dans le
+  sitemap et liées dans le pied de page avec les 58 pages de spots (liens classiques, que Google peut suivre). Les mentions légales
+  gardent l'éditeur anonyme (LCEN art. 6 III 2) et citent l'hébergeur GitHub ; le contact est contact@houlalah.fr, ADRESSE À CRÉER
+  (redirection e-mail chez le registrar). À relire si on ajoute un outil de mesure d'audience, une pub ou un compte utilisateur.
 - À faire quand le domaine est branché : déclarer le sitemap dans Google Search Console / Bing Webmaster, image de partage
   (og:image), vérifier les Core Web Vitals (l'océan WebGL est lourd sur mobile).
 

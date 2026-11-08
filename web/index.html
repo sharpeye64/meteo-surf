@@ -593,6 +593,11 @@ dialog::backdrop{background:rgba(2,10,14,.7);backdrop-filter:blur(4px)}
   .sunarc{display:none!important}
   #cmpBtn,#playDay{display:none!important}
 }
+footer .spotlinks{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:18px 24px;margin-top:26px;padding-top:22px;border-top:1px solid var(--edge)}
+footer .spotlinks h3{margin-bottom:6px}
+footer .spotlinks a{display:block;color:var(--muted);text-decoration:none;font-size:13px;line-height:1.9}
+footer .spotlinks a:hover{color:var(--text);text-decoration:underline}
+footer .flinks{margin:22px 0 0}footer .flinks a{color:var(--muted)}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1727,6 +1732,8 @@ function render(){
         <div><h3>Mesures et marées</h3><p>Bouée Gascogne : Météo-France, via Copernicus Marine In Situ. Marées : calcul harmonique indépendant à partir des mesures REFMAR (© Shom, Licence Ouverte). Coefficient : calcul indépendant à partir de Brest. Marée indicative.</p></div>
         <div><h3>À savoir</h3><p><a href="spots/">Tous les spots, de Lacanau à Hendaye</a></p><p>Prototype non commercial. Les prévisions sont des estimations : elles ne remplacent ni un coup d’œil sur place ni les consignes de sécurité locales.</p></div>
       </div>
+      <nav class="spotlinks" aria-label="Tous les spots">${(()=>{ const g={}; state.data.forEach(x=>{ (g[x.spot.region]=g[x.spot.region]||[]).push(x.spot); }); return Object.entries(g).map(([r,l])=>`<div><h3>${r}</h3>${l.map(sp=>`<a href="spots/${slugOf(sp.name)}/">${sp.name}</a>`).join('')}</div>`).join(''); })()}</nav>
+      <p class="flinks"><a href="comment-ca-marche/">Comment ça marche</a> · <a href="mentions-legales/">Mentions légales</a> · <a href="confidentialite/">Confidentialité</a></p>
       ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}.</p>`:''}
     </footer>
   </div>`;

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Comment Houlalah calcule ses prévisions de surf : modèles, bouées, marées</title><meta name="description" content="D&#x27;où viennent les prévisions de houle, de vent et de marée de Houlalah, comment elles sont corrigées avec les bouées et comment leur fiabilité est mesurée.">
+<link rel="canonical" href="https://houlalah.fr/comment-ca-marche/"><meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Houlalah"><meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="Comment Houlalah calcule ses prévisions de surf : modèles, bouées, marées"><meta property="og:description" content="D&#x27;où viennent les prévisions de houle, de vent et de marée de Houlalah, comment elles sont corrigées avec les bouées et comment leur fiabilité est mesurée."><meta property="og:url" content="https://houlalah.fr/comment-ca-marche/"><meta property="og:image" content="https://houlalah.fr/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://houlalah.fr/og.png"><meta name="twitter:title" content="Comment Houlalah calcule ses prévisions de surf : modèles, bouées, marées"><meta name="twitter:description" content="D&#x27;où viennent les prévisions de houle, de vent et de marée de Houlalah, comment elles sont corrigées avec les bouées et comment leur fiabilité est mesurée.">
+<meta name="theme-color" content="#0A1114">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230A1114'/%3E%3Cpath d='M8 36c6-12 12-12 18 0s12 12 18 0 8-8 12-4' fill='none' stroke='%23E4C79B' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>:root{--bg:#0A1114;--card:#142128;--text:#F2EFE8;--muted:#AEB6B4;--sand:#E4C79B;--aqua:#8DBFB2}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+a{color:var(--sand)}main{max-width:900px;margin:0 auto;padding:24px 20px 60px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.brand{font-weight:700;text-decoration:none;color:var(--text);letter-spacing:.01em}
+h1{font-size:clamp(28px,5vw,42px);line-height:1.1;margin:0 0 12px}h2{font-size:20px;margin:34px 0 12px}
+.lead{font-size:18px;color:var(--text);margin:0 0 20px}.muted{color:var(--muted);font-size:14px}
+.cta{display:inline-block;background:var(--sand);color:#1A1405;font-weight:700;padding:12px 20px;border-radius:999px;text-decoration:none;margin:6px 0 10px}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:16px;overflow:hidden}
+th,td{padding:10px 12px;text-align:left;border-top:1px solid rgba(255,255,255,.08);font-size:15px}thead th{border-top:0;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+ul.near{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+ul.near a{display:block;background:var(--card);border-radius:14px;padding:12px 14px;text-decoration:none;color:var(--text)}ul.near small{display:block;color:var(--muted)}
+.grp{margin-top:26px}.grp h2{color:var(--sand)}footer{margin-top:44px;color:var(--muted);font-size:13px}footer nav{margin-bottom:6px}footer a{color:var(--muted)}
+.prose p,.prose li{max-width:68ch}.prose ul{padding-left:20px}</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "name": "Comment Houlalah calcule ses prévisions de surf : modèles, bouées, marées", "description": "D'où viennent les prévisions de houle, de vent et de marée de Houlalah, comment elles sont corrigées avec les bouées et comment leur fiabilité est mesurée.", "url": "https://houlalah.fr/comment-ca-marche/", "inLanguage": "fr", "isPartOf": {"@type": "WebSite", "name": "Houlalah", "url": "https://houlalah.fr/"}}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Houlalah", "item": "https://houlalah.fr/"}, {"@type": "ListItem", "position": 2, "name": "Comment ça marche", "item": "https://houlalah.fr/comment-ca-marche/"}]}</script></head><body><main>
+<header><a class="brand" href="../">〰 houlalah</a><a class="muted" href="../spots/">Tous les spots</a></header>
+<div class="prose"><h1>Comment ça marche</h1>
+<p class="lead">Houlalah ne produit pas ses propres modèles : il croise plusieurs prévisions publiques, les corrige avec des mesures réelles et dit ce qu'il en est de leur fiabilité. Voici d'où vient chaque chiffre.</p>
+
+<h2>La houle : plusieurs modèles croisés</h2>
+<p>La hauteur, la période et la direction de la houle viennent d'un mélange de modèles : Météo-France MFWAM, DWD EWAM, ECMWF WAM et NOAA GFS-Wave (via Open-Meteo), plus le modèle côtier Ifremer MARC (grille d'environ 3,7 km sur le golfe de Gascogne). Quand les modèles disent la même chose, l'accord est fort. Quand ils divergent, l'écart est affiché sous le grand chiffre du haut de page.</p>
+
+<h2>Le vent</h2>
+<p>Le vent vient du modèle Météo-France AROME, comparé à DWD ICON, NOAA GFS et ECMWF IFS. AROME ne va pas au-delà de 4 jours environ : au-delà, la prévision bascule sur ICON, et la fiabilité baisse.</p>
+
+<h2>Les bouées : la mesure réelle</h2>
+<ul>
+<li><b>Bouée Gascogne (Météo-France, 62001)</b> : au large, à environ 300 km de la côte. Elle voit la houle arriver bien avant la côte. Ses données publiques ont 12 à 30 heures de retard. Quand les modèles s'écartent de sa mesure, nos prévisions sont corrigées sur les 24 heures suivantes.</li>
+<li><b>Bouées côtières CANDHIS (Cerema)</b> : Cap Ferret, Anglet, Saint-Jean-de-Luz. Mesures toutes les 30 minutes, fraîches. Le site compare la mesure de la bouée la plus proche du spot avec sa prévision. Ces mesures en temps réel ne sont pas validées.</li>
+</ul>
+
+<h2>La marée et le coefficient</h2>
+<p>Les horaires de pleine et de basse mer sont calculés par méthode harmonique à partir de mesures officielles des marégraphes REFMAR (Shom) à Socoa et à Boucau-Bayonne. Sur des mesures indépendantes, l'écart moyen d'heure est d'environ 5 minutes. Le coefficient est calculé à partir de la marée de Brest, avec un écart moyen d'environ 2 points par rapport à la valeur officielle. Ces valeurs sont indicatives : à vérifier avant de sortir.</p>
+
+<h2>La fiabilité, mesurée</h2>
+<p>À chaque mise à jour, les prévisions sont archivées. Elles sont ensuite comparées à la mesure réelle de la bouée à 24, 48, 72 et 96 heures d'avance, sur les 30 derniers jours. Le résultat apparaît en bas de la page d'accueil dès qu'il y a assez de mesures. Houlalah ne dit jamais si les conditions sont « bonnes » : c'est à toi de juger, avec des données dont on connaît la précision.</p>
+
+<h2>Mises à jour et limites</h2>
+<p>Les prévisions sont recalculées toutes les 3 heures. Ce sont des estimations : un modèle ne voit ni un banc de sable qui a bougé ni une rafale locale. Elles ne remplacent ni un coup d'œil sur place ni les consignes de sécurité des plages surveillées.</p>
+</div>
+<footer><nav aria-label="Informations"><a href="../comment-ca-marche/">Comment ça marche</a> · <a href="../mentions-legales/">Mentions légales</a> · <a href="../confidentialite/">Confidentialité</a></nav><br>Prévisions calculées à partir de plusieurs modèles (Météo-France, DWD, ECMWF, NOAA, Ifremer) via Open-Meteo, corrigées avec les bouées. Estimations : à confirmer sur place. Houlalah est un prototype non commercial.</footer>
+</main></body></html>

@@ -178,11 +178,13 @@ print("CANDHIS OK :", [b["name"] for b in data["coast"]], c0["latest"])
 
 import re as _re
 sm = (config.ROOT / "web" / "sitemap.xml").read_text(encoding="utf-8")
-assert sm.count("<url>") == len(data["spots"]) + 2, sm.count("<url>")
+assert sm.count("<url>") == len(data["spots"]) + 5, sm.count("<url>")
 assert "Sitemap:" in (config.ROOT / "web" / "robots.txt").read_text()
 pg = (config.ROOT / "web" / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
 assert "<h1>Prévisions surf à Lacanau</h1>" in pg and "application/ld+json" in pg and 'rel="canonical"' in pg and "<table>" in pg
 assert "Houlalah" in (config.ROOT / "web" / "spots" / "index.html").read_text(encoding="utf-8")
+for _slug in ("comment-ca-marche", "mentions-legales", "confidentialite"):
+    assert "<h1>" in (config.ROOT / "web" / _slug / "index.html").read_text(encoding="utf-8"), _slug
 print("SEO OK :", len(data["spots"]), "pages de spots + index + sitemap")
 
 # Secours : Copernicus indisponible → NOAA NDBC.
