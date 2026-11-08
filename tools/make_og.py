@@ -45,10 +45,22 @@ for i, (amp, alpha) in enumerate([(7, 120), (10, 90), (14, 60), (18, 40)]):
     d.line(pts, fill=col, width=3 * S, joint="curve")
 d.line([(0, hy), (W * S, hy)], fill=lerp((31, 58, 66), SAND, .35), width=2 * S)
 
-# logo : trait de vague + mot-symbole
-lx, ly = 84 * S, 186 * S
-d.line([(lx + i * 2.4 * S, ly + math.sin(i / 7.0) * 15 * S) for i in range(0, 62)], fill=SAND, width=7 * S, joint="curve")
-d.text((lx + 160 * S, 106 * S), "houlalah", font=font("seguibl.ttf", 104), fill=(244, 240, 232))
+# logo : rond en contour, cinq houles identiques (même géométrie que pipeline/logo.py) + mot-symbole
+lx = 84 * S
+R = 58 * S                                     # rayon du logo
+ox, oy = lx + R, 182 * S                       # centre du logo
+k = 2 * R / 100                                # unités du logo -> pixels
+layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+ld = ImageDraw.Draw(layer)
+for y0 in (28, 39, 50, 61, 72):
+    pts = [(ox + (x - 50) * k, oy + (y0 - 50 + 4.5 * math.cos(2 * math.pi * (x - 50) / 50)) * k) for x in [i * 0.5 for i in range(-12, 213)]]
+    ld.line(pts, fill=SAND + (255,), width=int(4.4 * k), joint="curve")
+mask = Image.new("L", img.size, 0)
+ImageDraw.Draw(mask).ellipse([ox - 46 * k, oy - 46 * k, ox + 46 * k, oy + 46 * k], fill=255)
+img.paste(layer, (0, 0), Image.composite(layer.split()[3], Image.new("L", img.size, 0), mask))
+d = ImageDraw.Draw(img)
+d.ellipse([ox - 47 * k, oy - 47 * k, ox + 47 * k, oy + 47 * k], outline=SAND, width=int(3 * k))
+d.text((lx + 2 * R + 28 * S, 106 * S), "houlalah", font=font("seguibl.ttf", 104), fill=(244, 240, 232))
 d.text((lx, 262 * S), "Prévisions surf, de Lacanau à Hendaye", font=font("segoeuib.ttf", 40), fill=SAND)
 d.text((lx, 322 * S), "Houle · vent · marée · coefficient", font=font("segoeui.ttf", 34), fill=MUTED)
 d.text((lx, 540 * S), "58 spots · croisés entre plusieurs modèles · vérifiés avec les bouées", font=font("segoeui.ttf", 26), fill=(150, 160, 158))

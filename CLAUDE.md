@@ -43,6 +43,14 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   carte avec un point à l'heure choisie (hauteur interpolée). Pas de ligne « jour · heure · soleil » ni de bouton webcam texte :
   la webcam est une icône à côté de l'étoile.
 
+## Logo
+- Logo Houlalah : un rond en contour sable avec cinq houles identiques et parallèles (symétrique gauche/droite et haut/bas).
+  Géométrie unique dans `pipeline/logo.py` (utilisée par l'en-tête du site, les pages de spots et `tools/make_og.py` pour
+  `web/og.png`). Si on le change : modifier `logo.py`, relancer `python -m tools.make_og` et reporter `logo.inline_svg()` et
+  `logo.favicon_uri()` dans `web/index.html`. Le nom s'écrit « houlalah » en minuscules dans le logo, « Houlalah » dans les textes.
+- Direction artistique : pistes présentées (Profondeur sombre, Papier de mer clair, Signal technique) ; recommandation = océan
+  immersif sombre en haut de page + thème clair lisible en plein soleil. Choix à confirmer avec l'utilisateur.
+
 ## SEO
 - `pipeline/seo.py` (appelé par `build.py`, jamais bloquant) écrit `web/spots/<slug>/index.html` (une page par spot avec vrai
   texte, tableau des 7 jours, JSON-LD, balises canonical/Open Graph, spots voisins), `web/spots/index.html` (index par région),
