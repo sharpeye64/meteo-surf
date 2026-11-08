@@ -95,12 +95,14 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   « webcam la plus proche » à moins de 15 km. Tourisme Landes (officiel) bloque les vérifications automatiques : non utilisé.
   Les caméras sont gérées par des tiers et peuvent être hors ligne : le dire.
 
-- Radar : bascule « Large » (bouée Gascogne 62001, Copernicus, retard 12-30 h, calcul d'arrivée de la houle) / « Côte »
-  (bouée CANDHIS la plus proche du spot : Cap Ferret 03302, Anglet 06402, Saint-Jean-de-Luz 06403 ; mesures toutes les 30 min,
-  fraîches ; comparée à notre prévision du spot). `pipeline/candhis.py` lit les pages publiques (1 requête par bouée et par passage,
-  heures TU converties en heure de Paris ; positions des bouées approximatives, servent seulement à choisir la plus proche).
-  Licence Ouverte Etalab 2.0, mesures temps réel non validées : le dire. Allosurf et sites similaires : pas d'API ni de conditions
-  de réutilisation, ne pas les utiliser.
+- Encadré « La bouée » (ex-radar) : bascule entre la bouée Gascogne (62001, au large, Copernicus, retard de plusieurs heures) et la
+  bouée CANDHIS la plus proche du spot (Cap Ferret 03302, Anglet 06402, Saint-Jean-de-Luz 06403 ; mesures toutes les 30 min),
+  nommées par leur NOM (pas « large / côte »). Carte de gauche : hauteur en grand, période, direction (flèche), eau, fraîcheur,
+  barres « mesuré / prévu ». Carte de droite : courbe des 48 h, mesure contre prévision. `pipeline/candhis.py` lit les pages
+  publiques (1 requête par bouée, relancée une fois, heures TU converties en heure de Paris). Licence Ouverte Etalab 2.0, mesures
+  temps réel non validées (dit dans l'info-bulle et le pied de page). Allosurf et sites similaires : ne pas utiliser.
+- Haut de page : une seule pastille de fiabilité en mots simples (« Prévision fiable / assez fiable / incertaine », info-bulle), plus
+  de « Accord des modèles », de « 4 modèles de houle… », de « Fiabilité mesurée… » ni de bouton « Lancer la journée ».
 
 - Mobile : pas d'accord des modèles, pas de pastille bouée dans le haut, pas de boutons « Comparer / Lancer la journée » ;
   la légende sous la frise horaire est supprimée partout (seul l'avertissement sur le vent AROME/ICON reste). Le choix du poids est
