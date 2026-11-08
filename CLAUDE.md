@@ -1,4 +1,4 @@
-# Contexte pour Claude Code
+# Contexte pour Claude Code — le site s’appelle Houlala (wordmark minuscule + trait de vague ; palettes dans PALETTES de index.html, sélecteur temporaire à retirer une fois choisie)
 
 Prototype de site de prévisions surf (côte Lacanau → Hendaye) pour concurrencer Yadusurf. L'utilisateur
 n'est pas développeur : expliquer en français, simplement, une étape à la fois.

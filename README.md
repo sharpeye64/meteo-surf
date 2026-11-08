@@ -1,4 +1,4 @@
-# Météo surf · prototype
+# Houlala · prévisions surf (prototype)
 
 Site de prévisions surf de Lacanau à Hendaye (58 spots).
 
