@@ -37,6 +37,11 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   et la construction, donc toujours indiquer « à vérifier chez le shaper ». Ajouter une famille ou un modèle = ajouter une
   entrée à `GEAR` avec uniquement des dimensions vérifiées. Les coefficients litres/kg sont des repères, pas une norme.
 
+- Fond du haut de page : simple dégradé CSS ciel/mer calculé par `skyUpdate()` (soleil à sa vraie position), SANS WebGL ni
+  animation continue. La version WebGL recréait un contexte graphique à chaque changement de spot ou de jour sans libérer
+  l'ancien : après quelques clics la page se bloquait (constaté par l'utilisateur, novembre 2026). Ne pas réintroduire de
+  canvas animé ; si un effet est voulu, le tester avec 60 changements de spot d'affilée.
+
 ## Pistes suivantes
 - Bouée CANDHIS d'Anglet (Licence Ouverte) en « vérité terrain » près de la côte, avec comparaison H1/3 et TH1/3.
 - Coefficient de marée, calibration `tide_offset_min` par spot, réglages de spots validés sur le terrain.
