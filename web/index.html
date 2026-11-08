@@ -604,6 +604,22 @@ footer .flinks{margin:22px 0 0}footer .flinks a{color:var(--muted)}
   .search input{font-size:16px}
   .pk .hd{padding-top:calc(14px + env(safe-area-inset-top,0px))}
 }
+
+/* ---- En-tête : une bulle arrondie, discrète, comme les autres éléments du haut de page ---- */
+.hero .bar{width:min(1160px,calc(100% - 28px));max-width:none;margin:calc(12px + env(safe-area-inset-top,0px)) auto 0;padding:7px 7px 7px 22px;
+  border:1px solid rgba(255,255,255,.18);border-radius:999px;background:linear-gradient(180deg,rgba(var(--ink-rgb),.5),rgba(var(--ink-rgb),.34));
+  box-shadow:0 10px 30px -14px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
+.hero .bar .brand{font-size:18px;gap:10px}
+.hero .bar .glassbtn{min-height:42px;background:rgba(255,255,255,.07)}
+.hero .bar .glassbtn.icon{width:42px}
+@media (max-width:520px){
+  .hero .bar{width:calc(100% - 24px);padding:6px 6px 6px 16px}
+  .hero .bar .brand{font-size:16px}
+  .hero .bar .brand svg{width:26px}
+  .hero .bar .glassbtn{min-height:40px}
+  .hero .bar .glassbtn.icon,.hero .bar #openPicker{width:40px}
+  .hero .bar .actions{gap:6px}
+}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
