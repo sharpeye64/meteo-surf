@@ -19,7 +19,7 @@ DAYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
 BRAND = "Houlalah"
 from . import logo as _logo
 FAVICON = _logo.favicon_uri()
-MARK = _logo.inline_svg(26, 5, "lgp", "mk")
+MARK = _logo.inline_svg(24, cls="mk")
 
 
 def slugify(name):
