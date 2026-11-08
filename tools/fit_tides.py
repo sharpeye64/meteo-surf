@@ -27,7 +27,9 @@ def read_refmar(path):
             if len(parts) >= 2:
                 break
         try:
-            t = pd.to_datetime(parts[0] if ":" in parts[0] else parts[0] + " " + parts[1], dayfirst=True)
+            txt = parts[0] if ":" in parts[0] else parts[0] + " " + parts[1]
+            iso = len(txt) > 4 and txt[:4].isdigit() and txt[4] in "-/"  # AAAA-MM-JJ : jamais jour/mois inversés
+            t = pd.to_datetime(txt.replace("/", "-") if iso else txt, dayfirst=not iso)
             v = float((parts[1] if ":" in parts[0] else parts[2]).replace(",", "."))
             rows.append((t, v))
         except (ValueError, IndexError):

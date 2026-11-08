@@ -26,16 +26,17 @@ Toutes les 3 heures, un robot (GitHub Actions) récupère les données, les croi
 5. Va dans l'onglet **Actions**, ouvre « Mise à jour des prévisions » et clique **Run workflow**.
 6. Au bout de 2 à 3 minutes, le site est en ligne à l'adresse affichée dans **Settings → Pages**.
 
-## Activer les marées exactes (une fois par port)
+## Marées exactes (déjà activées)
 
-Sans cette étape, le site affiche des marées approximatives.
+Les constantes de Socoa et de Boucau-Bayonne sont dans `tides/constants/`, calculées sur un an de mesures REFMAR validées.
+Écart constaté avec des mesures réelles jamais utilisées pour le calcul : 5 minutes en moyenne, 15 minutes au pire.
 
-1. Va sur https://data.shom.fr, rubrique **REFMAR**.
-2. Choisis le marégraphe **Socoa**, puis télécharge environ 1 an de hauteurs d'eau (« validées horaires » si possible, en heure UTC).
-3. Mets le fichier dans `tides/raw/`, sous le nom `socoa.txt`.
-4. Lance : `python -m tools.fit_tides tides/raw/socoa.txt socoa 43.39`
-5. Recommence avec **Boucau-Bayonne** : `python -m tools.fit_tides tides/raw/boucau.txt boucau 43.52`
-6. Envoie les fichiers créés dans `tides/constants/` sur GitHub. Le robot les utilisera au prochain passage.
+Pour les rafraîchir (une fois par an suffit) :
+
+1. `python -m tools.get_refmar socoa` : télécharge les mesures depuis l'API publique du Shom, sans compte (`tides/raw/socoa.txt`).
+2. `python -m tools.fit_tides tides/raw/socoa.txt socoa 43.395`
+3. Pareil pour Boucau : `python -m tools.get_refmar boucau` puis `python -m tools.fit_tides tides/raw/boucau.txt boucau 43.52`
+4. Envoie les fichiers de `tides/constants/` sur GitHub. Les mesures brutes (`tides/raw/`) ne sont pas envoyées.
 
 Chaque spot est rattaché à un port (`tide_port` dans `pipeline/spots.json`). Le champ `tide_offset_min` permet de décaler un spot de quelques minutes, à calibrer sur le terrain.
 

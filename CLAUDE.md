@@ -17,7 +17,9 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
    ouvrir le dataset et afficher `list(ds.variables)`, puis ajuster. Catalogue : marc.ifremer.fr / sextant.ifremer.fr.
 3. Bouée 62001 : source Copernicus Marine In Situ (fichier NetCDF journalier, code 6200001, `config.GASCOGNE`), NDBC en secours
    (NDBC ne publiait plus cette bouée en novembre 2026). Période pic absente → on prend celle du modèle.
-4. Format des fichiers REFMAR téléchargés (`tools/fit_tides.py:read_refmar`) : séparateur et colonnes peuvent varier.
+4. Marées : constantes Socoa (station REFMAR 95) et Boucau (94) ajustées sur 1 an de mesures validées 10 min
+   (`tools/get_refmar.py` puis `tools/fit_tides.py`, API publique services.data.shom.fr, sans compte). Validées contre
+   des mesures hors échantillon : écart d'heure moyen 5 min. `tide_offset_min` par spot reste à calibrer sur le terrain.
 5. Volume d'appels Open-Meteo : environ 30 points × (1 + 4 modèles) + vent toutes les 3 h. Rester sous les limites gratuites.
 
 ## Pistes suivantes
