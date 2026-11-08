@@ -620,6 +620,20 @@ footer .flinks{margin:22px 0 0}footer .flinks a{color:var(--muted)}
   .hero .bar .glassbtn.icon,.hero .bar #openPicker{width:40px}
   .hero .bar .actions{gap:6px}
 }
+
+/* ---- En-tête : retour visuel au survol et au clavier ---- */
+.hero .bar .glassbtn,.hero .bar .brand{transition:background-color .18s ease,border-color .18s ease,transform .18s ease,box-shadow .18s ease,color .18s ease,opacity .18s ease}
+.hero .bar .glassbtn{cursor:pointer}
+.hero .bar .glassbtn:hover{background:rgba(var(--gold-rgb),.18);border-color:rgba(var(--gold-rgb),.6);color:var(--sand);transform:translateY(-1px);box-shadow:0 8px 18px -10px rgba(0,0,0,.7),0 0 0 3px rgba(var(--gold-rgb),.1)}
+.hero .bar .glassbtn:active{transform:translateY(0);box-shadow:none;background:rgba(var(--gold-rgb),.26)}
+.hero .bar .glassbtn[aria-pressed="true"]:hover{background:var(--gold);color:#1A1405;filter:brightness(1.07)}
+.hero .bar .glassbtn svg{transition:transform .2s ease}
+.hero .bar .glassbtn:hover svg{transform:scale(1.1)}
+.hero .bar #favBtn:hover svg{transform:scale(1.15) rotate(-10deg)}
+.hero .bar .brand:hover{opacity:.82}
+.hero .bar .brand:hover svg{transform:translateX(1px)}
+@media (hover:none){.hero .bar .glassbtn:hover{transform:none;box-shadow:none}.hero .bar .glassbtn:hover svg{transform:none}}
+@media (prefers-reduced-motion:reduce){.hero .bar .glassbtn,.hero .bar .brand,.hero .bar .glassbtn svg{transition:none}.hero .bar .glassbtn:hover,.hero .bar .glassbtn:hover svg{transform:none}}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
