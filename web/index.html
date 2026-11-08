@@ -598,6 +598,12 @@ footer .spotlinks h3{margin-bottom:6px}
 footer .spotlinks a{display:block;color:var(--muted);text-decoration:none;font-size:13px;line-height:1.9}
 footer .spotlinks a:hover{color:var(--text);text-decoration:underline}
 footer .flinks{margin:22px 0 0}footer .flinks a{color:var(--muted)}
+@media (max-width:699px){
+  dialog#picker{margin:0 auto auto;border-radius:0 0 26px 26px;max-height:var(--pkh,88dvh);top:var(--pkt,0px)}
+  .pk{max-height:var(--pkh,88dvh)}
+  .search input{font-size:16px}
+  .pk .hd{padding-top:calc(14px + env(safe-area-inset-top,0px))}
+}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -613,9 +619,8 @@ footer .flinks{margin:22px 0 0}footer .flinks a{color:var(--muted)}
       <div class="row"><h2 id="pkTitle" class="disp" style="font-size:20px">Choisir un spot</h2><button class="glassbtn icon" id="pkClose" aria-label="Fermer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span class="sr">Chercher un spot</span><input id="q" type="search" placeholder="Hossegor, Lafitenia, Lacanau…" autocomplete="off"></label>
       <div class="tabs" role="group" aria-label="Filtrer">
-        <button data-f="best" aria-pressed="true">Les plus gros aujourd’hui</button>
+        <button data-f="geo" aria-pressed="true">Tous les spots</button>
         <button data-f="fav" aria-pressed="false">Mes spots</button>
-        <button data-f="geo" aria-pressed="false">Du nord au sud</button>
       </div>
     </div>
     <div class="ls" id="pkList"></div>
@@ -628,7 +633,7 @@ const TAGS = ['Flat','Micro','Petit','Bon','Très bon'];
 const DAYS_FR = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 const DAYS_LONG = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const state = { radarView:loadRadarView(), data:null, spot:0, day:0, hour:10, filter:'best', q:'', fav:loadFav(), weight:loadWeight() };
+const state = { radarView:loadRadarView(), data:null, spot:0, day:0, hour:10, filter:'geo', q:'', fav:loadFav(), weight:loadWeight() };
 
 function loadRadarView(){ try{ return localStorage.getItem('radarView')==='cote'?'cote':'large'; }catch(e){ return 'large'; } }
 function saveRadarView(v){ try{ localStorage.setItem('radarView',v); }catch(e){} }
@@ -1776,11 +1781,16 @@ function updateLive(){
   oceanUpdate();
 }
 
+function fitPicker(){
+  const v=window.visualViewport, r=document.documentElement.style;
+  if(!v||innerWidth>=700){ r.removeProperty('--pkh'); r.removeProperty('--pkt'); return; }
+  r.setProperty('--pkh',Math.max(240,Math.round(v.height)-12)+'px'); r.setProperty('--pkt',Math.round(v.offsetTop)+'px');
+}
+if(window.visualViewport){ visualViewport.addEventListener('resize',fitPicker); visualViewport.addEventListener('scroll',fitPicker); }
 function renderPicker(){
   const q=state.q.trim().toLowerCase();
   let items=state.data.map((x,i)=>({x,i})).filter(({x})=>!q||x.spot.name.toLowerCase().includes(q)||(x.spot.commune||'').toLowerCase().includes(q));
   if(state.filter==='fav') items=items.filter(({x})=>state.fav.includes(x.spot.name));
-  if(state.filter==='best') items.sort((a,b)=>(dayMed(b.x.days[0])||0)-(dayMed(a.x.days[0])||0));
   let html='',reg=null;
   items.forEach(({x,i})=>{
     if(state.filter==='geo'&&x.spot.region!==reg){reg=x.spot.region;html+=`<div class="grp">${reg}</div>`;}
@@ -1796,7 +1806,7 @@ function slugOf(n){ return n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toL
 function go(i){ state.spot=i; render(); refreshModels(); window.scrollTo({top:0,behavior:REDUCED?'auto':'smooth'}); }
 function bind(){
   { const ws=document.getElementById('wSel'); if(ws) ws.onchange=()=>{ state.weight=+ws.value; saveWeight(state.weight); const el=document.getElementById('gBoard'); if(el){ el.innerHTML=gearBoardHtml(); bindTips(el); } }; }
-  document.getElementById('openPicker').onclick=()=>{ renderPicker(); document.getElementById('picker').showModal(); document.getElementById('q').focus(); };
+  document.getElementById('openPicker').onclick=()=>{ renderPicker(); document.getElementById('picker').showModal(); fitPicker(); if(innerWidth>=700) document.getElementById('q').focus(); };
   document.getElementById('favBtn').onclick=()=>{ const n=state.data[state.spot].spot.name; state.fav=state.fav.includes(n)?state.fav.filter(x=>x!==n):[...state.fav,n]; saveFav(); render(); };
   document.querySelectorAll('.hgrid .hc').forEach(c=>{ c.addEventListener('click',()=>{ if(playing){cancelAnimationFrame(playing);playing=0;} state.hour=+c.dataset.h; updateLive(); }); });
   document.getElementById('playDay').onclick=playDay;
