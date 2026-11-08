@@ -97,7 +97,7 @@ button,input{font:inherit;color:inherit}
 #tTide .viz{position:absolute;left:0;right:0;bottom:0;height:54px;margin:0;padding:0;min-height:0;border-radius:0 0 24px 24px;overflow:hidden;opacity:.9;pointer-events:none}
 #tTide .viz .tideline{height:100%}
 #tTide .tnow{position:absolute;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(var(--lilac-rgb),.4),0 0 12px rgba(255,255,255,.6)}
-@media (min-width:521px){#tTide{padding-bottom:52px}}
+@media (min-width:521px){#tTide{padding-bottom:64px}}
 .ans .rng{margin-top:10px}
 #tTide .chips span{padding:3px 7px;font-size:11.5px}
 .ans .viz .vz,.ans .viz .tideline{width:100%;height:46px;display:block}
@@ -1549,7 +1549,7 @@ function extremes(list){ const l=list.filter(h=>h.lvl!=null), out=[];
 /* Courbe de marée du jour, en fond de carte, avec un point à l'heure choisie (hauteur interpolée entre deux heures) */
 function tideCard(list,hour){
   const pts=list.filter(h=>h.tideN!=null); if(pts.length<3) return '';
-  const X=h=>h/23*160, Y=n=>18+(1-n)*22;
+  const X=h=>h/23*160, Y=n=>6+(1-n)*34;
   const d='M'+pts.map(h=>X(h.hour).toFixed(1)+' '+Y(h.tideN).toFixed(1)).join(' L');
   const h0=Math.max(pts[0].hour,Math.min(pts[pts.length-1].hour,hour)), a=[...pts].reverse().find(h=>h.hour<=h0)||pts[0], b=pts.find(h=>h.hour>=h0)||a;
   const n=a.hour===b.hour?a.tideN:a.tideN+(b.tideN-a.tideN)*(h0-a.hour)/(b.hour-a.hour);
