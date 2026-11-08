@@ -416,6 +416,7 @@ dialog::backdrop{background:rgba(2,10,14,.7);backdrop-filter:blur(4px)}
 .it:hover{background:var(--glass)}
 .it .n{font-weight:800}
 .it .c{font-size:13px;color:var(--muted)}
+.it .m{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:15px}
 .empty{padding:30px 10px;text-align:center;color:var(--muted)}
 
 .loading{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:20px;text-align:center}
@@ -437,7 +438,7 @@ dialog::backdrop{background:rgba(2,10,14,.7);backdrop-filter:blur(4px)}
       <div class="row"><h2 id="pkTitle" class="disp" style="font-size:20px">Choisir un spot</h2><button class="glassbtn icon" id="pkClose" aria-label="Fermer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span class="sr">Chercher un spot</span><input id="q" type="search" placeholder="Hossegor, Lafitenia, Lacanau…" autocomplete="off"></label>
       <div class="tabs" role="group" aria-label="Filtrer">
-        <button data-f="best" aria-pressed="true">Ça rentre aujourd’hui</button>
+        <button data-f="best" aria-pressed="true">Les plus gros aujourd’hui</button>
         <button data-f="fav" aria-pressed="false">Mes spots</button>
         <button data-f="geo" aria-pressed="false">Du nord au sud</button>
       </div>
@@ -666,7 +667,6 @@ function summarise(date, list, sun){
 
 const QC = ['var(--q0)','var(--q1)','var(--q2)','var(--q3)','var(--q4)'];
 const QHEX = ['#55626A','#7FA7C4','#45C4B0','#F5C451','#FF7A45'];
-const qpill = sc => `<span class="qpill" style="background:${QC[sc]};${sc<2?'color:#fff':''}">${TAGS[sc]}</span>`;
 const windWord = {lisse:'Glassy', offshore:'Offshore', 'side-off':'Side-off', 'de côté':'De côté', onshore:'Onshore'};
 function tidePhase(h){ return h.phase==='basse'?'Basse':h.phase==='haute'?'Haute':h.phase==='mi'?(h.rising?'Montante':'Descendante'):'—'; }
 const AGREE_TXT = ['','faible','moyen','fort'];
@@ -676,6 +676,7 @@ function agreeOf(h){
   const mn=Math.min(...vs), mx=Math.max(...vs), mean=vs.reduce((x,y)=>x+y,0)/vs.length, sp=mx-mn, tol=Math.max(0.15,0.15*mean);
   return {lvl: sp<=tol?3:sp<=2*tol?2:1, sp, mn, mx, n:vs.length};
 }
+const medTxt = day => { const m=dayMed(day); return m!=null?fmt(m)+' m':'—'; };
 function dotsHtml(l){ return l?`<span class="dots a${l}" role="img" aria-label="Accord des modèles : ${AGREE_TXT[l]}"><i class="on"></i><i class="${l>=2?'on':''}"></i><i class="${l>=3?'on':''}"></i></span>`:''; }
 function dayMed(day){ const v=day.list.filter(h=>h.hour>=8&&h.hour<=19&&h.H!=null).map(h=>h.H).sort((x,y)=>x-y); return v.length?v[Math.floor(v.length/2)]:null; }
 function dayAgree(day){ const l=day.list.filter(h=>h.hour>=8&&h.hour<=19).map(agreeOf).filter(Boolean); return l.length?clamp(Math.round(l.reduce((x,y)=>x+y.lvl,0)/l.length),1,3):0; }
@@ -877,16 +878,6 @@ function loop(now){ if(ocean.visible) drawOcean(now); ocean.raf = (REDUCED && Ma
 function kick(){ if(!ocean.raf) ocean.raf=requestAnimationFrame(loop); }
 
 /* ---------- vues ---------- */
-function decisionOf(d, day, k){
-  const sat = day.list && day.verdict.startsWith('Ça sature');
-  const when = k===0 ? slotOf(day.best?.hour||10) : (k===1?'demain ':DAYS_LONG[new Date(day.date+'T12:00').getDay()]+' ')+slotOfDay(day.best?.hour||10);
-  if(sat) return 'Trop gros ici. File à l’abri.';
-  if((day.score||0)<0.6) return k===0?'Pas de surf aujourd’hui.':'Pas de surf '+(k===1?'demain':DAYS_LONG[new Date(day.date+'T12:00').getDay()])+'.';
-  if(day.sc<=1) return 'Sors le longboard '+when+'.';
-  if(day.sc>=4) return 'Fonce '+when+'.';
-  return 'Vas-y '+when+'.';
-}
-function windowText(day){ if(!day.win||(day.score||0)<0.6) return '—'; const a=day.win[0].hour, b=day.win[day.win.length-1].hour+1; return a+'h – '+b+'h'; }
 
 function sceneSvg(size,h,id='oceanFallback'){ // repli si WebGL indisponible
   const p=palette(h), c=v=>`rgb(${v.map(x=>Math.round(x*255)).join(',')})`; const amp=Math.max(4,Math.min(40,size*18));
@@ -894,53 +885,13 @@ function sceneSvg(size,h,id='oceanFallback'){ // repli si WebGL indisponible
   return `<svg id="${id}" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="fs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c(p.sT)}"/><stop offset=".6" stop-color="${c(p.sB)}"/></linearGradient></defs><rect width="1200" height="600" fill="url(#fs)"/><path d="${d} L1240 600 Z" fill="${c(p.wS)}"/><rect y="460" width="1200" height="140" fill="${c(p.wD)}" opacity=".7"/></svg>`;
 }
 
-function mapSvg(){
-  const W=440,H=760, lo0=-2.05, lo1=-1.0, la0=43.3, la1=45.08;
-  const X=lon=>((lon-lo0)/(lo1-lo0))*W, Y=lat=>((la1-lat)/(la1-la0))*H;
-  const coast=[...state.data.map(x=>x.spot)].sort((a,b)=>b.lat-a.lat);
-  const pts=[[-1.17,45.08],...coast.map(s=>[s.lon+0.004,s.lat]),[-1.79,43.36],[-1.9,43.34],[-2.05,43.32],[-2.05,43.3],[-1.0,43.3],[-1.0,45.08]];
-  const land='M'+pts.map(p=>X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join(' L')+' Z';
-  const towns=[['Lacanau',-1.15,45.0],['Arcachon',-1.15,44.62],['Mimizan',-1.24,44.2],['Hossegor',-1.4,43.665],['Bayonne',-1.47,43.49],['St-Jean-de-Luz',-1.62,43.37]];
-  const ranked=state.data.map((x,i)=>({i,s:x.days[state.day].score||0})).sort((a,b)=>b.s-a.s).slice(0,3).map(o=>o.i);
-  let dots='';
-  state.data.forEach((x,i)=>{
-    const s=x.spot, sc=x.days[state.day].sc||0, cx=X(s.lon).toFixed(1), cy=Y(s.lat).toFixed(1), sel=i===state.spot;
-    dots+=`<g class="spotdot" data-i="${i}" tabindex="0" role="button" aria-label="${s.name}, ${TAGS[sc]}">${ranked.includes(i)?`<circle class="pulse" cx="${cx}" cy="${cy}" r="7" fill="none" stroke="${QHEX[sc]}" stroke-width="2"/>`:''}<circle cx="${cx}" cy="${cy}" r="${sel?11:8}" fill="${QHEX[sc]}" opacity=".18"/><circle class="core" cx="${cx}" cy="${cy}" r="${sel?6.5:4.2}" fill="${QHEX[sc]}" stroke="${sel?'#fff':'none'}" stroke-width="2"><title>${s.name} : ${TAGS[sc]}, ${x.days[state.day].size}</title></circle></g>`;
-  });
-  const sel=state.data[state.spot].spot;
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Carte de la côte de Lacanau à Hendaye, spots colorés selon la qualité">
-    <defs><pattern id="pt" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="rgba(242,211,162,.12)"/></pattern></defs>
-    <path d="${land}" fill="#2A2420" stroke="rgba(242,211,162,.55)" stroke-width="1.4"/>
-    <path d="${land}" fill="url(#pt)"/>
-    ${towns.map(t=>`<text x="${X(t[1])}" y="${Y(t[2])}" font-size="12" fill="rgba(242,211,162,.75)" font-family="Manrope, system-ui, sans-serif" font-weight="600">${t[0]}</text>`).join('')}
-    ${dots}
-    <text x="${X(sel.lon)-14}" y="${Y(sel.lat)+4}" text-anchor="end" font-size="14" font-weight="800" fill="#fff" font-family="Manrope, system-ui, sans-serif">${sel.name}</text>
-  </svg>`;
-}
 
-function weekWave(sc){
-  const amp=[2,5,9,13,18][sc]; let d='M0 56';
-  for(let x=0;x<=200;x+=5) d+=` L${x} ${(44-amp/2-Math.sin(x/200*Math.PI*3)*amp/2).toFixed(1)}`;
-  return `<svg viewBox="0 0 200 56" preserveAspectRatio="none" aria-hidden="true"><path d="${d} L200 56 Z" fill="${QHEX[sc]}" opacity=".28"/><path d="${d.replace('M0 56 L','M')}" fill="none" stroke="${QHEX[sc]}" stroke-width="2" opacity=".9"/></svg>`;
-}
 
 const pct = h => ((h-6)/15*100).toFixed(2);
 const hDec = s => +s.slice(0,2) + (+s.slice(3,5))/60;
 const hhmm = h => { const H=Math.floor(h), M=Math.round((h-H)*60); return H+'h'+(M?String(M).padStart(2,'0'):''); };
 function canon(h){ const r=ocean.rise||8, s=ocean.set||18; if(h<r) return h*(7.6/r); if(h>s) return 18.2+(h-s)*((24-18.2)/(24-s)); return 7.6+(h-r)*(10.6/(s-r)); }
 function smooth(pts){ let d=`M${pts[0][0]} ${pts[0][1]}`; for(let i=0;i<pts.length-1;i++){ const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2; d+=` C${(p1[0]+(p2[0]-p0[0])/6).toFixed(1)} ${(p1[1]+(p2[1]-p0[1])/6).toFixed(1)} ${(p2[0]-(p3[0]-p1[0])/6).toFixed(1)} ${(p2[1]-(p3[1]-p1[1])/6).toFixed(1)} ${p2[0]} ${p2[1]}`; } return d; }
-function daylineSvg(day){
-  const hrs=day.list.filter(h=>h.hour>=6&&h.hour<=21&&h.score!=null);
-  const X=h=>((h-6)/15*1000).toFixed(1), Y=s=>(108-s/4*78).toFixed(1);
-  let stops=''; for(let h=6;h<=21;h+=0.5){ const p=palette(canon(h)); const c=p.sB.map((v,k)=>Math.round((v*0.6+p.sT[k]*0.4)*255)); stops+=`<stop offset="${((h-6)/15).toFixed(3)}" stop-color="rgb(${c.join(',')})"/>`; }
-  const pts=hrs.map(h=>[+X(h.hour+0.5),+Y(h.score)]); if(!pts.length) return '';
-  pts.unshift([0,pts[0][1]]); pts.push([1000,pts[pts.length-1][1]]);
-  const line=smooth(pts), area=line+' L1000 118 L0 118 Z';
-  let win='';
-  if(day.win&&day.score>=0.6){ const a=X(day.win[0].hour), b=X(day.win[day.win.length-1].hour+1); win=`<clipPath id="wclip"><rect x="${a}" y="0" width="${b-a}" height="118"/></clipPath><path d="${area}" fill="url(#wg)" clip-path="url(#wclip)"/><rect x="${a}" y="0" width="${b-a}" height="118" fill="rgba(255,182,72,.10)"/>`; }
-  const night = day.sun ? `<rect x="0" y="0" width="${X(hDec(day.sun.rise))}" height="118" fill="rgba(2,8,14,.35)"/><rect x="${X(hDec(day.sun.set))}" y="0" width="1000" height="118" fill="rgba(2,8,14,.35)"/>` : '';
-  return `<svg class="bg" viewBox="0 0 1000 118" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="sky" x1="0" x2="1" y1="0" y2="0">${stops}</linearGradient><linearGradient id="wg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#FFB648" stop-opacity=".85"/><stop offset="1" stop-color="#FFB648" stop-opacity=".15"/></linearGradient><linearGradient id="ag" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity=".04"/></linearGradient></defs><rect width="1000" height="118" fill="url(#sky)"/>${night}<path d="${area}" fill="url(#ag)"/>${win}<path d="${line}" fill="none" stroke="#fff" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg>`;
-}
 function ambient(){
   const p=palette(canon(state.hour)), c=v=>`rgb(${v.map(x=>Math.round(clamp(x,0,1)*255)).join(',')})`;
   const root=document.documentElement.style; root.setProperty('--amb',c(p.sB)); root.setProperty('--ambSun',c(p.sun));
@@ -1175,9 +1126,9 @@ function initMap(){
   TOWNS.forEach(([n,la,lo])=>L.marker([la,lo],{interactive:false,keyboard:false,icon:L.divIcon({className:'twn',html:`<span>${n}</span>`,iconSize:[0,0]})}).addTo(lmap));
   const nearSet=new Set(nearOf(sel,7).map(o=>o.i));
   state.data.forEach((x,i)=>{
-    const dd=x.days[k], sc=dd.sc||0, isSel=i===sel, big=isSel||nearSet.has(i);
-    const html= big ? `<span class="mk${isSel?' sel':''}" style="--c:${QHEX[sc]}"><i></i>${isSel?x.spot.name+' · ':''}${dd.avgH?fmt(dd.avgH)+' m':'—'}</span>` : `<span class="mkdot" style="--c:${QHEX[sc]}"></span>`;
-    const m=L.marker([x.spot.lat,x.spot.lon],{icon:L.divIcon({className:'mkwrap',html,iconSize:[0,0]}),zIndexOffset:isSel?1000:0,keyboard:true,title:x.spot.name+' · '+TAGS[sc]}).addTo(lmap);
+    const dd=x.days[k], isSel=i===sel, big=isSel||nearSet.has(i);
+    const html= big ? `<span class="mk${isSel?' sel':''}" style="--c:#8ED0EC"><i></i>${isSel?x.spot.name+' · ':''}${medTxt(dd)}</span>` : `<span class="mkdot" style="--c:#8ED0EC"></span>`;
+    const m=L.marker([x.spot.lat,x.spot.lon],{icon:L.divIcon({className:'mkwrap',html,iconSize:[0,0]}),zIndexOffset:isSel?1000:0,keyboard:true,title:x.spot.name+' · '+medTxt(dd)}).addTo(lmap);
     m.on('click',()=>go(i)); markers[i]=m;
   });
   const pts=[sel,...nearOf(sel,6).map(o=>o.i)].map(i=>[state.data[i].spot.lat,state.data[i].spot.lon]);
@@ -1253,7 +1204,6 @@ function render(){
   const rise=day.sun?+day.sun.rise.slice(0,2):8, set=day.sun?+day.sun.set.slice(0,2):18;
   const winA=day.win&&day.score>=0.6?day.win[0].hour:99, winB=day.win&&day.score>=0.6?day.win[day.win.length-1].hour:-1;
   const maxH=Math.max(1,...hrs.map(h=>h.H||0));
-  const top=state.data.map((x,i)=>({x,i})).sort((a,b)=>(b.x.days[k].score||0)-(a.x.days[k].score||0)).slice(0,10);
 
   document.getElementById('app').innerHTML=`
   <header class="hero">
@@ -1300,18 +1250,12 @@ function render(){
       <p class="lead">Autour de ${s.name}, ${k===0?'aujourd’hui':dayLabel.toLowerCase()}. Touche une étiquette sur la carte ou un spot dans la liste.</p>
       <div class="neargrid">
         <div class="lmap" style="isolation:isolate;background:transparent"><div id="lmap" role="region" aria-label="Carte des spots autour de ${s.name}"></div></div>
-        <div class="nearlist">${nearOf(state.spot,7).map(o=>{const x=state.data[o.i], dd=x.days[k], sc=dd.sc||0; return `<button class="nearit" data-i="${o.i}"><span><span class="n">${x.spot.name}</span><br><span class="c">${o.km<1?'< 1':Math.round(o.km)} km · ${x.spot.commune}</span></span><span style="display:flex;align-items:center;gap:10px"><span class="m">${dd.avgH?fmt(dd.avgH)+' m':'—'}</span>${qpill(sc)}</span><span class="qbar"><i style="width:${Math.max(6,(dd.score||0)/4*100)}%;background:${QHEX[sc]}"></i></span></button>`;}).join('')}</div>
+        <div class="nearlist">${nearOf(state.spot,7).map(o=>{const x=state.data[o.i], dd=x.days[k]; return `<button class="nearit" data-i="${o.i}"><span><span class="n">${x.spot.name}</span><br><span class="c">${o.km<1?'< 1':Math.round(o.km)} km · ${x.spot.commune}</span></span><span style="display:flex;align-items:center;gap:10px"><span class="m">${medTxt(dd)}</span>${dotsHtml(dayAgree(dd))}</span></button>`;}).join('')}</div>
       </div>
     </section>
   </main>
 
   <div class="band"><div class="wrap">
-    <section class="blk" aria-labelledby="sWeek">
-      <h2 class="h2" id="sWeek">La semaine à ${s.name}</h2>
-      <p class="lead">Touche un jour pour voir son créneau, sa taille et son vent.</p>
-      <div class="week">${d.days.map((x,j)=>`<button class="daycard" data-d="${j}" aria-pressed="${j===k}" style="--tint:${QHEX[x.sc||0]}"><span class="d">${j===0?'Auj.':j===1?'Demain':x.label}</span><span class="tag" style="color:${QHEX[x.sc||0]}">${x.tag}</span><span class="sz">${x.avgH?fmt(x.avgH)+' m':'—'}</span><span class="when">${x.score>=0.6&&x.win?x.win[0].hour+'h – '+(x.win[x.win.length-1].hour+1)+'h':'Pas de créneau'}</span>${weekWave(x.sc||0)}</button>`).join('')}</div>
-    </section>
-
     <section class="blk" aria-labelledby="sSpot">
       <h2 class="h2" id="sSpot">Le spot</h2>
       <p class="lead">${s.type} · fond de ${s.bottom.toLowerCase()} · niveau ${s.level.toLowerCase()}.${s.notes?' '+s.notes+'.':''}</p>
@@ -1378,11 +1322,11 @@ function renderPicker(){
   const q=state.q.trim().toLowerCase();
   let items=state.data.map((x,i)=>({x,i})).filter(({x})=>!q||x.spot.name.toLowerCase().includes(q)||(x.spot.commune||'').toLowerCase().includes(q));
   if(state.filter==='fav') items=items.filter(({x})=>state.fav.includes(x.spot.name));
-  if(state.filter==='best') items.sort((a,b)=>b.x.days[0].score-a.x.days[0].score);
+  if(state.filter==='best') items.sort((a,b)=>(dayMed(b.x.days[0])||0)-(dayMed(a.x.days[0])||0));
   let html='',reg=null;
   items.forEach(({x,i})=>{
     if(state.filter==='geo'&&x.spot.region!==reg){reg=x.spot.region;html+=`<div class="grp">${reg}</div>`;}
-    html+=`<button class="it" data-i="${i}"><span><span class="n">${x.spot.name}</span><br><span class="c">${x.spot.commune} · ${x.days[0].size}</span></span>${qpill(x.days[0].sc||0)}</button>`;
+    html+=`<button class="it" data-i="${i}"><span><span class="n">${x.spot.name}</span><br><span class="c">${x.spot.commune}</span></span><span class="m">${medTxt(x.days[0])}</span></button>`;
   });
   if(!items.length) html = state.filter==='fav' ? '<p class="empty">Aucun spot enregistré. Touche l’étoile sur un spot pour le retrouver ici.</p>' : '<p class="empty">Aucun spot ne correspond. Essaie un autre nom ou une ville.</p>';
   document.getElementById('pkList').innerHTML=html;
@@ -1420,7 +1364,7 @@ async function start(){
   try{
     await load();
     const favIdx = state.data.findIndex(x=>state.fav.includes(x.spot.name));
-    state.spot = favIdx>=0 ? favIdx : state.data.reduce((a,d,i)=>d.days[0].score>state.data[a].days[0].score?i:a,0);
+    state.spot = favIdx>=0 ? favIdx : 0;
     render(); refreshModels();
   }catch(err){
     document.getElementById('app').innerHTML=`<div class="loading"><div class="disp">Les prévisions n’ont pas pu être chargées</div><div style="color:var(--muted);max-width:46ch">${/trop de requêtes|429/.test(err.message)?'Le service météo gratuit limite le nombre de requêtes et la limite est atteinte. Attends une à deux minutes, puis réessaie.':err.message+'. Vérifie ta connexion internet, puis réessaie.'}</div><button class="retry" onclick="location.reload()">Réessayer</button></div>`;
