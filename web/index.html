@@ -16,6 +16,9 @@
 <link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
 <meta name="theme-color" content="#0A1114">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Houlalah"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -2043,6 +2046,17 @@ async function start(){
   }
 }
 start();
+
+/* ---------- Application installable (PWA) : mode hors ligne et message quand le réseau manque ---------- */
+if('serviceWorker' in navigator){ addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }); }
+(function(){
+  let bar=null;
+  function show(){ if(navigator.onLine){ if(bar){ bar.remove(); bar=null; } return; }
+    if(bar) return; bar=document.createElement('div'); bar.setAttribute('role','status');
+    bar.style.cssText='position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;max-width:calc(100% - 28px);padding:9px 16px;border-radius:999px;background:rgba(10,17,20,.92);border:1px solid rgba(255,255,255,.2);color:#fff;font:700 13px Manrope,system-ui,sans-serif;text-align:center';
+    bar.textContent='Hors ligne : dernières prévisions enregistrées'; document.body.appendChild(bar); }
+  addEventListener('online',show); addEventListener('offline',show); show();
+})();
 </script>
 </body>
 </html>

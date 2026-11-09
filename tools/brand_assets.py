@@ -1,4 +1,4 @@
-"""Icônes dérivées du logo fourni (web/brand/symbol.png, produit par tools.trace_logo) : favicon.svg, apple-touch-icon.png, icon-512.png.
+"""Icônes dérivées du logo fourni (web/brand/symbol.png, produit par tools.trace_logo) : favicon.svg, apple-touch-icon.png, icon-192.png, icon-512.png, icon-maskable-512.png.
 Usage : python -m tools.trace_logo && python -m tools.brand_assets"""
 import re
 from pathlib import Path
@@ -20,13 +20,13 @@ def favicon_svg():
     (OUT / "favicon.svg").write_text(svg, encoding="utf-8")
 
 
-def png_icon(size, name, radius=0.24):
+def png_icon(size, name, radius=0.24, frac=0.64):
     sym = Image.open(OUT / "symbol.png").convert("RGBA")
     S = 4
     big = size * S
     base = Image.new("RGBA", (big, big), (0, 0, 0, 0))
     ImageDraw.Draw(base).rounded_rectangle([0, 0, big - 1, big - 1], radius=int(big * radius), fill=SAND + (255,))
-    sw = int(big * 0.64)
+    sw = int(big * frac)
     sh = int(sw * sym.height / sym.width)
     alpha = sym.split()[3].resize((sw, sh), Image.LANCZOS)
     ink = Image.new("RGBA", (sw, sh), INK + (255,))
@@ -38,4 +38,6 @@ if __name__ == "__main__":
     favicon_svg()
     png_icon(180, "apple-touch-icon.png", radius=0.0)   # iOS arrondit lui-même
     png_icon(512, "icon-512.png")
+    png_icon(192, "icon-192.png")
+    png_icon(512, "icon-maskable-512.png", radius=0.0, frac=0.5)   # plein cadre : Android le découpe en rond/goutte
     print("OK", [p.name for p in OUT.iterdir()])

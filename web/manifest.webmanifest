@@ -1,0 +1,19 @@
+{
+  "name": "Houlalah — prévisions surf",
+  "short_name": "Houlalah",
+  "description": "Prévisions surf de Lacanau à Hendaye : houle, vent, marée, vérifiées avec les bouées.",
+  "lang": "fr",
+  "start_url": "./?source=app",
+  "scope": "./",
+  "id": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A1114",
+  "theme_color": "#0A1114",
+  "categories": ["sports", "weather"],
+  "icons": [
+    { "src": "brand/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "brand/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "brand/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
