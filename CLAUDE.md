@@ -101,14 +101,16 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   barres « mesuré / prévu ». Carte de droite : courbe des 48 h, mesure contre prévision. `pipeline/candhis.py` lit les pages
   publiques (1 requête par bouée, relancée une fois, heures TU converties en heure de Paris). Licence Ouverte Etalab 2.0, mesures
   temps réel non validées (dit dans l'info-bulle et le pied de page). Allosurf et sites similaires : ne pas utiliser.
-- Fraîcheur de la bouée Gascogne : retard STRUCTUREL de 14 à 38 h. Météo-France transmet le fichier du jour D à Copernicus le matin de
-  D+1 (~10 h 30 UTC) ; il se termine vers 20 h UTC. Vérifié le 09/11/2026 : pas de fichier intra-journalier, produit mondial 013_030
-  sans la bouée, EMODnet Physics ERDDAP sans la 62001, pas d'API ouverte Météo-France pour la 62001. Les sites tiers (Allosurf,
-  surf-report, Meteociel, Surf-Forecast) affichent du plus frais mais ne sont pas des sources utilisables. Variables du fichier : VGHS
-  (Hs), VEMH, VGTA, VTPK (valeurs douteuses : 1-2 s), VDIR (valeurs douteuses) : la période vient donc du modèle (`period_used`).
-  Réponse produit : la bouée la plus fraîche est affichée par défaut (encadré et étiquette de l'océan), la date de mesure est écrite en
-  clair (« hier 21h ») ; le choix manuel de l'utilisateur est mémorisé (`radarView`). Piste : bouée Bilbao-Vizcaya (Puertos del Estado)
-  comme seconde bouée du large, non vérifiée.
+- Fraîcheur de la bouée Gascogne (CORRIGÉ le 09/11/2026 après lecture de `index_latest.txt` de Copernicus) : Météo-France ne livre qu'UNE
+  fois par jour, vers 21 h 50 UTC (≈ 23 h en France), avec des données jusqu'à ~20 h UTC du jour même. La dernière mesure a donc entre 2 et
+  26 h (14 h en moyenne). Pas de fichier intra-journalier, pas d'API ouverte Météo-France pour la 62001 ; sites tiers (Allosurf,
+  surf-report, Meteociel, Surf-Forecast) non utilisables. Variables : VGHS (Hs), VEMH, VGTA, VTPK et VDIR (douteux) : période du modèle.
+- BOUÉES FRAÎCHES DANS LE MÊME PRODUIT COPERNICUS (vérifié le 09/11/2026, retard ≈ 30 à 45 min, fichiers horaires `IR_TS_MO_<nom>_AAAAMMJJ.nc`
+  dans le même dossier `latest/AAAAMMJJ/`) : Puertos del Estado « 6200024 » = bouée du large Bilbao-Vizcaya (43,65 N, 3,04 O ; VHM0, VTPK, VMDR,
+  VPED), Euskalmet « Donostia-buoy » (43,57 N, 2,01 O), Puertos del Estado « Bilbao-coast-buoy » et « PasaiaII-coast-buoy ». Mesures
+  cohérentes avec nos bouées côtières (≈ 0,8 m, 4 s, secteur S-SE le 09/11). Licence : données Copernicus Marine, mention « Puertos del Estado,
+  Euskalmet, via Copernicus Marine ». Piste : les ajouter comme bouées du large « fraîches » (voir « La bouée »). Les bouées CANDHIS sont
+  aussi dans ce produit (6200064 Cap Ferret, 6200066 Anglet, 6200079 Saint-Jean-de-Luz) avec le même retard court.
 - ATTENTION (retour de l'utilisateur) : la hauteur affichée (modèles près du spot ou bouée au large) n'est PAS la taille des vagues
   au bord. À hauteur égale, une houle longue (14 s) arrive bien plus grosse et plus puissante sur la côte qu'une houle courte (7 s).
   Toujours montrer la période avec la hauteur, dire « au large » / « à la bouée », et ne jamais présenter la hauteur de la bouée comme
