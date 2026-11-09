@@ -848,8 +848,9 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
 }
 
 /* ---- Téléphone : haut de page « coup d'œil » (proposition A) ---- */
-.rvn,.whd,#rwSea,.rvd,.hlab .li,.hbd{display:none}
-@media (max-width:520px){
+.rvn,.whd,#rwSea,.rvd,.hlab .li,.hbd,.live,.hd{display:none}
+.hl,.hr{display:contents}
+@media all{
   .heroBody{padding:20px 22px 28px;gap:0}
   .hero2{gap:0}.hcol{gap:0}
   .spotbtn{font-size:22px;padding:0}
@@ -903,12 +904,6 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
   .mcard .mname{overflow:visible;text-overflow:clip}
   .mcard .mname::before{margin-left:0}
   .mcard .msub{padding-left:19px}
-  /* colonne des libellés du tableau : icônes seules, beaucoup plus étroite */
-  .hgrid:not(.cmp){--lab:40px!important}
-  .hgrid:not(.cmp) .hlab{padding:0;justify-content:center}
-  .hgrid:not(.cmp) .hlab .lt{display:none}
-  .hgrid:not(.cmp) .hlab .li{display:block;color:var(--muted)}
-  .hourly .hscroll{scroll-padding-left:40px}
   .mcard .mnear{display:none}
   /* la semaine en pastilles colorées */
   .whd{display:block;margin:30px 0 14px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:Manrope,system-ui,sans-serif}
@@ -921,6 +916,61 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
   .wrow .wm{display:flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:27px;background:var(--c);color:#0c1519;font-size:16px;font-weight:800;text-align:center}
   .wrow .wm small{display:none}
   .wrow[aria-pressed="true"] .wm{color:#0c1519;box-shadow:0 0 0 3px #0c1519,0 0 0 5px #fff}
+}
+
+/* Téléphone : colonne des libellés du tableau en icônes seules, très étroite */
+@media (max-width:520px){
+  .hgrid:not(.cmp){--lab:40px!important}
+  .hgrid:not(.cmp) .hlab{padding:0;justify-content:center}
+  .hgrid:not(.cmp) .hlab .lt{display:none}
+  .hgrid:not(.cmp) .hlab .li{display:block;color:var(--muted)}
+  .hourly .hscroll{scroll-padding-left:40px}
+}
+
+/* ---- Ordinateur : « Maintenant » en haut, le jour à choisir, puis la frise (proposition 1) ---- */
+@media (min-width:901px){
+  .heroBody{padding:clamp(44px,8vh,96px) 20px 36px}
+  .hero2{display:block}
+  .hcol{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);column-gap:56px;align-items:start}
+  .hl,.hr{display:flex;flex-direction:column;min-width:0}
+  .hr{margin-top:84px}
+  .spotbtn{font-size:34px}
+  .live{display:inline-flex;align-items:center;gap:9px;align-self:flex-start;margin-top:14px;padding:7px 15px;border-radius:20px;border:1px solid rgba(255,255,255,.2);background:rgba(var(--ink-rgb),.55);color:#fff;font:800 12.5px Manrope,system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;cursor:default}
+  .live i{width:9px;height:9px;border-radius:50%;background:#8A949A;flex:none}
+  .live.on i{background:#7be0a8;box-shadow:0 0 0 4px rgba(123,224,168,.25)}
+  .live.back{cursor:pointer}
+  .live.back::after{content:"↺ maintenant";font-size:12px;letter-spacing:.04em;text-transform:none;opacity:.85}
+  .hnum{align-items:flex-end;justify-content:flex-start;gap:36px;margin-top:10px}
+  .verdict .vq{font-size:132px}
+  .verdict .vq .u{font-size:44px}
+  .verdict .vn{font-size:22px;margin-top:8px}
+  .hmini{margin-bottom:10px}
+  .bdg{width:64px}
+  .bdg .bc{width:60px;height:60px}
+  .mcard{height:84px;margin-top:0;padding:0 34px;border-radius:42px}
+  .mcard .mname{font-size:19px}
+  .mcard .msub{font-size:14px}
+  .mcard .mval b{font-size:38px}
+  .rows{margin-top:16px}
+  .rows .rw,.rows #rwSea{height:136px;padding:22px 24px 0}
+  .tiderow{height:136px}
+  .rows .rk{font-size:12px}
+  .rows .rvn{font-size:32px;margin-top:10px}
+  .rows .rvn small{font-size:15px}
+  .rows #wdL,.rows #seaL{font-size:16px}
+  .rows #tdV{font-size:28px;margin-top:10px}
+  .rows #tdS{font-size:14px}
+  .rows .rvd{font-size:14px}
+  .whd{margin:30px 0 14px}
+  .wlist{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;overflow:visible;padding:0;margin:0;max-width:none;justify-self:stretch}
+  .wrow,.wrow[aria-pressed="true"]{flex:none;width:auto;border-radius:20px;background:rgba(var(--ink-rgb),.5);border:1px solid rgba(255,255,255,.12);padding:12px 0;gap:6px;margin:0;box-shadow:none;transition:border-color .15s,background-color .15s}
+  .wrow:hover{border-color:rgba(255,255,255,.4)}
+  .wrow[aria-pressed="true"]{border-color:#fff;background:rgba(var(--ink-rgb),.72)}
+  .wrow .wm{width:50px;height:50px;border-radius:25px;font-size:17px}
+  .wrow[aria-pressed="true"] .wm{box-shadow:none}
+  .wrow .wc{display:block;text-align:center;font-size:12px}
+  .hourly .hhead{margin-bottom:14px}
+  .hm{display:none}.hd{display:inline}
 }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
@@ -1596,6 +1646,7 @@ document.addEventListener('click',e=>{ const b=e.target.closest('.rtog button');
   state.radarView=b.dataset.rv; saveRadarView(state.radarView);
   const sec=b.closest('.radar'); if(sec){ const t=document.createElement('div'); t.innerHTML=radarHtml(state.data[state.spot].spot); sec.replaceWith(t.firstElementChild); } });
 /* Barre du bas (téléphone) et sections repliables */
+document.addEventListener('click',e=>{ const c=e.target.closest('#liveChip'); if(!c||!state.data||!c.classList.contains('back')) return; state.day=0; render(); });
 document.addEventListener('click',e=>{ const b=e.target.closest('#tbar button'); if(!b||!state.data) return;
   const go_=b.dataset.go, sm=REDUCED?'auto':'smooth';
   if(go_==='today'){ if(state.day!==0){ state.day=0; render(); } scrollTo({top:0,behavior:sm}); }
@@ -2043,7 +2094,8 @@ function render(){
   const isFav=state.fav.includes(s.name), sst=d.hours.find(h=>h.sst!=null)?.sst;
   const now=new Date();
   { const rs0=day.sun?hDec(day.sun.rise):8, ss0=day.sun?hDec(day.sun.set):18;
-    state.hour = k===0 ? clamp(now.getHours()+Math.round(now.getMinutes()/15)/4, Math.ceil(rs0), Math.floor(ss0)) : 10; }
+    state.hour = k===0 ? clamp(now.getHours()+Math.round(now.getMinutes()/15)/4, Math.ceil(rs0), Math.floor(ss0)) : 10;
+    const rawNow=now.getHours()+now.getMinutes()/60; state.liveHour=state.hour; state.live = k===0 && rawNow>=Math.ceil(rs0) && rawNow<=Math.floor(ss0)+.99; }
   if(day.sun){ ocean.rise=hDec(day.sun.rise); ocean.set=hDec(day.sun.set); }
   const dayLabel = k===0?'Aujourd’hui':k===1?'Demain':DAYS_LONG[new Date(day.date+'T12:00').getDay()].replace(/^./,c=>c.toUpperCase());
   const hrs=day.list.filter(h=>h.hour>=6&&h.hour<=21);
@@ -2074,14 +2126,19 @@ function render(){
     <div class="heroBody">
       <div class="hero2">
         <div class="hcol">
+          <div class="hl">
           <p class="spotk in" style="margin:0"><button class="spotbtn" id="spotBtn" aria-label="Changer de spot (actuel : ${s.name})">${s.name}<span class="reg"> · ${s.region}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></p>
+          <button type="button" class="live in" id="liveChip"><i></i><span id="liveTxt">Maintenant</span></button>
           <div class="hnum in d1"><h1 class="verdict"><span class="sr">${s.name} : </span><span class="vq" id="heroSize">—</span><span class="vn" id="heroNum"></span></h1>${compassMini(s)}</div>
           <div id="tSize" hidden><span id="szV"></span><div id="szP"></div><div id="szS"></div><span id="szR"></span><span id="heroSec"></span></div>
+          </div>
+          <div class="hr">
           ${meterHtml()}
           <div class="rows in d3" aria-live="polite">
             <div class="rw" id="rwWind"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span class="rl"><span class="rk">Vent${tip('vent','Offshore, onshore, rafales : explications')}</span><span class="rs" id="wdR"></span></span><span class="rv"><span class="rvn" id="wdN"></span><b id="wdL">—</b><span class="rvd" id="wdD"></span><span class="rsub" id="wdS"></span></span></div>
             <div class="rw tiderow" id="rwTide"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M4 6l3-3 3 3"/><path d="M17 21v-8M14 18l3 3 3-3"/><path d="M2 14c1.7-1.5 3.3-1.5 5 0M10 10c1.7-1.5 3.3-1.5 5 0" opacity=".5"/></svg><span class="rl"><span class="rk">Marée${tip('maree','Comment lire la marée ?')}</span><span class="rs rsub" id="tdS"></span></span><span class="rv"><b id="tdV">—</b><span class="rsub" id="tdC"></span></span><div class="tcv" id="tTide"><div class="viz" id="tdG" aria-hidden="true"></div></div></div>
             <div class="rw" id="rwSea"><span class="rl"><span class="rk">Eau</span></span><span class="rv"><span class="rvn" id="seaN">—</span></span></div>
+          </div>
           </div>
         </div>
         <h2 class="whd">Cette semaine</h2>
@@ -2090,7 +2147,7 @@ function render(){
     </div>
   </header>
   <section class="hourly wrap" aria-labelledby="sHour">
-    <div class="hhead"><h2 class="h2s" id="sHour">Heure par heure</h2><span class="hnow" id="nowLbl"></span>${tip('modeles','D’où viennent les prévisions ?')}<button class="playbtn" id="cmpBtn" aria-pressed="${!!state.cmp}">${state.cmp?'Masquer les modèles':'Comparer les modèles'}</button></div>
+    <div class="hhead"><h2 class="h2s" id="sHour"><span class="hm">Heure par heure</span><span class="hd">${dayLabel}, heure par heure</span></h2><span class="hnow" id="nowLbl"></span>${tip('modeles','D’où viennent les prévisions ?')}<button class="playbtn" id="cmpBtn" aria-pressed="${!!state.cmp}">${state.cmp?'Masquer les modèles':'Comparer les modèles'}</button></div>
     <div class="hscroll"><div class="hgrid${state.cmp?' cmp':''}" style="--lab:${state.cmp?150:96}px;--n:${hrs.length};grid-template-rows:44px 84px 66px 28px 84px 92px${state.cmp?' '+'34px '.repeat((state.models||[]).length+(state.windModels||[]).length):''}">${hourlyHtml(day,hrs)}</div></div>
     ${windNote(hrs)?`<p class="hnote">${windNote(hrs).trim()}</p>`:''}
   </section>
@@ -2144,6 +2201,11 @@ function updateLive(){
   if(!h||h.H==null){ $('szV').textContent='—'; return; }
   const ag=agreeOf(h);
   $('nowLbl').textContent=hhmm(state.hour);
+  { const ch=$('liveChip'), tx=$('liveTxt'); if(ch&&tx){ const isNow=!!state.live&&state.day===0&&state.hour===state.liveHour;
+      const dl=state.day===0?'aujourd’hui':state.day===1?'demain':DAYS_LONG[new Date(day.date+'T12:00').getDay()].toLowerCase();
+      ch.classList.toggle('back',!isNow&&state.day!==0);
+      tx.textContent=isNow?`Maintenant · ${hhmm(state.hour)}`:`Prévision ${dl} · ${hhmm(state.hour)}`;
+      ch.classList.toggle('on',isNow); ch.title=isNow?'Conditions prévues pour l’heure actuelle':'Revenir à maintenant'; ch.dataset.now=isNow?'1':''; } }
   $('heroSize').innerHTML=`${fmt(h.H)}<span class="u"> m</span>`;
   $('heroNum').textContent=`${Math.round(h.T||0)} s${h.D!=null?' · '+sector(h.D):''}`;
   { const hs=$('heroSec'); if(hs) hs.textContent=periodTxt(h.T||0)[0].toUpperCase()+periodTxt(h.T||0).slice(1);
