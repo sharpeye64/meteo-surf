@@ -514,7 +514,12 @@ dialog::backdrop{background:rgba(2,10,14,.7);backdrop-filter:blur(4px)}
 .tabs button{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--edge);background:transparent;cursor:pointer;font-weight:700;font-size:14px}
 .tabs button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#1A1405}
 .pk .ls{overflow:auto;padding:0 12px 20px}
-.grp{font-weight:800;font-size:13px;color:var(--muted);padding:14px 8px 6px}
+.grp{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);background:#0A1E29;padding:14px 8px 8px;border-bottom:1px solid var(--edge);margin:0 -12px;padding-left:20px;padding-right:20px}
+.grp .gc{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:0}
+.tabs button{white-space:nowrap;display:inline-flex;align-items:center;gap:7px;padding:0 13px;min-height:38px}
+.tabs .tc{font-size:12px;font-weight:700;opacity:.65}
+.it .m{display:inline-flex;align-items:center;gap:9px}
+.it .sd{display:block;width:11px;height:11px;border-radius:50%;flex:none}
 .it{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:transparent;border:0;border-radius:16px;padding:10px 8px;min-height:56px;text-align:left;cursor:pointer}
 .it:hover{background:var(--glass)}
 .it .n{font-weight:800}
@@ -858,7 +863,9 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
   /* le chiffre géant, la boussole discrète à droite */
   .hnum{align-items:flex-end;margin-top:18px}
   .verdict{display:block}
-  .verdict .vq{display:block;font-size:84px;line-height:.95;letter-spacing:-.03em}
+  .verdict .vq{display:block;font-size:clamp(60px,19.5vw,84px);line-height:.95;letter-spacing:-.03em;white-space:nowrap}
+  .hnum{flex-wrap:nowrap;gap:8px}.verdict{min-width:0}
+  .hbd{gap:6px}.bdg{width:56px}.bdg .bc{width:52px;height:52px}
   .verdict .vn{display:block;margin-top:10px;font-size:17px;font-weight:600;color:#CFE2E5}
   .hmini{margin-bottom:6px}
   .hmini svg:not([width]),.hmini .hct{display:none}
@@ -897,7 +904,7 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
   .tiderow{height:112px;padding-top:18px}
   #rwTide .rl{display:contents}
   #rwTide .rk{order:1}#rwTide .rv{order:2}#rwTide .rs{order:3}
-  .verdict .vq .u{font-size:30px;letter-spacing:0;margin-left:2px}
+  .verdict .vq .u{font-size:24px;letter-spacing:0;margin-left:2px}
   .rows .rw,.rows #rwSea{height:122px}.tiderow{height:122px}
   .rows .rvd{display:flex;align-items:center;gap:5px;margin-top:3px;font-size:13px;font-weight:700;color:#CFE2E5;white-space:nowrap}
   .mcard .mtxt{padding-left:6px}
@@ -986,10 +993,7 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
     <div class="hd">
       <div class="row"><h2 id="pkTitle" class="disp" style="font-size:20px">Choisir un spot</h2><button class="glassbtn icon" id="pkClose" aria-label="Fermer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span class="sr">Chercher un spot</span><input id="q" type="search" placeholder="Hossegor, Lafitenia, Lacanau…" autocomplete="off"></label>
-      <div class="tabs" role="group" aria-label="Filtrer">
-        <button data-f="geo" aria-pressed="true">Tous les spots</button>
-        <button data-f="fav" aria-pressed="false">Mes spots</button>
-      </div>
+      <div class="tabs" id="pkTabs" role="group" aria-label="Filtrer par zone"></div>
     </div>
     <div class="ls" id="pkList"></div>
   </div>
@@ -1517,7 +1521,7 @@ function oceanDraw(now){
   const night=clamp((-deg-0.8)/6,0,1);
   const sd=night>0.5?[Math.sin(0.3)*Math.cos(0.38),Math.sin(0.38),Math.cos(0.3)*Math.cos(0.38)]:sv;   // la nuit : lune à place fixe
   gl.uniform2f(OC.u.swD,-0.12,-0.99); gl.uniform1f(OC.u.swL,90); gl.uniform1f(OC.u.chop,0.8);         // mer calme et décorative
-  const tsec=REDUCED?8:(now-OC.t0)/1000, bz=46, bx=bz*(0.72-.5)*(W/H)/OC_F, sw=swellAt(bx,bz,tsec,0.55,90,[-0.12,-0.99]);
+  const tsec=REDUCED?8:(now-OC.t0)/1000, bz=46, bx=bz*((W/H<.8?.72:.5)-.5)*(W/H)/OC_F, sw=swellAt(bx,bz,tsec,0.55,90,[-0.12,-0.99]);
   const ph5=(tsec%5)/5, flash=Math.min(1,Math.max(0,ph5/.04))*(1-Math.min(1,Math.max(0,(ph5-.16)/.1)));   // un éclat toutes les 5 s
   gl.uniform3f(OC.u.bb,bx,sw.h*0.9,bz); gl.uniform2f(OC.u.bt,sw.gx*0.9,sw.gz*0.9); gl.uniform1f(OC.u.bl,0.06+flash*(0.3+0.7*night));
   gl.uniform2f(OC.u.r,W,H); gl.uniform1f(OC.u.t,tsec); gl.uniform1f(OC.u.amp,0.55); gl.uniform1f(OC.u.night,night);
@@ -2246,16 +2250,22 @@ function fitPicker(){
 if(window.visualViewport){ visualViewport.addEventListener('resize',fitPicker); visualViewport.addEventListener('scroll',fitPicker); }
 function renderPicker(){
   const q=state.q.trim().toLowerCase();
+  const regions=[...new Set(state.data.map(x=>x.spot.region))];            // Gironde, Landes, Pays Basque : du nord au sud
+  const cnt=r=>state.data.filter(x=>x.spot.region===r).length;
+  const tab=(f,label,n)=>`<button data-f="${f}" aria-pressed="${state.filter===f}">${label}${n!=null?`<span class="tc">${n}</span>`:''}</button>`;
+  document.getElementById('pkTabs').innerHTML=tab('geo','Tous',state.data.length)+regions.map(r=>tab(r,r.replace('Pays Basque','Pays basque'),cnt(r))).join('')+tab('fav','★ Mes spots',null);
   let items=state.data.map((x,i)=>({x,i})).filter(({x})=>!q||x.spot.name.toLowerCase().includes(q)||(x.spot.commune||'').toLowerCase().includes(q));
   if(state.filter==='fav') items=items.filter(({x})=>state.fav.includes(x.spot.name));
+  else if(state.filter!=='geo') items=items.filter(({x})=>x.spot.region===state.filter);
+  const grouped=state.filter==='geo'||state.filter==='fav';
   let html='',reg=null;
   items.forEach(({x,i})=>{
-    if(state.filter==='geo'&&x.spot.region!==reg){reg=x.spot.region;html+=`<div class="grp">${reg}</div>`;}
-    html+=`<button class="it" data-i="${i}"><span><span class="n">${x.spot.name}</span><br><span class="c">${x.spot.commune}</span></span><span class="m">${medTxt(x.days[0])}</span></button>`;
+    if(grouped&&x.spot.region!==reg){ reg=x.spot.region; const n=items.filter(o=>o.x.spot.region===reg).length; html+=`<div class="grp"><span>${reg.replace('Pays Basque','Pays basque')}</span><span class="gc">${n}</span></div>`; }
+    const med=dayMed(x.days[0]);
+    html+=`<button class="it" data-i="${i}"><span><span class="n">${x.spot.name}</span><br><span class="c">${x.spot.commune}</span></span><span class="m"><i class="sd" style="background:${sizeCol(med)}"></i>${medTxt(x.days[0])}</span></button>`;
   });
   if(!items.length) html = state.filter==='fav' ? '<p class="empty">Aucun spot enregistré. Touche l’étoile sur un spot pour le retrouver ici.</p>' : '<p class="empty">Aucun spot ne correspond. Essaie un autre nom ou une ville.</p>';
   document.getElementById('pkList').innerHTML=html;
-  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===state.filter));
 }
 
 function refreshModels(){ const i=state.spot; enrich(i).then(ch=>{ if(ch && state.spot===i){ const h=state.hour, y=scrollY; render(); state.hour=h; updateLive(); scrollTo(0,y); } else if(state.spot===i){ const g=document.querySelector('#szC'); if(g) updateLive(); } }).catch(()=>{}); }
@@ -2285,7 +2295,7 @@ function bind(){
 document.getElementById('pkClose').onclick=()=>document.getElementById('picker').close();
 document.getElementById('pkList').addEventListener('click',e=>{const b=e.target.closest('.it'); if(!b)return; document.getElementById('picker').close(); go(+b.dataset.i);});
 document.getElementById('q').addEventListener('input',e=>{state.q=e.target.value; renderPicker();});
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{state.filter=b.dataset.f; renderPicker();});
+document.getElementById('pkTabs').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; state.filter=b.dataset.f; renderPicker(); document.getElementById('pkList').scrollTop=0; });
 
 async function start(){
   oceanInit();
