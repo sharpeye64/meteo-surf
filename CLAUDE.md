@@ -101,6 +101,12 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   barres « mesuré / prévu ». Carte de droite : courbe des 48 h, mesure contre prévision. `pipeline/candhis.py` lit les pages
   publiques (1 requête par bouée, relancée une fois, heures TU converties en heure de Paris). Licence Ouverte Etalab 2.0, mesures
   temps réel non validées (dit dans l'info-bulle et le pied de page). Allosurf et sites similaires : ne pas utiliser.
+- ATTENTION (retour de l'utilisateur) : la hauteur affichée (modèles près du spot ou bouée au large) n'est PAS la taille des vagues
+  au bord. À hauteur égale, une houle longue (14 s) arrive bien plus grosse et plus puissante sur la côte qu'une houle courte (7 s).
+  Toujours montrer la période avec la hauteur, dire « au large » / « à la bouée », et ne jamais présenter la hauteur de la bouée comme
+  la taille au spot. Les info-bulles « taille » et « période » et la phrase sous la bouée (`whyText`) le disent. `h.Heff` (hauteur ×
+  exposition × facteur de période) ne sert qu'au choix de la planche et n'est pas affiché. Piste : apprendre, avec l'archive des
+  bouées côtières CANDHIS, une vraie relation hauteur/période → taille au bord par spot, avant d'afficher une « taille au bord ».
 - Haut de page : une seule pastille de fiabilité en mots simples (« Prévision fiable / assez fiable / incertaine », info-bulle), plus
   de « Accord des modèles », de « 4 modèles de houle… », de « Fiabilité mesurée… » ni de bouton « Lancer la journée ».
 

@@ -428,6 +428,8 @@ footer .fgen{margin-top:22px;color:#9FB7BD}
 .bfresh{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.07);color:var(--text)}
 .bfresh i{width:8px;height:8px;border-radius:50%;background:var(--aqua)}
 .bfresh.mid i{background:var(--gold)}.bfresh.old i{background:#8A949A}.bfresh.old{color:var(--muted)}
+.bk2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:-6px}
+.bwhy{margin:0;font-size:13px;line-height:1.45;color:var(--muted)}.bwhy b{color:var(--text);font-weight:700}
 .bbig{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:clamp(46px,6vw,64px);letter-spacing:-.03em;line-height:1}
 .bbig small{font-size:.38em;margin-left:6px;font-weight:600;color:var(--muted)}
 .bstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
@@ -1286,8 +1288,8 @@ function moveKnob(){
 let playing=0;
 const TIPS = {
   note:'Note calculée à partir de la houle, de sa période, du vent et de la marée, selon les réglages du spot. C’est un repère, pas une vérité : <b>ta connaissance du spot prime</b>.',
-  taille:'<b>Hauteur significative</b> de la houle au large : la moyenne du tiers des plus grosses vagues. Au bord, elles peuvent paraître plus petites ou plus grosses selon le fond et l’exposition du spot.',
-  periode:'<b>Temps entre deux vagues</b>, en secondes. Plus il est long, plus la houle vient de loin et a d’énergie : à hauteur égale, une houle de 14 s pousse bien plus qu’une de 7 s.<br><br>Moins de 8 s : mer du vent, vagues molles et désordonnées. 8 à 11 s : houle moyenne. 11 s et plus : houle longue, vagues puissantes et bien rangées.',
+  taille:'<b>Hauteur de la houle</b> calculée par les modèles près du spot (hauteur significative : la moyenne du tiers des plus grosses vagues). <b>Ce n’est pas la taille des vagues quand elles déferlent.</b> À hauteur égale, une houle longue (14 s) arrive bien plus grosse et plus puissante au bord qu’une houle courte (7 s) : regarde toujours la hauteur ET la période ensemble. Le fond, la marée et l’orientation du spot comptent aussi.',
+  periode:'<b>Temps entre deux vagues</b>, en secondes. Plus il est long, plus la houle vient de loin et a d’énergie : à hauteur égale au large, une houle de 14 s donne des vagues nettement plus grosses et plus puissantes sur la côte qu’une houle de 7 s.<br><br>Moins de 8 s : mer du vent, vagues molles et désordonnées. 8 à 11 s : houle moyenne. 11 s et plus : houle longue, vagues puissantes et bien rangées.',
   vent:'<b>Offshore</b> : vent de terre vers la mer, il lisse et creuse les vagues. <b>Onshore</b> : de la mer vers la plage, il les écrase et hache le plan d’eau. <b>Side</b> : parallèle à la plage. <b>Glassy</b> : quasiment pas de vent, mer d’huile.<br><br>Les <b>rafales</b> sont les pointes de vent : un vent moyen faible avec de fortes rafales reste gênant.',
   maree:'Les heures de <b>pleine mer (PM)</b> et <b>basse mer (BM)</b> sont calculées à la minute par la méthode harmonique, comme le fait le Shom, à partir des mesures des marégraphes officiels (REFMAR). C’est un calcul indépendant, non officiel : compte quelques minutes d’écart possible. <a href="https://maree.shom.fr/" target="_blank" rel="noopener noreferrer">Comparer avec le SHOM ↗</a><br><br>Le <b>coefficient</b> (20 à 120) mesure la taille de la marée : plus il est haut, plus le marnage est grand. C’est un calcul indépendant à partir de Brest, avec un écart moyen de 2 points : pour la valeur officielle, voir le SHOM.<br><br>Le <b>pourcentage</b> indique où en est la marée entre la basse mer (0 %) et la pleine mer (100 %) de la journée. Beaucoup de spots ne marchent qu’à certains moments de la marée.<br><br><a href="https://maree.shom.fr/" target="_blank" rel="noopener noreferrer">Horaires officiels du SHOM ↗</a>',
   eau:'Température de l’eau en surface, issue d’un modèle océanique. Elle peut varier de 1 à 2 °C selon les courants et les remontées d’eau froide.',
@@ -1409,6 +1411,16 @@ function buoyChart(obs,fc,label){
     <div class="bax"><span>il y a 2 jours</span><span>dernière mesure</span></div>
     <div class="bleg"><span><i style="background:var(--gold)"></i>Mesuré par la bouée</span><span><i class="dash"></i>${label}</span></div>`;
 }
+function whyText(view,T){
+  const t=T||0;
+  if(view==='large'){
+    const tail = t>=11 ? 'Une houle longue comme celle-ci arrive plus grosse et plus puissante sur la côte qu’une houle courte de même hauteur.'
+               : t>=8 ? 'Une houle moyenne grossit un peu en arrivant sur la côte.'
+               : t>0  ? 'Une mer courte, formée par le vent, grossit peu en arrivant sur la côte.' : 'Sans la période, impossible de dire ce que ça donnera au bord.';
+    return `<b>Au large, pas au bord.</b> ${tail}`;
+  }
+  return '<b>Près de la côte, pas sur ton spot.</b> La taille des vagues dépend aussi de la période, du fond et de la marée.';
+}
 function radarHtml(s){
   const g=state.gascogne, hasL=!!(g&&g.latest), coast=nearestCoast(s), hasC=!!coast;
   if(!hasL&&!hasC) return '';
@@ -1423,12 +1435,13 @@ function radarHtml(s){
     const mod=(g.model||[]), byT={}; mod.forEach(m=>byT[m.t.slice(0,13)]=m.hs);
     fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null); fNow=byT[L.time.slice(0,13)]; fLabel='Prévision des modèles à la bouée';
   }
+  const Tm=(!L.tp&&view==='large'&&g&&g.period_used)?g.period_used:null;
   const ageH=(new Date()-new Date(L.time+':00'))/36e5, fresh=ageH<3?'ok':ageH<8?'mid':'old';
   const cmpMax=Math.max(0.5,L.hs,fNow||0)*1.1;
   const bar=(v,cls,lbl)=>`<div class="bc"><span>${lbl}</span><span class="bt"><i class="${cls}" style="width:${(v/cmpMax*100).toFixed(0)}%"></i></span><b>${fmt(v)} m</b></div>`;
   const tog=hasL&&hasC?`<div class="rtog" role="group" aria-label="Choisir la bouée"><button type="button" data-rv="large" aria-pressed="${view==='large'}">Gascogne</button><button type="button" data-rv="cote" aria-pressed="${view==='cote'}">${coast.b.name}</button></div>`:'';
   const stats=[
-    L.tp?`<div class="bs">${BI.wave}<b>${Math.round(L.tp)} s</b><span>entre deux vagues</span></div>`:'',
+    L.tp?`<div class="bs">${BI.wave}<b>${Math.round(L.tp)} s</b><span>${periodTxt(L.tp)}</span></div>`:(Tm?`<div class="bs">${BI.wave}<b>≈ ${Math.round(Tm)} s</b><span>${periodTxt(Tm)}, estimée</span></div>`:''),
     L.dir!=null?`<div class="bs">${dirIcon(L.dir)}<b>${sector(L.dir)}</b><span>vient du</span></div>`:'',
     L.sst!=null?`<div class="bs">${BI.temp}<b>${fmt(L.sst)} °C</b><span>eau</span></div>`:''
   ].join('');
@@ -1437,8 +1450,10 @@ function radarHtml(s){
     <div class="bgrid">
       <div class="bcard">
         <div class="bhead"><span class="bname">Bouée ${name}</span><span class="bsub">${sub}</span><span class="bfresh ${fresh}" title="Mesure en temps réel, non validée. Les bouées du large publient avec plusieurs heures de retard."><i></i>${ageTxt(ageH)}</span></div>
+        <div class="bk2">${view==='large'?'Hauteur de la houle au large':'Hauteur de la houle à la bouée'}</div>
         <div class="bbig">${fmt(L.hs)}<small>m</small></div>
         <div class="bstats">${stats}</div>
+        <p class="bwhy">${whyText(view,L.tp||Tm)}</p>
         ${fNow!=null?`<div class="bcmp">${bar(L.hs,'m','Mesuré')}${bar(fNow,'f','Prévu')}</div>`:''}
       </div>
       <div class="bcard">${buoyChart(obs,fc,fLabel)}</div>
