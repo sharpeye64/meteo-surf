@@ -782,11 +782,17 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
 @media (max-width:520px){
   body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
   /* A : tableau en couleurs */
-  .hgrid:not(.cmp){grid-template-rows:34px 50px 44px 22px 54px 56px!important;grid-template-columns:var(--lab) repeat(var(--n,16),52px)}
+  .hgrid:not(.cmp){grid-template-rows:42px 96px 82px 30px 96px 104px!important;grid-template-columns:var(--lab) repeat(var(--n,16),58px)}
+  .hgrid:not(.cmp) .hwave b{font-size:22px}
+  .hgrid:not(.cmp) .hper{font-size:17px;gap:3px}
+  .hgrid:not(.cmp) .hper small{font-size:12px}
+  .hgrid:not(.cmp) .hwind{font-size:18px;gap:6px}
+  .hgrid:not(.cmp) .hwind svg{width:28px;height:28px}
+  .hgrid:not(.cmp) .hhr{font-size:14px}
   .hgrid:not(.cmp) .hwave,.hgrid:not(.cmp) .hper,.hgrid:not(.cmp) .hwind{background-color:var(--c);color:#0c1519;box-shadow:inset 0 0 0 1px rgba(6,20,28,.9);border-top:0}
   .hgrid:not(.cmp) .hwave{justify-content:center;padding:0}
   .hgrid:not(.cmp) .hwave .bb{display:none}
-  .hgrid:not(.cmp) .hwave b{font-size:15px;color:#0c1519}
+  .hgrid:not(.cmp) .hwave b{color:#0c1519}
   .hgrid:not(.cmp) .hper small{color:#2b3d44}
   .hgrid:not(.cmp) .hwind svg path{fill:#0c1519}
   .hgrid:not(.cmp) .hc.night.hwave,.hgrid:not(.cmp) .hc.night.hper,.hgrid:not(.cmp) .hc.night.hwind{background-image:linear-gradient(rgba(6,20,28,.28),rgba(6,20,28,.28))}
