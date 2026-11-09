@@ -116,11 +116,13 @@ button,input{font:inherit;color:inherit}
 
 /* HAUT DE PAGE : lecture en un coup d'œil */
 .spotk{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:15px;font-weight:700;color:rgba(255,255,255,.9);text-shadow:0 1px 5px rgba(0,0,0,.7),0 0 16px rgba(0,0,0,.35)}
-.spotbtn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:800;color:#fff;padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.45)}
+.spotbtn{all:unset;cursor:pointer;display:inline-flex;align-items:baseline;gap:8px;font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:clamp(24px,3.2vw,40px);line-height:1.1;letter-spacing:-.01em;color:#fff;padding:4px 0 6px;border-bottom:2px dashed rgba(255,255,255,.4)}
+.spotbtn .reg{font-family:Manrope,system-ui,sans-serif;font-size:.42em;font-weight:700;letter-spacing:0;opacity:.85}
+.spotbtn svg{align-self:center;width:.45em;height:.45em;min-width:14px;min-height:14px}
 .spotbtn:hover{border-bottom-color:#fff}.spotbtn:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:4px}
 .verdict{margin:2px 0 0;display:flex;align-items:baseline;gap:6px 18px;flex-wrap:wrap;line-height:1;text-shadow:0 2px 30px rgba(0,0,0,.45)}
-.verdict .vq{color:#fff;font-family:Unbounded,system-ui,sans-serif;font-weight:800;font-size:clamp(36px,5.6vw,68px);letter-spacing:-.02em}
-.verdict .vn{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:clamp(20px,2.6vw,30px);color:#fff}
+.verdict .vq{color:#fff;font-family:Unbounded,system-ui,sans-serif;font-weight:800;font-size:clamp(30px,4.2vw,50px);letter-spacing:-.02em}
+.verdict .vn{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:clamp(17px,2vw,24px);color:#fff}
 .slot{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;font-size:16px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .slot .chip{font-size:14px;font-weight:800;padding:6px 12px;border-radius:999px;color:#0B1A14;text-shadow:none}
 .slot .chip.none{background:rgba(var(--ink-rgb),.6);color:#fff;border:1px solid var(--edge)}
@@ -546,8 +548,9 @@ dialog::backdrop{background:rgba(2,10,14,.7);backdrop-filter:blur(4px)}
   .spotk{font-size:16px}
   .spotbtn{font-size:17px;padding:8px 0}
   .verdict{gap:2px 12px}
-  .verdict .vq{font-size:56px}
-  .verdict .vn{font-size:22px}
+  .verdict .vq{font-size:42px}
+  .verdict .vn{font-size:18px}
+  .spotbtn{font-size:26px}
   .hsec{display:block;margin:-4px 0 0;font-size:15px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6),0 0 14px rgba(0,0,0,.4)}
   .slot{font-size:14px;gap:6px 10px}
   .slot .trk{display:none}
@@ -605,7 +608,6 @@ dialog::backdrop{background:rgba(2,10,14,.7);backdrop-filter:blur(4px)}
 @media (prefers-reduced-motion:reduce){.stk{transition:none}}
 
 @media (max-width:520px){
-  #heroTrust{display:none!important}
   .sunarc{display:none!important}
   #cmpBtn{display:none!important}
 }
@@ -1754,9 +1756,9 @@ function render(){
       </div>
     </div>
     <div class="heroBody">
-      <div class="herotop"><div class="hlead"><p class="spotk in" style="margin:0"><button class="spotbtn" id="spotBtn" aria-label="Changer de spot (actuel : ${s.name})">${s.name} · ${s.region}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></p>
+      <div class="herotop"><div class="hlead"><p class="spotk in" style="margin:0"><button class="spotbtn" id="spotBtn" aria-label="Changer de spot (actuel : ${s.name})">${s.name}<span class="reg"> · ${s.region}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></p>
       <h1 class="verdict in d1"><span class="sr">${s.name} : </span><span class="vq" id="heroSize">—</span><span class="vn" id="heroNum"></span></h1>
-      <p class="hsec in d2" id="heroSec"></p><p class="slot in d2" style="margin:0" id="heroTrust"></p>${meterHtml()}</div></div>
+      <p class="hsec in d2" id="heroSec"></p>${meterHtml()}</div></div>
       <div class="herobot"><div class="hbl"><div class="answers in d3" aria-live="polite">
         <div class="ans" id="tSize"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 3-3 5-2"/><path d="M2 18c2.5-4 5-4 7.5 0s5 4 7.5 0 3-2.5 5-1.6" opacity=".5"/></svg><span>Vagues</span>${tip('taille','Que signifie la taille ?')}</div><div class="val" id="szV">—</div><div class="chips" id="szP"></div><div class="sub sub2" id="szS"></div><div class="sub sub2 rng" id="szR"></div></div>
         <div class="ans" id="tWind"><div class="l"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span>Vent</span>${tip('vent','Offshore, onshore, rafales : explications')}</div><div class="val" id="wdL">—</div><div class="chips" id="wdS"></div><div class="sub sub2 rng" id="wdR"></div></div>
@@ -1772,20 +1774,6 @@ function render(){
   </section>
 
   ${radarHtml(s)}
-  <section class="gear wrap" aria-labelledby="sGearT">
-    <div class="hhead"><h2 class="h2s" id="sGearT">L’équipement idéal</h2></div>
-    <div class="gearbox">
-      <article class="gboard" id="gBoard">${gearBoardHtml()}</article>
-      <article class="gsuit">
-        <div class="gk">Combinaison${tip('combi','Que signifie 4/3 mm ?')}</div>
-        <div class="bigval">${sst!=null?suitOf(sst)[0]:'—'}</div>
-        <p class="gs">${sst!=null?suitOf(sst)[1]:''}</p>
-        <div class="gk" style="margin-top:22px">Eau${tip('eau','D’où vient la température de l’eau ?')}</div>
-        <div class="gv">${sst!=null?fmt(sst)+' °C':'—'}</div>
-        ${tempBar(sst)}
-      </article>
-    </div>
-  </section>
 
   <main class="wrap">
     <section class="blk" aria-labelledby="sNear">
@@ -1833,7 +1821,6 @@ function updateLive(){
   $('nowLbl').textContent=hhmm(state.hour);
   $('heroSize').textContent=`${fmt(h.H)} m`;
   $('heroNum').textContent=`${Math.round(h.T||0)} s${h.D!=null?' · '+sector(h.D):''}`;
-  $('heroTrust').innerHTML=trustHtml(ag);
   { const hs=$('heroSec'); if(hs) hs.textContent=[periodTxt(h.T||0)[0].toUpperCase()+periodTxt(h.T||0).slice(1),h.sec?`+ ${h.sec.kind} ${fmt(h.sec.H)} m · ${Math.round(h.sec.T)} s${h.sec.D!=null?' · '+sector(h.sec.D):''}`:null].filter(Boolean).join(' · ');
     const sv=$('stkV'); if(sv) sv.textContent=`${fmt(h.H)} m · ${Math.round(h.T||0)} s${h.D!=null?' · '+sector(h.D):''}`; }
   const cfd=state.coef&&state.coef[day.date]; $('tdC').textContent=cfd&&cfd.length?`coef ${cfd.join(' · ')}`:'';

@@ -134,6 +134,10 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   supprimé : la planche n'affiche plus de volume (il dépend du poids). Idée à reprendre : version « Light » et version « Pro »
   (comparaison des modèles, volume selon le poids, lecture de la journée) pour ceux qui veulent aller plus loin.
 
+- 09/11/2026 : bandeau « L'équipement idéal » (planche et combinaison) RETIRÉ à la demande de l'utilisateur (inutile) ; pastille « Prévision
+  fiable / assez fiable / incertaine » du haut de page RETIRÉE ; le nom du spot est grand (Unbounded, clamp 24-40 px), la taille des vagues plus
+  petite (clamp 30-50 px). Code de la planche (`GEAR`, `gearBoardHtml`) et `trustHtml` encore présent mais plus affiché.
+
 ## Pistes suivantes
 - Gascogne plus fraîche : l'app La Bouée affiche une mesure vieille de 1 h 10 « via Météo-France ». Piste : API officielle Météo-France « Données
   d'observation », endpoints `/liste-bouees` et `/bouees` (mesures horaires à H + 10 min, id à 7 chiffres, compte gratuit sur
