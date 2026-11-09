@@ -818,6 +818,8 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
   .band{padding-top:0;padding-bottom:0;margin-top:0;background:none}
   .hgrid:not(.cmp) .hlab{background:#06141c}
   .fold,.hourly,#sHour{scroll-margin-top:80px}
+  .hourly .hscroll{margin:0 -18px;border-radius:0;border-left:0;border-right:0;scroll-padding-left:62px}
+  .hourly .hnote{margin-top:10px}
   .foldwrap{margin-bottom:0}
   .rel{margin-top:0}
   /* B : barre du bas */
@@ -1988,7 +1990,6 @@ function render(){
   <section class="hourly wrap" aria-labelledby="sHour">
     <div class="hhead"><h2 class="h2s" id="sHour">Heure par heure</h2><span class="hnow" id="nowLbl"></span>${tip('modeles','D’où viennent les prévisions ?')}<button class="playbtn" id="cmpBtn" aria-pressed="${!!state.cmp}">${state.cmp?'Masquer les modèles':'Comparer les modèles'}</button></div>
     <div class="hscroll"><div class="hgrid${state.cmp?' cmp':''}" style="--lab:${state.cmp?150:96}px;--n:${hrs.length};grid-template-rows:42px 96px 44px 26px 58px 62px${state.cmp?' '+'34px '.repeat((state.models||[]).length+(state.windModels||[]).length):''}">${hourlyHtml(day,hrs)}</div></div>
-    <div class="hleg" aria-hidden="true"><span>Houle<i class="lg1"></i><em>0,5 · 1 · 2 m+</em></span><span>Période<i class="lg2"></i><em>5 · 10 · 15 s</em></span><span>Vent<i class="lg3"></i><em>de terre · de côté · de mer</em></span></div>
     ${windNote(hrs)?`<p class="hnote">${windNote(hrs).trim()}</p>`:''}
   </section>
 
