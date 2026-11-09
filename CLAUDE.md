@@ -155,3 +155,9 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
 - Clé d'API CANDHIS officielle (demande par mail à l'équipe Candhis) pour remplacer la lecture des pages publiques.
 - Coefficient de marée, calibration `tide_offset_min` par spot, réglages de spots validés sur le terrain.
 - Statistiques publiques de fiabilité (écart prévision / bouée).
+
+- 09/11/2026 : HAUT DE PAGE « STYLE LISTE » publié (tag `avant-design-c` = ancienne version, pour revenir en arrière : `git checkout avant-design-c -- web/index.html`). Structure : nom du spot, grand chiffre + mini-boussole en anneau
+  (`compassMini`, houle = point blanc, vent = point creux turquoise, période au centre), carte de la bouée en sable plein (`meterHtml`, « EN DIRECT » si mesure < 2 h),
+  liste Vent / Marée (courbe intégrée, le point passe au centre de la courbe : la marge de `.tideline` est remise à 0), semaine en barres horizontales (`weekRow`). Plus de cartes
+  Vagues, plus de ligne « Journée », « Mer du vent », « Houle secondaire ». IMPORTANT : la hauteur du haut de page doit rester CONSTANTE (lignes à hauteur fixe, textes sur une
+  ligne) : l'océan WebGL est redimensionné à chaque changement de hauteur, ce qui fait saccader l'animation. Pied de page : liste des 58 spots dans un `<details>` (liens toujours dans le HTML).
