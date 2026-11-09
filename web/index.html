@@ -847,7 +847,7 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
 }
 
 /* ---- Téléphone : haut de page « coup d'œil » (proposition A) ---- */
-.rvn,.whd,#rwSea,.rvd,.hlab .li{display:none}
+.rvn,.whd,#rwSea,.rvd,.hlab .li,.hbd{display:none}
 @media (max-width:520px){
   .heroBody{padding:20px 22px 28px;gap:0}
   .hero2{gap:0}.hcol{gap:0}
@@ -859,8 +859,14 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
   .verdict .vq{display:block;font-size:84px;line-height:.95;letter-spacing:-.03em}
   .verdict .vn{display:block;margin-top:10px;font-size:17px;font-weight:600;color:#CFE2E5}
   .hmini{margin-bottom:6px}
-  .hmini svg{width:76px;height:76px}
-  .hmini .hct{display:none}
+  .hmini svg:not([width]),.hmini .hct{display:none}
+  .hmini{margin-bottom:2px}
+  .hbd{display:flex;gap:10px}
+  .bdg{width:60px;text-align:center}
+  .bdg .bc{display:flex;align-items:center;justify-content:center;width:56px;height:56px;margin:0 auto 5px;border-radius:50%;background:rgba(10,18,22,.62);border:1px solid rgba(255,255,255,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+  .bdg .bc svg{display:block;transition:transform .3s}
+  .bdg .bl{display:block;font-size:12px;font-weight:700;line-height:1.25;color:#CFE2E5;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+  .bdg .bl b{font-size:14px;color:#fff}
   /* la bouée en pastille sable */
   .mcard{height:72px;margin-top:24px;padding:0 24px;border-radius:36px}
   .mcard .mpill{display:none}
@@ -1950,6 +1956,10 @@ function compassMini(s){
   let ticks=''; for(let a=0;a<360;a+=15){ const l=a%90===0?9:a%45===0?6:3.5; const [x0,y0]=P(a,R),[x1,y1]=P(a,R-l); ticks+=`<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}" stroke="${a===0?'#E4C79B':'#fff'}" stroke-opacity="${a===0?1:a%90===0?.6:.3}" stroke-width="${a%90===0?2:1.2}"/>`; }
   const lbl=[['N',0],['E',90],['S',180],['O',270]].map(([n,a])=>{ const [x,y]=P(a,99); return `<text x="${x.toFixed(1)}" y="${(y+4.5).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="800" fill="${n==='N'?'#E4C79B':'rgba(255,255,255,.75)'}" font-family="Manrope, system-ui, sans-serif">${n}</text>`; }).join('');
   return `<aside class="hmini" aria-label="Direction de la houle et du vent">
+    <div class="hbd">
+      <div class="bdg"><span class="bc"><svg id="hbSa" width="30" height="30" viewBox="-10 -10 20 20" aria-hidden="true"><path d="M0 -9 L6 7 L0 4 L-6 7Z" fill="#fff"/></svg></span><span class="bl">Houle<br><b id="hbSl">—</b></span></div>
+      <div class="bdg"><span class="bc"><svg id="hbWa" width="30" height="30" viewBox="-10 -10 20 20" aria-hidden="true"><path d="M0 -9 L6 7 L0 4 L-6 7Z" fill="#8ED0EC"/></svg></span><span class="bl">Vent<br><b id="hbWl">—</b></span></div>
+    </div>
     <svg viewBox="-112 -112 224 224" role="img" aria-label="Boussole : la mer est à l’${sector(ori)}">
       <path d="M${h0x.toFixed(1)} ${h0y.toFixed(1)} A${R} ${R} 0 0 1 ${h1x.toFixed(1)} ${h1y.toFixed(1)} Z" fill="#2a8fb0" fill-opacity=".16"/>
       <circle r="${R}" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.5"/><circle r="62" fill="none" stroke="#fff" stroke-opacity=".08"/>
@@ -2156,6 +2166,9 @@ function updateLive(){
   $('tdS').innerHTML=ex.length?ex.filter(x=>x.hd>=5&&x.hd<=22).map(x=>`<span>${x.type} ${exact?'':'≈ '}${x.hm}</span>`).join(''):'<span>Horaires indisponibles</span>';
   $('tdG').innerHTML=tideCard(day.list,state.hour);
   const hs_=$('hcSwell'), hw_=$('hcWind'); { const ht=$('hcT'); if(ht) ht.textContent=`${Math.round(h.T||0)} s`; }
+  { const a=$('hbSa'), b=$('hbWa');
+    if(a){ a.style.transform=`rotate(${h.D!=null?(h.D+180)%360:0}deg)`; $('hbSl').textContent=h.D!=null?sector(h.D):'—'; }
+    if(b){ b.style.transform=`rotate(${h.wd!=null?(h.wd+180)%360:0}deg)`; $('hbWl').textContent=h.wd!=null?sector(h.wd):'—'; } }
   if(hs_&&h.D!=null){ hs_.setAttribute('transform',`rotate(${h.D.toFixed(0)})`); $('hcS').textContent=`Houle ${sector(h.D)} · ${Math.round(h.T||0)} s`; }
   if(hw_&&h.wd!=null){ hw_.setAttribute('transform',`rotate(${h.wd.toFixed(0)})`); const wc=windCol(h.wind); hw_.querySelector('line').setAttribute('stroke',wc); hw_.querySelector('path').setAttribute('fill',wc); $('hcWi').style.background=wc; $('hcW').textContent=`Vent ${sector(h.wd)} · ${Math.round(h.v)} km/h`; }
   const rs=$('roseSwell'), rw=$('roseWind'); if(rs&&h.D!=null) rs.setAttribute('transform',`rotate(${h.D.toFixed(0)})`); if(rw&&h.wd!=null) rw.setAttribute('transform',`rotate(${h.wd.toFixed(0)})`);
