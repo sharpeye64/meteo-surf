@@ -22,7 +22,7 @@ HOW = {
 
 <h2>Les bouées : la mesure réelle</h2>
 <ul>
-<li><b>Bouée Gascogne (Météo-France, 62001)</b> : au large, à environ 300 km de la côte. Elle voit la houle arriver bien avant la côte. Ses données publiques ont 12 à 30 heures de retard. Quand les modèles s'écartent de sa mesure, nos prévisions sont corrigées sur les 24 heures suivantes.</li>
+<li><b>Bouée Gascogne (Météo-France, 62001)</b> : au large, à environ 300 km de la côte. Elle voit la houle arriver bien avant la côte. Elle mesure toutes les heures, avec environ 1 h de retard. Quand les modèles s'écartent de sa mesure, nos prévisions sont corrigées sur les 24 heures suivantes.</li>
 <li><b>Bouées côtières CANDHIS (Cerema)</b> : Cap Ferret, Anglet, Saint-Jean-de-Luz. Mesures toutes les 30 minutes, fraîches. Le site compare la mesure de la bouée la plus proche du spot avec sa prévision. Ces mesures en temps réel ne sont pas validées.</li>
 </ul>
 
