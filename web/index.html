@@ -774,6 +774,24 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
 .mcard.old .msub,.mcard.old .mval span{color:#CFE2E5}
 .mcard.old .mpill{background:rgba(255,255,255,.12);color:var(--muted)}.mcard.old .mpill i{background:#8A949A}
 
+/* ---- Tableau horaire en couleurs (toutes tailles d'écran) ---- */
+.hgrid{grid-template-rows:44px 84px 66px 28px 84px 92px}
+.hgrid .hwave,.hgrid .hper,.hgrid .hwind{background-color:var(--c);color:#0c1519;box-shadow:inset 0 0 0 1px rgba(6,20,28,.9);border-top:0}
+.hgrid .hwave{justify-content:center;gap:2px;padding:0}
+.hgrid .hwave .bb{display:none}
+.hgrid .hwave b{font-size:22px;color:#0c1519}
+.hs2{font-size:11px;font-weight:700;color:#0c1519;opacity:.65;line-height:1}
+.hgrid .hper{font-size:16px;gap:3px}
+.hgrid .hper small{font-size:12px;color:#2b3d44}
+.hgrid .hwind{font-size:17px;gap:5px}
+.hgrid .hwind svg{width:26px;height:26px}
+.hgrid .hwind svg path{fill:#0c1519}
+.hgrid .hc.night.hwave,.hgrid .hc.night.hper,.hgrid .hc.night.hwind{background-image:linear-gradient(rgba(6,20,28,.28),rgba(6,20,28,.28))}
+.hgrid .hc.sel.hwave,.hgrid .hc.sel.hper,.hgrid .hc.sel.hwind{box-shadow:inset 0 0 0 2px #fff}
+.hgrid .hwave:hover,.hgrid .hper:hover,.hgrid .hwind:hover{filter:brightness(1.08)}
+.hgrid .hsel{display:none}
+.hgrid .hhr.sel{color:var(--sand);box-shadow:inset 0 -2px 0 var(--sand)}
+.hgrid .hm{background:rgba(255,255,255,.04)}
 /* ---- Téléphone : tableau en couleurs, sections repliables, barre du bas (proposition A + B) ---- */
 .fold>.fsum{display:none}
 .fold>.fbody{display:block}
@@ -1598,7 +1616,7 @@ function hourlyHtml(day,hrs){
     const sun = h.hour===Math.floor(rise)?'<span class="hsun">Lever</span>':h.hour===Math.floor(set)?'<span class="hsun">Coucher</span>':'';
     const cls=`hc${nt}${wn}`;
     c+=`<button class="${cls} hhr" data-h="${h.hour}" style="grid-column:${col};grid-row:1" aria-label="${h.hour}h : ${h.H!=null?fmt(h.H)+' m, '+Math.round(h.T)+' s, vent '+Math.round(h.v)+' km/h '+windWord[h.wind]:'pas de données'}">${h.hour}h${sun}</button>`;
-    c+=`<div class="${cls} hwave" data-h="${h.hour}" style="grid-column:${col};grid-row:2;--c:${sizeCol(h.H)}"><b>${h.H!=null?fmt(h.H):'—'}</b><div class="bb"><span class="p" style="height:${h.H!=null?Math.max(6,h.H/mx*58).toFixed(0):0}px;background:${periodColor(h.T)}"></span>${h.sec?`<span class="s2" title="${h.sec.kind} ${fmt(h.sec.H)} m, ${Math.round(h.sec.T)} s" style="height:${Math.max(4,h.sec.H/mx*58).toFixed(0)}px"></span>`:''}</div></div>`;
+    c+=`<div class="${cls} hwave" data-h="${h.hour}" style="grid-column:${col};grid-row:2;--c:${sizeCol(h.H)}"><b>${h.H!=null?fmt(h.H):'—'}</b><div class="bb"><span class="p" style="height:${h.H!=null?Math.max(6,h.H/mx*58).toFixed(0):0}px;background:${periodColor(h.T)}"></span>${h.sec?`<span class="s2" title="${h.sec.kind} ${fmt(h.sec.H)} m, ${Math.round(h.sec.T)} s" style="height:${Math.max(4,h.sec.H/mx*58).toFixed(0)}px"></span>`:''}</div>${h.sec?`<span class="hs2" title="${h.sec.kind} ${fmt(h.sec.H)} m, ${Math.round(h.sec.T)} s">+${fmt(h.sec.H)}</span>`:''}</div>`;
     c+=`<div class="${cls} hper" data-h="${h.hour}" style="grid-column:${col};grid-row:3;--c:${periodCell(h.T)};--pa:${h.T?(clamp((h.T-6)/10,0,1)*.3).toFixed(2):0}">${h.T?Math.round(h.T)+' s':'—'}${h.D!=null?`<small><svg width="9" height="9" viewBox="-5 -5 10 10" style="transform:rotate(${(h.D+180)%360}deg)" aria-hidden="true"><path d="M0 -5 L3.5 4 L0 2 L-3.5 4Z" fill="currentColor"/></svg>${sector(h.D)}</small>`:''}</div>`;
     c+=`<div class="${cls} hacc" data-h="${h.hour}" style="grid-column:${col};grid-row:4">${dotsHtml((agreeOf(h)||{}).lvl||0)}</div>`;
     c+=`<div class="${cls} hwind" data-h="${h.hour}" style="grid-column:${col};grid-row:5;--c:${windCell(h.v,h.wind)};--wa:${h.v!=null?(clamp(h.v/45,0,1)*.16).toFixed(2):0}"><svg width="20" height="20" viewBox="-10 -10 20 20" style="transform:rotate(${(h.wd||0)+180}deg)" aria-hidden="true"><path d="M0 -9 L6 5 L0 2 L-6 5 Z" fill="${windCol(h.wind)}"/></svg><span>${h.v!=null?Math.round(h.v):'—'}</span></div>`;
@@ -2049,7 +2067,7 @@ function render(){
   </header>
   <section class="hourly wrap" aria-labelledby="sHour">
     <div class="hhead"><h2 class="h2s" id="sHour">Heure par heure</h2><span class="hnow" id="nowLbl"></span>${tip('modeles','D’où viennent les prévisions ?')}<button class="playbtn" id="cmpBtn" aria-pressed="${!!state.cmp}">${state.cmp?'Masquer les modèles':'Comparer les modèles'}</button></div>
-    <div class="hscroll"><div class="hgrid${state.cmp?' cmp':''}" style="--lab:${state.cmp?150:96}px;--n:${hrs.length};grid-template-rows:42px 96px 44px 26px 58px 62px${state.cmp?' '+'34px '.repeat((state.models||[]).length+(state.windModels||[]).length):''}">${hourlyHtml(day,hrs)}</div></div>
+    <div class="hscroll"><div class="hgrid${state.cmp?' cmp':''}" style="--lab:${state.cmp?150:96}px;--n:${hrs.length};grid-template-rows:44px 84px 66px 28px 84px 92px${state.cmp?' '+'34px '.repeat((state.models||[]).length+(state.windModels||[]).length):''}">${hourlyHtml(day,hrs)}</div></div>
     ${windNote(hrs)?`<p class="hnote">${windNote(hrs).trim()}</p>`:''}
   </section>
 
