@@ -10,7 +10,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from . import buoy, candhis, config, seo, history, marc, openmeteo, tides
+from . import buoy, candhis, config, ibi_buoys, seo, history, marc, openmeteo, tides
 
 
 def log(msg):
@@ -62,6 +62,25 @@ def main():
         meta["errors"]["candhis"] = str(e)[:300]
         log(f"  CANDHIS indisponible : {e}")
 
+    log("Bouées du large fraîches (Bilbao-Vizcaya, Donostia)")
+    offshore = []
+    try:
+        offshore, oerr = ibi_buoys.fetch_all()
+        for k, v in oerr.items():
+            meta["errors"][f"ibi_{k}"] = v
+        for b in offshore:  # prévision des modèles au point de la bouée, pour comparer à la mesure
+            try:
+                m = openmeteo.model_at_point(b["lat"], b["lon"])
+                b["model"] = [{"t": t, "hs": h} for t, h in zip(m["time"], m["wave_height"]) if h is not None]
+            except Exception as e:
+                b["model"] = []
+                meta["errors"][f"ibi_model_{b['id']}"] = str(e)[:200]
+        if offshore:
+            meta["sources"]["ibi"] = "Bouées du large Bilbao-Vizcaya (Puertos del Estado) et Donostia (Euskalmet), via Copernicus Marine"
+    except Exception as e:
+        meta["errors"]["ibi"] = str(e)[:300]
+        log(f"  bouées du large indisponibles : {e}")
+
     # Archive prévision/réalité : fiabilité mesurée sur les 30 derniers jours, puis ajout du passage en cours.
     now_local = pd.Timestamp.now(tz=config.TIMEZONE).tz_localize(None).floor("h")
     reliability = None
@@ -71,17 +90,17 @@ def main():
             fc = openmeteo.models_at_point(gascogne["lat"], gascogne["lon"], now_local.strftime("%Y-%m-%dT%H:00"))
             history.record(now_local.strftime("%Y-%m-%dT%H:00"), fc, gascogne.get("obs"))
             log(f"  archive : {len(fc)} modèles, {len(gascogne.get('obs') or [])} mesures de la bouée")
-        if history.archiving_enabled() and coast:
+        if history.archiving_enabled() and (coast or offshore):
             cfc = {}
-            for b in coast:
+            for b in list(coast) + list(offshore):
                 try:
                     c = openmeteo.coast_forecast(b["lat"], b["lon"], now_local.strftime("%Y-%m-%dT%H:00"))
                     if c:
                         cfc[b["id"]] = c
                 except Exception as e:
                     meta["errors"][f"archive_cote_{b['id']}"] = str(e)[:200]
-            history.record_coast(now_local.strftime("%Y-%m-%dT%H:00"), cfc, coast)
-            log(f"  archive côtière : {len(cfc)} prévisions, {sum(len(b.get('obs') or []) for b in coast)} mesures de {len(coast)} bouées")
+            history.record_coast(now_local.strftime("%Y-%m-%dT%H:00"), cfc, list(coast) + list(offshore))
+            log(f"  archive côtière : {len(cfc)} prévisions, {sum(len(b.get('obs') or []) for b in list(coast) + list(offshore))} mesures de {len(coast) + len(offshore)} bouées")
     except Exception as e:
         meta["errors"]["history"] = str(e)[:300]
         log(f"  archive indisponible : {e}")
@@ -169,7 +188,7 @@ def main():
     meta["wave_models"] = [{"key": k, "label": labels[k]} for k in labels]
     meta["wind_models"] = [{"key": k, "label": l} for k, l, _a in config.WIND_MODELS]
     meta["buoy_correction"] = ratio
-    payload = {"meta": meta, "gascogne": gascogne, "coast": coast, "tide_coef": tide_coef, "reliability": reliability, "spots": out_spots}
+    payload = {"meta": meta, "gascogne": gascogne, "coast": coast, "offshore": offshore, "tide_coef": tide_coef, "reliability": reliability, "spots": out_spots}
     config.OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     config.OUTPUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
     try:

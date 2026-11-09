@@ -109,7 +109,7 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   dans le même dossier `latest/AAAAMMJJ/`) : Puertos del Estado « 6200024 » = bouée du large Bilbao-Vizcaya (43,65 N, 3,04 O ; VHM0, VTPK, VMDR,
   VPED), Euskalmet « Donostia-buoy » (43,57 N, 2,01 O), Puertos del Estado « Bilbao-coast-buoy » et « PasaiaII-coast-buoy ». Mesures
   cohérentes avec nos bouées côtières (≈ 0,8 m, 4 s, secteur S-SE le 09/11). Licence : données Copernicus Marine, mention « Puertos del Estado,
-  Euskalmet, via Copernicus Marine ». Piste : les ajouter comme bouées du large « fraîches » (voir « La bouée »). Les bouées CANDHIS sont
+  Euskalmet, via Copernicus Marine ». FAIT le 09/11/2026 : `pipeline/ibi_buoys.py` les récupère (+ prévision des modèles au point, archive côtière) ; « La bouée » propose Gascogne, Bilbao-Vizcaya, Donostia (si < 80 km du spot) et la bouée CANDHIS la plus proche ; par défaut, la plus proche dont la mesure a moins de 6 h, sinon la plus fraîche (`pickBuoy`). Les bouées CANDHIS sont
   aussi dans ce produit (6200064 Cap Ferret, 6200066 Anglet, 6200079 Saint-Jean-de-Luz) avec le même retard court.
 - ATTENTION (retour de l'utilisateur) : la hauteur affichée (modèles près du spot ou bouée au large) n'est PAS la taille des vagues
   au bord. À hauteur égale, une houle longue (14 s) arrive bien plus grosse et plus puissante sur la côte qu'une houle courte (7 s).
@@ -130,6 +130,11 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   (comparaison des modèles, volume selon le poids, lecture de la journée) pour ceux qui veulent aller plus loin.
 
 ## Pistes suivantes
+- Gascogne plus fraîche : l'app La Bouée affiche une mesure vieille de 1 h 10 « via Météo-France ». Piste : API officielle Météo-France « Données
+  d'observation », endpoints `/liste-bouees` et `/bouees` (mesures horaires à H + 10 min, id à 7 chiffres, compte gratuit sur
+  portail-api.meteofrance.fr, jeton OAuth2). Non testable sans clé : `tools/meteofrance_probe.py` (à lancer par l'utilisateur) imprime la structure
+  des réponses ; ensuite écrire `pipeline/meteofrance.py`, avec la clé dans un secret GitHub (`METEOFRANCE_TOKEN`), jamais dans le dépôt.
+- API CANDHIS officielle : jeton sur demande à candhis@cerema.fr (base https://candhis.cerema.fr/API/v1/, guide PDF `04_Candhis_API_v1_Utilisateur`).
 - Archive côtière en cours (voir plus haut) : à exploiter avec `tools/coast_report.py` après ≥ 30 jours, pour une vraie « taille au bord ».
 - Clé d'API CANDHIS officielle (demande par mail à l'équipe Candhis) pour remplacer la lecture des pages publiques.
 - Coefficient de marée, calibration `tide_offset_min` par spot, réglages de spots validés sur le terrain.

@@ -88,6 +88,22 @@ def fake_copernicus_nc():
     return data
 
 
+def fake_ibi_nc():
+    """Fichier Copernicus d'une bouée du large livrée toutes les heures (variables VHM0, VTPK, VMDR, TEMP, VZMX)."""
+    import os, tempfile
+    now = pd.Timestamp.now("UTC").floor("h").tz_localize(None)
+    t = pd.date_range(now.normalize(), now, freq="h")
+    n = len(t)
+    col = lambda v: np.full((n, 1), v, dtype=float)
+    ds = xr.Dataset({"VHM0": (("TIME", "DEPTH"), col(0.9)), "VTPK": (("TIME", "DEPTH"), col(11.0)), "VMDR": (("TIME", "DEPTH"), col(285.0)),
+                     "TEMP": (("TIME", "DEPTH"), col(17.0)), "VZMX": (("TIME", "DEPTH"), col(1.5)),
+                     "TIME_QC": (("TIME",), np.ones(n, dtype="int8"))}, coords={"TIME": t})
+    fd, path = tempfile.mkstemp(suffix=".nc"); os.close(fd)
+    ds.to_netcdf(path)
+    data = open(path, "rb").read(); os.remove(path)
+    return data
+
+
 def fake_candhis_html(*a, **k):
     now = pd.Timestamp.now("UTC").floor("30min")
     rows = "".join(
@@ -98,6 +114,9 @@ def fake_candhis_html(*a, **k):
 
 
 def fake_buoy_get(url, *a, **k):
+    if "IR_TS_MO" in url:  # bouées du large fraîches : seul le fichier du jour existe
+        today = pd.Timestamp.now("UTC").strftime("%Y%m%d")
+        return FakeResp(content=fake_ibi_nc()) if today in url else FakeResp(status_code=404)
     if "candhis" in url:
         return fake_candhis_html()
     if "cloudferro" in url:  # Copernicus : seul le fichier du jour existe
@@ -173,12 +192,17 @@ assert data["gascogne"]["latest"]["hs"] > 0 and len(data["gascogne"]["obs"]) >= 
 
 assert len(data["coast"]) == 3, data["meta"]["errors"]
 _cs = history.coast_summary(_hist)
-assert set(_cs["buoys"]) == {"03302", "06402", "06403"} and all(v["n"] >= 40 for v in _cs["buoys"].values()) and _cs["runs"] == 1, _cs
+assert set(_cs["buoys"]) == {"03302", "06402", "06403", "6200024", "donostia"} and all(_cs["buoys"][k]["n"] >= 40 for k in ("03302", "06402", "06403")) and _cs["runs"] == 1, _cs
 _co = json.loads(sorted((__import__("pathlib").Path(_hist) / "coast_obs").glob("*.json"))[0].read_text())["06402"]
 assert any(r["dir"] is not None and r["hmax"] is not None for r in _co.values()), "direction et Hmax horaires attendus"
 print("archive côtière OK :", _cs)
 c0 = data["coast"][1]
 assert c0["name"] == "Anglet" and c0["latest"]["hs"] > 0 and c0["latest"]["tp"] == 9.5 and len(c0["obs"]) >= 40
+assert [b["name"] for b in data["offshore"]] == ["Bilbao-Vizcaya", "Donostia"], data["meta"]["errors"]
+_o = data["offshore"][0]
+assert _o["latest"]["hs"] == 0.9 and _o["latest"]["tp"] == 11.0 and _o["latest"]["dir"] == 285 and len(_o["obs"]) >= 1 and _o["model"], _o["latest"]
+assert "6200024" in history.coast_summary(_hist)["buoys"], "les bouées du large doivent aussi être archivées"
+print("bouées du large OK :", [(b["name"], b["latest"]["hs"], b["latest"]["tp"]) for b in data["offshore"]])
 print("CANDHIS OK :", [b["name"] for b in data["coast"]], c0["latest"])
 
 import re as _re

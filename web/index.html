@@ -684,7 +684,7 @@ const DAYS_LONG = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','sam
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const state = { radarView:loadRadarView(), data:null, spot:0, day:0, hour:10, filter:'geo', q:'', fav:loadFav(), weight:loadWeight() };
 
-function loadRadarView(){ try{ const v=localStorage.getItem('radarView'); return v==='cote'||v==='large'?v:null; }catch(e){ return null; } }
+function loadRadarView(){ try{ return localStorage.getItem('radarView')||null; }catch(e){ return null; } }
 function saveRadarView(v){ try{ localStorage.setItem('radarView',v); }catch(e){} }
 function loadWeight(){ try{ const w=+localStorage.getItem('weight'); return w>=50&&w<=110?w:75; }catch(e){ return 75; } }
 function saveWeight(w){ try{ localStorage.setItem('weight',String(w)); }catch(e){} }
@@ -767,7 +767,7 @@ async function enrich(i){
 async function loadServer(){
   const r=await fetch('data/forecast.json',{cache:'no-cache'}); if(!r.ok) throw new Error('forecast.json '+r.status);
   const j=await r.json(); const byName={}; j.spots.forEach(x=>byName[x.name]=x);
-  state.meta=j.meta; state.gascogne=j.gascogne; state.coast=j.coast||[]; state.tides={}; state.reliability=j.reliability||null; state.coef=j.tide_coef||{};
+  state.meta=j.meta; state.gascogne=j.gascogne; state.coast=j.coast||[]; state.offshore=j.offshore||[]; state.tides={}; state.reliability=j.reliability||null; state.coef=j.tide_coef||{};
   state.raw=SPOTS.map((s,i)=>{ const x=byName[s.name]; if(!x) throw new Error('spot absent : '+s.name);
     state.tides[i]=x.tide; return { m:{hourly:x.marine,_models:x.wave_models}, w:{hourly:x.wind,daily:x.daily,_models:x.wind_models}, done:true }; });
   const present=k=>state.raw.some(r=>r.m._models&&r.m._models[k]);
@@ -969,16 +969,12 @@ function drawArc(){
 }
 /* Étiquette posée à côté de la bouée : sa vraie dernière mesure (bouée Gascogne, via Copernicus Marine) et l'âge de cette mesure */
 function buoyLabelHtml(mode){
-  const g=state.gascogne, Lg=g&&g.latest&&g.latest.hs!=null?g.latest:null;
-  const sp=state.data&&state.data[state.spot]?state.data[state.spot].spot:null, cc=sp?nearestCoast(sp):null;
-  const age=L=>(new Date()-new Date(L.time+':00'))/36e5;
-  let L=Lg, name='Gascogne', tip='la bouée Météo-France 62001, au large, via Copernicus Marine (mesures transmises une fois par jour, vers 23 h)';
-  if(cc&&(!Lg||age(cc.b.latest)+3<age(Lg))){ L=cc.b.latest; name=cc.b.name; tip=`la bouée côtière ${cc.b.name} (Cerema, réseau CANDHIS), la plus proche de ce spot : mesure toutes les 30 minutes`; }
-  if(!L) return '';
-  const ageH=age(L), when=ageH<1?'à l’instant':ageH<6?`il y a ${Math.round(ageH)} h`:stampTxt(L.time);
-  const per=L.tp||(name==='Gascogne'&&g&&g.period_used?g.period_used:null);
-  const parts=[`${fmt(L.hs)} m`]; if(per) parts.push(`${L.tp?'':'≈ '}${Math.round(per)} s`); if(L.dir!=null) parts.push(sector(L.dir));
-  return `<a class="buoylbl ${mode}${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de ${tip}. Mesure en temps réel, non validée. Voir la bouée."><i></i>Bouée ${name} · ${parts.join(' · ')} <small>${when}</small></a>`;
+  const sp=state.data&&state.data[state.spot]?state.data[state.spot].spot:null; if(!sp) return '';
+  const cur=pickBuoy(buoyChoices(sp)); if(!cur) return '';
+  const L=cur.L, ageH=cur.ageH, when=ageH<1?'à l’instant':ageH<6?`il y a ${Math.round(ageH)} h`:stampTxt(L.time);
+  const per=L.tp||cur.Tm, parts=[`${fmt(L.hs)} m`]; if(per) parts.push(`${L.tp?'':'≈ '}${Math.round(per)} s`); if(L.dir!=null) parts.push(sector(L.dir));
+  const who=cur.key==='gascogne'?'la bouée Météo-France 62001, au large, via Copernicus Marine (mesures transmises une fois par jour, vers 23 h)':cur.kind==='coast'?`la bouée côtière ${cur.name} (Cerema, réseau CANDHIS), mesure toutes les 30 minutes`:`la bouée ${cur.name} (${cur.key==='donostia'?'Euskalmet':'Puertos del Estado'}, via Copernicus Marine), mesure toutes les heures`;
+  return `<a class="buoylbl ${mode}${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de ${who}. Mesure en temps réel, non validée. Voir la bouée."><i></i>Bouée ${cur.name} · ${parts.join(' · ')} <small>${when}</small></a>`;
 }
 function heroSunTimes(){
   const el=document.getElementById('sunT'); if(!el) return; const day=state.data[state.spot].days[state.day];
@@ -1300,7 +1296,7 @@ const TIPS = {
   eau:'Température de l’eau en surface, issue d’un modèle océanique. Elle peut varier de 1 à 2 °C selon les courants et les remontées d’eau froide.',
   combi:'Conseil indicatif selon la température de l’eau. Les deux chiffres sont l’épaisseur du néoprène : le premier pour le torse (au chaud), le second pour les bras et les jambes (pour la mobilité). Adapte selon ta frilosité et le vent.',
   modeles:'Comme Windguru, on croise plusieurs <b>modèles de vagues</b> : Météo-France MFWAM, DWD EWAM (maille de 5 km sur l’Europe), ECMWF WAM et NOAA GFS-Wave. La taille affichée est une <b>moyenne pondérée</b>, qui donne plus de poids aux modèles les plus fins sur notre côte.<br><br>Le bouton « Comparer les modèles » affiche chaque modèle heure par heure. Le vent vient d’AROME (Météo-France), comparé à ICON, GFS et ECMWF.',
-  radar:'Une <b>bouée</b> mesure la vraie houle, sans modèle. <b>Gascogne</b> (Météo-France) flotte au large, à environ 300 km : elle voit la houle arriver bien avant la côte, mais Météo-France ne transmet ses mesures qu’une fois par jour, vers 23 h : la dernière mesure a entre 2 et 26 h de retard. Les bouées côtières (<b>Cap Ferret, Anglet, Saint-Jean-de-Luz</b>, réseau CANDHIS du Cerema) mesurent toutes les 30 minutes, par 20 à 50 m de fond : un petit écart avec ton spot est normal. Mesures en temps réel, non validées.',
+  radar:'Une <b>bouée</b> mesure la vraie houle, sans modèle. <b>Gascogne</b> (Météo-France) flotte au large, à environ 300 km : elle voit la houle arriver bien avant la côte, mais Météo-France ne transmet ses mesures qu’une fois par jour, vers 23 h : la dernière mesure a entre 2 et 26 h de retard. <b>Bilbao-Vizcaya</b> (Puertos del Estado) et <b>Donostia</b> (Euskalmet) sont aussi au large, avec une mesure toutes les heures. Les bouées côtières (<b>Cap Ferret, Anglet, Saint-Jean-de-Luz</b>, réseau CANDHIS du Cerema) mesurent toutes les 30 minutes, par 20 à 50 m de fond : un petit écart avec ton spot est normal. Mesures en temps réel, non validées.',
   accord:'Plusieurs modèles météo calculent la houle de leur côté. <b>Prévision fiable</b> : ils annoncent presque la même chose pour cette heure. <b>Assez fiable</b> : ils diffèrent un peu. <b>Incertaine</b> : ils se contredisent. Plus ils s’accordent, plus tu peux te fier à la prévision.<br><br>La vraie fiabilité, comparée aux mesures des bouées, est expliquée en bas de page.',
   planche:'Exemple de planche réelle, choisi d’après la <b>puissance</b> de la houle (taille × période, corrigée par l’orientation du spot) puis ajusté à ton poids pour un surfeur confirmé. Ce n’est pas une publicité : ce sont des modèles courants, pour donner un ordre de grandeur de longueur, de largeur et de volume.<br><br>Dimensions et volumes d’après les fiches des fabricants et des revendeurs. Ils changent selon l’année et la construction : vérifie chez ton shaper. Ton niveau, ta planche habituelle et le spot comptent autant.'
 };
@@ -1431,27 +1427,39 @@ function whyText(view,T){
   }
   return '<b>Près de la côte, pas sur ton spot.</b> La taille des vagues dépend aussi de la période, du fond et de la marée.';
 }
+function buoyChoices(s){
+  const out=[], g=state.gascogne;
+  if(g&&g.latest&&g.latest.hs!=null) out.push({key:'gascogne',name:'Gascogne',sub:`au large, à ${Math.round(hav(s,g))} km du spot`,kind:'large',L:g.latest,obs:g.obs||[],model:g.model||[],km:hav(s,g),Tm:g.period_used||null});
+  (state.offshore||[]).forEach(o=>{ if(o.latest&&o.latest.hs!=null){ const km=hav(s,o);
+    if(o.id==='donostia'&&km>80) return;
+    out.push({key:o.id,name:o.name,sub:`${o.sub}, à ${Math.round(km)} km du spot`,kind:'large',L:o.latest,obs:o.obs||[],model:o.model||[],km,Tm:null}); } });
+  const c=nearestCoast(s); if(c) out.push({key:c.b.id,name:c.b.name,sub:`à ${Math.round(c.km)} km du spot`,kind:'coast',L:c.b.latest,obs:c.b.obs||[],model:null,km:c.km,Tm:null});
+  out.forEach(o=>{ o.ageH=(new Date()-new Date(o.L.time+':00'))/36e5; });
+  return out;
+}
+/* Bouée affichée par défaut : la plus proche parmi celles dont la mesure a moins de 6 h ; sinon la plus fraîche. Le choix de l'utilisateur prime. */
+function pickBuoy(list){
+  if(!list.length) return null;
+  let want=state.radarView; if(want==='large') want='gascogne'; else if(want==='cote'){ const c=list.find(o=>o.kind==='coast'); want=c&&c.key; }
+  const mine=list.find(o=>o.key===want); if(mine) return mine;
+  const fresh=list.filter(o=>o.ageH<6);
+  return fresh.length?fresh.sort((x,y)=>x.km-y.km)[0]:list.slice().sort((x,y)=>x.ageH-y.ageH)[0];
+}
 function radarHtml(s){
-  const g=state.gascogne, hasL=!!(g&&g.latest), coast=nearestCoast(s), hasC=!!coast;
-  if(!hasL&&!hasC) return '';
-  const gAge=hasL?(new Date()-new Date(g.latest.time+':00'))/36e5:1e9, cAge=hasC?(new Date()-new Date(coast.b.latest.time+':00'))/36e5:1e9;
-  const pick=state.radarView||((hasC&&cAge+3<gAge)?'cote':'large');
-  const view=(pick==='cote'&&hasC)||!hasL?'cote':'large';
-  let name,sub,L,obs,fc,fNow,fLabel;
-  if(view==='cote'){
-    const b=coast.b; name=b.name; sub=`à ${Math.round(coast.km)} km du spot`; L=b.latest; obs=b.obs||[];
+  const list=buoyChoices(s), cur=pickBuoy(list); if(!cur) return '';
+  const L=cur.L, view=cur.kind==='coast'?'cote':'large', Tm=(!L.tp&&cur.Tm)?cur.Tm:null;
+  let obs=cur.obs, fc, fNow, fLabel;
+  if(cur.kind==='coast'){
     const d=state.data[state.spot], byT={}; d.hours.forEach(h=>{ if(h.H!=null) byT[h.time.slice(0,13)]=h.H; });
     fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null); fNow=byT[L.time.slice(0,13)]; fLabel=`Notre prévision à ${s.name}`;
   } else {
-    name='Gascogne'; sub='au large, à 300 km'; L=g.latest; obs=g.obs||[];
-    const mod=(g.model||[]), byT={}; mod.forEach(m=>byT[m.t.slice(0,13)]=m.hs);
+    const byT={}; (cur.model||[]).forEach(m=>byT[m.t.slice(0,13)]=m.hs);
     fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null); fNow=byT[L.time.slice(0,13)]; fLabel='Prévision des modèles à la bouée';
   }
-  const Tm=(!L.tp&&view==='large'&&g&&g.period_used)?g.period_used:null;
-  const ageH=(new Date()-new Date(L.time+':00'))/36e5, fresh=ageH<3?'ok':ageH<8?'mid':'old';
+  const ageH=cur.ageH, fresh=ageH<3?'ok':ageH<8?'mid':'old';
   const cmpMax=Math.max(0.5,L.hs,fNow||0)*1.1;
   const bar=(v,cls,lbl)=>`<div class="bc"><span>${lbl}</span><span class="bt"><i class="${cls}" style="width:${(v/cmpMax*100).toFixed(0)}%"></i></span><b>${fmt(v)} m</b></div>`;
-  const tog=hasL&&hasC?`<div class="rtog" role="group" aria-label="Choisir la bouée"><button type="button" data-rv="large" aria-pressed="${view==='large'}">Gascogne</button><button type="button" data-rv="cote" aria-pressed="${view==='cote'}">${coast.b.name}</button></div>`:'';
+  const tog=list.length>1?`<div class="rtog" role="group" aria-label="Choisir la bouée">${list.map(o=>`<button type="button" data-rv="${o.key}" aria-pressed="${o.key===cur.key}">${o.name}</button>`).join('')}</div>`:'';
   const stats=[
     L.tp?`<div class="bs">${BI.wave}<b>${Math.round(L.tp)} s</b><span>${periodTxt(L.tp)}</span></div>`:(Tm?`<div class="bs">${BI.wave}<b>≈ ${Math.round(Tm)} s</b><span>${periodTxt(Tm)}, estimée</span></div>`:''),
     L.dir!=null?`<div class="bs">${dirIcon(L.dir)}<b>${sector(L.dir)}</b><span>vient du</span></div>`:'',
@@ -1461,7 +1469,7 @@ function radarHtml(s){
     <div class="hhead"><h2 class="h2s" id="sRadar">La bouée</h2>${tip('radar','Comment fonctionnent les bouées ?')}${tog}</div>
     <div class="bgrid">
       <div class="bcard">
-        <div class="bhead"><span class="bname">Bouée ${name}</span><span class="bsub">${sub}</span><span class="bfresh ${fresh}" title="Mesure en temps réel, non validée. Les bouées du large publient avec plusieurs heures de retard."><i></i>${ageH<6?ageTxt(ageH):stampTxt(L.time)}</span></div>
+        <div class="bhead"><span class="bname">Bouée ${cur.name}</span><span class="bsub">${cur.sub}</span><span class="bfresh ${fresh}" title="Mesure en temps réel, non validée."><i></i>${ageH<6?ageTxt(ageH):stampTxt(L.time)}</span></div>
         <div class="bk2">${view==='large'?'Hauteur de la houle au large':'Hauteur de la houle à la bouée'}</div>
         <div class="bbig">${fmt(L.hs)}<small>m</small></div>
         <div class="bstats">${stats}</div>
@@ -1791,7 +1799,7 @@ function render(){
     <footer>
       <div class="fgrid">
         <div><h3>Prévisions</h3><p>Données via <a href="https://open-meteo.com/">Open-Meteo</a> (CC BY 4.0). Vagues : Météo-France MFWAM (Copernicus Marine), DWD EWAM, ECMWF WAM, NOAA GFS-Wave. Vent : Météo-France AROME, DWD ICON, NOAA GFS, ECMWF IFS. Modèle côtier Ifremer MARC (Licence Ouverte).</p></div>
-        <div><h3>Mesures et marées</h3><p>Bouée Gascogne : Météo-France, via Copernicus Marine In Situ. Bouées côtières : Cerema, réseau CANDHIS (Licence Ouverte), mesures temps réel non validées. Marées : calcul harmonique indépendant à partir des mesures REFMAR (© Shom, Licence Ouverte). Coefficient : calcul indépendant à partir de Brest. Marée indicative.</p></div>
+        <div><h3>Mesures et marées</h3><p>Bouée Gascogne : Météo-France, via Copernicus Marine In Situ. Bouées côtières : Cerema, réseau CANDHIS (Licence Ouverte). Bouées du large Bilbao-Vizcaya et Donostia : Puertos del Estado et Euskalmet, via Copernicus Marine. Mesures temps réel non validées. Marées : calcul harmonique indépendant à partir des mesures REFMAR (© Shom, Licence Ouverte). Coefficient : calcul indépendant à partir de Brest. Marée indicative.</p></div>
         <div><h3>À savoir</h3><p><a href="spots/">Tous les spots, de Lacanau à Hendaye</a></p><p>Prototype non commercial. Les prévisions sont des estimations : elles ne remplacent ni un coup d’œil sur place ni les consignes de sécurité locales.</p></div>
       </div>
       <nav class="spotlinks" aria-label="Tous les spots">${(()=>{ const g={}; state.data.forEach(x=>{ (g[x.spot.region]=g[x.spot.region]||[]).push(x.spot); }); return Object.entries(g).map(([r,l])=>`<div><h3>${r}</h3>${l.map(sp=>`<a href="spots/${slugOf(sp.name)}/">${sp.name}</a>`).join('')}</div>`).join(''); })()}</nav>
