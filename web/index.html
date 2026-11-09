@@ -684,7 +684,7 @@ const DAYS_LONG = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','sam
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const state = { radarView:loadRadarView(), data:null, spot:0, day:0, hour:10, filter:'geo', q:'', fav:loadFav(), weight:loadWeight() };
 
-function loadRadarView(){ try{ return localStorage.getItem('radarView')==='cote'?'cote':'large'; }catch(e){ return 'large'; } }
+function loadRadarView(){ try{ const v=localStorage.getItem('radarView'); return v==='cote'||v==='large'?v:null; }catch(e){ return null; } }
 function saveRadarView(v){ try{ localStorage.setItem('radarView',v); }catch(e){} }
 function loadWeight(){ try{ const w=+localStorage.getItem('weight'); return w>=50&&w<=110?w:75; }catch(e){ return 75; } }
 function saveWeight(w){ try{ localStorage.setItem('weight',String(w)); }catch(e){} }
@@ -969,11 +969,16 @@ function drawArc(){
 }
 /* Étiquette posée à côté de la bouée : sa vraie dernière mesure (bouée Gascogne, via Copernicus Marine) et l'âge de cette mesure */
 function buoyLabelHtml(mode){
-  const g=state.gascogne, L=g&&g.latest; if(!L||L.hs==null) return '';
-  const ageH=(new Date()-new Date(L.time+':00'))/36e5;
-  const age=ageH<1?'à l’instant':ageH<36?`il y a ${Math.round(ageH)} h`:`il y a ${Math.round(ageH/24)} j`;
-  const parts=[`${fmt(L.hs)} m`]; if(L.tp) parts.push(`${Math.round(L.tp)} s`); if(L.dir!=null) parts.push(sector(L.dir));
-  return `<a class="buoylbl ${mode}${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de la bouée Météo-France 62001, au large (45,2° N, 5° O), via Copernicus Marine. Les mesures arrivent avec quelques heures de retard. Voir le radar."><i></i>Bouée Gascogne · ${parts.join(' · ')} <small>${age}</small></a>`;
+  const g=state.gascogne, Lg=g&&g.latest&&g.latest.hs!=null?g.latest:null;
+  const sp=state.data&&state.data[state.spot]?state.data[state.spot].spot:null, cc=sp?nearestCoast(sp):null;
+  const age=L=>(new Date()-new Date(L.time+':00'))/36e5;
+  let L=Lg, name='Gascogne', tip='la bouée Météo-France 62001, au large, via Copernicus Marine (mesures publiées avec 14 à 38 h de retard)';
+  if(cc&&(!Lg||age(cc.b.latest)+3<age(Lg))){ L=cc.b.latest; name=cc.b.name; tip=`la bouée côtière ${cc.b.name} (Cerema, réseau CANDHIS), la plus proche de ce spot : mesure toutes les 30 minutes`; }
+  if(!L) return '';
+  const ageH=age(L), when=ageH<1?'à l’instant':ageH<6?`il y a ${Math.round(ageH)} h`:stampTxt(L.time);
+  const per=L.tp||(name==='Gascogne'&&g&&g.period_used?g.period_used:null);
+  const parts=[`${fmt(L.hs)} m`]; if(per) parts.push(`${L.tp?'':'≈ '}${Math.round(per)} s`); if(L.dir!=null) parts.push(sector(L.dir));
+  return `<a class="buoylbl ${mode}${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de ${tip}. Mesure en temps réel, non validée. Voir la bouée."><i></i>Bouée ${name} · ${parts.join(' · ')} <small>${when}</small></a>`;
 }
 function heroSunTimes(){
   const el=document.getElementById('sunT'); if(!el) return; const day=state.data[state.spot].days[state.day];
@@ -1295,7 +1300,7 @@ const TIPS = {
   eau:'Température de l’eau en surface, issue d’un modèle océanique. Elle peut varier de 1 à 2 °C selon les courants et les remontées d’eau froide.',
   combi:'Conseil indicatif selon la température de l’eau. Les deux chiffres sont l’épaisseur du néoprène : le premier pour le torse (au chaud), le second pour les bras et les jambes (pour la mobilité). Adapte selon ta frilosité et le vent.',
   modeles:'Comme Windguru, on croise plusieurs <b>modèles de vagues</b> : Météo-France MFWAM, DWD EWAM (maille de 5 km sur l’Europe), ECMWF WAM et NOAA GFS-Wave. La taille affichée est une <b>moyenne pondérée</b>, qui donne plus de poids aux modèles les plus fins sur notre côte.<br><br>Le bouton « Comparer les modèles » affiche chaque modèle heure par heure. Le vent vient d’AROME (Météo-France), comparé à ICON, GFS et ECMWF.',
-  radar:'Une <b>bouée</b> mesure la vraie houle, sans modèle. <b>Gascogne</b> (Météo-France) flotte au large, à environ 300 km : elle voit la houle arriver bien avant la côte, mais ses mesures publiques ont plusieurs heures de retard. Les bouées côtières (<b>Cap Ferret, Anglet, Saint-Jean-de-Luz</b>, réseau CANDHIS du Cerema) mesurent toutes les 30 minutes, par 20 à 50 m de fond : un petit écart avec ton spot est normal. Mesures en temps réel, non validées.',
+  radar:'Une <b>bouée</b> mesure la vraie houle, sans modèle. <b>Gascogne</b> (Météo-France) flotte au large, à environ 300 km : elle voit la houle arriver bien avant la côte, mais Météo-France ne publie ses mesures qu’une fois par jour (le matin pour la veille) : elles ont 14 à 38 h de retard, on ne peut pas aller plus vite avec les données ouvertes. Les bouées côtières (<b>Cap Ferret, Anglet, Saint-Jean-de-Luz</b>, réseau CANDHIS du Cerema) mesurent toutes les 30 minutes, par 20 à 50 m de fond : un petit écart avec ton spot est normal. Mesures en temps réel, non validées.',
   accord:'Plusieurs modèles météo calculent la houle de leur côté. <b>Prévision fiable</b> : ils annoncent presque la même chose pour cette heure. <b>Assez fiable</b> : ils diffèrent un peu. <b>Incertaine</b> : ils se contredisent. Plus ils s’accordent, plus tu peux te fier à la prévision.<br><br>La vraie fiabilité, comparée aux mesures des bouées, est expliquée en bas de page.',
   planche:'Exemple de planche réelle, choisi d’après la <b>puissance</b> de la houle (taille × période, corrigée par l’orientation du spot) puis ajusté à ton poids pour un surfeur confirmé. Ce n’est pas une publicité : ce sont des modèles courants, pour donner un ordre de grandeur de longueur, de largeur et de volume.<br><br>Dimensions et volumes d’après les fiches des fabricants et des revendeurs. Ils changent selon l’année et la construction : vérifie chez ton shaper. Ton niveau, ta planche habituelle et le spot comptent autant.'
 };
@@ -1393,6 +1398,11 @@ function nearestCoast(s){
   const c=(state.coast||[]).filter(b=>b.latest&&b.latest.hs!=null); if(!c.length) return null;
   return c.map(b=>({b,km:hav(s,b)})).sort((x,y)=>x.km-y.km)[0];
 }
+function stampTxt(t){
+  const d=new Date(t+':00'), n=new Date(), dd=Math.round((new Date(n.getFullYear(),n.getMonth(),n.getDate())-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);
+  const hh=d.getHours()+'h'+(d.getMinutes()?String(d.getMinutes()).padStart(2,'0'):'');
+  return dd<=0?`aujourd’hui ${hh}`:dd===1?`hier ${hh}`:`${DAYS_LONG[d.getDay()]} ${hh}`;
+}
 function ageTxt(ageH){ return ageH<1?'à l’instant':ageH<36?`il y a ${Math.round(ageH)} h`:`il y a ${Math.round(ageH/24)} j`; }
 const BI={
   wave:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 3-3 5-2"/><path d="M2 18c2.5-4 5-4 7.5 0s5 4 7.5 0 3-2.5 5-1.6" opacity=".5"/></svg>',
@@ -1424,7 +1434,9 @@ function whyText(view,T){
 function radarHtml(s){
   const g=state.gascogne, hasL=!!(g&&g.latest), coast=nearestCoast(s), hasC=!!coast;
   if(!hasL&&!hasC) return '';
-  const view=(state.radarView==='cote'&&hasC)||!hasL?'cote':'large';
+  const gAge=hasL?(new Date()-new Date(g.latest.time+':00'))/36e5:1e9, cAge=hasC?(new Date()-new Date(coast.b.latest.time+':00'))/36e5:1e9;
+  const pick=state.radarView||((hasC&&cAge+3<gAge)?'cote':'large');
+  const view=(pick==='cote'&&hasC)||!hasL?'cote':'large';
   let name,sub,L,obs,fc,fNow,fLabel;
   if(view==='cote'){
     const b=coast.b; name=b.name; sub=`à ${Math.round(coast.km)} km du spot`; L=b.latest; obs=b.obs||[];
@@ -1449,7 +1461,7 @@ function radarHtml(s){
     <div class="hhead"><h2 class="h2s" id="sRadar">La bouée</h2>${tip('radar','Comment fonctionnent les bouées ?')}${tog}</div>
     <div class="bgrid">
       <div class="bcard">
-        <div class="bhead"><span class="bname">Bouée ${name}</span><span class="bsub">${sub}</span><span class="bfresh ${fresh}" title="Mesure en temps réel, non validée. Les bouées du large publient avec plusieurs heures de retard."><i></i>${ageTxt(ageH)}</span></div>
+        <div class="bhead"><span class="bname">Bouée ${name}</span><span class="bsub">${sub}</span><span class="bfresh ${fresh}" title="Mesure en temps réel, non validée. Les bouées du large publient avec plusieurs heures de retard."><i></i>${ageH<6?ageTxt(ageH):stampTxt(L.time)}</span></div>
         <div class="bk2">${view==='large'?'Hauteur de la houle au large':'Hauteur de la houle à la bouée'}</div>
         <div class="bbig">${fmt(L.hs)}<small>m</small></div>
         <div class="bstats">${stats}</div>
