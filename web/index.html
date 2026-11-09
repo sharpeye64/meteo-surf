@@ -847,7 +847,7 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
 }
 
 /* ---- Téléphone : haut de page « coup d'œil » (proposition A) ---- */
-.rvn,.whd,#rwSea{display:none}
+.rvn,.whd,#rwSea,.rvd,.hlab .li{display:none}
 @media (max-width:520px){
   .heroBody{padding:20px 22px 28px;gap:0}
   .hero2{gap:0}.hcol{gap:0}
@@ -890,6 +890,18 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
   #rwTide .rl{display:contents}
   #rwTide .rk{order:1}#rwTide .rv{order:2}#rwTide .rs{order:3}
   .verdict .vq .u{font-size:30px;letter-spacing:0;margin-left:2px}
+  .rows .rw,.rows #rwSea{height:122px}.tiderow{height:122px}
+  .rows .rvd{display:flex;align-items:center;gap:5px;margin-top:3px;font-size:13px;font-weight:700;color:#CFE2E5;white-space:nowrap}
+  .mcard .mtxt{padding-left:6px}
+  .mcard .mname{overflow:visible;text-overflow:clip}
+  .mcard .mname::before{margin-left:0}
+  .mcard .msub{padding-left:19px}
+  /* colonne des libellés du tableau : icônes seules, beaucoup plus étroite */
+  .hgrid:not(.cmp){--lab:40px!important}
+  .hgrid:not(.cmp) .hlab{padding:0;justify-content:center}
+  .hgrid:not(.cmp) .hlab .lt{display:none}
+  .hgrid:not(.cmp) .hlab .li{display:block;color:var(--muted)}
+  .hourly .hscroll{scroll-padding-left:40px}
   .mcard .mnear{display:none}
   /* la semaine en pastilles colorées */
   .whd{display:block;margin:30px 0 14px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:Manrope,system-ui,sans-serif}
@@ -1609,8 +1621,9 @@ function hourlyHtml(day,hrs){
   const rise=day.sun?hDec(day.sun.rise):8, set=day.sun?hDec(day.sun.set):18;
   const winA=99, winB=-1;
   const mx=Math.max(1,...hrs.map(h=>h.H||0)); let c='';
-  const lab=(row,txt)=>`<div class="hlab" style="grid-row:${row}">${txt}</div>`;
-  c+=lab(1,'')+lab(2,'Vagues <small>m</small>')+lab(3,'Période <small>· dir.</small>')+lab(4,'Accord')+lab(5,'Vent <small>km/h</small>')+lab(6,'Marée');
+  const lab=(row,txt,ic)=>`<div class="hlab" style="grid-row:${row}">${ic?`<svg class="li" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ic}</svg>`:''}<span class="lt">${txt}</span></div>`;
+  const IC={wave:'<path d="M3 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>',per:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',acc:'<circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/>',wind:'<path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/>',tide:'<path d="M7 3v8M4 6l3-3 3 3"/><path d="M17 21v-8M14 18l3 3 3-3"/>'};
+  c+=lab(1,'')+lab(2,'Vagues <small>m</small>',IC.wave)+lab(3,'Période <small>· dir.</small>',IC.per)+lab(4,'Accord',IC.acc)+lab(5,'Vent <small>km/h</small>',IC.wind)+lab(6,'Marée',IC.tide);
   hrs.forEach((h,i)=>{
     const col=i+2, sc=Math.round(h.score||0), nt=(h.hour<Math.floor(rise)||h.hour>Math.floor(set))?' night':'', wn=(h.hour>=winA&&h.hour<=winB)?' win':'';
     const sun = h.hour===Math.floor(rise)?'<span class="hsun">Lever</span>':h.hour===Math.floor(set)?'<span class="hsun">Coucher</span>':'';
@@ -2055,7 +2068,7 @@ function render(){
           <div id="tSize" hidden><span id="szV"></span><div id="szP"></div><div id="szS"></div><span id="szR"></span><span id="heroSec"></span></div>
           ${meterHtml()}
           <div class="rows in d3" aria-live="polite">
-            <div class="rw" id="rwWind"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span class="rl"><span class="rk">Vent${tip('vent','Offshore, onshore, rafales : explications')}</span><span class="rs" id="wdR"></span></span><span class="rv"><span class="rvn" id="wdN"></span><b id="wdL">—</b><span class="rsub" id="wdS"></span></span></div>
+            <div class="rw" id="rwWind"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span class="rl"><span class="rk">Vent${tip('vent','Offshore, onshore, rafales : explications')}</span><span class="rs" id="wdR"></span></span><span class="rv"><span class="rvn" id="wdN"></span><b id="wdL">—</b><span class="rvd" id="wdD"></span><span class="rsub" id="wdS"></span></span></div>
             <div class="rw tiderow" id="rwTide"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M4 6l3-3 3 3"/><path d="M17 21v-8M14 18l3 3 3-3"/><path d="M2 14c1.7-1.5 3.3-1.5 5 0M10 10c1.7-1.5 3.3-1.5 5 0" opacity=".5"/></svg><span class="rl"><span class="rk">Marée${tip('maree','Comment lire la marée ?')}</span><span class="rs rsub" id="tdS"></span></span><span class="rv"><b id="tdV">—</b><span class="rsub" id="tdC"></span></span><div class="tcv" id="tTide"><div class="viz" id="tdG" aria-hidden="true"></div></div></div>
             <div class="rw" id="rwSea"><span class="rl"><span class="rk">Eau</span></span><span class="rv"><span class="rvn" id="seaN">—</span><b id="seaL">mer</b></span></div>
           </div>
@@ -2134,7 +2147,8 @@ function updateLive(){
   { const rr=$('rwSecRow'); if(rr){ rr.classList.toggle('none',!h.sec); if(h.sec){ $('rwSecK').textContent=h.sec.kind.charAt(0).toUpperCase()+h.sec.kind.slice(1); $('rwSecV').textContent=`${fmt(h.sec.H)} m · ${Math.round(h.sec.T)} s${h.sec.D!=null?' · '+sector(h.sec.D):''}`; } else { $('rwSecK').textContent='Houle secondaire'; $('rwSecV').textContent='Aucune'; } } }
   $('szS').textContent=h.sec?`+ ${h.sec.kind} ${fmt(h.sec.H)} m · ${Math.round(h.sec.T)} s${h.sec.D!=null?' · '+sector(h.sec.D):''}`:'';
   $('wdL').textContent=windWord[h.wind]; $('wdL').style.color=windCol(h.wind);
-  { const wn=$('wdN'); if(wn) wn.innerHTML=h.v!=null?`${Math.round(h.v)}<small> km/h</small>`:'—';
+  { const wd_=$('wdD'); if(wd_) wd_.innerHTML=h.wd!=null?`<svg width="14" height="14" viewBox="-8 -8 16 16" style="transform:rotate(${(h.wd+180)%360}deg)" aria-hidden="true"><path d="M0 -7 L5 6 L0 3.5 L-5 6Z" fill="currentColor"/></svg>de ${sector(h.wd)}`:'';
+    const wn=$('wdN'); if(wn) wn.innerHTML=h.v!=null?`${Math.round(h.v)}<small> km/h</small>`:'—';
     const sn=$('seaN'); if(sn) sn.innerHTML=h.sst!=null?`${Math.round(h.sst)}<small> °C</small>`:'—'; }
   $('wdS').innerHTML=[`${Math.round(h.v)} km/h`,`de ${sector(h.wd)}`,h.gust?`rafales ${Math.round(h.gust)}`:null].filter(Boolean).map(x=>`<span>${x}</span>`).join('');
   const exact=exactTides(state.spot,day.date); const ex=exact||extremes(day.list).map(x=>({t:x.t,type:x.t==='Pleine mer'?'PM':'BM',hm:x.h+'h',hd:x.h}));
