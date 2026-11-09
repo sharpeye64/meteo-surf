@@ -926,11 +926,11 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
   .wrow[aria-pressed="true"] .wm{color:#0c1519;box-shadow:0 0 0 3px #0c1519,0 0 0 5px #fff}
 }
 
-.plab,.tda,.lr{display:none}
+.plab,.tda,.lr,.mctx,.mctx2,.vnA{display:none}
 .mval b small{font-size:1em;font-weight:inherit;margin:0}
 
 /* ---- Téléphone et tablette : le spot dans l'en-tête, un seul bloc « Prévision | Bouée » (proposition D1b) ---- */
-@media (max-width:900px){
+@media all{
   /* en-tête : repère, nom du spot qu'on touche pour changer, étoile à droite */
   .hero .bar .brand .bword{display:none}
   .hero .bar{display:grid;grid-template-columns:42px minmax(0,1fr) 42px;align-items:center;padding:7px 8px 7px 12px;gap:6px}
@@ -999,39 +999,38 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
 
 /* ---- Ordinateur : « Maintenant » en haut, le jour à choisir, puis la frise (proposition 1) ---- */
 @media (min-width:901px){
-  .heroBody{padding:clamp(44px,8vh,96px) 20px 36px}
+  .heroBody{padding:clamp(330px,42vh,350px) 20px 22px;gap:0}
   .hero2{display:block}
-  .hcol{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);column-gap:56px;align-items:start}
-  .hl,.hr{display:flex;flex-direction:column;min-width:0}
-  .hr{margin-top:84px}
-  .spotbtn{font-size:34px}
-  .live{display:inline-flex;align-items:center;gap:9px;align-self:flex-start;margin-top:14px;padding:7px 15px;border-radius:20px;border:1px solid rgba(255,255,255,.2);background:rgba(var(--ink-rgb),.55);color:#fff;font:800 12.5px Manrope,system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;cursor:default}
-  .live i{width:9px;height:9px;border-radius:50%;background:#8A949A;flex:none}
-  .live.on i{background:#7be0a8;box-shadow:0 0 0 4px rgba(123,224,168,.25)}
-  .live.back{cursor:pointer}
-  .live.back::after{content:"↺ maintenant";font-size:12px;letter-spacing:.04em;text-transform:none;opacity:.85}
-  .hnum{align-items:flex-end;justify-content:flex-start;gap:36px;margin-top:10px}
-  .verdict .vq{font-size:132px}
-  .verdict .vq .u{font-size:44px}
-  .verdict .vn{font-size:22px;margin-top:8px}
-  .hmini{margin-bottom:10px}
-  .bdg{width:64px}
-  .bdg .bc{width:60px;height:60px}
-  .mcard{height:84px;margin-top:0;padding:0 34px;border-radius:42px}
-  .mcard .mname{font-size:19px}
-  .mcard .msub{font-size:14px}
-  .mcard .mval b{font-size:38px}
-  .rows{margin-top:16px}
-  .rows .rw,.rows #rwSea{height:136px;padding:22px 24px 0}
-  .tiderow{height:136px}
+  .hero .bar{grid-template-columns:1fr auto 1fr}
+  .hero .bar .brand .bword{display:block}
+  .hero .bar .brand{justify-self:start}
+  .hero .bar #favBtn{justify-self:end}
+  .hero .bar #openPicker{width:auto;justify-content:center}
+  .hcol{grid-template-columns:minmax(0,1.35fr) minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,.72fr);align-items:stretch}
+  .hl,.hr,.rows{display:contents}
+  .live{margin:0 0 14px;font-size:12.5px}
+  .hnum{padding:22px 28px 20px;border-radius:30px 0 0 30px}
+  .verdict .vq{font-size:clamp(46px,4.8vw,62px)}
+  .verdict .vn{display:flex;align-items:center;gap:8px;font-size:15px;margin-top:12px}
+  .vnA{display:block;flex:none}
+  .mcard{padding:22px 26px 20px;border-radius:0;border-left:1px solid rgba(233,207,159,.4)}
+  .mcard::after{top:24px;right:20px}
+  .mcard .mval b{font-size:clamp(46px,4.8vw,62px)}
+  .mcard .mname{font-size:15px;margin-top:10px}
+  .mcard .mctx,.mcard .mctx2{display:block;order:4;font-size:13px;color:#F0E2C4;margin-top:4px;font-weight:500}
+  .mcard .mctx2{order:5;opacity:.75;font-size:12.5px}
+  .rows .rw,.rows #rwSea{height:auto;padding:22px 24px 20px;background:rgba(var(--ink-rgb),.62);border:1px solid rgba(255,255,255,.14);border-left:1px solid rgba(255,255,255,.12);border-radius:0;justify-content:flex-start}
+  #rwWind{grid-column:3}#rwTide{grid-column:4}
+  #rwSea{grid-column:5;border-radius:0 30px 30px 0!important}
+  .tiderow{height:auto;padding-top:22px}
   .rows .rk{font-size:12px}
   .rows .rvn{font-size:32px;margin-top:10px}
   .rows .rvn small{font-size:15px}
   .rows #wdL,.rows #seaL{font-size:16px}
-  .rows #tdV{font-size:28px;margin-top:10px}
+  .rows #tdV{font-size:26px;margin-top:10px}
   .rows #tdS{font-size:14px}
   .rows .rvd{font-size:14px}
-  .whd{margin:30px 0 14px}
+  .whd{margin:22px 0 10px}
   .wlist{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;overflow:visible;padding:0;margin:0;max-width:none;justify-self:stretch}
   .wrow,.wrow[aria-pressed="true"]{flex:none;width:auto;border-radius:20px;background:rgba(var(--ink-rgb),.5);border:1px solid rgba(255,255,255,.12);padding:12px 0;gap:6px;margin:0;box-shadow:none;transition:border-color .15s,background-color .15s}
   .wrow:hover{border-color:rgba(255,255,255,.4)}
@@ -1367,7 +1366,7 @@ function meterHtml(){
   const who=cur.key==='gascogne'?'la bouée Météo-France 62001, au large (une mesure toutes les heures)':cur.kind==='coast'?`la bouée côtière ${cur.name} (Cerema, réseau CANDHIS), mesure toutes les 30 minutes`:`la bouée ${cur.name} (${cur.key==='donostia'?'Euskalmet':'Puertos del Estado'}, via Copernicus Marine), mesure toutes les heures`;
   const near=cur.kind==='coast'?'au bord':'au large';
   const rest=parts.slice(1).join(' · ');
-  return `<a class="mcard${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de ${who}. Mesure en temps réel, non validée. Ce n’est pas la taille des vagues sur ton spot : voir La bouée."><span class="mtxt"><span class="mpill"><i></i>${ageH<2?'En direct':'Dernière mesure'}</span><span class="mname">Bouée ${cur.name}</span><span class="msub">Mesure réelle <span class="mnear">${near} </span>· ${when}</span></span><span class="mval"><b>${fmt(L.hs)}<small> m</small></b><span>${rest}</span></span></a>`;
+  return `<a class="mcard${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de ${who}. Mesure en temps réel, non validée. Ce n’est pas la taille des vagues sur ton spot : voir La bouée."><span class="mtxt"><span class="mpill"><i></i>${ageH<2?'En direct':'Dernière mesure'}</span><span class="mname">Bouée ${cur.name}</span><span class="msub">Mesure réelle <span class="mnear">${near} </span>· ${when}</span><span class="mctx">${cur.sub}</span><span class="mctx2">${cur.kind==='large'?'Mesure au large, avant d’arriver à la côte':'Mesure près du bord'}</span></span><span class="mval"><b>${fmt(L.hs)}<small> m</small></b><span>${rest}</span></span></a>`;
 }
 function heroSunTimes(){
   const el=document.getElementById('sunT'); if(!el) return; const day=state.data[state.spot].days[state.day];
@@ -2274,7 +2273,7 @@ function updateLive(){
       tx.textContent=isNow?`Maintenant · ${hhmm(state.hour)}`:`Prévision ${dl} · ${hhmm(state.hour)}`;
       ch.classList.toggle('on',isNow); ch.title=isNow?'Conditions prévues pour l’heure actuelle':'Revenir à maintenant'; ch.dataset.now=isNow?'1':''; } }
   $('heroSize').innerHTML=`${fmt(h.H)}<span class="u"> m</span>`;
-  $('heroNum').textContent=`${Math.round(h.T||0)} s${h.D!=null?' · '+sector(h.D):''}`;
+  $('heroNum').innerHTML=(h.D!=null?`<svg class="vnA" width="18" height="18" viewBox="-10 -10 20 20" style="transform:rotate(${(h.D+180)%360}deg)" aria-hidden="true"><path d="M0 -9 L6 7 L0 4 L-6 7Z" fill="#fff"/></svg>`:'')+`Houle ${Math.round(h.T||0)} s${h.D!=null?' · '+sector(h.D):''}`;
   { const hs=$('heroSec'); if(hs) hs.textContent=periodTxt(h.T||0)[0].toUpperCase()+periodTxt(h.T||0).slice(1);
     const sv=$('stkV'); if(sv) sv.textContent=`${fmt(h.H)} m · ${Math.round(h.T||0)} s`; }
   const cfd=state.coef&&state.coef[day.date]; $('tdC').textContent=cfd&&cfd.length?`coef ${cfd.join(' · ')}`:'';
