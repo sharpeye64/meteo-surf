@@ -120,7 +120,7 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   (comparaison des modèles, volume selon le poids, lecture de la journée) pour ceux qui veulent aller plus loin.
 
 ## Pistes suivantes
-- Archiver aussi les mesures CANDHIS (fiabilité près de la côte) : aujourd'hui seule la bouée Gascogne alimente `history/`.
+- Archive côtière en cours (voir plus haut) : à exploiter avec `tools/coast_report.py` après ≥ 30 jours, pour une vraie « taille au bord ».
 - Clé d'API CANDHIS officielle (demande par mail à l'équipe Candhis) pour remplacer la lecture des pages publiques.
 - Coefficient de marée, calibration `tide_offset_min` par spot, réglages de spots validés sur le terrain.
 - Statistiques publiques de fiabilité (écart prévision / bouée).
