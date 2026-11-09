@@ -800,7 +800,8 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
 @media (max-width:520px){
   body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
   /* A : tableau en couleurs */
-  .hgrid:not(.cmp){grid-template-rows:42px 96px 82px 30px 96px 104px!important;grid-template-columns:var(--lab) repeat(var(--n,16),58px)}
+  .hgrid:not(.cmp) .hacc,.hgrid:not(.cmp) .hlab[style*="grid-row:4"]{display:none}
+  .hgrid:not(.cmp){grid-template-rows:42px 96px 82px 0 96px 104px!important;grid-template-columns:var(--lab) repeat(var(--n,16),58px)}
   .hgrid:not(.cmp) .hwave b{font-size:22px}
   .hgrid:not(.cmp) .hper{font-size:17px;gap:3px}
   .hgrid:not(.cmp) .hper small{font-size:12px}
@@ -1635,7 +1636,7 @@ function hourlyHtml(day,hrs){
     const sun = h.hour===Math.floor(rise)?'<span class="hsun">Lever</span>':h.hour===Math.floor(set)?'<span class="hsun">Coucher</span>':'';
     const cls=`hc${nt}${wn}`;
     c+=`<button class="${cls} hhr" data-h="${h.hour}" style="grid-column:${col};grid-row:1" aria-label="${h.hour}h : ${h.H!=null?fmt(h.H)+' m, '+Math.round(h.T)+' s, vent '+Math.round(h.v)+' km/h '+windWord[h.wind]:'pas de données'}">${h.hour}h${sun}</button>`;
-    c+=`<div class="${cls} hwave" data-h="${h.hour}" style="grid-column:${col};grid-row:2;--c:${sizeCol(h.H)}"><b>${h.H!=null?fmt(h.H):'—'}</b><div class="bb"><span class="p" style="height:${h.H!=null?Math.max(6,h.H/mx*58).toFixed(0):0}px;background:${periodColor(h.T)}"></span>${h.sec?`<span class="s2" title="${h.sec.kind} ${fmt(h.sec.H)} m, ${Math.round(h.sec.T)} s" style="height:${Math.max(4,h.sec.H/mx*58).toFixed(0)}px"></span>`:''}</div>${h.sec?`<span class="hs2" title="${h.sec.kind} ${fmt(h.sec.H)} m, ${Math.round(h.sec.T)} s">+${fmt(h.sec.H)}</span>`:''}</div>`;
+    c+=`<div class="${cls} hwave" data-h="${h.hour}" style="grid-column:${col};grid-row:2;--c:${sizeCol(h.H)}"><b>${h.H!=null?fmt(h.H):'—'}</b><div class="bb"><span class="p" style="height:${h.H!=null?Math.max(6,h.H/mx*58).toFixed(0):0}px;background:${periodColor(h.T)}"></span>${h.sec?`<span class="s2" title="${h.sec.kind} ${fmt(h.sec.H)} m, ${Math.round(h.sec.T)} s" style="height:${Math.max(4,h.sec.H/mx*58).toFixed(0)}px"></span>`:''}</div></div>`;
     c+=`<div class="${cls} hper" data-h="${h.hour}" style="grid-column:${col};grid-row:3;--c:${periodCell(h.T)};--pa:${h.T?(clamp((h.T-6)/10,0,1)*.3).toFixed(2):0}">${h.T?Math.round(h.T)+' s':'—'}${h.D!=null?`<small><svg width="9" height="9" viewBox="-5 -5 10 10" style="transform:rotate(${(h.D+180)%360}deg)" aria-hidden="true"><path d="M0 -5 L3.5 4 L0 2 L-3.5 4Z" fill="currentColor"/></svg>${sector(h.D)}</small>`:''}</div>`;
     c+=`<div class="${cls} hacc" data-h="${h.hour}" style="grid-column:${col};grid-row:4">${dotsHtml((agreeOf(h)||{}).lvl||0)}</div>`;
     c+=`<div class="${cls} hwind" data-h="${h.hour}" style="grid-column:${col};grid-row:5;--c:${windCell(h.v,h.wind)};--wa:${h.v!=null?(clamp(h.v/45,0,1)*.16).toFixed(2):0}"><svg width="20" height="20" viewBox="-10 -10 20 20" style="transform:rotate(${(h.wd||0)+180}deg)" aria-hidden="true"><path d="M0 -9 L6 5 L0 2 L-6 5 Z" fill="${windCol(h.wind)}"/></svg><span>${h.v!=null?Math.round(h.v):'—'}</span></div>`;
@@ -2080,7 +2081,7 @@ function render(){
           <div class="rows in d3" aria-live="polite">
             <div class="rw" id="rwWind"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span class="rl"><span class="rk">Vent${tip('vent','Offshore, onshore, rafales : explications')}</span><span class="rs" id="wdR"></span></span><span class="rv"><span class="rvn" id="wdN"></span><b id="wdL">—</b><span class="rvd" id="wdD"></span><span class="rsub" id="wdS"></span></span></div>
             <div class="rw tiderow" id="rwTide"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M4 6l3-3 3 3"/><path d="M17 21v-8M14 18l3 3 3-3"/><path d="M2 14c1.7-1.5 3.3-1.5 5 0M10 10c1.7-1.5 3.3-1.5 5 0" opacity=".5"/></svg><span class="rl"><span class="rk">Marée${tip('maree','Comment lire la marée ?')}</span><span class="rs rsub" id="tdS"></span></span><span class="rv"><b id="tdV">—</b><span class="rsub" id="tdC"></span></span><div class="tcv" id="tTide"><div class="viz" id="tdG" aria-hidden="true"></div></div></div>
-            <div class="rw" id="rwSea"><span class="rl"><span class="rk">Eau</span></span><span class="rv"><span class="rvn" id="seaN">—</span><b id="seaL">mer</b></span></div>
+            <div class="rw" id="rwSea"><span class="rl"><span class="rk">Eau</span></span><span class="rv"><span class="rvn" id="seaN">—</span></span></div>
           </div>
         </div>
         <h2 class="whd">Cette semaine</h2>
