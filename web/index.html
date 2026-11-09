@@ -827,6 +827,64 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
   .tbar button{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:64px;min-height:48px;justify-content:center;font-size:11.5px;font-weight:700;color:var(--muted);-webkit-tap-highlight-color:transparent}
   .tbar button:active{color:var(--sand)}
 }
+
+/* ---- Téléphone : haut de page « coup d'œil » (proposition A) ---- */
+.rvn,.whd,#rwSea{display:none}
+@media (max-width:520px){
+  .heroBody{padding:20px 22px 28px;gap:0}
+  .hero2{gap:0}.hcol{gap:0}
+  .spotbtn{font-size:22px;padding:0}
+  .spotk{font-size:14px}
+  /* le chiffre géant, la boussole discrète à droite */
+  .hnum{align-items:flex-end;margin-top:18px}
+  .verdict{display:block}
+  .verdict .vq{display:block;font-size:84px;line-height:.95;letter-spacing:-.03em}
+  .verdict .vn{display:block;margin-top:10px;font-size:17px;font-weight:600;color:#CFE2E5}
+  .hmini{margin-bottom:6px}
+  .hmini svg{width:76px;height:76px}
+  .hmini .hct{display:none}
+  /* la bouée en pastille sable */
+  .mcard{height:72px;margin-top:24px;padding:0 24px;border-radius:36px}
+  .mcard .mpill{display:none}
+  .mcard .mname{font-size:16px;display:flex;align-items:center;gap:10px}
+  .mcard .mname::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor;box-shadow:0 0 0 4px rgba(29,26,18,.18);flex:none}
+  .mcard.old .mname::before{box-shadow:0 0 0 4px rgba(255,255,255,.12)}
+  .mcard .msub{font-size:12.5px;padding-left:19px}
+  .mcard .mval b{font-size:28px}
+  .mcard .mval span{display:none}
+  /* vent, marée, eau : une seule bande à trois colonnes */
+  .rows{display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:14px;border-radius:26px;background:rgba(var(--ink-rgb),.6)}
+  .rows .rw,.rows #rwSea{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:0;height:112px;padding:18px 14px 0;border-top:0;border-left:1px solid rgba(255,255,255,.1);box-sizing:border-box;min-width:0}
+  .rows .rw:first-child{border-left:0}
+  .rows .rw .ic,.rows .tip,.rows .tcv,#wdR,#wdS,#tdC,.rows #tdG{display:none}
+  .rows .rw .rl,.rows .rw .rv{display:block;text-align:left;align-items:flex-start;width:100%}
+  .rows .rk{font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+  .rows .rvn{display:block;margin-top:8px;font-size:26px;font-weight:800;line-height:1.05;color:#fff}
+  .rows .rvn small{font-size:12px;font-weight:600;color:#CFE2E5}
+  .rows #wdL,.rows #seaL{display:block;margin-top:4px;font-size:14px;font-weight:700}
+  .rows #seaL{color:#CFE2E5}
+  .rows #tdV{display:block;margin-top:8px;font-size:22px;line-height:1.05}
+  .rows #tdS{display:block;margin-top:6px;font-size:12.5px;color:#CFE2E5;line-height:1.35}
+  .rows #tdS span{display:block;white-space:nowrap}
+  .rows #tdS span:nth-child(n+3){display:none}
+  .rows #tdS span+span::before{content:none}
+  .tiderow{height:112px;padding-top:18px}
+  #rwTide .rl{display:contents}
+  #rwTide .rk{order:1}#rwTide .rv{order:2}#rwTide .rs{order:3}
+  .verdict .vq .u{font-size:30px;letter-spacing:0;margin-left:2px}
+  .mcard .mnear{display:none}
+  /* la semaine en pastilles colorées */
+  .whd{display:block;margin:30px 0 14px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:Manrope,system-ui,sans-serif}
+  .wlist{display:flex;flex-direction:row;gap:10px;overflow-x:auto;background:none;border:0;border-radius:0;padding:4px 22px 6px;margin:0 -22px;max-width:none;scrollbar-width:none}
+  .wlist::-webkit-scrollbar{display:none}
+  .wrow,.wrow[aria-pressed="true"]{flex:0 0 54px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0;margin:0;border:0;background:none;box-shadow:none}
+  .wrow .wd{font-size:12px;font-weight:700;color:var(--muted)}
+  .wrow[aria-pressed="true"] .wd{color:#fff}
+  .wrow .wrb,.wrow .wc{display:none}
+  .wrow .wm{display:flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:27px;background:var(--c);color:#0c1519;font-size:16px;font-weight:800;text-align:center}
+  .wrow .wm small{display:none}
+  .wrow[aria-pressed="true"] .wm{color:#0c1519;box-shadow:0 0 0 3px #0c1519,0 0 0 5px #fff}
+}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1097,7 +1155,7 @@ function weekPill(x,j,k,wmax){
 function weekRow(x,j,k,wmax){
   const m=dayMed(x), cf=state.coef&&state.coef[x.date], c=cf&&cf.length?Math.max(...cf):null, ag=dayAgree(x);
   const lab=j===0?'Aujourd’hui':j===1?'Demain':x.label;
-  return `<button class="wrow" data-d="${j}" aria-pressed="${j===k}" aria-label="${lab} : ${m!=null?fmt(m)+' m':'pas de données'}${c?', coefficient '+c:''}${ag?', accord des modèles '+AGREE_TXT[ag]:''}"><span class="wd">${j===0?'Auj.':x.label.split(' ')[0]}</span><span class="wrb"><i style="width:${m!=null?Math.max(3,Math.round(m/wmax*100)):0}%"></i></span><span class="wm">${m!=null?fmt(m)+' m':'—'}</span><span class="wc">${c?'coef '+c:''}</span></button>`;
+  return `<button class="wrow" data-d="${j}" aria-pressed="${j===k}" aria-label="${lab} : ${m!=null?fmt(m)+' m':'pas de données'}${c?', coefficient '+c:''}${ag?', accord des modèles '+AGREE_TXT[ag]:''}"><span class="wd">${j===0?'Auj.':x.label.split(' ')[0]}</span><span class="wrb"><i style="width:${m!=null?Math.max(3,Math.round(m/wmax*100)):0}%"></i></span><span class="wm" style="--c:${sizeCol(m)}">${m!=null?fmt(m)+'<small> m</small>':'—'}</span><span class="wc">${c?'coef '+c:''}</span></button>`;
 }
 const TRUST_TXT = ['','Prévision incertaine','Prévision assez fiable','Prévision fiable'];
 function trustHtml(ag){
@@ -1155,7 +1213,7 @@ function meterHtml(){
   const who=cur.key==='gascogne'?'la bouée Météo-France 62001, au large (une mesure toutes les heures)':cur.kind==='coast'?`la bouée côtière ${cur.name} (Cerema, réseau CANDHIS), mesure toutes les 30 minutes`:`la bouée ${cur.name} (${cur.key==='donostia'?'Euskalmet':'Puertos del Estado'}, via Copernicus Marine), mesure toutes les heures`;
   const near=cur.kind==='coast'?'au bord':'au large';
   const rest=parts.slice(1).join(' · ');
-  return `<a class="mcard${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de ${who}. Mesure en temps réel, non validée. Ce n’est pas la taille des vagues sur ton spot : voir La bouée."><span class="mtxt"><span class="mpill"><i></i>${ageH<2?'En direct':'Dernière mesure'}</span><span class="mname">Bouée ${cur.name}</span><span class="msub">Mesure réelle ${near} · ${when}</span></span><span class="mval"><b>${fmt(L.hs)} m</b><span>${rest}</span></span></a>`;
+  return `<a class="mcard${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de ${who}. Mesure en temps réel, non validée. Ce n’est pas la taille des vagues sur ton spot : voir La bouée."><span class="mtxt"><span class="mpill"><i></i>${ageH<2?'En direct':'Dernière mesure'}</span><span class="mname">Bouée ${cur.name}</span><span class="msub">Mesure réelle <span class="mnear">${near} </span>· ${when}</span></span><span class="mval"><b>${fmt(L.hs)} m</b><span>${rest}</span></span></a>`;
 }
 function heroSunTimes(){
   const el=document.getElementById('sunT'); if(!el) return; const day=state.data[state.spot].days[state.day];
@@ -1979,10 +2037,12 @@ function render(){
           <div id="tSize" hidden><span id="szV"></span><div id="szP"></div><div id="szS"></div><span id="szR"></span><span id="heroSec"></span></div>
           ${meterHtml()}
           <div class="rows in d3" aria-live="polite">
-            <div class="rw" id="rwWind"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span class="rl"><span class="rk">Vent${tip('vent','Offshore, onshore, rafales : explications')}</span><span class="rs" id="wdR"></span></span><span class="rv"><b id="wdL">—</b><span class="rsub" id="wdS"></span></span></div>
+            <div class="rw" id="rwWind"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span class="rl"><span class="rk">Vent${tip('vent','Offshore, onshore, rafales : explications')}</span><span class="rs" id="wdR"></span></span><span class="rv"><span class="rvn" id="wdN"></span><b id="wdL">—</b><span class="rsub" id="wdS"></span></span></div>
             <div class="rw tiderow" id="rwTide"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M4 6l3-3 3 3"/><path d="M17 21v-8M14 18l3 3 3-3"/><path d="M2 14c1.7-1.5 3.3-1.5 5 0M10 10c1.7-1.5 3.3-1.5 5 0" opacity=".5"/></svg><span class="rl"><span class="rk">Marée${tip('maree','Comment lire la marée ?')}</span><span class="rs rsub" id="tdS"></span></span><span class="rv"><b id="tdV">—</b><span class="rsub" id="tdC"></span></span><div class="tcv" id="tTide"><div class="viz" id="tdG" aria-hidden="true"></div></div></div>
+            <div class="rw" id="rwSea"><span class="rl"><span class="rk">Eau</span></span><span class="rv"><span class="rvn" id="seaN">—</span><b id="seaL">mer</b></span></div>
           </div>
         </div>
+        <h2 class="whd">Cette semaine</h2>
         <nav class="wlist in d3" aria-label="La semaine à ${s.name}">${d.days.map((x,j)=>x.tag==='—'?'':weekRow(x,j,k,wmax)).join('')}</nav>
       </div>
     </div>
@@ -2042,7 +2102,7 @@ function updateLive(){
   if(!h||h.H==null){ $('szV').textContent='—'; return; }
   const ag=agreeOf(h);
   $('nowLbl').textContent=hhmm(state.hour);
-  $('heroSize').textContent=`${fmt(h.H)} m`;
+  $('heroSize').innerHTML=`${fmt(h.H)}<span class="u"> m</span>`;
   $('heroNum').textContent=`${Math.round(h.T||0)} s${h.D!=null?' · '+sector(h.D):''}`;
   { const hs=$('heroSec'); if(hs) hs.textContent=periodTxt(h.T||0)[0].toUpperCase()+periodTxt(h.T||0).slice(1);
     const sv=$('stkV'); if(sv) sv.textContent=`${fmt(h.H)} m · ${Math.round(h.T||0)} s${h.D!=null?' · '+sector(h.D):''}`; }
@@ -2056,6 +2116,8 @@ function updateLive(){
   { const rr=$('rwSecRow'); if(rr){ rr.classList.toggle('none',!h.sec); if(h.sec){ $('rwSecK').textContent=h.sec.kind.charAt(0).toUpperCase()+h.sec.kind.slice(1); $('rwSecV').textContent=`${fmt(h.sec.H)} m · ${Math.round(h.sec.T)} s${h.sec.D!=null?' · '+sector(h.sec.D):''}`; } else { $('rwSecK').textContent='Houle secondaire'; $('rwSecV').textContent='Aucune'; } } }
   $('szS').textContent=h.sec?`+ ${h.sec.kind} ${fmt(h.sec.H)} m · ${Math.round(h.sec.T)} s${h.sec.D!=null?' · '+sector(h.sec.D):''}`:'';
   $('wdL').textContent=windWord[h.wind]; $('wdL').style.color=windCol(h.wind);
+  { const wn=$('wdN'); if(wn) wn.innerHTML=h.v!=null?`${Math.round(h.v)}<small> km/h</small>`:'—';
+    const sn=$('seaN'); if(sn) sn.innerHTML=h.sst!=null?`${Math.round(h.sst)}<small> °C</small>`:'—'; }
   $('wdS').innerHTML=[`${Math.round(h.v)} km/h`,`de ${sector(h.wd)}`,h.gust?`rafales ${Math.round(h.gust)}`:null].filter(Boolean).map(x=>`<span>${x}</span>`).join('');
   const exact=exactTides(state.spot,day.date); const ex=exact||extremes(day.list).map(x=>({t:x.t,type:x.t==='Pleine mer'?'PM':'BM',hm:x.h+'h',hd:x.h}));
   $('tdV').textContent=tidePhase(h);
