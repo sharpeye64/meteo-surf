@@ -56,31 +56,36 @@ def find_gascogne(node):
 
 def main():
     h = headers()
-    for base in BASES:
-        r = requests.get(f"{base}/liste-bouees", headers=h, timeout=40)
-        show(f"{base}/liste-bouees", r, 1200)
-        if r.status_code != 200:
-            continue
-        try:
-            data = r.json()
-        except ValueError:
-            return
-        g = find_gascogne(data)
-        print("\n>>> Entrée trouvée pour la Gascogne :", json.dumps(g, ensure_ascii=False) if g else "AUCUNE (voir la liste ci-dessus)")
-        if not g:
-            return
-        ident = next((str(v) for k, v in g.items() if ("id" in k.lower() or "numer" in k.lower()) and v), None) or "6200001"
-        when = (datetime.now(timezone.utc) - timedelta(hours=3)).replace(minute=0, second=0, microsecond=0)
-        for idk in ("id", "id_station", "id_bouee", "station"):
-            for dk, fmt in (("date", "%Y-%m-%dT%H:%M:%SZ"), ("date_heure", "%Y-%m-%dT%H:%M:%SZ"), ("date", "%Y%m%d%H")):
-                r2 = requests.get(f"{base}/bouees", headers=h, params={idk: ident, dk: when.strftime(fmt)}, timeout=40)
-                if r2.status_code == 200:
-                    show(f"{base}/bouees?{idk}=<id>&{dk}=<date> (fonctionne)", r2, 3500)
-                    return
-                if (idk, dk, fmt) == ("id", "date", "%Y-%m-%dT%H:%M:%SZ"):
-                    show(f"{base}/bouees?{idk}=<id>&{dk}=<date> (premier essai)", r2, 800)
-        print("\nAucune combinaison de paramètres n'a fonctionné : colle la sortie ci-dessus, je regarderai la documentation.")
+    base = BASES[0]
+    data = None
+    for fmt in ("json", "geojson", "csv"):
+        r = requests.get(f"{base}/liste-bouees", headers=h, params={"format": fmt}, timeout=40)
+        show(f"{base}/liste-bouees?format={fmt}", r, 1500)
+        if r.status_code == 200:
+            try:
+                data = r.json()
+            except ValueError:
+                pass
+            break
+    if data is None:
         return
+    g = find_gascogne(data)
+    print("\n>>> Entrée trouvée pour la Gascogne :", json.dumps(g, ensure_ascii=False) if g else "AUCUNE (voir la liste ci-dessus)")
+    ident = None
+    if g:
+        ident = next((str(v) for k, v in g.items() if ("id" in k.lower() or "numer" in k.lower()) and v), None)
+    ident = ident or "6200001"
+    when = (datetime.now(timezone.utc) - timedelta(hours=3)).replace(minute=0, second=0, microsecond=0)
+    for idk in ("id_bouee", "id", "id_station", "station"):
+        for date in (when.strftime("%Y-%m-%dT%H:%M:%SZ"), None):
+            params = {idk: ident, "format": "json"}
+            if date:
+                params["date"] = date
+            r2 = requests.get(f"{base}/bouees", headers=h, params=params, timeout=40)
+            if r2.status_code == 200:
+                show(f"{base}/bouees avec {sorted(params)} (fonctionne)", r2, 3500)
+                return
+            show(f"{base}/bouees avec {sorted(params)}", r2, 500)
 
 
 if __name__ == "__main__":
