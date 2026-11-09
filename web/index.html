@@ -732,6 +732,15 @@ footer .flinks{margin:22px 0 0}footer .flinks a{color:var(--muted)}
   .mrow{height:76px}.mrow .rv b{font-size:19px}.mrow .rs{white-space:normal;line-height:1.25}.mrow .rk{font-size:11.5px}
   .tiderow{height:98px}.tiderow .tcv{height:44px}
 }
+
+footer .allspots{margin-top:26px;border-top:1px solid var(--edge)}
+footer .allspots summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;padding:16px 2px;font-family:Unbounded,system-ui,sans-serif;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#CFE2E5}
+footer .allspots summary::-webkit-details-marker{display:none}
+footer .allspots summary::after{content:"";width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .2s;margin-right:4px}
+footer .allspots[open] summary::after{transform:rotate(-135deg)}
+footer .allspots summary:focus-visible{outline:2px solid #fff;outline-offset:2px;border-radius:6px}
+footer .allspots .cnt{color:var(--muted);letter-spacing:0;margin-left:6px}
+footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1853,7 +1862,6 @@ function render(){
             ${meterHtml()}
             <div class="rw" id="rwWind"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span class="rl"><span class="rk">Vent${tip('vent','Offshore, onshore, rafales : explications')}</span><span class="rs" id="wdR"></span></span><span class="rv"><b id="wdL">—</b><span class="rsub" id="wdS"></span></span></div>
             <div class="rw tiderow" id="rwTide"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M4 6l3-3 3 3"/><path d="M17 21v-8M14 18l3 3 3-3"/><path d="M2 14c1.7-1.5 3.3-1.5 5 0M10 10c1.7-1.5 3.3-1.5 5 0" opacity=".5"/></svg><span class="rl"><span class="rk">Marée${tip('maree','Comment lire la marée ?')}</span><span class="rs rsub" id="tdS"></span></span><span class="rv"><b id="tdV">—</b><span class="rsub" id="tdC"></span></span><div class="tcv" id="tTide"><div class="viz" id="tdG" aria-hidden="true"></div></div></div>
-            <div class="rw" id="rwSecRow"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 3-3 5-2"/><path d="M2 18c2.5-4 5-4 7.5 0s5 4 7.5 0 3-2.5 5-1.6" opacity=".5"/></svg><span class="rl"><span class="rk" id="rwSecK">Houle secondaire</span></span><span class="rv"><b id="rwSecV"></b></span></div>
           </div>
         </div>
         <nav class="wlist in d3" aria-label="La semaine à ${s.name}">${d.days.map((x,j)=>x.tag==='—'?'':weekRow(x,j,k,wmax)).join('')}</nav>
@@ -1894,7 +1902,8 @@ function render(){
         <div><h3>Mesures et marées</h3><p>Bouée Gascogne : Météo-France (Licence Ouverte). Bouées côtières : Cerema, réseau CANDHIS (Licence Ouverte). Bouées du large Bilbao-Vizcaya et Donostia : Puertos del Estado et Euskalmet, via Copernicus Marine. Mesures temps réel non validées. Marées : calcul harmonique indépendant à partir des mesures REFMAR (© Shom, Licence Ouverte). Coefficient : calcul indépendant à partir de Brest. Marée indicative.</p></div>
         <div><h3>À savoir</h3><p><a href="spots/">Tous les spots, de Lacanau à Hendaye</a></p><p>Prototype non commercial. Les prévisions sont des estimations : elles ne remplacent ni un coup d’œil sur place ni les consignes de sécurité locales.</p></div>
       </div>
-      <nav class="spotlinks" aria-label="Tous les spots">${(()=>{ const g={}; state.data.forEach(x=>{ (g[x.spot.region]=g[x.spot.region]||[]).push(x.spot); }); return Object.entries(g).map(([r,l])=>`<div><h3>${r}</h3>${l.map(sp=>`<a href="spots/${slugOf(sp.name)}/">${sp.name}</a>`).join('')}</div>`).join(''); })()}</nav>
+      <details class="allspots"><summary>Tous les spots <span class="cnt">(${state.data.length})</span></summary>
+      <nav class="spotlinks" aria-label="Tous les spots">${(()=>{ const g={}; state.data.forEach(x=>{ (g[x.spot.region]=g[x.spot.region]||[]).push(x.spot); }); return Object.entries(g).map(([r,l])=>`<div><h3>${r}</h3>${l.map(sp=>`<a href="spots/${slugOf(sp.name)}/">${sp.name}</a>`).join('')}</div>`).join(''); })()}</nav></details>
       <p class="flinks"><a href="comment-ca-marche/">Comment ça marche</a> · <a href="mentions-legales/">Mentions légales</a> · <a href="confidentialite/">Confidentialité</a></p>
       ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}.</p>`:''}
     </footer>
