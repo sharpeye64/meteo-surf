@@ -138,8 +138,15 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   fiable / assez fiable / incertaine » du haut de page RETIRÉE ; le nom du spot est grand (Unbounded, clamp 24-40 px), la taille des vagues plus
   petite (clamp 30-50 px). Code de la planche (`GEAR`, `gearBoardHtml`) et `trustHtml` encore présent mais plus affiché.
 
+- 09/11/2026 : API Météo-France « Données d'observation » v2 VÉRIFIÉE avec la clé de l'utilisateur (en-tête `apikey`, base
+  `https://public-api.meteofrance.fr/public/DPObs/v2`, paramètre `format=json` obligatoire). `/liste-bouees` = 24 h d'historique horaire de TOUTES
+  les bouées ; `/bouees` = dernière mesure de toutes (les filtres `id_bouee` et `date` sont ignorés). Gascogne : `geo_id_wmo` « 6200001 » ; champs
+  `haut_vag` (m), `per_moy_vag` (s, période MOYENNE, pas la période pic), `dir_vag` (°), `tmer` (K), `validity_time` (UTC), mesure ≈ 1 h de retard.
+  `pipeline/meteofrance.py` + `buoy.load()` : Météo-France prioritaire, complété par Copernicus pour l'historique ; sans clé, retour à Copernicus.
+  La clé = secret GitHub `METEOFRANCE_APIKEY` (jamais dans le dépôt). La période affichée reste celle du modèle (`period_used`).
+
 ## Pistes suivantes
-- Gascogne plus fraîche : l'app La Bouée affiche une mesure vieille de 1 h 10 « via Météo-France ». Piste : API officielle Météo-France « Données
+- (FAIT, voir plus haut) Gascogne plus fraîche : l'app La Bouée affiche une mesure vieille de 1 h 10 « via Météo-France ». Piste : API officielle Météo-France « Données
   d'observation », endpoints `/liste-bouees` et `/bouees` (mesures horaires à H + 10 min, id à 7 chiffres, compte gratuit sur
   portail-api.meteofrance.fr, jeton OAuth2). Non testable sans clé : `tools/meteofrance_probe.py` (à lancer par l'utilisateur) imprime la structure
   des réponses ; ensuite écrire `pipeline/meteofrance.py`, avec la clé dans un secret GitHub (`METEOFRANCE_TOKEN`), jamais dans le dépôt.

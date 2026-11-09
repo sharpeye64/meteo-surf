@@ -149,6 +149,15 @@ print("modèles :", [m["key"] for m in data["meta"]["wave_models"]], "· correct
 print("bouée :", data["gascogne"]["latest"], "· trajet vers", s["name"], ":", data["gascogne"]["eta_hours"][s["name"]], "h")
 print("mix 1res heures :", s["marine"]["wave_height"][:4], "· erreurs :", data["meta"]["errors"])
 assert data["gascogne"]["source"] == "Copernicus Marine", data["meta"]["errors"]
+# --- Météo-France (réponse réelle du 09/11/2026, raccourcie) : la Gascogne est triée, convertie, sans les autres bouées
+from pipeline import meteofrance
+_mf = meteofrance.parse_rows([
+    {"geo_id_wmo": "4100230", "validity_time": "2026-11-09T13:00:00Z", "haut_vag": 1.1, "per_moy_vag": 6.0, "dir_vag": 30.0, "tmer": 302.55},
+    {"geo_id_wmo": "6200001", "validity_time": "2026-11-09T13:00:00Z", "haut_vag": 1.6, "per_moy_vag": 6.0, "dir_vag": 206.0, "tmer": 290.75},
+    {"geo_id_wmo": "6200001", "validity_time": "2026-11-09T12:00:00Z", "haut_vag": 1.5, "per_moy_vag": 6.0, "dir_vag": 213.0, "tmer": 290.85},
+    {"geo_id_wmo": "6200001", "validity_time": "2026-11-09T12:00:00Z", "haut_vag": 1.5, "per_moy_vag": 6.0, "dir_vag": 213.0, "tmer": 290.85},
+    {"geo_id_wmo": "6101035", "validity_time": "2026-11-09T13:00:00Z", "haut_vag": None, "tmer": 294.15}])
+assert list(_mf["WVHT"]) == [1.5, 1.6] and abs(_mf["WTMP"].iloc[-1] - 17.6) < 0.01 and _mf["MWD"].iloc[-1] == 206.0, _mf
 w0 = data["spots"][0]["wind"]["wind_speed_10m"]
 assert all(v is not None for v in w0), "le vent doit être complété quand AROME s'arrête"
 assert data["spots"][0]["marine"]["secondary_swell_wave_height"][0] == 0.4

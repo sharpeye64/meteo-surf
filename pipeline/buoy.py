@@ -94,7 +94,20 @@ def load_copernicus(days=3):
 
 
 def load():
-    """Copernicus d'abord, NOAA NDBC en secours. Renvoie (mesures, nom de la source)."""
+    """Météo-France (frais, si clé) complétée par Copernicus (plus long, plus tardif), NDBC en secours.
+    Renvoie (mesures, nom de la source)."""
+    from . import meteofrance
+    try:
+        df_mf = meteofrance.load()
+    except Exception:
+        df_mf = None
+    if df_mf is not None:
+        try:
+            df_c = load_copernicus()
+            df = pd.concat([df_c, df_mf]).drop_duplicates("time", keep="last")  # Météo-France prioritaire
+            return clean(df), "Météo-France"
+        except Exception:
+            return clean(df_mf), "Météo-France"
     try:
         return load_copernicus(), "Copernicus Marine"
     except Exception as e_cop:
