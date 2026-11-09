@@ -741,6 +741,27 @@ footer .allspots[open] summary::after{transform:rotate(-135deg)}
 footer .allspots summary:focus-visible{outline:2px solid #fff;outline-offset:2px;border-radius:6px}
 footer .allspots .cnt{color:var(--muted);letter-spacing:0;margin-left:6px}
 footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
+
+/* ---- Bouée en carte dorée, boussole en anneau ---- */
+.mcard{display:flex;align-items:center;justify-content:space-between;gap:14px;height:96px;margin-top:6px;padding:0 18px;border-radius:20px;border:1px solid rgba(var(--gold-rgb),.8);background:linear-gradient(rgba(var(--gold-rgb),.15),rgba(var(--gold-rgb),.15)),rgba(var(--ink-rgb),.72);color:#fff;text-decoration:none;transition:background-color .18s,border-color .18s}
+.mcard:hover{border-color:#fff}
+.mtxt{display:flex;flex-direction:column;gap:3px;min-width:0}
+.mpill{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;background:rgba(var(--gold-rgb),.22);color:var(--gold);font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.mpill i{width:7px;height:7px;border-radius:50%;background:var(--gold)}
+.mname{font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msub{font-size:12.5px;color:#EADFC9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mval{display:flex;flex-direction:column;align-items:flex-end;text-align:right;flex:none}
+.mval b{font-size:32px;line-height:1;font-weight:800;letter-spacing:-.01em}
+.mval span{font-size:13px;color:#EADFC9;margin-top:4px}
+.mcard.old{border-color:rgba(255,255,255,.25);background:rgba(var(--ink-rgb),.7)}
+.mcard.old .mpill{background:rgba(255,255,255,.12);color:var(--muted)}.mcard.old .mpill i{background:#8A949A}
+.hmini svg{width:136px;height:136px}
+.hmini .hct i.sea{width:12px;height:4px;border-radius:2px;background:#2a8fb0}
+.hmini .hct{font-size:12px;align-self:center;justify-content:center}
+@media (max-width:520px){
+  .mcard{height:86px;padding:0 14px}.mval b{font-size:27px}.mname{font-size:14px}
+  .hmini svg{width:104px;height:104px}.hmini .hct{font-size:11px}
+}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1068,7 +1089,8 @@ function meterHtml(){
   const per=L.tp||cur.Tm, parts=[`${fmt(L.hs)} m`]; if(per) parts.push(`${L.tp?'':'≈ '}${Math.round(per)} s`); if(L.dir!=null) parts.push(sector(L.dir));
   const who=cur.key==='gascogne'?'la bouée Météo-France 62001, au large (une mesure toutes les heures)':cur.kind==='coast'?`la bouée côtière ${cur.name} (Cerema, réseau CANDHIS), mesure toutes les 30 minutes`:`la bouée ${cur.name} (${cur.key==='donostia'?'Euskalmet':'Puertos del Estado'}, via Copernicus Marine), mesure toutes les heures`;
   const near=cur.kind==='coast'?'au bord':'au large';
-  return `<a class="rw mrow${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de ${who}. Mesure en temps réel, non validée. Ce n’est pas la taille des vagues sur ton spot : voir La bouée."><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 4v5M12 15v5M4 12h5M15 12h5"/></svg><span class="rl"><span class="rk"><i class="mdot"></i>Mesure réelle ${near}</span><span class="rs">Bouée ${cur.name} · ${when}</span></span><span class="rv"><b>${parts.join(' · ')}</b></span></a>`;
+  const rest=parts.slice(1).join(' · ');
+  return `<a class="mcard${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de ${who}. Mesure en temps réel, non validée. Ce n’est pas la taille des vagues sur ton spot : voir La bouée."><span class="mtxt"><span class="mpill"><i></i>${ageH<2?'En direct':'Dernière mesure'}</span><span class="mname">Bouée ${cur.name}</span><span class="msub">Mesure réelle ${near} · ${when}</span></span><span class="mval"><b>${fmt(L.hs)} m</b><span>${rest}</span></span></a>`;
 }
 function heroSunTimes(){
   const el=document.getElementById('sunT'); if(!el) return; const day=state.data[state.spot].days[state.day];
@@ -1746,19 +1768,22 @@ function compassHtml(s){
   </aside>`;
 }
 function compassMini(s){
-  const P=(a,r)=>[Math.sin(rad(a))*r,-Math.cos(rad(a))*r], R=72, ori=s.ori??270;
+  const P=(a,r)=>[Math.sin(rad(a))*r,-Math.cos(rad(a))*r], R=84, ori=s.ori??270;
   const [h0x,h0y]=P(ori-90,R), [h1x,h1y]=P(ori+90,R);
-  let ticks=''; for(let a=0;a<360;a+=45){ const [x0,y0]=P(a,R+3),[x1,y1]=P(a,R+(a%90?8:13)); ticks+=`<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}" stroke="rgba(255,255,255,${a===0?.95:a%90?.3:.6})" stroke-width="${a===0?3:a%90?1.5:2.5}"/>`; }
+  let ticks=''; for(let a=0;a<360;a+=15){ const l=a%90===0?9:a%45===0?6:3.5; const [x0,y0]=P(a,R),[x1,y1]=P(a,R-l); ticks+=`<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}" stroke="${a===0?'#E4C79B':'#fff'}" stroke-opacity="${a===0?1:a%90===0?.6:.3}" stroke-width="${a%90===0?2:1.2}"/>`; }
+  const lbl=[['N',0],['E',90],['S',180],['O',270]].map(([n,a])=>{ const [x,y]=P(a,99); return `<text x="${x.toFixed(1)}" y="${(y+4.5).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="800" fill="${n==='N'?'#E4C79B':'rgba(255,255,255,.75)'}" font-family="Manrope, system-ui, sans-serif">${n}</text>`; }).join('');
   return `<aside class="hmini" aria-label="Direction de la houle et du vent">
-    <svg viewBox="-100 -100 200 200" role="img" aria-label="Boussole : la plage fait face au ${sector(ori)}">
-      <circle r="${R}" fill="#E2C38F" fill-opacity=".2"/>
-      <path d="M${h0x.toFixed(1)} ${h0y.toFixed(1)} A${R} ${R} 0 0 1 ${h1x.toFixed(1)} ${h1y.toFixed(1)} Z" fill="#1B6E86" fill-opacity=".7"/>
-      <line x1="${h0x.toFixed(1)}" y1="${h0y.toFixed(1)}" x2="${h1x.toFixed(1)}" y2="${h1y.toFixed(1)}" stroke="#F2D3A2" stroke-width="2.4" stroke-dasharray="5 5"/>
-      <circle r="${R}" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2"/>${ticks}
-      <g id="hcWind"><line x1="0" y1="-76" x2="0" y2="-24" stroke="var(--aqua)" stroke-width="7" stroke-linecap="round"/><path d="M0 -14 L-14 -34 L14 -34 Z" fill="var(--aqua)"/></g>
-      <g id="hcSwell"><line x1="0" y1="-82" x2="0" y2="-36" stroke="#fff" stroke-width="10" stroke-linecap="round"/><path d="M0 -24 L-19 -50 L19 -50 Z" fill="#fff"/></g>
+    <svg viewBox="-112 -112 224 224" role="img" aria-label="Boussole : la mer est à l’${sector(ori)}">
+      <path d="M${h0x.toFixed(1)} ${h0y.toFixed(1)} A${R} ${R} 0 0 1 ${h1x.toFixed(1)} ${h1y.toFixed(1)} Z" fill="#2a8fb0" fill-opacity=".16"/>
+      <circle r="${R}" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.5"/><circle r="62" fill="none" stroke="#fff" stroke-opacity=".08"/>
+      <path d="M${h0x.toFixed(1)} ${h0y.toFixed(1)} A${R} ${R} 0 0 1 ${h1x.toFixed(1)} ${h1y.toFixed(1)}" fill="none" stroke="#2a8fb0" stroke-opacity=".9" stroke-width="4" stroke-linecap="round"/>
+      ${ticks}${lbl}
+      <g id="hcWind"><line x1="0" y1="-84" x2="0" y2="-38" stroke="var(--aqua)" stroke-opacity=".75" stroke-width="2"/><circle cy="-84" r="11" fill="#0f222c" stroke="var(--aqua)" stroke-width="3"/><path d="M0 -89 L0 -79 M-4 -83 L0 -79 L4 -83" fill="none" stroke="var(--aqua)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+      <g id="hcSwell"><line x1="0" y1="-84" x2="0" y2="-38" stroke="#fff" stroke-opacity=".7" stroke-width="2.4"/><circle cy="-84" r="12" fill="#fff"/><path d="M-6 -84 q3 -5 6 0 t6 0" fill="none" stroke="#0f222c" stroke-width="2.2" stroke-linecap="round"/></g>
+      <text id="hcT" y="6" text-anchor="middle" font-size="28" font-weight="800" fill="#fff" font-family="Manrope, system-ui, sans-serif">—</text>
+      <text y="25" text-anchor="middle" font-size="12" font-weight="700" fill="rgba(255,255,255,.65)" font-family="Manrope, system-ui, sans-serif">période</text>
     </svg>
-    <div class="hct"><div><i style="background:#fff"></i><span id="hcS">—</span></div><div><i id="hcWi" style="background:var(--aqua)"></i><span id="hcW">—</span></div></div>
+    <div class="hct"><div><i style="background:#fff"></i><span id="hcS">—</span></div><div><i id="hcWi" style="background:var(--aqua)"></i><span id="hcW">—</span></div><div><i class="sea"></i><span>Mer à l’${sector(ori)}</span></div></div>
   </aside>`;
 }
 function roseSvg(s){
@@ -1858,8 +1883,8 @@ function render(){
           <p class="spotk in" style="margin:0"><button class="spotbtn" id="spotBtn" aria-label="Changer de spot (actuel : ${s.name})">${s.name}<span class="reg"> · ${s.region}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></p>
           <div class="hnum in d1"><h1 class="verdict"><span class="sr">${s.name} : </span><span class="vq" id="heroSize">—</span><span class="vn" id="heroNum"></span></h1>${compassMini(s)}</div>
           <div id="tSize" hidden><span id="szV"></span><div id="szP"></div><div id="szS"></div><span id="szR"></span><span id="heroSec"></span></div>
+          ${meterHtml()}
           <div class="rows in d3" aria-live="polite">
-            ${meterHtml()}
             <div class="rw" id="rwWind"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span class="rl"><span class="rk">Vent${tip('vent','Offshore, onshore, rafales : explications')}</span><span class="rs" id="wdR"></span></span><span class="rv"><b id="wdL">—</b><span class="rsub" id="wdS"></span></span></div>
             <div class="rw tiderow" id="rwTide"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M4 6l3-3 3 3"/><path d="M17 21v-8M14 18l3 3 3-3"/><path d="M2 14c1.7-1.5 3.3-1.5 5 0M10 10c1.7-1.5 3.3-1.5 5 0" opacity=".5"/></svg><span class="rl"><span class="rk">Marée${tip('maree','Comment lire la marée ?')}</span><span class="rs rsub" id="tdS"></span></span><span class="rv"><b id="tdV">—</b><span class="rsub" id="tdC"></span></span><div class="tcv" id="tTide"><div class="viz" id="tdG" aria-hidden="true"></div></div></div>
           </div>
@@ -1940,7 +1965,7 @@ function updateLive(){
   $('tdV').textContent=tidePhase(h);
   $('tdS').innerHTML=ex.length?ex.filter(x=>x.hd>=5&&x.hd<=22).map(x=>`<span>${x.type} ${exact?'':'≈ '}${x.hm}</span>`).join(''):'<span>Horaires indisponibles</span>';
   $('tdG').innerHTML=tideCard(day.list,state.hour);
-  const hs_=$('hcSwell'), hw_=$('hcWind');
+  const hs_=$('hcSwell'), hw_=$('hcWind'); { const ht=$('hcT'); if(ht) ht.textContent=`${Math.round(h.T||0)} s`; }
   if(hs_&&h.D!=null){ hs_.setAttribute('transform',`rotate(${h.D.toFixed(0)})`); $('hcS').textContent=`Houle ${sector(h.D)} · ${Math.round(h.T||0)} s`; }
   if(hw_&&h.wd!=null){ hw_.setAttribute('transform',`rotate(${h.wd.toFixed(0)})`); const wc=windCol(h.wind); hw_.querySelector('line').setAttribute('stroke',wc); hw_.querySelector('path').setAttribute('fill',wc); $('hcWi').style.background=wc; $('hcW').textContent=`Vent ${sector(h.wd)} · ${Math.round(h.v)} km/h`; }
   const rs=$('roseSwell'), rw=$('roseWind'); if(rs&&h.D!=null) rs.setAttribute('transform',`rotate(${h.D.toFixed(0)})`); if(rw&&h.wd!=null) rw.setAttribute('transform',`rotate(${h.wd.toFixed(0)})`);
