@@ -674,7 +674,7 @@ footer .flinks{margin:22px 0 0}footer .flinks a{color:var(--muted)}
 .rows{margin-top:6px}
 .rw{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);color:#fff;text-decoration:none}
 .rw:first-child{border-top:0}
-.rw[hidden]{display:none}
+.rw{height:60px;box-sizing:border-box}.rw.none .rv b{color:var(--muted);font-weight:700}.rl,.rv{overflow:hidden}.rs,.rsub,.rk,.rv b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .rw .ic{color:var(--muted)}
 .rl{display:flex;flex-direction:column;gap:1px;min-width:0}
 .rk{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#CFE2E5}
@@ -704,9 +704,9 @@ footer .flinks{margin:22px 0 0}footer .flinks a{color:var(--muted)}
 @media (max-width:900px){.hero2{grid-template-columns:minmax(0,1fr);align-items:start}.wlist{max-width:none;justify-self:stretch}}
 @media (max-width:520px){
   .hero2{gap:12px}
-  .rw{padding:10px 14px;gap:10px}.rw .rs{font-size:12px}.rv b,.rows #wdL,.rows #tdV{font-size:15px}
+  .rw{padding:8px 14px;gap:10px;height:54px}.rw .rs{font-size:12px}.rv b,.rows #wdL,.rows #tdV{font-size:15px}
   .rows .tcv{height:46px}#wdR{display:none}
-  .wlist{padding:2px 14px}.wrow{grid-template-columns:34px minmax(0,1fr) 48px;padding:8px 0}.wc{display:none}
+  .wlist{padding:2px 14px}.wrow{grid-template-columns:34px minmax(0,1fr) 48px;padding:6px 0}.wc{display:none}
   .wrow[aria-pressed="true"]{margin-left:-14px;padding-left:14px;margin-right:-14px;padding-right:14px}
 }
 </style>
@@ -1815,7 +1815,7 @@ function render(){
             <div class="rw" id="rwWind"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/></svg><span class="rl"><span class="rk">Vent${tip('vent','Offshore, onshore, rafales : explications')}</span><span class="rs" id="wdR"></span></span><span class="rv"><b id="wdL">—</b><span class="rsub" id="wdS"></span></span></div>
             <div class="rw" id="rwTide"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M4 6l3-3 3 3"/><path d="M17 21v-8M14 18l3 3 3-3"/><path d="M2 14c1.7-1.5 3.3-1.5 5 0M10 10c1.7-1.5 3.3-1.5 5 0" opacity=".5"/></svg><span class="rl"><span class="rk">Marée${tip('maree','Comment lire la marée ?')}</span><span class="rs rsub" id="tdS"></span></span><span class="rv"><b id="tdV">—</b><span class="rsub" id="tdC"></span></span></div>
             <div class="tcv" id="tTide"><div class="viz" id="tdG" aria-hidden="true"></div></div>
-            <div class="rw" id="rwSecRow" hidden><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 3-3 5-2"/><path d="M2 18c2.5-4 5-4 7.5 0s5 4 7.5 0 3-2.5 5-1.6" opacity=".5"/></svg><span class="rl"><span class="rk" id="rwSecK">Houle secondaire</span><span class="rs">En plus de la houle principale</span></span><span class="rv"><b id="rwSecV"></b></span></div>
+            <div class="rw" id="rwSecRow"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 3-3 5-2"/><path d="M2 18c2.5-4 5-4 7.5 0s5 4 7.5 0 3-2.5 5-1.6" opacity=".5"/></svg><span class="rl"><span class="rk" id="rwSecK">Houle secondaire</span><span class="rs">En plus de la houle principale</span></span><span class="rv"><b id="rwSecV"></b></span></div>
             ${meterHtml()}
           </div>
         </div>
@@ -1886,7 +1886,7 @@ function updateLive(){
     $('szR').textContent=hv.length?`Journée : ${fmt(Math.min(...hv))} à ${fmt(Math.max(...hv))} m`:'';
     $('wdR').textContent=vv.length?`Journée : ${Math.round(Math.min(...vv))} à ${Math.round(Math.max(...vv))} km/h`:''; }
   $('szP').innerHTML=[h.D!=null?sector(h.D):null,`${Math.round(h.T||0)} s`,periodTxt(h.T||0)].filter(Boolean).map(x=>`<span>${x}</span>`).join('');
-  { const rr=$('rwSecRow'); if(rr){ if(h.sec){ rr.hidden=false; $('rwSecK').textContent=h.sec.kind.charAt(0).toUpperCase()+h.sec.kind.slice(1); $('rwSecV').textContent=`${fmt(h.sec.H)} m · ${Math.round(h.sec.T)} s${h.sec.D!=null?' · '+sector(h.sec.D):''}`; } else rr.hidden=true; } }
+  { const rr=$('rwSecRow'); if(rr){ rr.classList.toggle('none',!h.sec); if(h.sec){ $('rwSecK').textContent=h.sec.kind.charAt(0).toUpperCase()+h.sec.kind.slice(1); $('rwSecV').textContent=`${fmt(h.sec.H)} m · ${Math.round(h.sec.T)} s${h.sec.D!=null?' · '+sector(h.sec.D):''}`; } else { $('rwSecK').textContent='Houle secondaire'; $('rwSecV').textContent='Aucune'; } } }
   $('szS').textContent=h.sec?`+ ${h.sec.kind} ${fmt(h.sec.H)} m · ${Math.round(h.sec.T)} s${h.sec.D!=null?' · '+sector(h.sec.D):''}`:'';
   $('wdL').textContent=windWord[h.wind]; $('wdL').style.color=windCol(h.wind);
   $('wdS').innerHTML=[`${Math.round(h.v)} km/h`,`de ${sector(h.wd)}`,h.gust?`rafales ${Math.round(h.gust)}`:null].filter(Boolean).map(x=>`<span>${x}</span>`).join('');
