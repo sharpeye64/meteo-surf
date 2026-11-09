@@ -149,3 +149,17 @@ def model_at_point(lat, lon, past_days=2):
                      "forecast_days": 2, "cell_selection": "sea",
                      "hourly": "wave_height,wave_period,swell_wave_period,wave_direction"})[0]
     return d["hourly"]
+
+
+def coast_forecast(lat, lon, from_local, hours=97):
+    """Hauteur, période et direction de la houle prévues (modèle par défaut) au point d'une bouée côtière, pour l'archive."""
+    h = get(MARINE, {"latitude": lat, "longitude": lon, "timezone": config.TIMEZONE, "forecast_days": 6, "cell_selection": "sea",
+                     "hourly": "wave_height,wave_period,wave_direction"})[0]["hourly"]
+    i = next((j for j, t in enumerate(h["time"]) if t >= from_local), None)
+    if i is None:
+        return None
+    sl = lambda k: [None if x is None else round(float(x), 2) for x in h.get(k, [])[i:i + hours]]
+    hs = valid_hs(h["wave_height"][i:i + hours])
+    if not any(x is not None for x in hs):
+        return None
+    return {"t0": h["time"][i], "hs": hs, "tp": sl("wave_period"), "dir": sl("wave_direction")}

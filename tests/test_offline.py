@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from pipeline import build, buoy, config, marc, openmeteo
+from pipeline import build, buoy, config, history, marc, openmeteo
 
 start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 TIMES = [(start + timedelta(hours=h)).strftime("%Y-%m-%dT%H:%M") for h in range(24 * config.FORECAST_DAYS)]
@@ -172,6 +172,11 @@ print("vent complété sur", len(w0), "heures · houle secondaire présente")
 assert data["gascogne"]["latest"]["hs"] > 0 and len(data["gascogne"]["obs"]) >= 24
 
 assert len(data["coast"]) == 3, data["meta"]["errors"]
+_cs = history.coast_summary(_hist)
+assert set(_cs["buoys"]) == {"03302", "06402", "06403"} and all(v["n"] >= 40 for v in _cs["buoys"].values()) and _cs["runs"] == 1, _cs
+_co = json.loads(sorted((__import__("pathlib").Path(_hist) / "coast_obs").glob("*.json"))[0].read_text())["06402"]
+assert any(r["dir"] is not None and r["hmax"] is not None for r in _co.values()), "direction et Hmax horaires attendus"
+print("archive côtière OK :", _cs)
 c0 = data["coast"][1]
 assert c0["name"] == "Anglet" and c0["latest"]["hs"] > 0 and c0["latest"]["tp"] == 9.5 and len(c0["obs"]) >= 40
 print("CANDHIS OK :", [b["name"] for b in data["coast"]], c0["latest"])

@@ -134,3 +134,48 @@ def reliability(now_local, d=None):
     if out["leads"]:
         out["status"] = "ok"
     return out
+
+
+# ---------- Bouées côtières (CANDHIS) : de quoi apprendre, plus tard, « houle + période → taille près du bord » ----------
+#   history/coast_runs/AAAA-MM.jsonl : une ligne par passage {"issued", "t0", "b": {id: {"hs": [...], "tp": [...], "dir": [...]}}}
+#   history/coast_obs/AAAA-MM.json   : {id: {"AAAA-MM-JJTHH:00": {"hs", "hmax", "tp", "dir", "sst"}}}
+def record_coast(issued, forecasts, buoys, d=None):
+    """forecasts : {id: {"t0", "hs", "tp", "dir"}} ; buoys : liste de bouées telles que renvoyées par candhis.fetch_all()."""
+    d = Path(d) if d else history_dir()
+    (d / "coast_runs").mkdir(parents=True, exist_ok=True)
+    (d / "coast_obs").mkdir(parents=True, exist_ok=True)
+    if forecasts:
+        t0 = sorted(v["t0"] for v in forecasts.values())[0]
+        line = {"issued": issued, "t0": t0, "b": {k: {"hs": v["hs"], "tp": v.get("tp"), "dir": v.get("dir")} for k, v in forecasts.items()}}
+        with open(d / "coast_runs" / f"{issued[:7]}.jsonl", "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(line, separators=(",", ":")) + "\n")
+    by_month = {}
+    for b in buoys or []:
+        for o in b.get("obs") or []:
+            if o.get("hs") is None:
+                continue
+            row = {k: o.get(k) for k in ("hs", "hmax", "tp", "dir", "sst")}
+            by_month.setdefault(o["t"][:7], {}).setdefault(b["id"], {})[o["t"][:13] + ":00"] = row
+    for month, per_buoy in by_month.items():
+        f = d / "coast_obs" / f"{month}.json"
+        cur = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
+        for bid, rows in per_buoy.items():
+            cur.setdefault(bid, {}).update(rows)
+            cur[bid] = dict(sorted(cur[bid].items()))
+        f.write_text(json.dumps(cur, separators=(",", ":")), encoding="utf-8")
+
+
+def coast_summary(d=None):
+    """Combien de mesures côtières sont archivées (par bouée), et depuis quand."""
+    d = Path(d) if d else history_dir()
+    out = {}
+    for f in sorted((d / "coast_obs").glob("*.json")) if (d / "coast_obs").exists() else []:
+        for bid, rows in json.loads(f.read_text(encoding="utf-8")).items():
+            o = out.setdefault(bid, {"n": 0, "first": None, "last": None})
+            o["n"] += len(rows)
+            ks = sorted(rows)
+            if ks:
+                o["first"] = min(filter(None, [o["first"], ks[0]]))
+                o["last"] = max(filter(None, [o["last"], ks[-1]]))
+    runs = sum(len(f.read_text(encoding="utf-8").splitlines()) for f in (d / "coast_runs").glob("*.jsonl")) if (d / "coast_runs").exists() else 0
+    return {"buoys": out, "runs": runs}

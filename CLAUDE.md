@@ -107,6 +107,10 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   la taille au spot. Les info-bulles « taille » et « période » et la phrase sous la bouée (`whyText`) le disent. `h.Heff` (hauteur ×
   exposition × facteur de période) ne sert qu'au choix de la planche et n'est pas affiché. Piste : apprendre, avec l'archive des
   bouées côtières CANDHIS, une vraie relation hauteur/période → taille au bord par spot, avant d'afficher une « taille au bord ».
+- Archive côtière (démarrée le 09/11/2026) : à chaque passage, `history.record_coast` garde les mesures horaires des 3 bouées CANDHIS
+  (hauteur, Hmax, période, direction, eau : `history/coast_obs/`) et la prévision au même point (hauteur, période, direction sur 96 h :
+  `history/coast_runs/`). Bilan : `python -m tools.coast_report history/`. Objectif : après ≥ 30 jours, apprendre par bouée la relation
+  prévu (hauteur, période) → mesuré près du bord, puis seulement afficher une « taille au bord ». Ne rien afficher avant validation.
 - Haut de page : une seule pastille de fiabilité en mots simples (« Prévision fiable / assez fiable / incertaine », info-bulle), plus
   de « Accord des modèles », de « 4 modèles de houle… », de « Fiabilité mesurée… » ni de bouton « Lancer la journée ».
 

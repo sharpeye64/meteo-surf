@@ -4,6 +4,7 @@ Lecture des pages publiques « données temps réel » (une requête par bouée 
 L'API officielle existe mais demande une clé sur demande ; si on l'obtient, seule `fetch_station` change.
 Heures publiées en TU : converties en heure de Paris. Données temps réel non validées.
 """
+import math
 import re
 
 import pandas as pd
@@ -37,6 +38,16 @@ def parse_html(html):
     return df.sort_values("time").reset_index(drop=True) if len(df) else df
 
 
+def circ_mean(vals):
+    """Moyenne d'angles en degrés (une direction de 359° et une de 1° donnent 0°, pas 180°)."""
+    v = [float(x) for x in vals if x is not None and not pd.isna(x)]
+    if not v:
+        return None
+    sx = sum(math.sin(math.radians(a)) for a in v)
+    sy = sum(math.cos(math.radians(a)) for a in v)
+    return math.degrees(math.atan2(sx, sy)) % 360
+
+
 def fetch_station(st):
     r = requests.get(URL.format(page=st["page"]), timeout=40, headers=UA)
     r.raise_for_status()
@@ -49,12 +60,14 @@ def fetch_station(st):
     nz = lambda v, d=1: None if v is None or pd.isna(v) else round(float(v), d)
     d = df.copy()
     d["hour"] = d["time"].dt.floor("h")
-    hourly = d.groupby("hour").agg(hs=("hs", "mean"), tp=("tp", "mean")).reset_index()
+    hourly = d.groupby("hour").agg(hs=("hs", "mean"), tp=("tp", "mean"), hmax=("hmax", "max"), sst=("sst", "mean")).reset_index()
+    hourly["dir"] = [circ_mean(d.loc[d["hour"] == h, "dir"]) for h in hourly["hour"]]
     return {
         "id": st["id"], "name": st["name"], "lat": st["lat"], "lon": st["lon"],
         "latest": {"time": fmt(last["time"]), "hs": nz(last["hs"], 2), "hmax": nz(last["hmax"]), "tp": nz(last["tp"]),
                    "dir": None if pd.isna(last["dir"]) else round(float(last["dir"])), "sst": nz(last["sst"])},
-        "obs": [{"t": fmt(r.hour), "hs": round(float(r.hs), 2), "tp": nz(r.tp)} for r in hourly.itertuples()],
+        "obs": [{"t": fmt(r.hour), "hs": round(float(r.hs), 2), "tp": nz(r.tp), "hmax": nz(r.hmax), "dir": None if r.dir is None else round(r.dir), "sst": nz(r.sst)}
+                for r in hourly.itertuples()],
     }
 
 

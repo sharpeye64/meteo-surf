@@ -71,6 +71,17 @@ def main():
             fc = openmeteo.models_at_point(gascogne["lat"], gascogne["lon"], now_local.strftime("%Y-%m-%dT%H:00"))
             history.record(now_local.strftime("%Y-%m-%dT%H:00"), fc, gascogne.get("obs"))
             log(f"  archive : {len(fc)} modèles, {len(gascogne.get('obs') or [])} mesures de la bouée")
+        if history.archiving_enabled() and coast:
+            cfc = {}
+            for b in coast:
+                try:
+                    c = openmeteo.coast_forecast(b["lat"], b["lon"], now_local.strftime("%Y-%m-%dT%H:00"))
+                    if c:
+                        cfc[b["id"]] = c
+                except Exception as e:
+                    meta["errors"][f"archive_cote_{b['id']}"] = str(e)[:200]
+            history.record_coast(now_local.strftime("%Y-%m-%dT%H:00"), cfc, coast)
+            log(f"  archive côtière : {len(cfc)} prévisions, {sum(len(b.get('obs') or []) for b in coast)} mesures de {len(coast)} bouées")
     except Exception as e:
         meta["errors"]["history"] = str(e)[:300]
         log(f"  archive indisponible : {e}")
