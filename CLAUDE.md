@@ -111,6 +111,11 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   cohérentes avec nos bouées côtières (≈ 0,8 m, 4 s, secteur S-SE le 09/11). Licence : données Copernicus Marine, mention « Puertos del Estado,
   Euskalmet, via Copernicus Marine ». FAIT le 09/11/2026 : `pipeline/ibi_buoys.py` les récupère (+ prévision des modèles au point, archive côtière) ; « La bouée » propose Gascogne, Bilbao-Vizcaya, Donostia (si < 80 km du spot) et la bouée CANDHIS la plus proche ; par défaut, la plus proche dont la mesure a moins de 6 h, sinon la plus fraîche (`pickBuoy`). Les bouées CANDHIS sont
   aussi dans ce produit (6200064 Cap Ferret, 6200066 Anglet, 6200079 Saint-Jean-de-Luz) avec le même retard court.
+- Mesure réelle affichée à côté de la prévision (demande de l'utilisateur, 09/11/2026) : une pastille `meterHtml()` juste sous le grand chiffre du
+  haut de page (« MESURE RÉELLE AU BORD · 0,6 m · 4 s · SSE · Bouée Cap Ferret · à l'instant », lien vers « La bouée »), sur ordinateur et
+  mobile, avec la bouée choisie par `pickBuoy` (la plus proche dont la mesure a moins de 6 h). L'utilisateur NE veut PAS la mesure sur la frise
+  horaire (essayé puis retiré). Priorité géographique : côte atlantique française (là où sont la majorité des surfeurs et des spots) ; pas
+  d'heure d'arrivée de la houle ; le but est que la donnée mesurée soit claire et fiable, à côté des prévisions.
 - ATTENTION (retour de l'utilisateur) : la hauteur affichée (modèles près du spot ou bouée au large) n'est PAS la taille des vagues
   au bord. À hauteur égale, une houle longue (14 s) arrive bien plus grosse et plus puissante sur la côte qu'une houle courte (7 s).
   Toujours montrer la période avec la hauteur, dire « au large » / « à la bouée », et ne jamais présenter la hauteur de la bouée comme
