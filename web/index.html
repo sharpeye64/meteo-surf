@@ -2508,10 +2508,11 @@ document.getElementById('pkTabs').addEventListener('click',e=>{ const b=e.target
 
 
 /* ---------- Accueil : la carte de la côte ---------- */
+const HOME_TITLE=document.title;
 const HOME={map:null,lib:null,reg:'Tous',q:'',pts:{},bms:{},ref:null,raf:0,on:false,ready:false,cv:null,cx:null,sea:null,sw:null,data:null,bu:null};
 function homeSeen(){ try{ return localStorage.getItem('homeSeen')==='1'; }catch(e){ return false; } }
 function homeMark(){ try{ localStorage.setItem('homeSeen','1'); }catch(e){} }
-function homeWanted(){ try{ if(new URLSearchParams(location.search).get('spot')) return false; }catch(e){} return !state.fav.length && !homeSeen(); }
+function homeWanted(){ try{ if(sessionStorage.getItem('homeOpen')==='1') return true; }catch(e){} try{ if(new URLSearchParams(location.search).get('spot')) return false; }catch(e){} return !state.fav.length && !homeSeen(); }
 const hmCol=(()=>{ const ST=[[0,'#9ed8f0'],[.6,'#43b8c9'],[1.2,'#6bc46d'],[1.8,'#e8d54a'],[2.4,'#f39a2b'],[3.2,'#e24a3b']]; return h=>{ for(let i=ST.length-1;i>=0;i--) if(h>=ST[i][0]) return ST[i][1]; return ST[0][1]; }; })();
 const hmF=h=>h.toFixed(1).replace('.',',');
 const hmDirs=['N','NE','E','SE','S','SO','O','NO'], hmDn=d=>hmDirs[Math.round(d/45)%8];
@@ -2536,6 +2537,8 @@ function homeBuoyPos(key){ if(key==='gascogne') return {lat:+state.gascogne.lat,
 async function homeOpen(){
   const el=document.getElementById('home'); if(!el||!state.data) return;
   HOME.on=true; document.body.classList.add('homeOn'); el.hidden=false;
+  homeClear(); HOME.q=''; HOME.reg='Tous'; el.classList.remove('hm-search');
+  try{ history.replaceState(null,'','./'); document.title=HOME_TITLE; sessionStorage.setItem('homeOpen','1'); }catch(e){}
   if(!HOME.ready){
     HOME.data=homeData(); HOME.bu=homeBuoys(); HOME.sea=null;
     el.innerHTML=`<div class="hm-map" id="hmMap"></div><canvas class="hm-sw" id="hmSw"></canvas><div class="hm-vig"></div>
@@ -2550,7 +2553,9 @@ async function homeOpen(){
   homeFrameStart();
 }
 function homeClose(){
-  homeMark(); HOME.on=false; cancelAnimationFrame(HOME.raf); HOME.raf=0; HOME.ref=null;
+  homeMark(); try{ sessionStorage.removeItem('homeOpen'); }catch(e){}
+  if(state.data){ try{ const sp=state.data[state.spot].spot; document.title=`Prévisions surf ${sp.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(sp.name)); }catch(e){} }
+  HOME.on=false; cancelAnimationFrame(HOME.raf); HOME.raf=0; HOME.ref=null;
   const el=document.getElementById('home'); if(el) el.hidden=true; document.body.classList.remove('homeOn');
   if(typeof oceanKick==='function') oceanKick();
 }
