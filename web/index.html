@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Houlalah — prévisions surf Gironde, Landes et Pays basque : houle, vent, marée</title>
+<title>Météo surf Landes, Gironde, Pays basque : houle et marée | Houlalah</title>
 <meta name="description" content="Prévisions surf en Gironde, dans les Landes et au Pays basque, de Lacanau à Hendaye : houle, vent, marée et coefficient pour 58 spots, croisés entre plusieurs modèles et vérifiés avec les bouées. Mises à jour toutes les 3 heures.">
 <link rel="canonical" href="https://houlalah.fr/">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Houlalah"><meta property="og:locale" content="fr_FR">
-<meta property="og:title" content="Houlalah — prévisions surf Gironde, Landes et Pays basque">
+<meta property="og:title" content="Météo surf Landes, Gironde, Pays basque | Houlalah">
 <meta property="og:description" content="Houle, vent, marée et coefficient pour 58 spots, croisés entre plusieurs modèles et vérifiés avec les bouées.">
 <meta property="og:url" content="https://houlalah.fr/"><meta property="og:image" content="https://houlalah.fr/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Houlalah : prévisions surf de Lacanau à Hendaye">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Houlalah — prévisions surf Gironde, Landes et Pays basque"><meta name="twitter:image" content="https://houlalah.fr/og.png">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Météo surf Landes, Gironde, Pays basque | Houlalah"><meta name="twitter:image" content="https://houlalah.fr/og.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Houlalah","description":"Prévisions surf en Gironde, dans les Landes et au Pays basque, de Lacanau à Hendaye : houle, vent, marée et coefficient.","inLanguage":"fr"}</script>
 <link rel="icon" href="brand/favicon.svg" type="image/svg+xml"><link rel="icon" href="brand/icon-192.png" sizes="192x192" type="image/png"><link rel="shortcut icon" href="favicon.ico">
 <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
@@ -2312,7 +2312,7 @@ function tideSvg(list, hour){
 let BOOT_HOME=false;
 function render(){
   const d=state.data[state.spot], s=d.spot, k=state.day, day=d.days[k];
-  if(!BOOT_HOME){ try{ document.title=`Prévisions surf ${s.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(s.name)); }catch(e){} }   // à l'ouverture de l'accueil, on garde le titre et l'adresse de l'accueil (Google lit cette page)
+  if(!BOOT_HOME){ try{ document.title=`Météo surf ${s.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(s.name)); }catch(e){} }   // à l'ouverture de l'accueil, on garde le titre et l'adresse de l'accueil (Google lit cette page)
   const isFav=state.fav.includes(s.name), sst=d.hours.find(h=>h.sst!=null)?.sst;
   const now=new Date();
   { const rs0=day.sun?hDec(day.sun.rise):8, ss0=day.sun?hDec(day.sun.set):18;
@@ -2566,7 +2566,7 @@ async function homeOpen(){
 }
 function homeClose(){
   homeMark(); try{ sessionStorage.removeItem('homeOpen'); }catch(e){}
-  if(state.data){ try{ const sp=state.data[state.spot].spot; document.title=`Prévisions surf ${sp.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(sp.name)); }catch(e){} }
+  if(state.data){ try{ const sp=state.data[state.spot].spot; document.title=`Météo surf ${sp.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(sp.name)); }catch(e){} }
   HOME.on=false; cancelAnimationFrame(HOME.raf); HOME.raf=0; HOME.ref=null;
   const el=document.getElementById('home'); if(el) el.hidden=true; document.body.classList.remove('homeOn');
   if(typeof oceanKick==='function') oceanKick();

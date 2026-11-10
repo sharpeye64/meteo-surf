@@ -170,7 +170,7 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
     t = rows[0] if rows else None
     esc = html.escape
     where = sp["commune"] if sp["commune"] != name else sp["region"]
-    title = f"Prévisions surf {name} : houle, vent et marée | {BRAND}"
+    title = f"Météo surf {name} : houle, vent et marée | {BRAND}"
     if t:
         desc = (f"Houle de {fr(t['hs'])} m à {name} ({where}) aujourd'hui, période {fr(t['tp'], 0)} s, vent {fr(t['wind'], 0)} km/h"
                 f"{' (' + sector(t['wdir']) + ')' if t['wdir'] is not None else ''}. Prévisions 7 jours, marées et coefficients, mises à jour toutes les 3 heures.")
