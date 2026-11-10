@@ -217,7 +217,7 @@ print("CANDHIS OK :", [b["name"] for b in data["coast"]], c0["latest"])
 import re as _re
 sm = (config.ROOT / "web" / "sitemap.xml").read_text(encoding="utf-8")
 _nb = len(data["coast"]) + len(data["offshore"])   # pages des bouées + leur page liste
-assert sm.count("<url>") == len(data["spots"]) + 5 + _nb + 1, sm.count("<url>")
+assert sm.count("<url>") == len(data["spots"]) + 5 + _nb + 1 + 3, sm.count("<url>")
 assert "Sitemap:" in (config.ROOT / "web" / "robots.txt").read_text()
 pg = (config.ROOT / "web" / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
 assert "<h1>Prévisions surf à Lacanau</h1>" in pg and "application/ld+json" in pg and 'rel="canonical"' in pg and "<table>" in pg
@@ -247,3 +247,10 @@ assert (_root / "og" / "bouees" / "cap-ferret.png").stat().st_size > 20000, "ima
 assert "/og/spots/lacanau.png" in (_root / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
 assert "/og/bouees/cap-ferret.png" in (_root / "bouees" / "cap-ferret" / "index.html").read_text(encoding="utf-8")
 print("images de partage OK :", len(list((_root / "og" / "spots").glob("*.png"))), "spots,", len(list((_root / "og" / "bouees").glob("*.png"))), "bouées")
+
+# Pages par zone
+for _z in ("gironde", "landes", "pays-basque"):
+    _h = (_root / f"meteo-surf-{_z}" / "index.html").read_text(encoding="utf-8")
+    assert "<h1>Météo surf" in _h and "Les conditions du jour" in _h and "La semaine" in _h and "/spots/" in _h, _z
+assert "Météo surf Landes : 25 spots" in (_root / "meteo-surf-landes" / "index.html").read_text(encoding="utf-8")
+print("pages par zone OK")

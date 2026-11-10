@@ -198,6 +198,9 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
                              f'à {round(km)} km, mesure actuelle {fr(b["latest"]["hs"])} m.</p>')
     except Exception:
         buoy_line = ""
+    from . import zones as _z
+    zn = next((z for z in _z.ZONES if z["key"] == sp["region"]), None)
+    zone_link = f'<p class="muted" style="margin-top:18px"><a href="../../{zn["slug"]}/">Météo surf {esc(zn["name"])} : tous les spots {zn["in"]}</a></p>' if zn else ""
     body = f"""<h1>Prévisions surf à {esc(name)}</h1>
 <p class="lead">{lead}</p>
 <p><a class="cta" href="{app}">Voir les prévisions heure par heure</a></p>
@@ -205,7 +208,8 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
 {buoy_line}<h2>La semaine à {esc(name)}</h2>
 <table><thead><tr><th>Jour</th><th>Houle</th><th>Période</th><th>Vent</th><th>Coef.</th></tr></thead><tbody>{trs}</tbody></table>
 {profile_html(sp, t)}
-<h2>Autres spots autour de {esc(name)}</h2><ul class="near">{nl}</ul>"""
+<h2>Autres spots autour de {esc(name)}</h2><ul class="near">{nl}</ul>
+{zone_link}"""
     ld = [
         {"@context": "https://schema.org", "@type": "WebPage", "name": title, "description": desc, "url": canonical, "inLanguage": "fr",
          "isPartOf": {"@type": "WebSite", "name": BRAND, "url": site + "/"},
@@ -222,13 +226,19 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
 
 def index_page(site, spots_meta, now):
     esc = html.escape
+    from . import zones as _z
+
+    def _zl(r):
+        z = next((z for z in _z.ZONES if z["key"] == r), None)
+        return f'<p class="muted"><a href="../{z["slug"]}/">Météo surf {esc(z["name"])}, vue d’ensemble</a></p>' if z else ""
+
     order, groups = [], {}
     for s in spots_meta:
         if s["region"] not in groups:
             order.append(s["region"])
         groups.setdefault(s["region"], []).append(s)
     sec = "".join(
-        f'<div class="grp"><h2>{esc(r)}</h2><ul class="near">' + "".join(
+        f'<div class="grp"><h2>{esc(r)}</h2>{_zl(r)}<ul class="near">' + "".join(
             f'<li><a href="{s["slug"]}/">{esc(s["name"])}<small>{esc(s["commune"])}</small></a></li>' for s in groups[r]) + "</ul></div>"
         for r in order)
     title = f"Spots de surf de Lacanau à Hendaye : prévisions houle, vent, marée | {BRAND}"
@@ -280,10 +290,16 @@ def generate(payload, out_dir=None, site=None):
     except Exception as e:  # jamais bloquant : les pages de spots restent publiées
         print(f"  pages bouées non générées : {e}")
         burls = []
+    try:
+        from . import zones
+        zurls = zones.generate(spots, payload, root, site, now)
+    except Exception as e:  # jamais bloquant
+        print(f"  pages par zone non générées : {e}")
+        zurls = []
     day = now.strftime("%Y-%m-%d")
-    urls = [(f"{site}/", "hourly", "1.0"), (f"{site}/spots/", "daily", "0.8")] + [(f"{site}/{c['slug']}/", "monthly", "0.5") for c in pages.ALL] + [(u, "hourly", "0.7") for u in burls] + [(f"{site}/spots/{s['slug']}/", "hourly", "0.7") for s in spots]
+    urls = [(f"{site}/", "hourly", "1.0"), (f"{site}/spots/", "daily", "0.8")] + [(u, "hourly", "0.9") for u in zurls] + [(f"{site}/{c['slug']}/", "monthly", "0.5") for c in pages.ALL] + [(u, "hourly", "0.7") for u in burls] + [(f"{site}/spots/{s['slug']}/", "hourly", "0.7") for s in spots]
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join(
         f"<url><loc>{u}</loc><lastmod>{day}</lastmod><changefreq>{f}</changefreq><priority>{p}</priority></url>\n" for u, f, p in urls) + "</urlset>\n"
     (root / "sitemap.xml").write_text(sm, encoding="utf-8")
     (root / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {site}/sitemap.xml\n", encoding="utf-8")
-    return len(spots) + 1 + len(pages.ALL) + len(burls)
+    return len(spots) + 1 + len(pages.ALL) + len(burls) + len(zurls)
