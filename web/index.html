@@ -1091,6 +1091,9 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
   .hdm{display:none}.hdd{display:inline}
 }
 
+/* lien vers la page d'une bouée */
+.blink{display:inline-block;margin-top:10px;font-size:14px;font-weight:800;color:#e9cf9f;text-decoration:none}
+.blink:hover{text-decoration:underline}
 /* ---------- Accueil : la carte de la côte (première visite, ou clic sur le logo) ---------- */
 body.homeOn{overflow:hidden}
 #home{position:fixed;inset:0;z-index:1000;background:#09141a;color:#fff;font-family:inherit}
@@ -2038,6 +2041,7 @@ function radarHtml(s){
         <div class="bbig">${fmt(L.hs)}<small>m</small></div>
         <div class="bstats">${stats}</div>
         <p class="bwhy">${whyText(view,L.tp||Tm)}</p>
+        ${cur.key!=='gascogne'?`<a class="blink" href="bouees/${slugOf(cur.name)}/">Voir la page de la bouée →</a>`:''}
         ${fNow!=null?`<div class="bcmp">${bar(L.hs,'m','Mesuré')}${bar(fNow,'f','Prévu')}</div>`:''}
       </div>
       <div class="bcard">${buoyChart(obs,fc,fLabel)}</div>
@@ -2671,7 +2675,8 @@ function homeBuoy(b){
    <span class="hm-eb">Mesure réelle · ${ageTxt(ageH)}</span><h2>Bouée ${b.n}</h2><div class="hm-rg">${b.sub}</div>
    <div class="hm-pm"><div class="hm-b"><small>Hauteur mesurée</small><b>${hmF(L.hs)}<i> m</i></b></div><div class="hm-a"><small>Vague max</small><b>${L.hmax!=null?hmF(L.hmax):'–'}<i> m</i></b></div></div>
    <div class="hm-meta">${L.tp?`<span>Période ${String(L.tp).replace('.',',')} s</span>`:''}${L.dir!=null?`<span>Direction ${hmDn(L.dir)}</span>`:''}${L.sst!=null?`<span>Eau ${String(L.sst).replace('.',',')} °C</span>`:''}</div>
-   <div class="hm-dl">Cette bouée mesure la mer en continu. Ce n’est pas la taille des vagues sur un spot précis.</div></div>`;
+   <div class="hm-dl">Cette bouée mesure la mer en continu. Ce n’est pas la taille des vagues sur un spot précis.</div>
+   <a class="hm-go" style="text-decoration:none" href="bouees/${slugOf(b.n)}/">Voir la page de la bouée →</a></div>`;
   document.getElementById('hmBk').onclick=()=>{ homeClear(); homeHomePanel(); homeFit(); };
   if(HOME.map){ const mob=innerWidth<760; HOME.map.easeTo({center:[b.lon-(mob?0:.5),b.lat-(mob?.1:0)],zoom:9,pitch:0,duration:1000}); }
 }

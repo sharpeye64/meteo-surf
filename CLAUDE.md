@@ -167,3 +167,8 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
 - `web/index.html` : superposition `#home` (fonctions `home*`), affichée à la première visite (sans `?spot=`, sans favori, `localStorage.homeSeen` absent) ou au clic sur le logo. Carte MapLibre (jsDelivr) + fond OpenFreeMap, chargée seulement quand l'accueil s'ouvre.
 - Les points = houle prévue à l'heure actuelle ; les pastilles sable = bouées avec mesure réelle ; un trait pointillé relie le spot à la bouée choisie par `pickBuoy`. Le bouton « Ouvrir la prévision complète » appelle `go(i)`.
 - Repère de retour : tag git `avant-accueil-carte`.
+
+## Pages bouées (branche pages-bouees)
+- `pipeline/bouees.py` (appelé par `seo.generate`, jamais bloquant) écrit `web/bouees/index.html` et `web/bouees/<bouée>/index.html` (Cap Ferret, Anglet, Saint-Jean-de-Luz, Bilbao-Vizcaya, Donostia ; fichiers générés, ignorés par git, ajoutés au sitemap). Page = carte (MapLibre chargée quand elle devient visible) + « Relevé actuel » sable + courbe 48 h (mesuré / prévu) + 12 derniers relevés (le reste dans un `<details>`) + spots autour (espacés de 4 km) + bouées voisines. L'âge de la mesure est recalculé dans le navigateur.
+- Liens : encadré « La bouée » de l'app et fiche bouée de l'accueil → `bouees/<slug>/` ; page de spot → « Bouée la plus proche ». Pas de page Gascogne (mesure trop ancienne, au large).
+- Idée en attente : archiver les mesures pour des records / moyennes (aujourd'hui seulement 48 h par bouée).

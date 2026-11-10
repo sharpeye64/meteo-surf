@@ -94,7 +94,8 @@ ul.near a{display:block;background:var(--card);border-radius:14px;padding:12px 1
 .prose p,.prose li{max-width:68ch}.prose ul{padding-left:20px}"""
 
 
-def page(site, title, desc, canonical, body, jsonld, base="../../"):
+def page(site, title, desc, canonical, body, jsonld, base="../../", extra_css="", top=None):
+    top = top or ("Tous les spots", "spots/")
     ld = "".join(f'<script type="application/ld+json">{json.dumps(j, ensure_ascii=False)}</script>' for j in jsonld)
     esc = html.escape
     return f"""<!doctype html>
@@ -106,8 +107,8 @@ def page(site, title, desc, canonical, body, jsonld, base="../../"):
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{site}/og.png"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc)}">
 <meta name="theme-color" content="#0A1114">
 <link rel="icon" href="{base}brand/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="{base}brand/apple-touch-icon.png">
-<style>{CSS}</style>{ld}</head><body><main>
-<header><a class="brand" href="{base}"><img class="mk" src="{base}brand/symbol.svg" alt="" height="26"><img class="bw" src="{base}brand/wordmark.svg" alt="{BRAND}" height="15"></a><a class="muted" href="{base}spots/">Tous les spots</a></header>
+<style>{CSS}{extra_css}</style>{ld}</head><body><main>
+<header><a class="brand" href="{base}"><img class="mk" src="{base}brand/symbol.svg" alt="" height="26"><img class="bw" src="{base}brand/wordmark.svg" alt="{BRAND}" height="15"></a><a class="muted" href="{base}{top[1]}">{top[0]}</a></header>
 <div class="prose">{body}</div>
 <footer><nav aria-label="Informations"><a href="{base}comment-ca-marche/">Comment ça marche</a> · <a href="{base}mentions-legales/">Mentions légales</a> · <a href="{base}confidentialite/">Confidentialité</a></nav><br>Prévisions calculées à partir de plusieurs modèles (Météo-France, DWD, ECMWF, NOAA, Ifremer) via Open-Meteo, corrigées avec les bouées. Estimations : à confirmer sur place. {BRAND} est un prototype non commercial.</footer>
 </main></body></html>"""
@@ -136,11 +137,22 @@ def spot_page(site, sp, spots_meta, payload, now):
             f"{' venant du ' + sector(t['dir']) if t['dir'] is not None else ''}, vent de {fr(t['wind'], 0)} km/h"
             f"{' du ' + sector(t['wdir']) if t['wdir'] is not None else ''}"
             f"{', coefficient de marée ' + str(t['coef']) if t['coef'] else ''}.") if t else ""
+    buoy_line = ""
+    try:
+        cb = [b for b in (payload.get("coast") or []) + (payload.get("offshore") or []) if (b.get("latest") or {}).get("hs") is not None]
+        if cb:
+            b = min(cb, key=lambda x: hav(sp, {"lat": float(x["lat"]), "lon": float(x["lon"])}))
+            km = hav(sp, {"lat": float(b["lat"]), "lon": float(b["lon"])})
+            if km <= 80:
+                buoy_line = (f'<p class="muted">Bouée la plus proche : <a href="../../bouees/{slugify(b["name"])}/">{esc(b["name"])}</a>, '
+                             f'à {round(km)} km, mesure actuelle {fr(b["latest"]["hs"])} m.</p>')
+    except Exception:
+        buoy_line = ""
     body = f"""<h1>Prévisions surf à {esc(name)}</h1>
 <p class="lead">{lead}</p>
 <p><a class="cta" href="{app}">Voir les prévisions heure par heure</a></p>
 <p class="muted">{esc(sp['type'])} · fond de {esc(sp['bottom'].lower())} · {esc(sp['commune'])}, {esc(sp['region'])}. Mis à jour le {now:%d/%m/%Y à %Hh%M}.</p>
-<h2>La semaine à {esc(name)}</h2>
+{buoy_line}<h2>La semaine à {esc(name)}</h2>
 <table><thead><tr><th>Jour</th><th>Houle</th><th>Période</th><th>Vent</th><th>Coef.</th></tr></thead><tbody>{trs}</tbody></table>
 <h2>Autres spots autour de {esc(name)}</h2><ul class="near">{nl}</ul>"""
     ld = [
@@ -205,10 +217,16 @@ def generate(payload, out_dir=None, site=None):
         d = root / spec["slug"]
         d.mkdir(exist_ok=True)
         (d / "index.html").write_text(pages.render(site, spec), encoding="utf-8")
+    try:
+        from . import bouees
+        burls = bouees.generate(payload, root, site, now)
+    except Exception as e:  # jamais bloquant : les pages de spots restent publiées
+        print(f"  pages bouées non générées : {e}")
+        burls = []
     day = now.strftime("%Y-%m-%d")
-    urls = [(f"{site}/", "hourly", "1.0"), (f"{site}/spots/", "daily", "0.8")] + [(f"{site}/{c['slug']}/", "monthly", "0.5") for c in pages.ALL] + [(f"{site}/spots/{s['slug']}/", "hourly", "0.7") for s in spots]
+    urls = [(f"{site}/", "hourly", "1.0"), (f"{site}/spots/", "daily", "0.8")] + [(f"{site}/{c['slug']}/", "monthly", "0.5") for c in pages.ALL] + [(u, "hourly", "0.7") for u in burls] + [(f"{site}/spots/{s['slug']}/", "hourly", "0.7") for s in spots]
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join(
         f"<url><loc>{u}</loc><lastmod>{day}</lastmod><changefreq>{f}</changefreq><priority>{p}</priority></url>\n" for u, f, p in urls) + "</urlset>\n"
     (root / "sitemap.xml").write_text(sm, encoding="utf-8")
     (root / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {site}/sitemap.xml\n", encoding="utf-8")
-    return len(spots) + 1 + len(pages.ALL)
+    return len(spots) + 1 + len(pages.ALL) + len(burls)
