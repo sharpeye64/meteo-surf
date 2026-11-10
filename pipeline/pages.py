@@ -61,16 +61,17 @@ LEGAL = {
 PRIVACY = {
     "slug": "confidentialite",
     "title": f"Politique de confidentialité | {BRAND}",
-    "desc": f"Données personnelles sur {BRAND} : aucun compte, aucun cookie publicitaire, aucun suivi. Ce qui est stocké sur ton appareil et les services tiers utilisés.",
+    "desc": f"Données personnelles sur {BRAND} : aucun compte, aucun cookie, des statistiques de visite anonymes. Ce qui est stocké sur ton appareil et les services tiers utilisés.",
     "h1": "Politique de confidentialité",
     "body": f"""
-<p class="lead">Houlalah ne te demande aucune donnée personnelle : pas de compte, pas de formulaire, pas de cookie publicitaire, pas d'outil de suivi.</p>
+<p class="lead">Houlalah ne te demande aucune donnée personnelle : pas de compte, pas de formulaire, pas de cookie, pas de publicité, pas de suivi individuel. Seules des statistiques de visite anonymes sont comptées, sans cookie (voir plus bas).</p>
 
 <h2>Ce qui est enregistré sur ton appareil</h2>
 <p>Le site mémorise dans le stockage local de ton navigateur tes préférences : spots favoris, choix « Large / Côte » du radar, et le fait d'avoir déjà vu l'écran d'accueil. Ces informations restent sur ton appareil et ne sont envoyées nulle part. Tu peux les effacer en vidant les données du site dans ton navigateur.</p>
 
 <h2>Services tiers</h2>
 <ul>
+<li><b>Statistiques de visite (GoatCounter)</b> : service sans cookie qui compte les pages vues (page, pays, type d'appareil, site d'origine) sans te suivre d'une visite à l'autre et sans enregistrer ton adresse IP.</li>
 <li><b>Hébergement (GitHub Pages)</b> : comme tout serveur web, il enregistre l'adresse IP des visiteurs dans ses journaux techniques.</li>
 <li><b>Polices de caractères (Google Fonts)</b> : le navigateur les télécharge auprès de Google, qui voit l'adresse IP de ta connexion.</li>
 <li><b>Bibliothèques de cartes (jsDelivr)</b> : la carte des spots et la carte de l'accueil chargent un script depuis ce réseau de diffusion.</li>
@@ -80,7 +81,7 @@ PRIVACY = {
 <p>Ces services ont leurs propres politiques de confidentialité. Houlalah n'a pas accès aux données qu'ils collectent.</p>
 
 <h2>Tes droits</h2>
-<p>Houlalah ne conserve aucune donnée te concernant. Pour toute question ou demande liée aux données personnelles : <a href="mailto:{CONTACT}">{CONTACT}</a>.</p>
+<p>Houlalah ne conserve aucune donnée personnelle te concernant : les statistiques de visite sont anonymes. Pour toute question ou demande liée aux données personnelles : <a href="mailto:{CONTACT}">{CONTACT}</a>.</p>
 """,
 }
 

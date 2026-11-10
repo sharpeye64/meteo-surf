@@ -15,6 +15,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Houlalah","description":"Prévisions surf en Gironde, dans les Landes et au Pays basque, de Lacanau à Hendaye : houle, vent, marée et coefficient.","inLanguage":"fr"}</script>
 <link rel="icon" href="brand/favicon.svg" type="image/svg+xml"><link rel="icon" href="brand/icon-192.png" sizes="192x192" type="image/png"><link rel="shortcut icon" href="favicon.ico">
 <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+<script data-goatcounter="https://houlalah.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <meta name="theme-color" content="#0A1114">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
@@ -2312,7 +2313,8 @@ function tideSvg(list, hour){
 let BOOT_HOME=false;
 function render(){
   const d=state.data[state.spot], s=d.spot, k=state.day, day=d.days[k];
-  if(!BOOT_HOME){ try{ document.title=`Météo surf ${s.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(s.name)); }catch(e){} }   // à l'ouverture de l'accueil, on garde le titre et l'adresse de l'accueil (Google lit cette page)
+  if(!BOOT_HOME){ try{ document.title=`Météo surf ${s.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(s.name)); }catch(e){} }
+  try{ if(window.__gcSpot!==undefined && window.__gcSpot!==s.name && !BOOT_HOME && window.goatcounter && goatcounter.count) goatcounter.count({path:'/?spot='+slugOf(s.name), title:document.title}); window.__gcSpot=s.name; }catch(e){}   // à l'ouverture de l'accueil, on garde le titre et l'adresse de l'accueil (Google lit cette page)
   const isFav=state.fav.includes(s.name), sst=d.hours.find(h=>h.sst!=null)?.sst;
   const now=new Date();
   { const rs0=day.sun?hDec(day.sun.rise):8, ss0=day.sun?hDec(day.sun.set):18;
