@@ -845,6 +845,11 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
   .fold,.hourly,#sHour{scroll-margin-top:80px}
   .hourly .hscroll{margin:0 -18px;border-radius:0;border-left:0;border-right:0;scroll-padding-left:62px}
   .hourly .hnote{margin-top:10px}
+  /* sélecteur de bouées : pleine largeur, boutons égaux, bouton « i » au bout de la ligne */
+  .radar .hhead{flex-wrap:nowrap;align-items:center;gap:8px;margin:0 0 12px}
+  .radar .rtog{order:1;flex:1;min-width:0;margin:0;display:flex}
+  .radar .rtog button{flex:1;min-width:0;padding:7px 4px;font-size:12.5px;line-height:1.15;text-align:center}
+  .radar .hhead .tip{order:2;flex:none;display:flex}
   .foldwrap{margin-bottom:0}
   .rel{margin-top:0}
   /* B : barre du bas */
