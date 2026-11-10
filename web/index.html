@@ -1090,12 +1090,97 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
   .hourly .hhead{margin-bottom:14px}
   .hdm{display:none}.hdd{display:inline}
 }
+
+/* ---------- Accueil : la carte de la côte (première visite, ou clic sur le logo) ---------- */
+body.homeOn{overflow:hidden}
+#home{position:fixed;inset:0;z-index:1000;background:#09141a;color:#fff;font-family:inherit}
+#home[hidden]{display:none}
+#home .hm-map{position:absolute;inset:0}
+#home .hm-map .maplibregl-canvas{filter:invert(1) hue-rotate(188deg) saturate(.7) brightness(.92) contrast(.98)}
+#home .hm-sw{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+#home .hm-vig{position:absolute;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse 90% 80% at 62% 50%,transparent 40%,#050c10aa 100%),linear-gradient(#050c1088,transparent 22%)}
+#home .hm-top{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:16px 24px}
+#home .hm-logo{display:flex;align-items:center;gap:9px;font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:17px;text-transform:lowercase}
+#home .hm-logo img{display:block}
+#home .hm-nav{display:flex;gap:8px;font-size:14px;font-weight:600}
+#home .hm-nav a,#home .hm-nav button{font:inherit;color:#fff;text-decoration:none;padding:9px 15px;border-radius:30px;background:#ffffff14;border:1px solid #ffffff26;backdrop-filter:blur(8px);cursor:pointer}
+#home .hm-panel{position:absolute;z-index:10;left:24px;top:84px;width:390px;max-height:calc(100% - 116px);background:rgba(12,26,34,.62);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px);border:1px solid #ffffff24;border-radius:26px;box-shadow:0 24px 70px #0009;padding:24px;display:flex;flex-direction:column;gap:16px;overflow:auto}
+#home .hm-eb{display:inline-flex;gap:8px;align-items:center;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#f4e2b8}
+#home .hm-eb:before{content:"";width:8px;height:8px;border-radius:50%;background:#1f9d55;animation:hmp 2s infinite}
+@keyframes hmp{0%{box-shadow:0 0 0 0 #1f9d5599}70%,100%{box-shadow:0 0 0 8px #1f9d5500}}
+#home .hm-h1{font-size:27px;line-height:1.12;letter-spacing:-.02em;font-weight:800;margin:0}
+#home .hm-h1 em{font-style:normal;color:#e9cf9f}
+#home .hm-lead{font-size:14.5px;color:#cfe3ee;line-height:1.5;margin:0}
+#home .hm-lead b{color:#fff}
+#home .hm-srch{display:flex;align-items:center;gap:10px;background:#ffffff14;border:1px solid #ffffff2a;border-radius:16px;padding:0 14px;height:48px}
+#home .hm-srch svg{flex:none;opacity:.7}
+#home .hm-srch input{flex:1;background:none;border:0;outline:0;color:#fff;font:500 15px inherit;font-family:inherit;min-width:0}
+#home .hm-srch input::placeholder{color:#9fb4bd}
+#home .hm-chips{display:flex;gap:7px;flex-wrap:wrap}
+#home .hm-chips button{font:600 13px inherit;font-family:inherit;background:#ffffff12;color:#dfeaef;border:1px solid #ffffff26;border-radius:30px;padding:7px 13px;cursor:pointer}
+#home .hm-chips button.on{background:#e9cf9f;color:#2a2112;border-color:#e9cf9f}
+#home .hm-chips .hm-geo{background:linear-gradient(135deg,#f4e2b8,#e3c283);color:#2a2112;border:0;font-weight:800}
+#home .hm-res{overflow:auto;margin:-6px -8px 0;padding:0 8px;max-height:260px}
+#home .hm-it{display:grid;grid-template-columns:12px 1fr auto;gap:12px;align-items:center;padding:10px;border-radius:12px;cursor:pointer;width:100%;background:none;border:0;color:inherit;font:inherit;text-align:left}
+#home .hm-it:hover{background:#ffffff14}
+#home .hm-it i{width:12px;height:12px;border-radius:50%}
+#home .hm-it b{font-size:15px;font-weight:700}
+#home .hm-v{font-size:17px;font-weight:800}#home .hm-v small{font-size:12px;color:#9fb4bd;font-weight:600}
+#home .hm-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#home .hm-st{background:#ffffff10;border:1px solid #ffffff1f;border-radius:16px;padding:12px 14px;cursor:pointer;color:inherit;font:inherit;text-align:left}
+#home .hm-st:hover{background:#ffffff1a}
+#home .hm-st small{display:block;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#9fb4bd;font-weight:700}
+#home .hm-st b{font-size:22px;display:block;line-height:1.2}#home .hm-st span{font-size:13px;color:#cfe3ee}
+#home .hm-card{display:flex;flex-direction:column;gap:14px}
+#home .hm-back{background:none;border:0;color:#cfe3ee;font:600 13px inherit;font-family:inherit;cursor:pointer;padding:0;text-align:left}
+#home .hm-card h2{font-size:26px;letter-spacing:-.02em;margin:0;font-weight:800}
+#home .hm-rg{font-size:13px;color:#9fb4bd;margin-top:-10px}
+#home .hm-pm{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#home .hm-pm div{border-radius:18px;padding:14px 16px}
+#home .hm-pm .hm-a{background:#ffffff12;border:1px solid #ffffff24}
+#home .hm-pm .hm-b{background:linear-gradient(135deg,#f4e2b8,#e3c283);color:#2a2112}
+#home .hm-pm small{display:block;font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:800;opacity:.8}
+#home .hm-pm b{font-size:36px;line-height:1.1;display:block;letter-spacing:-.02em}#home .hm-pm b i{font-size:.45em;font-style:normal;opacity:.7;font-weight:600}
+#home .hm-pm .hm-b small:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#1f9d55;margin-right:6px}
+#home .hm-pm .hm-b.old small:before{background:#8a7a55}
+#home .hm-dl{font-size:14px;color:#cfe3ee;background:#ffffff0e;border-radius:14px;padding:11px 14px}
+#home .hm-dl b{color:#e9cf9f}
+#home .hm-meta{display:flex;gap:8px;flex-wrap:wrap;font-size:13px;color:#cfe3ee}
+#home .hm-meta span{background:#ffffff10;border-radius:20px;padding:5px 11px}
+#home .hm-go{display:block;width:100%;text-align:center;border:0;cursor:pointer;font:800 15px inherit;font-family:inherit;background:linear-gradient(135deg,#f4e2b8,#e3c283);color:#2a2112;padding:14px;border-radius:40px;box-shadow:0 8px 22px #0006}
+#home .hm-leg{position:absolute;right:24px;bottom:24px;z-index:10;font-size:12px;color:#dfeaef;background:rgba(12,26,34,.62);backdrop-filter:blur(14px);border:1px solid #ffffff22;border-radius:14px;padding:10px 14px}
+#home .hm-leg i{display:block;width:150px;height:7px;border-radius:6px;margin-top:6px;background:linear-gradient(90deg,#9ed8f0,#43b8c9,#6bc46d,#e8d54a,#f39a2b,#e24a3b)}
+#home .hm-leg div{display:flex;justify-content:space-between;margin-top:4px;opacity:.75}
+#home .hm-lg2{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;opacity:1!important;justify-content:flex-start!important}
+#home .hm-lg2 b{width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,#f6e6bf,#e0bd7a);border:2px solid #fff;flex:none}
+#home .hm-pt{position:relative;width:16px;height:16px;cursor:pointer}
+#home .hm-pt:before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--c);border:2px solid #fff;box-shadow:0 2px 10px #000a;transition:transform .2s}
+#home .hm-pt:after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--c);opacity:0;animation:hmr 3.2s ease-out infinite;animation-delay:var(--d)}
+@keyframes hmr{0%{transform:scale(.7);opacity:.7}70%,100%{transform:scale(2.2);opacity:0}}
+#home .hm-pt:hover:before,#home .hm-pt.on:before{transform:scale(1.55)}
+#home .hm-tip{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);white-space:nowrap;background:#0b1820f0;border:1px solid #ffffff2a;border-radius:12px;padding:6px 11px;font:700 13px inherit;font-family:inherit;color:#fff;opacity:0;pointer-events:none;transition:.15s;z-index:5}
+#home .hm-pt:hover .hm-tip,#home .hm-pt.on .hm-tip,#home .hm-bu:hover .hm-tip,#home .hm-bu.on .hm-tip{opacity:1}
+#home .hm-tip small{color:#9fb4bd;font-weight:600;margin-left:6px}
+#home .hm-bu{position:relative;width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#f6e6bf,#e0bd7a);color:#2a2112;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 4px 14px #000a;cursor:pointer;transition:transform .2s}
+#home .hm-bu:before{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid #e9cf9f;opacity:0;animation:hmr 3s ease-out infinite}
+#home .hm-bu:hover,#home .hm-bu.on{transform:scale(1.25)}
+#home .hm-bu svg{width:17px;height:17px}
+#home .hm-bu .hm-tip{bottom:38px}
+#home .hm-bu .hm-tip small{color:#e9cf9f;font-weight:700}
+@media(max-width:760px){
+ #home .hm-panel{left:12px;right:12px;top:auto;bottom:12px;width:auto;max-height:54%;padding:18px;border-radius:24px;gap:12px}
+ #home .hm-h1{font-size:22px}#home .hm-leg{display:none}#home .hm-res{max-height:170px}
+ #home .hm-top{padding:12px 14px}
+ #home .hm-nav a{display:none}
+}
+@media(prefers-reduced-motion:reduce){#home .hm-pt:after,#home .hm-bu:before,#home .hm-eb:before{animation:none}}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 <canvas id="ocean" aria-hidden="true"></canvas>
+<div id="home" hidden></div>
 <div id="app"><div class="loading"><div class="disp">On regarde l’océan…</div><div class="loader" aria-hidden="true"></div><div style="color:var(--muted)">Prévisions de 58 spots, de Lacanau à Hendaye</div></div></div>
 <noscript><main style="max-width:60ch;margin:40px auto;padding:0 20px;color:#F2EFE8;font-family:system-ui,sans-serif"><h1>Houlalah, prévisions surf de Lacanau à Hendaye</h1><p>Houle, vent, marée et coefficient pour 58 spots de la côte Atlantique, mis à jour toutes les 3 heures. Le site demande JavaScript pour afficher les prévisions heure par heure ; les prévisions du jour de chaque spot sont lisibles sans JavaScript : <a href="spots/" style="color:#E4C79B">voir tous les spots</a>.</p></main></noscript>
 
@@ -1644,7 +1729,7 @@ function oceanDraw(now){
 }
 function oceanLoop(now){
   OC.raf=0;
-  if(!OC.gl||OC.lost||document.hidden||!OC.visible) return;           // en pause : reprend au retour (oceanKick)
+  if(!OC.gl||OC.lost||document.hidden||!OC.visible||document.body.classList.contains('homeOn')){ OC.raf=0; return; }           // en pause : reprend au retour (oceanKick)
   const dt=now-OC.last;
   if(dt<32){ OC.raf=requestAnimationFrame(oceanLoop); return; }       // 30 images/s au plus
   OC.last=now;
@@ -2414,15 +2499,178 @@ document.getElementById('pkList').addEventListener('click',e=>{const b=e.target.
 document.getElementById('q').addEventListener('input',e=>{state.q=e.target.value; renderPicker();});
 document.getElementById('pkTabs').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; state.filter=b.dataset.f; renderPicker(); document.getElementById('pkList').scrollTop=0; });
 
+
+/* ---------- Accueil : la carte de la côte ---------- */
+const HOME={map:null,lib:null,reg:'Tous',q:'',pts:{},bms:{},ref:null,raf:0,on:false,ready:false,cv:null,cx:null,sea:null,sw:null,data:null,bu:null};
+function homeSeen(){ try{ return localStorage.getItem('homeSeen')==='1'; }catch(e){ return false; } }
+function homeMark(){ try{ localStorage.setItem('homeSeen','1'); }catch(e){} }
+function homeWanted(){ try{ if(new URLSearchParams(location.search).get('spot')) return false; }catch(e){} return !state.fav.length && !homeSeen(); }
+const hmCol=(()=>{ const ST=[[0,'#9ed8f0'],[.6,'#43b8c9'],[1.2,'#6bc46d'],[1.8,'#e8d54a'],[2.4,'#f39a2b'],[3.2,'#e24a3b']]; return h=>{ for(let i=ST.length-1;i>=0;i--) if(h>=ST[i][0]) return ST[i][1]; return ST[0][1]; }; })();
+const hmF=h=>h.toFixed(1).replace('.',',');
+const hmDirs=['N','NE','E','SE','S','SO','O','NO'], hmDn=d=>hmDirs[Math.round(d/45)%8];
+function homeLoadLib(){
+  if(HOME.lib) return HOME.lib;
+  HOME.lib=new Promise((ok,ko)=>{
+    if(window.maplibregl) return ok();
+    const l=document.createElement('link'); l.rel='stylesheet'; l.href='https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css'; document.head.appendChild(l);
+    const sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js'; sc.onload=ok; sc.onerror=()=>ko(new Error('maplibre')); document.head.appendChild(sc);
+  });
+  return HOME.lib;
+}
+function homeData(){
+  const n=new Date(), p=v=>String(v).padStart(2,'0'), key=`${n.getFullYear()}-${p(n.getMonth()+1)}-${p(n.getDate())}T${p(n.getHours())}`;
+  return state.data.map((d,i)=>{ const hs=d.hours, h=hs.find(x=>x.time.slice(0,13)===key)||hs.find(x=>x.time>=key)||hs[0]; return {i,n:d.spot.name,r:d.spot.region,lat:d.spot.lat,lon:d.spot.lon,h:h&&h.H,p:h&&h.T?Math.round(h.T):null,d:h&&h.D}; }).filter(x=>x.h!=null).sort((a,b)=>b.lat-a.lat);
+}
+function homeBuoys(){
+  const o=[]; [...(state.coast||[]),...(state.offshore||[])].forEach(b=>{ if(b.latest&&b.latest.hs!=null) o.push({id:b.id,n:b.name,sub:b.sub||'sur la côte',lat:+b.lat,lon:+b.lon,L:b.latest}); });
+  return o;
+}
+function homeBuoyPos(key){ if(key==='gascogne') return {lat:+state.gascogne.lat,lon:+state.gascogne.lon}; const b=[...(state.coast||[]),...(state.offshore||[])].find(x=>x.id===key); return b?{lat:+b.lat,lon:+b.lon}:null; }
+async function homeOpen(){
+  const el=document.getElementById('home'); if(!el||!state.data) return;
+  HOME.on=true; document.body.classList.add('homeOn'); el.hidden=false;
+  if(!HOME.ready){
+    HOME.data=homeData(); HOME.bu=homeBuoys(); HOME.sea=null;
+    el.innerHTML=`<div class="hm-map" id="hmMap"></div><canvas class="hm-sw" id="hmSw"></canvas><div class="hm-vig"></div>
+      <div class="hm-top"><div class="hm-logo"><img src="brand/symbol.svg" alt="" height="24">houlalah</div><div class="hm-nav"><a href="comment-ca-marche/">Comment ça marche</a><button type="button" id="hmClose">Voir la prévision ✕</button></div></div>
+      <aside class="hm-panel" id="hmPanel" aria-live="polite"></aside>
+      <div class="hm-leg">Houle prévue (points)<i></i><div><span>0 m</span><span>3 m +</span></div><div class="hm-lg2"><b></b>Bouée : mesure réelle en mer</div></div>`;
+    el.setAttribute('role','dialog'); el.setAttribute('aria-label','La côte en ce moment');
+    document.getElementById('hmClose').onclick=homeClose;
+    HOME.ready=true; homeHomePanel();
+    try{ await homeLoadLib(); homeInitMap(); }catch(e){ const m=document.getElementById('hmMap'); if(m) m.style.background='radial-gradient(ellipse at 70% 50%,#17303f,#09141a)'; }
+  } else { homeHomePanel(); if(HOME.map){ HOME.map.resize(); homeFit(); } }
+  homeFrameStart();
+}
+function homeClose(){
+  homeMark(); HOME.on=false; cancelAnimationFrame(HOME.raf); HOME.raf=0; HOME.ref=null;
+  const el=document.getElementById('home'); if(el) el.hidden=true; document.body.classList.remove('homeOn');
+  if(typeof oceanKick==='function') oceanKick();
+}
+function homeInitMap(){
+  const mob=innerWidth<760, D=HOME.data;
+  const map=HOME.map=new maplibregl.Map({container:'hmMap',style:'https://tiles.openfreemap.org/styles/positron',center:[-1.5,44.2],zoom:6.5,pitch:0,bearing:0,attributionControl:{compact:true},dragRotate:false,pitchWithRotate:false});
+  D.forEach((s,i)=>{ const w=document.createElement('div'), e=document.createElement('div'); e.className='hm-pt'; e.style.setProperty('--c',hmCol(s.h)); e.style.setProperty('--d',(i%9)*.35+'s');
+    e.innerHTML=`<div class="hm-tip">${s.n}<small>${hmF(s.h)} m</small></div>`; w.appendChild(e); w.onclick=()=>homeSpot(s,true);
+    HOME.pts[s.n]=new maplibregl.Marker({element:w}).setLngLat([s.lon,s.lat]).addTo(map); });
+  HOME.bu.forEach(b=>{ const w=document.createElement('div'), e=document.createElement('div'); e.className='hm-bu';
+    e.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15a7 7 0 0 1 14 0zM12 8V4M3 19c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/></svg><div class="hm-tip">Bouée ${b.n}<small>${hmF(b.L.hs)} m mesuré</small></div>`; w.appendChild(e); w.onclick=()=>homeBuoy(b);
+    HOME.bms[b.id]=new maplibregl.Marker({element:w}).setLngLat([b.lon,b.lat]).addTo(map); });
+  const co=D.map(s=>[s.lon-.03,s.lat]);
+  HOME.sea=[[-14,46.3],[-1.28,46.3],[-1.25,45.5],...co,[-1.85,43.5],[-14,43.6]];
+  const mD=D.reduce((a,s)=>a+(s.d||260),0)/D.length, mP=D.reduce((a,s)=>a+(s.p||8),0)/D.length;
+  const br=((mD+180)%360)*Math.PI/180; HOME.sw={tx:Math.sin(br),ty:-Math.cos(br),gap:Math.max(34,Math.min(70,mP*6.5))};
+  homeFit(true);
+}
+function homeFit(instant){
+  const map=HOME.map; if(!map) return; const mob=innerWidth<760;
+  const L=HOME.data.filter(s=>HOME.reg==='Tous'||s.r===HOME.reg); if(!L.length) return;
+  const lo=L.reduce((a,s)=>[Math.min(a[0],s.lon),Math.min(a[1],s.lat),Math.max(a[2],s.lon),Math.max(a[3],s.lat)],[9,99,-9,-99]);
+  map.fitBounds([[lo[0],lo[1]],[lo[2],lo[3]]],{padding:mob?{top:80,bottom:Math.round(innerHeight*.56),left:50,right:50}:{top:90,bottom:90,left:Math.min(470,innerWidth*.34),right:Math.min(150,innerWidth*.1)},duration:instant?0:1100,maxZoom:10,pitch:0,bearing:0});
+}
+function homeFrameStart(){
+  const cv=HOME.cv=document.getElementById('hmSw'); HOME.cx=cv.getContext('2d');
+  cancelAnimationFrame(HOME.raf);
+  const frame=t=>{
+    if(!HOME.on) return;
+    const cx=HOME.cx, map=HOME.map, dpr=devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight;
+    if(cv.width!==Math.round(W*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
+    cx.setTransform(dpr,0,0,dpr,0,0); cx.clearRect(0,0,W,H);
+    if(map&&HOME.sea&&HOME.sw){
+      const {tx,ty,gap}=HOME.sw, nx=-ty, ny=tx;
+      cx.save(); cx.beginPath(); HOME.sea.forEach((p,i)=>{ const q=map.project(p); i?cx.lineTo(q.x,q.y):cx.moveTo(q.x,q.y); }); cx.closePath(); cx.clip();
+      const D=Math.hypot(W,H), cxm=W*.45, cym=H*.5, ph=(REDUCED?0:t||0)*.012; cx.lineCap='round';
+      for(let k=-Math.ceil(D/gap/2);k<=Math.ceil(D/gap/2);k++){
+        const off=((k*gap+ph)%(gap*40)), al=Math.max(.04,.07+.06*Math.sin(k*1.7));
+        cx.beginPath(); cx.strokeStyle='rgba(190,226,242,'+al+')'; cx.lineWidth=k%4===0?1.6:1;
+        for(let u=-D/2;u<=D/2;u+=18){ const wig=11*Math.sin(u*.011+k*.9+(t||0)*.0004)+6*Math.sin(u*.027-k*.5+(t||0)*.0007);
+          const px=cxm+tx*(off+wig)+nx*u, py=cym+ty*(off+wig)+ny*u; u===-D/2?cx.moveTo(px,py):cx.lineTo(px,py); }
+        cx.stroke(); }
+      cx.restore();
+      if(HOME.ref){ const a=map.project([HOME.ref.a.lon,HOME.ref.a.lat]), b=map.project([HOME.ref.b.lon,HOME.ref.b.lat]);
+        cx.save(); cx.setLineDash([3,7]); cx.lineDashOffset=-(t||0)*.02; cx.lineCap='round'; cx.strokeStyle='rgba(244,226,184,.9)'; cx.lineWidth=2.2; cx.shadowColor='rgba(233,207,159,.6)'; cx.shadowBlur=8;
+        cx.beginPath(); cx.moveTo(a.x,a.y); cx.lineTo(b.x,b.y); cx.stroke(); cx.restore();
+        const mx=(a.x+b.x)/2, my=(a.y+b.y)/2, lab=HOME.ref.k+' km'; cx.font='700 12.5px Manrope,system-ui,sans-serif'; const w=cx.measureText(lab).width+18;
+        cx.fillStyle='rgba(11,24,32,.92)'; cx.strokeStyle='rgba(255,255,255,.25)'; cx.lineWidth=1; cx.beginPath(); cx.roundRect?cx.roundRect(mx-w/2,my-12,w,24,12):cx.rect(mx-w/2,my-12,w,24); cx.fill(); cx.stroke();
+        cx.fillStyle='#f4e2b8'; cx.textAlign='center'; cx.textBaseline='middle'; cx.fillText(lab,mx,my+.5); }
+    }
+    HOME.raf=requestAnimationFrame(frame);
+  };
+  HOME.raf=requestAnimationFrame(frame);
+}
+function homeClear(){ HOME.ref=null; document.querySelectorAll('#home .hm-pt,#home .hm-bu').forEach(e=>e.classList.remove('on')); }
+function homeHomePanel(){
+  const P=document.getElementById('hmPanel'), D=HOME.data, hs=D.map(s=>s.h), mn=Math.min(...hs), mx=Math.max(...hs), sMin=D.find(s=>s.h===mn), sMax=D.find(s=>s.h===mx);
+  const regs=['Tous',...Array.from(new Set(D.map(s=>s.r)))];
+  const n=new Date().getHours();
+  P.innerHTML=`<div><span class="hm-eb">En direct · prévision de ${n} h</span></div>
+   <h1 class="hm-h1">La houle du moment, <em>spot par spot</em>.</h1>
+   <p class="hm-lead">La houle prévue va de <b>${hmF(mn)} m</b> à <b>${hmF(mx)} m</b> entre Lacanau et Hendaye. Touche un point pour voir <b>la prévision et ce que la bouée mesure</b>.</p>
+   <div class="hm-srch"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="hmQ" placeholder="Chercher un spot…" autocomplete="off" aria-label="Chercher un spot" value="${HOME.q.replace(/"/g,'')}"></div>
+   <div class="hm-chips"><button type="button" class="hm-geo" id="hmGeo">◎ Autour de moi</button>${regs.map(g=>`<button type="button" class="${g===HOME.reg?'on':''}" data-g="${g}">${g}</button>`).join('')}</div>
+   <div class="hm-res" id="hmRes"></div>
+   <div class="hm-stats" id="hmStats"><button type="button" class="hm-st" id="hmMx"><small>Houle la plus grande</small><b>${hmF(mx)} m</b><span>${sMax.n}</span></button><button type="button" class="hm-st" id="hmMn"><small>Houle la plus petite</small><b>${hmF(mn)} m</b><span>${sMin.n}</span></button></div>`;
+  document.getElementById('hmMx').onclick=()=>homeSpot(sMax,true); document.getElementById('hmMn').onclick=()=>homeSpot(sMin,true);
+  const qi=document.getElementById('hmQ'); qi.oninput=()=>{ HOME.q=qi.value; homeRes(); };
+  P.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ HOME.reg=b.dataset.g; homeFit(); homeHomePanel(); });
+  document.getElementById('hmGeo').onclick=()=>{ if(!navigator.geolocation) return; navigator.geolocation.getCurrentPosition(p=>{ let b=null,d=1e9; D.forEach(s=>{ const k=(s.lat-p.coords.latitude)**2+((s.lon-p.coords.longitude)*.7)**2; if(k<d){d=k;b=s;} }); if(b) homeSpot(b,true); },()=>{ const g=document.getElementById('hmGeo'); if(g) g.textContent='Localisation refusée'; }); };
+  homeRes();
+}
+function homeRes(){
+  const r=document.getElementById('hmRes'), st=document.getElementById('hmStats'); if(!r) return;
+  const t=HOME.q.trim().toLowerCase(), L=HOME.data.filter(s=>(HOME.reg==='Tous'||s.r===HOME.reg)&&(!t||s.n.toLowerCase().includes(t)));
+  if(!t&&HOME.reg==='Tous'){ r.style.display='none'; st.style.display='grid'; return; }
+  st.style.display='none'; r.style.display='block';
+  r.innerHTML=L.map(s=>`<button type="button" class="hm-it" data-i="${s.i}"><i style="background:${hmCol(s.h)}"></i><b>${s.n}</b><span class="hm-v">${hmF(s.h)}<small> m</small></span></button>`).join('')||'<p class="hm-lead" style="padding:10px">Aucun spot trouvé.</p>';
+  r.querySelectorAll('.hm-it').forEach(e=>e.onclick=()=>homeSpot(HOME.data.find(s=>s.i===+e.dataset.i),true));
+}
+function homeSpot(s,fly){
+  homeClear(); const pt=HOME.pts[s.n]; if(pt) pt.getElement().querySelector('.hm-pt').classList.add('on');
+  const spot=state.data[s.i].spot, cur=pickBuoy(buoyChoices(spot)), P=document.getElementById('hmPanel');
+  let measured='', txt='', ref='';
+  if(cur){ const dif=s.h-cur.L.hs, old=cur.ageH>6;
+    txt=Math.abs(dif)<.05?'La bouée mesure la même hauteur que la prévision.':`La bouée mesure <b>${hmF(Math.abs(dif))} m de ${dif>0?'moins':'plus'}</b> que la prévision.`;
+    ref=`${cur.kind==='coast'?'Bouée ':'Bouée '}${cur.name}, à ${Math.round(cur.km)} km du spot${old?` · mesure ${ageTxt(cur.ageH)}`:''}.`;
+    measured=`<div class="hm-b${old?' old':''}"><small>Mesuré</small><b>${hmF(cur.L.hs)}<i> m</i></b></div>`; }
+  P.innerHTML=`<div class="hm-card"><button type="button" class="hm-back" id="hmBk">← Toute la côte</button>
+   <h2>${s.n}</h2><div class="hm-rg">${s.r}</div>
+   <div class="hm-pm"><div class="hm-a"><small>Prévu</small><b>${hmF(s.h)}<i> m</i></b></div>${measured}</div>
+   ${cur?`<div class="hm-dl">${txt} <span style="color:#9fb4bd">${ref}</span></div>`:''}
+   <div class="hm-meta">${s.p?`<span>Période ${s.p} s</span>`:''}${s.d!=null?`<span>Direction ${hmDn(s.d)}</span>`:''}</div>
+   <button type="button" class="hm-go" id="hmGo">Ouvrir la prévision complète →</button></div>`;
+  document.getElementById('hmBk').onclick=()=>{ homeClear(); homeHomePanel(); homeFit(); };
+  document.getElementById('hmGo').onclick=()=>{ homeClose(); go(s.i); };
+  const bp=cur&&homeBuoyPos(cur.key);
+  if(bp&&cur){ HOME.ref={a:spot,b:bp,k:Math.round(cur.km)}; }
+  if(fly&&HOME.map){ const mob=innerWidth<760, b=bp||spot;
+    HOME.map.fitBounds([[Math.min(spot.lon,b.lon),Math.min(spot.lat,b.lat)],[Math.max(spot.lon,b.lon),Math.max(spot.lat,b.lat)]],{padding:mob?{top:90,bottom:Math.round(innerHeight*.55),left:60,right:60}:{top:120,bottom:120,left:Math.min(480,innerWidth*.36),right:110},pitch:0,bearing:0,maxZoom:10.2,duration:1200}); }
+}
+function homeBuoy(b){
+  homeClear(); const e=HOME.bms[b.id]; if(e) e.getElement().querySelector('.hm-bu').classList.add('on');
+  const L=b.L, P=document.getElementById('hmPanel'), ageH=(new Date()-new Date(L.time+':00'))/36e5;
+  P.innerHTML=`<div class="hm-card"><button type="button" class="hm-back" id="hmBk">← Toute la côte</button>
+   <span class="hm-eb">Mesure réelle · ${ageTxt(ageH)}</span><h2>Bouée ${b.n}</h2><div class="hm-rg">${b.sub}</div>
+   <div class="hm-pm"><div class="hm-b"><small>Hauteur mesurée</small><b>${hmF(L.hs)}<i> m</i></b></div><div class="hm-a"><small>Vague max</small><b>${L.hmax!=null?hmF(L.hmax):'–'}<i> m</i></b></div></div>
+   <div class="hm-meta">${L.tp?`<span>Période ${String(L.tp).replace('.',',')} s</span>`:''}${L.dir!=null?`<span>Direction ${hmDn(L.dir)}</span>`:''}${L.sst!=null?`<span>Eau ${String(L.sst).replace('.',',')} °C</span>`:''}</div>
+   <div class="hm-dl">Cette bouée mesure la mer en continu. Ce n’est pas la taille des vagues sur un spot précis.</div></div>`;
+  document.getElementById('hmBk').onclick=()=>{ homeClear(); homeHomePanel(); homeFit(); };
+  if(HOME.map){ const mob=innerWidth<760; HOME.map.easeTo({center:[b.lon-(mob?0:.5),b.lat-(mob?.1:0)],zoom:9,pitch:0,duration:1000}); }
+}
+document.addEventListener('click',e=>{ const a=e.target.closest&&e.target.closest('.hero .brand'); if(a&&state.data){ e.preventDefault(); homeOpen(); } });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&HOME.on) homeClose(); });
+addEventListener('resize',()=>{ if(!HOME.on||!HOME.map) return; clearTimeout(HOME.rt); HOME.rt=setTimeout(()=>{ HOME.map.resize(); if(!document.querySelector('#home .hm-card')) homeFit(); },200); });
+
 async function start(){
   oceanInit();
   window.addEventListener('resize',()=>{ if(state.data) oceanSync(); });
   try{
     await load();
+    const showHome=homeWanted();   // avant render() : il écrit ?spot= dans l'adresse
     const favIdx = state.data.findIndex(x=>state.fav.includes(x.spot.name));
     state.spot = favIdx>=0 ? favIdx : 0;
     try{ const want=new URLSearchParams(location.search).get('spot'); if(want){ const j=state.data.findIndex(x=>slugOf(x.spot.name)===want); if(j>=0) state.spot=j; } }catch(e){}
     render(); refreshModels();
+    if(showHome) homeOpen();
   }catch(err){
     document.getElementById('app').innerHTML=`<div class="loading"><div class="disp">Les prévisions n’ont pas pu être chargées</div><div style="color:var(--muted);max-width:46ch">${/trop de requêtes|429/.test(err.message)?'Le service météo gratuit limite le nombre de requêtes et la limite est atteinte. Attends une à deux minutes, puis réessaie.':err.message+'. Vérifie ta connexion internet, puis réessaie.'}</div><button class="retry" onclick="location.reload()">Réessayer</button></div>`;
   }

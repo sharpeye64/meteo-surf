@@ -161,3 +161,9 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   liste Vent / Marée (courbe intégrée, le point passe au centre de la courbe : la marge de `.tideline` est remise à 0), semaine en barres horizontales (`weekRow`). Plus de cartes
   Vagues, plus de ligne « Journée », « Mer du vent », « Houle secondaire ». IMPORTANT : la hauteur du haut de page doit rester CONSTANTE (lignes à hauteur fixe, textes sur une
   ligne) : l'océan WebGL est redimensionné à chaque changement de hauteur, ce qui fait saccader l'animation. Pied de page : liste des 58 spots dans un `<details>` (liens toujours dans le HTML).
+
+
+## Accueil « carte de la côte » (branche accueil-carte)
+- `web/index.html` : superposition `#home` (fonctions `home*`), affichée à la première visite (sans `?spot=`, sans favori, `localStorage.homeSeen` absent) ou au clic sur le logo. Carte MapLibre (jsDelivr) + fond OpenFreeMap, chargée seulement quand l'accueil s'ouvre.
+- Les points = houle prévue à l'heure actuelle ; les pastilles sable = bouées avec mesure réelle ; un trait pointillé relie le spot à la bouée choisie par `pickBuoy`. Le bouton « Ouvrir la prévision complète » appelle `go(i)`.
+- Repère de retour : tag git `avant-accueil-carte`.
