@@ -88,6 +88,7 @@ h1{font-size:clamp(28px,5vw,42px);line-height:1.1;margin:0 0 12px}h2{font-size:2
 .cta{display:inline-block;background:var(--sand);color:#1A1405;font-weight:700;padding:12px 20px;border-radius:999px;text-decoration:none;margin:6px 0 10px}
 table{width:100%;border-collapse:collapse;background:var(--card);border-radius:16px;overflow:hidden}
 th,td{padding:10px 12px;text-align:left;border-top:1px solid rgba(255,255,255,.08);font-size:15px}thead th{border-top:0;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+dl.fiche{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:0 0 16px}dl.fiche div{background:var(--card);border-radius:14px;padding:10px 14px}dl.fiche dt{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}dl.fiche dd{margin:3px 0 0;font-weight:600}
 ul.near{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
 ul.near a{display:block;background:var(--card);border-radius:14px;padding:12px 14px;text-decoration:none;color:var(--text)}ul.near small{display:block;color:var(--muted)}
 .grp{margin-top:26px}.grp h2{color:var(--sand)}footer{margin-top:44px;color:var(--muted);font-size:13px}footer nav{margin-bottom:6px}footer a{color:var(--muted)}
@@ -112,6 +113,54 @@ def page(site, title, desc, canonical, body, jsonld, base="../../", extra_css=""
 <div class="prose">{body}</div>
 <footer><nav aria-label="Informations"><a href="{base}comment-ca-marche/">Comment ça marche</a> · <a href="{base}mentions-legales/">Mentions légales</a> · <a href="{base}confidentialite/">Confidentialité</a></nav><br>Prévisions calculées à partir de plusieurs modèles (Météo-France, DWD, ECMWF, NOAA, Ifremer) via Open-Meteo, corrigées avec les bouées. Estimations : à confirmer sur place. {BRAND} est un prototype non commercial.</footer>
 </main></body></html>"""
+
+
+def _angle(a, b):
+    d = abs(a - b) % 360
+    return min(d, 360 - d)
+
+
+def _low(x):
+    return x[:1].lower() + x[1:] if x else x
+
+
+def profile_html(sp, t):
+    """« Le spot en bref » : fiche tirée des champs du spot (orientation, fond, marée, niveau, taille) + lecture des conditions du jour.
+    Rien n'est inventé : tout vient de pipeline/spots.json et des prévisions."""
+    esc = html.escape
+    name, ori = sp["name"], sp.get("ori")
+    off_dir = None if ori is None else (ori + 180) % 360
+    kind = _low(sp["type"])
+    p1 = (f"<b>{esc(name)}</b> est un spot de type {esc(kind)} à {esc(sp['commune'])} ({esc(sp['region'])}), au fond de {esc(_low(sp['bottom']))}. "
+          f"Il fonctionne en général avec une houle de {fr(sp['min'])} à {fr(sp['max'])} m orientée {esc(sp['swell'])}. ")
+    lvl = sp.get("level") or ""
+    if lvl in ("Expert", "Big wave / tow-in"):
+        p1 += "C'est un spot exigeant, réservé aux surfeurs très expérimentés : renseigne-toi sur place avant de t'y mettre à l'eau."
+    elif lvl in ("Débutant", "Débutant / longboard", "Débutant → intermédiaire"):
+        p1 += "Il convient bien aux débutants et aux longboardeurs."
+    elif lvl == "Tous":
+        p1 += "Il est accessible à tous les niveaux quand la taille reste raisonnable."
+    elif lvl:
+        p1 += f"Niveau conseillé : {esc(_low(lvl))}."
+    if sp.get("notes"):
+        p1 += " À noter : " + esc(_low(sp["notes"]).rstrip(".")) + "."
+    p2 = ""
+    if ori is not None:
+        p2 = (f"Le spot est orienté vers le secteur {esc(sector(ori))}. Le vent de terre, qui lisse la surface, vient donc du secteur {esc(sector(off_dir))} ; "
+              f"un vent du secteur {esc(sector(ori))} est un vent de mer qui hache les vagues.")
+        if t and t.get("wdir") is not None:
+            d = _angle(t["wdir"], off_dir)
+            kindw = "de terre" if d <= 60 else ("de travers" if d <= 120 else "de mer")
+            p2 += f" Aujourd'hui, le vent de {fr(t['wind'], 0)} km/h vient du secteur {esc(sector(t['wdir']))} : c'est un vent {kindw} ici."
+        if t and t.get("dir") is not None:
+            lo, hi = (247.5, 337.5) if "à" in sp["swell"] else (292.5, 337.5)
+            inw = lo <= t["dir"] % 360 <= hi
+            p2 += (f" La houle arrive du secteur {esc(sector(t['dir']))}, " + ("dans la fenêtre habituelle du spot." if inw else "en dehors de la fenêtre habituelle du spot, ce qui réduit ce qu'elle apporte."))
+    items = [("Type", sp["type"]), ("Fond", sp["bottom"]), ("Niveau", lvl or "—"), ("Marée", sp.get("tide") or "—"),
+             ("Houle", sp["swell"]), ("Taille", f"{fr(sp['min'])} à {fr(sp['max'])} m")]
+    dl = "".join(f"<div><dt>{k}</dt><dd>{esc(v)}</dd></div>" for k, v in items)
+    return (f'<h2>{esc(name)} en bref</h2><dl class="fiche">{dl}</dl><p>{p1}</p>' + (f"<p>{p2}</p>" if p2 else "") +
+            '<p class="muted">Repères indicatifs, à confirmer sur place : fonds, courants et dangers changent avec les tempêtes et les saisons.</p>')
 
 
 def spot_page(site, sp, spots_meta, payload, now):
@@ -154,6 +203,7 @@ def spot_page(site, sp, spots_meta, payload, now):
 <p class="muted">{esc(sp['type'])} · fond de {esc(sp['bottom'].lower())} · {esc(sp['commune'])}, {esc(sp['region'])}. Mis à jour le {now:%d/%m/%Y à %Hh%M}.</p>
 {buoy_line}<h2>La semaine à {esc(name)}</h2>
 <table><thead><tr><th>Jour</th><th>Houle</th><th>Période</th><th>Vent</th><th>Coef.</th></tr></thead><tbody>{trs}</tbody></table>
+{profile_html(sp, t)}
 <h2>Autres spots autour de {esc(name)}</h2><ul class="near">{nl}</ul>"""
     ld = [
         {"@context": "https://schema.org", "@type": "WebPage", "name": title, "description": desc, "url": canonical, "inLanguage": "fr",
