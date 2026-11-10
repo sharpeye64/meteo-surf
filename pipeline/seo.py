@@ -108,7 +108,7 @@ def page(site, title, desc, canonical, body, jsonld, base="../../", extra_css=""
 <meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}"><meta property="og:url" content="{esc(canonical)}"><meta property="og:image" content="{og}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{og}"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc)}">
 <meta name="theme-color" content="#0A1114">
-<link rel="icon" href="{base}brand/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="{base}brand/apple-touch-icon.png">
+<link rel="icon" href="{base}brand/favicon.svg" type="image/svg+xml"><link rel="icon" href="{base}brand/icon-192.png" sizes="192x192" type="image/png"><link rel="shortcut icon" href="{base}favicon.ico"><link rel="apple-touch-icon" href="{base}brand/apple-touch-icon.png">
 <style>{CSS}{extra_css}</style>{ld}</head><body><main>
 <header><a class="brand" href="{base}"><img class="mk" src="{base}brand/symbol.svg" alt="" height="26"><img class="bw" src="{base}brand/wordmark.svg" alt="{BRAND}" height="15"></a><a class="muted" href="{base}{top[1]}">{top[0]}</a></header>
 <div class="prose">{body}</div>
