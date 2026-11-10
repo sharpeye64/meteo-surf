@@ -1168,8 +1168,9 @@ body.homeOn{overflow:hidden}
 #home .hm-bu .hm-tip{bottom:38px}
 #home .hm-bu .hm-tip small{color:#e9cf9f;font-weight:700}
 @media(max-width:760px){
- #home .hm-panel{left:12px;right:12px;top:auto;bottom:12px;width:auto;max-height:54%;padding:18px;border-radius:24px;gap:12px}
- #home .hm-h1{font-size:22px}#home .hm-leg{display:none}#home .hm-res{max-height:170px}
+ #home .hm-panel{left:10px;right:10px;top:auto;bottom:calc(10px + env(safe-area-inset-bottom,0px));width:auto;max-height:46%;padding:14px 16px 16px;border-radius:22px;gap:10px;background:rgba(10,22,30,.38);backdrop-filter:blur(10px) saturate(1.3);-webkit-backdrop-filter:blur(10px) saturate(1.3);border-color:#ffffff30;box-shadow:0 10px 36px #0007}
+ #home .hm-h1{font-size:20px;text-shadow:0 1px 10px #000a}#home .hm-lead{display:none}#home .hm-stats{display:none!important}#home .hm-leg{display:none}#home .hm-res{max-height:150px}
+ #home .hm-srch{height:44px;background:#ffffff1c}#home .hm-card h2{font-size:23px}#home .hm-pm b{font-size:30px}#home .hm-card{gap:10px}
  #home .hm-top{padding:12px 14px}
  #home .hm-nav a{display:none}
 }
@@ -2566,7 +2567,7 @@ function homeFit(instant){
   const map=HOME.map; if(!map) return; const mob=innerWidth<760;
   const L=HOME.data.filter(s=>HOME.reg==='Tous'||s.r===HOME.reg); if(!L.length) return;
   const lo=L.reduce((a,s)=>[Math.min(a[0],s.lon),Math.min(a[1],s.lat),Math.max(a[2],s.lon),Math.max(a[3],s.lat)],[9,99,-9,-99]);
-  map.fitBounds([[lo[0],lo[1]],[lo[2],lo[3]]],{padding:mob?{top:80,bottom:Math.round(innerHeight*.56),left:50,right:50}:{top:90,bottom:90,left:Math.min(470,innerWidth*.34),right:Math.min(150,innerWidth*.1)},duration:instant?0:1100,maxZoom:10,pitch:0,bearing:0});
+  map.fitBounds([[lo[0],lo[1]],[lo[2],lo[3]]],{padding:mob?{top:80,bottom:Math.round(innerHeight*.40),left:50,right:50}:{top:90,bottom:90,left:Math.min(470,innerWidth*.34),right:Math.min(150,innerWidth*.1)},duration:instant?0:1100,maxZoom:10,pitch:0,bearing:0});
 }
 function homeFrameStart(){
   const cv=HOME.cv=document.getElementById('hmSw'); HOME.cx=cv.getContext('2d');
@@ -2643,7 +2644,7 @@ function homeSpot(s,fly){
   const bp=cur&&homeBuoyPos(cur.key);
   if(bp&&cur){ HOME.ref={a:spot,b:bp,k:Math.round(cur.km)}; }
   if(fly&&HOME.map){ const mob=innerWidth<760, b=bp||spot;
-    HOME.map.fitBounds([[Math.min(spot.lon,b.lon),Math.min(spot.lat,b.lat)],[Math.max(spot.lon,b.lon),Math.max(spot.lat,b.lat)]],{padding:mob?{top:90,bottom:Math.round(innerHeight*.55),left:60,right:60}:{top:120,bottom:120,left:Math.min(480,innerWidth*.36),right:110},pitch:0,bearing:0,maxZoom:10.2,duration:1200}); }
+    HOME.map.fitBounds([[Math.min(spot.lon,b.lon),Math.min(spot.lat,b.lat)],[Math.max(spot.lon,b.lon),Math.max(spot.lat,b.lat)]],{padding:mob?{top:90,bottom:Math.round(innerHeight*.50),left:60,right:60}:{top:120,bottom:120,left:Math.min(480,innerWidth*.36),right:110},pitch:0,bearing:0,maxZoom:10.2,duration:1200}); }
 }
 function homeBuoy(b){
   homeClear(); const e=HOME.bms[b.id]; if(e) e.getElement().querySelector('.hm-bu').classList.add('on');
