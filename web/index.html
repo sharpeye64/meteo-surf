@@ -2517,7 +2517,7 @@ const HOME_TITLE=document.title;
 const HOME={map:null,lib:null,reg:'Tous',q:'',pts:{},bms:{},ref:null,raf:0,on:false,ready:false,cv:null,cx:null,sea:null,sw:null,data:null,bu:null};
 function homeSeen(){ try{ return localStorage.getItem('homeSeen')==='1'; }catch(e){ return false; } }
 function homeMark(){ try{ localStorage.setItem('homeSeen','1'); }catch(e){} }
-function homeWanted(){ try{ if(sessionStorage.getItem('homeOpen')==='1') return true; }catch(e){} try{ if(new URLSearchParams(location.search).get('spot')) return false; }catch(e){} return !state.fav.length && !homeSeen(); }
+function homeWanted(){ try{ if(new URLSearchParams(location.search).get('spot')){ sessionStorage.removeItem('homeOpen'); return false; } }catch(e){} try{ if(sessionStorage.getItem('homeOpen')==='1') return true; }catch(e){} return !state.fav.length && !homeSeen(); }
 const hmCol=(()=>{ const ST=[[0,'#9ed8f0'],[.6,'#43b8c9'],[1.2,'#6bc46d'],[1.8,'#e8d54a'],[2.4,'#f39a2b'],[3.2,'#e24a3b']]; return h=>{ for(let i=ST.length-1;i>=0;i--) if(h>=ST[i][0]) return ST[i][1]; return ST[0][1]; }; })();
 const hmF=h=>h.toFixed(1).replace('.',',');
 const hmDirs=['N','NE','E','SE','S','SO','O','NO'], hmDn=d=>hmDirs[Math.round(d/45)%8];
