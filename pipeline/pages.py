@@ -67,13 +67,14 @@ PRIVACY = {
 <p class="lead">Houlalah ne te demande aucune donnée personnelle : pas de compte, pas de formulaire, pas de cookie publicitaire, pas d'outil de suivi.</p>
 
 <h2>Ce qui est enregistré sur ton appareil</h2>
-<p>Le site mémorise dans le stockage local de ton navigateur tes préférences : spots favoris, choix « Large / Côte » du radar. Ces informations restent sur ton appareil et ne sont envoyées nulle part. Tu peux les effacer en vidant les données du site dans ton navigateur.</p>
+<p>Le site mémorise dans le stockage local de ton navigateur tes préférences : spots favoris, choix « Large / Côte » du radar, et le fait d'avoir déjà vu l'écran d'accueil. Ces informations restent sur ton appareil et ne sont envoyées nulle part. Tu peux les effacer en vidant les données du site dans ton navigateur.</p>
 
 <h2>Services tiers</h2>
 <ul>
 <li><b>Hébergement (GitHub Pages)</b> : comme tout serveur web, il enregistre l'adresse IP des visiteurs dans ses journaux techniques.</li>
 <li><b>Polices de caractères (Google Fonts)</b> : le navigateur les télécharge auprès de Google, qui voit l'adresse IP de ta connexion.</li>
-<li><b>Bibliothèque de cartes (jsDelivr)</b> : la carte des spots charge un script depuis ce réseau de diffusion.</li>
+<li><b>Bibliothèques de cartes (jsDelivr)</b> : la carte des spots et la carte de l'accueil chargent un script depuis ce réseau de diffusion.</li>
+<li><b>Fond de carte de l'accueil (OpenFreeMap, données OpenStreetMap)</b> : le navigateur télécharge les images de la carte auprès de ce service, qui voit l'adresse IP de ta connexion.</li>
 <li><b>Open-Meteo</b> : en cas de panne du serveur de prévisions de Houlalah, ton navigateur interroge directement Open-Meteo, qui voit alors ton adresse IP.</li>
 </ul>
 <p>Ces services ont leurs propres politiques de confidentialité. Houlalah n'a pas accès aux données qu'ils collectent.</p>
