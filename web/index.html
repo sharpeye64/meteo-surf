@@ -1129,11 +1129,15 @@ body.homeOn{overflow:hidden}
 #home .hm-it i{width:12px;height:12px;border-radius:50%}
 #home .hm-it b{font-size:15px;font-weight:700}
 #home .hm-v{font-size:17px;font-weight:800}#home .hm-v small{font-size:12px;color:#9fb4bd;font-weight:600}
-#home .hm-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-#home .hm-st{background:#ffffff10;border:1px solid #ffffff1f;border-radius:16px;padding:12px 14px;cursor:pointer;color:inherit;font:inherit;text-align:left}
-#home .hm-st:hover{background:#ffffff1a}
-#home .hm-st small{display:block;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#9fb4bd;font-weight:700}
-#home .hm-st b{font-size:22px;display:block;line-height:1.2}#home .hm-st span{font-size:13px;color:#cfe3ee}
+#home .hm-bl{display:grid;gap:8px}
+#home .hm-k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#9fb4bd;font-weight:800}
+#home .hm-rows{display:grid;gap:8px}
+#home .hm-bi{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;background:#ffffff10;border:1px solid #ffffff1f;border-radius:16px;padding:10px 14px;cursor:pointer;color:inherit;font:inherit;text-align:left;width:100%}
+#home .hm-bi:hover{background:#ffffff1a}
+#home .hm-bi .ic{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#f6e6bf,#e0bd7a);color:#2a2112;display:grid;place-items:center}
+#home .hm-bi .ic svg{width:18px;height:18px}
+#home .hm-bi b{font-size:15px;display:block}#home .hm-bi small{color:#9fb4bd;font-size:12px}
+#home .hm-bi .v{font-size:20px;font-weight:800}#home .hm-bi .v small{font-size:12px;font-weight:600}
 #home .hm-card{display:flex;flex-direction:column;gap:14px}
 #home .hm-back{background:none;border:0;color:#cfe3ee;font:600 13px inherit;font-family:inherit;cursor:pointer;padding:0;text-align:left}
 #home .hm-card h2{font-size:26px;letter-spacing:-.02em;margin:0;font-weight:800}
@@ -1172,13 +1176,13 @@ body.homeOn{overflow:hidden}
 #home .hm-bu .hm-tip small{color:#e9cf9f;font-weight:700}
 @media(max-width:760px){
  #home .hm-panel{left:10px;right:10px;top:auto;bottom:calc(10px + env(safe-area-inset-bottom,0px));width:auto;max-height:46%;padding:14px 16px 16px;border-radius:22px;gap:10px;background:rgba(10,22,30,.38);backdrop-filter:blur(10px) saturate(1.3);-webkit-backdrop-filter:blur(10px) saturate(1.3);border-color:#ffffff30;box-shadow:0 10px 36px #0007}
- #home .hm-h1{font-size:20px;text-shadow:0 1px 10px #000a}#home .hm-lead{display:none}#home .hm-stats{display:none!important}#home .hm-leg{display:none}#home .hm-res{max-height:150px}
+ #home .hm-h1{font-size:20px;text-shadow:0 1px 10px #000a}#home .hm-lead{display:none}#home .hm-bl .hm-rows{display:flex;overflow-x:auto;gap:8px;margin:0 -4px;padding:0 4px 2px}#home .hm-bi{min-width:148px;width:auto;grid-template-columns:1fr auto;padding:8px 12px}#home .hm-bi .ic,#home .hm-bi small{display:none}#home .hm-bi b{font-size:13px;white-space:nowrap}#home .hm-bi .v{font-size:17px}#home .hm-leg{display:none}#home .hm-res{max-height:150px}
  #home .hm-srch{height:44px;background:#ffffff1c}#home .hm-srch input{font-size:16px}#home .hm-card h2{font-size:23px}#home .hm-pm b{font-size:30px}#home .hm-card{gap:10px}
  #home .hm-card .hm-meta{display:none}#home .hm-dl{font-size:13px;padding:9px 12px}#home .hm-pm div{padding:11px 14px}
  #home .hm-go{position:sticky;bottom:0}
  /* recherche : le panneau monte en haut pour rester au-dessus du clavier */
  #home.hm-search .hm-panel{top:58px;bottom:auto;max-height:calc(var(--hmvh,100%) - 70px)}
- #home.hm-search .hm-eb,#home.hm-search .hm-h1,#home.hm-search .hm-stats,#home.hm-search .hm-chips{display:none!important}
+ #home.hm-search .hm-eb,#home.hm-search .hm-h1,#home.hm-search .hm-bl,#home.hm-search .hm-chips{display:none!important}
  #home.hm-search .hm-res{max-height:calc(var(--hmvh,100vh) - 150px)}
  #home .hm-top{padding:12px 14px}
  #home .hm-nav a{display:none}
@@ -2535,7 +2539,8 @@ function homeData(){
   return state.data.map((d,i)=>{ const hs=d.hours, h=hs.find(x=>x.time.slice(0,13)===key)||hs.find(x=>x.time>=key)||hs[0]; return {i,n:d.spot.name,r:d.spot.region,lat:d.spot.mlat??d.spot.lat,lon:d.spot.mlon??d.spot.lon,h:h&&h.H,p:h&&h.T?Math.round(h.T):null,d:h&&h.D}; }).filter(x=>x.h!=null).sort((a,b)=>b.lat-a.lat);
 }
 function homeBuoys(){
-  const o=[]; [...(state.coast||[]),...(state.offshore||[])].forEach(b=>{ if(b.latest&&b.latest.hs!=null) o.push({id:b.id,n:b.name,sub:b.sub||'sur la côte',lat:+b.lat,lon:+b.lon,L:b.latest}); });
+  const o=[]; (state.coast||[]).forEach(b=>{ if(b.latest&&b.latest.hs!=null) o.push({id:b.id,n:b.name,sub:b.sub||'sur la côte',lat:+b.lat,lon:+b.lon,L:b.latest,coast:true}); });
+  (state.offshore||[]).forEach(b=>{ if(b.latest&&b.latest.hs!=null) o.push({id:b.id,n:b.name,sub:b.sub||'sur la côte',lat:+b.lat,lon:+b.lon,L:b.latest}); });
   return o;
 }
 function homeBuoyPos(key){ if(key==='gascogne') return {lat:+state.gascogne.lat,lon:+state.gascogne.lon}; const b=[...(state.coast||[]),...(state.offshore||[])].find(x=>x.id===key); return b?{lat:+b.lat,lon:+b.lon}:null; }
@@ -2627,8 +2632,8 @@ function homeHomePanel(){
    <div class="hm-srch"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="hmQ" placeholder="Chercher un spot…" autocomplete="off" aria-label="Chercher un spot" value="${HOME.q.replace(/"/g,'')}"></div>
    <div class="hm-chips"><button type="button" class="hm-geo" id="hmGeo">◎ Autour de moi</button>${regs.map(g=>`<button type="button" class="${g===HOME.reg?'on':''}" data-g="${g}">${g}</button>`).join('')}</div>
    <div class="hm-res" id="hmRes"></div>
-   <div class="hm-stats" id="hmStats"><button type="button" class="hm-st" id="hmMx"><small>Houle la plus grande</small><b>${hmF(mx)} m</b><span>${sMax.n}</span></button><button type="button" class="hm-st" id="hmMn"><small>Houle la plus petite</small><b>${hmF(mn)} m</b><span>${sMin.n}</span></button></div>`;
-  document.getElementById('hmMx').onclick=()=>homeSpot(sMax,true); document.getElementById('hmMn').onclick=()=>homeSpot(sMin,true);
+   <div class="hm-bl" id="hmBl"><div class="hm-k">Les bouées, mesures réelles</div><div class="hm-rows">${HOME.bu.filter(b=>b.coast).map(b=>{ const ah=(new Date()-new Date(b.L.time+':00'))/36e5; return `<button type="button" class="hm-bi" data-b="${b.id}"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15a7 7 0 0 1 14 0zM12 8V4M3 19c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/></svg></span><span><b>${b.n}</b><small>${ageTxt(ah)}${b.L.tp?' · période '+Math.round(b.L.tp)+' s':''}</small></span><span class="v">${hmF(b.L.hs)}<small> m</small></span></button>`; }).join('')}</div></div>`;
+  P.querySelectorAll('.hm-bi').forEach(b=>b.onclick=()=>homeBuoy(HOME.bu.find(x=>x.id===b.dataset.b)));
   const qi=document.getElementById('hmQ'); qi.oninput=()=>{ HOME.q=qi.value; homeRes(); };
   const hm=document.getElementById('home');
   qi.onfocus=()=>{ if(innerWidth<760) hm.classList.add('hm-search'); };
@@ -2638,10 +2643,10 @@ function homeHomePanel(){
   homeRes(); homeTopBtn();
 }
 function homeRes(){
-  const r=document.getElementById('hmRes'), st=document.getElementById('hmStats'); if(!r) return;
+  const r=document.getElementById('hmRes'), st=document.getElementById('hmBl'); if(!r) return;
   const t=HOME.q.trim().toLowerCase(), L=HOME.data.filter(s=>(HOME.reg==='Tous'||s.r===HOME.reg)&&(!t||s.n.toLowerCase().includes(t)));
-  if(!t&&HOME.reg==='Tous'){ r.style.display='none'; st.style.display='grid'; return; }
-  st.style.display='none'; r.style.display='block';
+  if(!t&&HOME.reg==='Tous'){ r.style.display='none'; if(st) st.style.display='grid'; return; }
+  if(st) st.style.display='none'; r.style.display='block';
   r.innerHTML=L.map(s=>`<button type="button" class="hm-it" data-i="${s.i}"><i style="background:${hmCol(s.h)}"></i><b>${s.n}</b><span class="hm-v">${hmF(s.h)}<small> m</small></span></button>`).join('')||'<p class="hm-lead" style="padding:10px">Aucun spot trouvé.</p>';
   r.querySelectorAll('.hm-it').forEach(e=>e.onclick=()=>homeSpot(HOME.data.find(s=>s.i===+e.dataset.i),true));
 }
