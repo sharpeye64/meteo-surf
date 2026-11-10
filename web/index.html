@@ -1179,6 +1179,7 @@ body.homeOn{overflow:hidden}
  #home.hm-search .hm-res{max-height:calc(var(--hmvh,100vh) - 150px)}
  #home .hm-top{padding:12px 14px}
  #home .hm-nav a{display:none}
+ #home .hm-nav button{max-width:62vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
 @media(prefers-reduced-motion:reduce){#home .hm-pt:after,#home .hm-bu:before,#home .hm-eb:before{animation:none}}
 </style>
@@ -2542,11 +2543,11 @@ async function homeOpen(){
   if(!HOME.ready){
     HOME.data=homeData(); HOME.bu=homeBuoys(); HOME.sea=null;
     el.innerHTML=`<div class="hm-map" id="hmMap"></div><canvas class="hm-sw" id="hmSw"></canvas><div class="hm-vig"></div>
-      <div class="hm-top"><div class="hm-logo"><img src="brand/symbol.svg" alt="" height="24">houlalah</div><div class="hm-nav"><a href="comment-ca-marche/">Comment ça marche</a><button type="button" id="hmClose">Voir la prévision ✕</button></div></div>
+      <div class="hm-top"><div class="hm-logo"><img src="brand/symbol.svg" alt="" height="24">houlalah</div><div class="hm-nav"><a href="comment-ca-marche/">Comment ça marche</a><button type="button" id="hmClose" aria-label="Ouvrir la prévision"></button></div></div>
       <aside class="hm-panel" id="hmPanel" aria-live="polite"></aside>
       <div class="hm-leg">Houle prévue (points)<i></i><div><span>0 m</span><span>3 m +</span></div><div class="hm-lg2"><b></b>Bouée : mesure réelle en mer</div></div>`;
     el.setAttribute('role','dialog'); el.setAttribute('aria-label','La côte en ce moment');
-    document.getElementById('hmClose').onclick=homeClose;
+    document.getElementById('hmClose').onclick=()=>{ const i=HOME.sel; homeClose(); if(i!=null) go(i); };
     HOME.ready=true; homeHomePanel();
     try{ await homeLoadLib(); homeInitMap(); }catch(e){ const m=document.getElementById('hmMap'); if(m) m.style.background='radial-gradient(ellipse at 70% 50%,#17303f,#09141a)'; }
   } else { homeHomePanel(); if(HOME.map){ HOME.map.resize(); homeFit(); } }
@@ -2610,7 +2611,8 @@ function homeFrameStart(){
   };
   HOME.raf=requestAnimationFrame(frame);
 }
-function homeClear(){ HOME.ref=null; document.querySelectorAll('#home .hm-pt,#home .hm-bu').forEach(e=>e.classList.remove('on')); }
+function homeTopBtn(){ const b=document.getElementById('hmClose'); if(!b||!state.data) return; const i=HOME.sel!=null?HOME.sel:state.spot; b.textContent='Voir '+state.data[i].spot.name+' →'; }
+function homeClear(){ HOME.sel=null; HOME.ref=null; document.querySelectorAll('#home .hm-pt,#home .hm-bu').forEach(e=>e.classList.remove('on')); }
 function homeHomePanel(){
   const P=document.getElementById('hmPanel'), D=HOME.data, hs=D.map(s=>s.h), mn=Math.min(...hs), mx=Math.max(...hs), sMin=D.find(s=>s.h===mn), sMax=D.find(s=>s.h===mx);
   const regs=['Tous',...Array.from(new Set(D.map(s=>s.r)))];
@@ -2629,7 +2631,7 @@ function homeHomePanel(){
   qi.onblur=()=>{ if(!qi.value.trim()) hm.classList.remove('hm-search'); };
   P.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ HOME.reg=b.dataset.g; homeFit(); homeHomePanel(); });
   document.getElementById('hmGeo').onclick=()=>{ if(!navigator.geolocation) return; navigator.geolocation.getCurrentPosition(p=>{ let b=null,d=1e9; D.forEach(s=>{ const k=(s.lat-p.coords.latitude)**2+((s.lon-p.coords.longitude)*.7)**2; if(k<d){d=k;b=s;} }); if(b) homeSpot(b,true); },()=>{ const g=document.getElementById('hmGeo'); if(g) g.textContent='Localisation refusée'; }); };
-  homeRes();
+  homeRes(); homeTopBtn();
 }
 function homeRes(){
   const r=document.getElementById('hmRes'), st=document.getElementById('hmStats'); if(!r) return;
@@ -2642,6 +2644,7 @@ function homeRes(){
 function homeSpot(s,fly){
   document.getElementById('home').classList.remove('hm-search'); if(document.activeElement&&document.activeElement.blur) document.activeElement.blur();
   homeClear(); const pt=HOME.pts[s.n]; if(pt) pt.getElement().querySelector('.hm-pt').classList.add('on');
+  HOME.sel=s.i; homeTopBtn();
   const spot=state.data[s.i].spot, cur=pickBuoy(buoyChoices(spot)), P=document.getElementById('hmPanel');
   let measured='', txt='', ref='';
   if(cur){ const dif=s.h-cur.L.hs, old=cur.ageH>6;
@@ -2662,7 +2665,7 @@ function homeSpot(s,fly){
     HOME.map.fitBounds([[Math.min(spot.lon,b.lon),Math.min(spot.lat,b.lat)],[Math.max(spot.lon,b.lon),Math.max(spot.lat,b.lat)]],{padding:mob?{top:90,bottom:Math.round(innerHeight*.50),left:60,right:60}:{top:120,bottom:120,left:Math.min(480,innerWidth*.36),right:110},pitch:0,bearing:0,maxZoom:10.2,duration:1200}); }
 }
 function homeBuoy(b){
-  homeClear(); const e=HOME.bms[b.id]; if(e) e.getElement().querySelector('.hm-bu').classList.add('on');
+  homeClear(); homeTopBtn(); const e=HOME.bms[b.id]; if(e) e.getElement().querySelector('.hm-bu').classList.add('on');
   const L=b.L, P=document.getElementById('hmPanel'), ageH=(new Date()-new Date(L.time+':00'))/36e5;
   P.innerHTML=`<div class="hm-card"><button type="button" class="hm-back" id="hmBk">← Toute la côte</button>
    <span class="hm-eb">Mesure réelle · ${ageTxt(ageH)}</span><h2>Bouée ${b.n}</h2><div class="hm-rg">${b.sub}</div>
