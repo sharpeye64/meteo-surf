@@ -234,3 +234,8 @@ buoy.requests.get = lambda url, *a, **k: FakeResp(status_code=503) if "cloudferr
 g = buoy.fetch([{"name": "x", "lat": 43.5, "lon": -1.5}])
 assert g["source"] == "NOAA NDBC" and g["latest"]["hs"] > 0
 print("bouée OK (Copernicus + secours NDBC)")
+
+# Records et moyennes des bouées (archive locale du test)
+_bs = history.buoy_stats(_hist)
+assert _bs["06402"]["n"] >= 40 and _bs["06402"]["hs_max"] >= _bs["06402"]["hs_mean"] > 0, _bs["06402"]
+print("records bouées OK :", {k: (v["days"], v["hs_max"]) for k, v in _bs.items()})

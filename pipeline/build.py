@@ -189,7 +189,7 @@ def main():
     meta["wave_models"] = [{"key": k, "label": labels[k]} for k in labels]
     meta["wind_models"] = [{"key": k, "label": l} for k, l, _a in config.WIND_MODELS]
     meta["buoy_correction"] = ratio
-    payload = {"meta": meta, "gascogne": gascogne, "coast": coast, "offshore": offshore, "tide_coef": tide_coef, "reliability": reliability, "spots": out_spots}
+    payload = {"meta": meta, "gascogne": gascogne, "coast": coast, "offshore": offshore, "tide_coef": tide_coef, "reliability": reliability, "buoy_stats": history.buoy_stats(), "spots": out_spots}
     config.OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     config.OUTPUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
     try:

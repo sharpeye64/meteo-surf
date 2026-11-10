@@ -179,3 +179,42 @@ def coast_summary(d=None):
                 o["last"] = max(filter(None, [o["last"], ks[-1]]))
     runs = sum(len(f.read_text(encoding="utf-8").splitlines()) for f in (d / "coast_runs").glob("*.jsonl")) if (d / "coast_runs").exists() else 0
     return {"buoys": out, "runs": runs}
+
+
+def buoy_stats(d=None, days_shown=30):
+    """Records et moyennes par bouée, calculés sur toutes les mesures archivées (coast_obs).
+    Retourne {id: {"since", "n", "days", "hs_max", "hs_max_t", "hmax_max", "hmax_max_t", "hs_mean", "tp_mean",
+    "sst_min", "sst_max", "sst_mean", "daily": [[jour, Hs max du jour], …]}}. Rien si pas d'archive."""
+    d = Path(d) if d else history_dir()
+    out = {}
+    folder = d / "coast_obs"
+    if not folder.exists():
+        return out
+    rows = {}
+    for f in sorted(folder.glob("*.json")):
+        try:
+            for bid, r in json.loads(f.read_text(encoding="utf-8")).items():
+                rows.setdefault(bid, {}).update(r)
+        except ValueError:
+            continue
+    for bid, r in rows.items():
+        r = {t: v for t, v in sorted(r.items()) if v.get("hs") is not None}
+        if not r:
+            continue
+
+        def mean(k):
+            v = [x[k] for x in r.values() if x.get(k) is not None]
+            return round(sum(v) / len(v), 2) if v else None
+
+        tmax = max(r, key=lambda t: r[t]["hs"])
+        hm = {t: v["hmax"] for t, v in r.items() if v.get("hmax") is not None}
+        tm = max(hm, key=hm.get) if hm else None
+        sst = [x["sst"] for x in r.values() if x.get("sst") is not None]
+        daily = {}
+        for t, v in r.items():
+            daily[t[:10]] = max(daily.get(t[:10], 0), v["hs"])
+        out[bid] = {"since": min(r)[:10], "n": len(r), "days": len(daily), "hs_max": r[tmax]["hs"], "hs_max_t": tmax,
+                    "hmax_max": hm[tm] if tm else None, "hmax_max_t": tm, "hs_mean": mean("hs"), "tp_mean": mean("tp"),
+                    "sst_min": min(sst) if sst else None, "sst_max": max(sst) if sst else None, "sst_mean": mean("sst"),
+                    "daily": [[k, round(v, 1)] for k, v in list(daily.items())[-days_shown:]]}
+    return out

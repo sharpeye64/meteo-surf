@@ -16,6 +16,9 @@ esc = html.escape
 DAYS = ["lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim."]
 
 EXTRA_CSS = """
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}@media(max-width:760px){.sg{grid-template-columns:1fr 1fr}}
+.sg b{display:block;font-size:26px;font-weight:800;letter-spacing:-.02em;margin:4px 0 2px}.sg b i{font-size:.55em;font-style:normal;opacity:.6;font-weight:600}.sg small{display:block;font-size:12px;color:var(--muted)}.sg .k{color:var(--muted)}
+.dbars{margin-top:20px}.dbars svg{display:block;width:100%;height:84px;margin-top:8px}.dax{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px}
 .crumb{font-size:13px;color:var(--muted);margin:0 0 12px}.crumb a{color:var(--muted)}.crumb b{color:var(--text);font-weight:600}
 .live{display:inline-flex;gap:8px;align-items:center;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#F4E2B8;margin-bottom:8px}
 .live:before{content:"";width:8px;height:8px;border-radius:50%;background:#1f9d55}
@@ -85,6 +88,36 @@ MAP_JS = """
 """
 
 
+MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."]
+
+
+def date_fr(t):
+    return f"{int(t[8:10])} {MOIS[int(t[5:7]) - 1]}" + ("" if t[:4] == str(datetime.now().year) else f" {t[:4]}")
+
+
+def stats_html(st):
+    """Records et moyennes depuis le début de l'archive. Annonce honnêtement la durée couverte."""
+    if not st or st["days"] < 2:
+        return ""
+    nd = st["days"]
+    dur = f"{nd} jours de mesures, depuis le {date_fr(st['since'])}"
+    cells = [("Plus grosse houle", f'{fr(st["hs_max"])}<i> m</i>', date_fr(st["hs_max_t"])),
+             ("Plus grosse vague", f'{fr(st["hmax_max"])}<i> m</i>' if st.get("hmax_max") is not None else "—", date_fr(st["hmax_max_t"]) if st.get("hmax_max_t") else ""),
+             ("Houle moyenne", f'{fr(st["hs_mean"])}<i> m</i>', f'période {fr(st["tp_mean"], 0)} s en moyenne' if st.get("tp_mean") else ""),
+             ("Eau", f'{sst_txt(st["sst_mean"])}<i> °C</i>' if st.get("sst_mean") is not None else "—",
+              f'de {sst_txt(st["sst_min"])} à {sst_txt(st["sst_max"])} °C' if st.get("sst_min") is not None else "")]
+    grid = "".join(f'<div><span class="k">{k}</span><b>{v}</b><small>{esc(n)}</small></div>' for k, v, n in cells)
+    daily = st.get("daily") or []
+    bars = ""
+    if len(daily) >= 3:
+        top = max(max(v for _, v in daily), 1.0)
+        w = 100.0 / len(daily)
+        rects = "".join(f'<rect x="{i * w + w * .12:.2f}" y="{60 - 56 * v / top:.1f}" width="{w * .76:.2f}" height="{56 * v / top:.1f}" rx="1" fill="{spot_color(v)}"><title>{date_fr(d)} : {fr(v)} m</title></rect>' for i, (d, v) in enumerate(daily))
+        bars = (f'<div class="dbars"><span class="k">Houle maximale de chaque jour</span><svg viewBox="0 0 100 62" preserveAspectRatio="none" role="img" aria-label="Houle maximale par jour">{rects}</svg>'
+                f'<div class="dax"><span>{date_fr(daily[0][0])}</span><span>{date_fr(daily[-1][0])}</span></div></div>')
+    return f'<h2>Records et moyennes</h2><div class="bcard"><div class="sg">{grid}</div>{bars}<p class="muted" style="margin:14px 0 0;font-size:13px">{dur}. Les chiffres se précisent à mesure que les mesures s’accumulent.</p></div>'
+
+
 def sst_txt(x):
     return "—" if x is None else fr(x, 1)
 
@@ -130,7 +163,8 @@ def collect(payload):
         if L.get("hs") is None:
             continue
         out.append({"id": b["id"], "name": b["name"], "slug": slugify(b["name"]), "sub": b.get("sub") or "sur la côte", "lat": float(b["lat"]),
-                    "lon": float(b["lon"]), "L": L, "obs": b.get("obs") or [], "model": b.get("model") or []})
+                    "lon": float(b["lon"]), "L": L, "obs": b.get("obs") or [], "model": b.get("model") or [],
+                    "st": (payload.get("buoy_stats") or {}).get(b["id"])})
     return out
 
 
@@ -239,6 +273,7 @@ def buoy_page(site, b, allb, spots, now):
 <h2>Les 48 dernières heures</h2><div class="bcard">{chart_svg(obs, fc, label)}</div>
 <h2>Relevés précédents</h2><div class="bcard tw"><table class="rel"><thead><tr>{head}</tr></thead><tbody>{rows_html(obs, 12)}</tbody></table>
 <details class="more"><summary>Afficher les 48 dernières heures</summary><table class="rel"><tbody>{rows_html(obs, len(obs), 12)}</tbody></table></details></div>
+{stats_html(b.get("st"))}
 <h2>Spots autour de la bouée</h2><ul class="chips">{chips}</ul>
 <h2>Bouées voisines</h2><ul class="chips">{ochips}</ul>
 <p class="muted" style="margin-top:26px">La bouée mesure la mer à l'endroit où elle est placée, pas la taille des vagues sur un spot précis. Prévisions : voir la page de chaque spot.</p>
