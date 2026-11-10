@@ -920,7 +920,8 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
   .wrow,.wrow[aria-pressed="true"]{flex:0 0 54px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0;margin:0;border:0;background:none;box-shadow:none}
   .wrow .wd{font-size:12px;font-weight:700;color:var(--muted)}
   .wrow[aria-pressed="true"] .wd{color:#fff}
-  .wrow .wrb,.wrow .wc{display:none}
+  .wrow .wrb{display:none}
+  .wrow .wc{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-top:-3px}
   .wrow .wm{display:flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:27px;background:var(--c);color:#0c1519;font-size:16px;font-weight:800;text-align:center}
   .wrow .wm small{display:none}
   .wrow[aria-pressed="true"] .wm{color:#0c1519;box-shadow:0 0 0 3px #0c1519,0 0 0 5px #fff}
@@ -999,47 +1000,53 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
 
 /* ---- Ordinateur : « Maintenant » en haut, le jour à choisir, puis la frise (proposition 1) ---- */
 @media (min-width:901px){
-  .heroBody{padding:clamp(100px,13vh,124px) 20px 24px;gap:0}
-  .hero2{display:block;width:min(100%,850px)}
+  .hero{min-height:0}
+  .hero::after{background:linear-gradient(180deg,rgba(var(--ink-rgb),.6) 0%,rgba(var(--ink-rgb),.5) 55%,rgba(var(--ink-rgb),.3) 82%,var(--abyss) 100%)}
+  .heroBody{padding:30px 20px 34px;gap:0}
+  .hero2{display:block}
   .hero .bar{grid-template-columns:1fr auto 1fr}
   .hero .bar .brand .bword{display:block}
   .hero .bar .brand{justify-self:start}
   .hero .bar #favBtn{justify-self:end}
   .hero .bar #openPicker{width:auto;justify-content:center}
-  .hcol{grid-template-columns:minmax(0,1.05fr) minmax(0,1.1fr) minmax(0,.85fr) minmax(0,.95fr) minmax(0,.6fr);align-items:stretch}
+  .hcol{grid-template-columns:auto auto minmax(0,1fr) minmax(0,1fr) minmax(0,.75fr);align-items:start;column-gap:0}
   .hl,.hr,.rows{display:contents}
-  .live{margin:0 0 14px;font-size:12.5px}
-  .hnum{padding:20px 22px 18px;border-radius:30px 0 0 30px}
-  .verdict .vq{font-size:clamp(40px,3.8vw,52px)}
-  .verdict .vn{display:flex;align-items:center;gap:8px;font-size:15px;margin-top:12px}
+  .live{margin:0 0 20px;font-size:12.5px}
+  .hnum,.mcard,.mcard.old,.rows .rw,.rows #rwSea{background:none;border:0;border-radius:0;box-shadow:none;height:auto;text-shadow:0 1px 8px rgba(0,0,0,.55),0 0 22px rgba(0,0,0,.3)}
+  .hnum{padding:0 46px 0 0}
+  .verdict .vq{font-size:clamp(56px,6vw,82px)}
+  .verdict .vq .u{font-size:.36em}
+  .verdict .vn{display:flex;align-items:center;gap:8px;font-size:15px;margin-top:12px;color:#fff}
   .vnA{display:block;flex:none}
-  .mcard{padding:20px 22px 18px;border-radius:0;border-left:1px solid rgba(233,207,159,.4)}
-  .mcard::after{top:24px;right:20px}
-  .mcard .mval b{font-size:clamp(40px,3.8vw,52px)}
-  .mcard .mname{font-size:15px;margin-top:10px}
+  .plab,.mcard .mpill{font-size:12px;color:#E3EAEC}
+  .mcard,.mcard.old{padding:0 46px 0 34px;border-left:1px solid rgba(233,207,159,.55)}
+  .mcard::after{display:none}
+  .mcard .mpill{color:var(--gold)}
+  .mcard .mval b{font-size:clamp(56px,6vw,82px)}
+  .mcard .mname{font-size:15px;margin-top:12px;color:#F6E9CC}
   .mcard .mctx,.mcard .mctx2{display:block;order:4;font-size:13px;color:#F0E2C4;margin-top:4px;font-weight:500}
-  .mcard .mctx2{order:5;opacity:.75;font-size:12.5px}
-  .rows .rw,.rows #rwSea{height:auto;padding:20px 18px 18px;background:rgba(var(--ink-rgb),.62);border:1px solid rgba(255,255,255,.14);border-left:1px solid rgba(255,255,255,.12);border-radius:0;justify-content:flex-start}
-  #rwWind{grid-column:3}#rwTide{grid-column:4}
-  #rwSea{grid-column:5;border-radius:0 30px 30px 0!important}
-  .tiderow{height:auto;padding-top:22px}
-  .rows .rk{font-size:12px}
-  .rows .rvn{font-size:28px;margin-top:10px}
+  .mcard .mctx2{order:5;opacity:.85;font-size:12.5px}
+  .rows .rw,.rows #rwSea{padding:0 28px;border-left:1px solid rgba(255,255,255,.24);justify-content:flex-start}
+  #rwWind{grid-column:3}#rwTide{grid-column:4}#rwSea{grid-column:5}
+  .tiderow{padding-top:0}
+  .rows .rk{font-size:12px;color:#E3EAEC}
+  .rows .rvn{font-size:30px;margin-top:10px}
   .rows .rvn small{font-size:15px}
   .rows #wdL,.rows #seaL{font-size:16px}
-  .rows #tdV{font-size:24px;margin-top:10px}
-  .rows #tdS{font-size:13px}
+  .rows #tdV{font-size:26px;margin-top:10px}
+  .rows #tdS{font-size:14px;color:#E3EAEC}
   .rows .rvd{font-size:14px}
-  .whd{margin:22px 0 10px}
-  .wlist{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;overflow:visible;padding:0;margin:0;max-width:none;justify-self:stretch}
-  .wrow,.wrow[aria-pressed="true"]{flex:none;width:auto;border-radius:20px;background:rgba(var(--ink-rgb),.5);border:1px solid rgba(255,255,255,.12);padding:12px 0;gap:6px;margin:0;box-shadow:none;transition:border-color .15s,background-color .15s}
-  .wrow:hover{border-color:rgba(255,255,255,.4)}
-  .wrow[aria-pressed="true"]{border-color:#fff;background:rgba(var(--ink-rgb),.72)}
-  .wrow .wm{width:50px;height:50px;border-radius:25px;font-size:17px}
+  .whd{display:none}
+  .wlist{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;overflow:visible;padding:0;margin:28px 0 0;max-width:none;justify-self:stretch}
+  .wrow,.wrow[aria-pressed="true"]{flex:none;width:auto;display:grid;grid-template-columns:auto auto;grid-template-areas:"m d" "m c";justify-content:center;align-items:center;column-gap:12px;row-gap:0;background:none;border:0;border-bottom:2px solid rgba(255,255,255,.22);border-radius:0;padding:10px 0 12px;margin:0;box-shadow:none;text-shadow:0 1px 6px rgba(0,0,0,.5);transition:border-color .15s}
+  .wrow:hover{border-bottom-color:rgba(255,255,255,.6)}
+  .wrow[aria-pressed="true"]{border-bottom-color:#fff}
+  .wrow .wm{grid-area:m;width:44px;height:44px;border-radius:22px;font-size:15px;box-shadow:none;text-shadow:none}
   .wrow[aria-pressed="true"] .wm{box-shadow:none}
-  .wrow .wc{display:block;text-align:center;font-size:12px}
+  .wrow .wd{grid-area:d;align-self:end;font-size:14px;text-align:left;color:#E3EAEC}
+  .wrow[aria-pressed="true"] .wd{color:#fff}
+  .wrow .wc{grid-area:c;align-self:start;display:block;font-size:12.5px;text-align:left;margin:0;color:#CFE2E5}
   .wrow .wds{display:none}.wrow .wdl{display:inline}
-  .wrow .wd{font-size:13px}
   .hourly .hhead{margin-bottom:14px}
   .hdm{display:none}.hdd{display:inline}
 }
@@ -1308,9 +1315,9 @@ function weekPill(x,j,k,wmax){
   return `<button class="wkp" data-d="${j}" aria-pressed="${j===k}" aria-label="${lab} : ${m!=null?fmt(m)+' m':'pas de données'}${c?', coefficient '+c:''}${ag?', accord des modèles '+AGREE_TXT[ag]:''}"><span class="d">${j===0?'Auj.':x.label.split(' ')[0]}</span><span class="wb"><i style="height:${m!=null?Math.max(4,Math.round(m/wmax*30)):0}px"></i></span><span class="m">${m!=null?fmt(m):'—'}</span><span class="cf">${c?'coef '+c:''}</span>${dotsHtml(ag)}</button>`;
 }
 function weekRow(x,j,k,wmax){
-  const m=dayMed(x), cf=state.coef&&state.coef[x.date], c=cf&&cf.length?Math.max(...cf):null, ag=dayAgree(x);
+  const m=dayMed(x), cf=state.coef&&state.coef[x.date], Tm=dayMedOf(x,'T'), ag=dayAgree(x);
   const lab=j===0?'Aujourd’hui':j===1?'Demain':x.label;
-  return `<button class="wrow" data-d="${j}" aria-pressed="${j===k}" aria-label="${lab} : ${m!=null?fmt(m)+' m':'pas de données'}${c?', coefficient '+c:''}${ag?', accord des modèles '+AGREE_TXT[ag]:''}"><span class="wd"><span class="wds">${j===0?'Auj.':x.label.split(' ')[0]}</span><span class="wdl">${j===0?'Aujourd’hui':DAYS_LONG[new Date(x.date+'T12:00').getDay()].replace(/^./,c=>c.toUpperCase())}</span></span><span class="wrb"><i style="width:${m!=null?Math.max(3,Math.round(m/wmax*100)):0}%"></i></span><span class="wm" style="--c:${sizeCol(m)}">${m!=null?fmt(m)+'<small> m</small>':'—'}</span><span class="wc">${c?'coef '+c:''}</span></button>`;
+  return `<button class="wrow" data-d="${j}" aria-pressed="${j===k}" aria-label="${lab} : ${m!=null?fmt(m)+' m':'pas de données'}${Tm?', période '+Math.round(Tm)+' s':''}${ag?', accord des modèles '+AGREE_TXT[ag]:''}"><span class="wd"><span class="wds">${j===0?'Auj.':x.label.split(' ')[0]}</span><span class="wdl">${j===0?'Aujourd’hui':DAYS_LONG[new Date(x.date+'T12:00').getDay()].replace(/^./,c=>c.toUpperCase())}</span></span><span class="wrb"><i style="width:${m!=null?Math.max(3,Math.round(m/wmax*100)):0}%"></i></span><span class="wm" style="--c:${sizeCol(m)}">${m!=null?fmt(m)+'<small> m</small>':'—'}</span><span class="wc">${Tm?Math.round(Tm)+' s':''}</span></button>`;
 }
 const TRUST_TXT = ['','Prévision incertaine','Prévision assez fiable','Prévision fiable'];
 function trustHtml(ag){
