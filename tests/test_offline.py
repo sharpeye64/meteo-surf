@@ -216,14 +216,18 @@ print("CANDHIS OK :", [b["name"] for b in data["coast"]], c0["latest"])
 
 import re as _re
 sm = (config.ROOT / "web" / "sitemap.xml").read_text(encoding="utf-8")
-assert sm.count("<url>") == len(data["spots"]) + 5, sm.count("<url>")
+_nb = len(data["coast"]) + len(data["offshore"])   # pages des bouées + leur page liste
+assert sm.count("<url>") == len(data["spots"]) + 5 + _nb + 1, sm.count("<url>")
 assert "Sitemap:" in (config.ROOT / "web" / "robots.txt").read_text()
 pg = (config.ROOT / "web" / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
 assert "<h1>Prévisions surf à Lacanau</h1>" in pg and "application/ld+json" in pg and 'rel="canonical"' in pg and "<table>" in pg
 assert "Houlalah" in (config.ROOT / "web" / "spots" / "index.html").read_text(encoding="utf-8")
 for _slug in ("comment-ca-marche", "mentions-legales", "confidentialite"):
     assert "<h1>" in (config.ROOT / "web" / _slug / "index.html").read_text(encoding="utf-8"), _slug
-print("SEO OK :", len(data["spots"]), "pages de spots + index + sitemap")
+bp = (config.ROOT / "web" / "bouees" / "cap-ferret" / "index.html").read_text(encoding="utf-8")
+assert "<h1>Bouée Cap Ferret</h1>" in bp and "Relevé actuel" in bp and "application/ld+json" in bp and "Relevés précédents" in bp
+assert "Les bouées" in (config.ROOT / "web" / "bouees" / "index.html").read_text(encoding="utf-8")
+print("SEO OK :", len(data["spots"]), "pages de spots + index + sitemap ;", _nb, "pages de bouées")
 
 # Secours : Copernicus indisponible → NOAA NDBC.
 buoy.requests.get = lambda url, *a, **k: FakeResp(status_code=503) if "cloudferro" in url else fake_ndbc()
