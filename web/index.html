@@ -989,6 +989,11 @@ footer .allspots .spotlinks{margin-top:0;border-top:0;padding-top:6px}
   .stkv{justify-self:end;font-size:13px}
 }
 
+/* Étoile « Mes spots » sélectionnée : étoile sable sur verre teinté, plus de noir */
+.glassbtn[aria-pressed="true"],.hero .bar .glassbtn[aria-pressed="true"],.hero .bar .glassbtn[aria-pressed="true"]:hover{background:rgba(233,207,159,.16);border-color:rgba(233,207,159,.75);color:#E9CF9F;filter:none}
+.hero .bar .glassbtn[aria-pressed="true"]:hover{background:rgba(233,207,159,.26);border-color:#E9CF9F}
+.glassbtn[aria-pressed="true"] svg{filter:drop-shadow(0 0 6px rgba(233,207,159,.5))}
+
 /* Téléphone : colonne des libellés du tableau en icônes seules, très étroite */
 @media (max-width:520px){
   .hgrid:not(.cmp){--lab:40px!important}
