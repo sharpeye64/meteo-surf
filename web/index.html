@@ -1738,7 +1738,8 @@ function stopsCol(v,st){
 const SZ_ST=[[0,195,60,88],[0.5,195,65,78],[1,205,75,68],[1.5,218,80,64],[2,250,70,68],[3,285,65,66],[4,320,70,64]];
 const PE_ST=[[4,60,25,90],[7,90,40,82],[10,130,48,72],[13,150,52,64],[16,165,55,56]];
 const sizeCol=H=>stopsCol(H,SZ_ST), periodCell=T=>stopsCol(T,PE_ST);
-function windCell(v,w){ if(v==null) return 'transparent'; const t=clamp(v/40,0,1), hue=w==='onshore'?14:w==='de côté'?46:140; return `hsl(${hue} ${lerpN(35,78,t).toFixed(0)}% ${lerpN(88,62,t).toFixed(0)}%)`; }
+const WI_ST=[[0,200,35,92],[6,198,60,82],[14,160,48,74],[22,110,52,72],[30,52,78,70],[40,28,85,64],[55,6,72,58]];   /* vent : blanc-bleu (faible) → vert (moyen) → jaune → orange → rouge (fort), en km/h */
+function windCell(v){ return stopsCol(v,WI_ST); }
 /* Téléphone : les sections secondaires sont repliées (sur grand écran elles restent ouvertes, sans titre cliquable). */
 const isPhone=()=>innerWidth<=520;
 function fold(id,title,inner){ if(!inner) return ''; return `<details class="fold" id="f-${id}"${isPhone()?'':' open'}><summary class="fsum"><span>${title}</span><i aria-hidden="true"></i></summary><div class="fbody">${inner}</div></details>`; }
