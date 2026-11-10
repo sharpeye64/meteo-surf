@@ -228,7 +228,7 @@ def rows_html(obs, upto, skip=0):
     return "".join(out)
 
 
-def buoy_page(site, b, allb, spots, now):
+def buoy_page(site, b, allb, spots, now, og_image=None):
     L, obs, slug = b["L"], b["obs"], b["slug"]
     name = b["name"]
     # prévision de comparaison : modèle au point de la bouée (large) sinon spot le plus proche (à moins de 40 km)
@@ -286,7 +286,7 @@ def buoy_page(site, b, allb, spots, now):
               {"@type": "ListItem", "position": 1, "name": BRAND, "item": site + "/"},
               {"@type": "ListItem", "position": 2, "name": "Bouées", "item": f"{site}/bouees/"},
               {"@type": "ListItem", "position": 3, "name": name, "item": canonical}]}]
-    return page(site, title, desc, canonical, body, ld, base=base, extra_css=EXTRA_CSS)
+    return page(site, title, desc, canonical, body, ld, base=base, extra_css=EXTRA_CSS, og_image=og_image)
 
 
 def index_page(site, allb, now):
@@ -319,6 +319,8 @@ def generate(payload, root, site, now):
     for b in allb:
         d = base / b["slug"]
         d.mkdir()
-        (d / "index.html").write_text(buoy_page(site, b, allb, spots, now), encoding="utf-8")
+        from . import share
+        og = share.buoy_image(root, b, now)
+        (d / "index.html").write_text(buoy_page(site, b, allb, spots, now, og_image=og), encoding="utf-8")
         urls.append(f"{site}/bouees/{b['slug']}/")
     return urls

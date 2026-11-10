@@ -239,3 +239,11 @@ print("bouée OK (Copernicus + secours NDBC)")
 _bs = history.buoy_stats(_hist)
 assert _bs["06402"]["n"] >= 40 and _bs["06402"]["hs_max"] >= _bs["06402"]["hs_mean"] > 0, _bs["06402"]
 print("records bouées OK :", {k: (v["days"], v["hs_max"]) for k, v in _bs.items()})
+
+# Images de partage : une par spot et par bouée, annoncées dans les balises og:image
+_root = __import__("pathlib").Path(__file__).resolve().parent.parent / "web"
+assert (_root / "og" / "spots" / "lacanau.png").stat().st_size > 20000, "image de partage du spot absente"
+assert (_root / "og" / "bouees" / "cap-ferret.png").stat().st_size > 20000, "image de partage de la bouée absente"
+assert "/og/spots/lacanau.png" in (_root / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
+assert "/og/bouees/cap-ferret.png" in (_root / "bouees" / "cap-ferret" / "index.html").read_text(encoding="utf-8")
+print("images de partage OK :", len(list((_root / "og" / "spots").glob("*.png"))), "spots,", len(list((_root / "og" / "bouees").glob("*.png"))), "bouées")

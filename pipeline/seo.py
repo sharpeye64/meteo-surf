@@ -95,7 +95,8 @@ ul.near a{display:block;background:var(--card);border-radius:14px;padding:12px 1
 .prose p,.prose li{max-width:68ch}.prose ul{padding-left:20px}"""
 
 
-def page(site, title, desc, canonical, body, jsonld, base="../../", extra_css="", top=None):
+def page(site, title, desc, canonical, body, jsonld, base="../../", extra_css="", top=None, og_image=None):
+    og = f"{site}/{og_image}" if og_image else f"{site}/og.png"
     top = top or ("Tous les spots", "spots/")
     ld = "".join(f'<script type="application/ld+json">{json.dumps(j, ensure_ascii=False)}</script>' for j in jsonld)
     esc = html.escape
@@ -104,8 +105,8 @@ def page(site, title, desc, canonical, body, jsonld, base="../../", extra_css=""
 <title>{esc(title)}</title><meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{esc(canonical)}"><meta name="robots" content="index,follow,max-image-preview:large">
 <meta property="og:type" content="website"><meta property="og:site_name" content="{BRAND}"><meta property="og:locale" content="fr_FR">
-<meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}"><meta property="og:url" content="{esc(canonical)}"><meta property="og:image" content="{site}/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{site}/og.png"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc)}">
+<meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}"><meta property="og:url" content="{esc(canonical)}"><meta property="og:image" content="{og}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{og}"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc)}">
 <meta name="theme-color" content="#0A1114">
 <link rel="icon" href="{base}brand/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="{base}brand/apple-touch-icon.png">
 <style>{CSS}{extra_css}</style>{ld}</head><body><main>
@@ -163,7 +164,7 @@ def profile_html(sp, t):
             '<p class="muted">Repères indicatifs, à confirmer sur place : fonds, courants et dangers changent avec les tempêtes et les saisons.</p>')
 
 
-def spot_page(site, sp, spots_meta, payload, now):
+def spot_page(site, sp, spots_meta, payload, now, og_image=None):
     name, slug = sp["name"], sp["slug"]
     rows = sp["rows"]
     t = rows[0] if rows else None
@@ -216,7 +217,7 @@ def spot_page(site, sp, spots_meta, payload, now):
             {"@type": "ListItem", "position": 2, "name": "Spots de surf", "item": site + "/spots/"},
             {"@type": "ListItem", "position": 3, "name": name, "item": canonical}]},
     ]
-    return page(site, title, desc, canonical, body, ld)
+    return page(site, title, desc, canonical, body, ld, og_image=og_image)
 
 
 def index_page(site, spots_meta, now):
@@ -256,12 +257,18 @@ def generate(payload, out_dir=None, site=None):
     base = root / "spots"
     if base.exists():
         shutil.rmtree(base)
+    if (root / "og").exists():
+        shutil.rmtree(root / "og")
     base.mkdir(parents=True)
     (base / "index.html").write_text(index_page(site, spots, now), encoding="utf-8")
     for sp in spots:
         d = base / sp["slug"]
         d.mkdir()
-        (d / "index.html").write_text(spot_page(site, sp, spots, payload, now), encoding="utf-8")
+        og = None
+        if sp["rows"]:
+            from . import share
+            og = share.spot_image(root, sp, sp["rows"][0], now)
+        (d / "index.html").write_text(spot_page(site, sp, spots, payload, now, og_image=og), encoding="utf-8")
     from . import pages
     for spec in pages.ALL:
         d = root / spec["slug"]

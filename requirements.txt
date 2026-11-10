@@ -4,3 +4,4 @@ pandas>=2.1
 xarray>=2024.1
 netCDF4>=1.6.5
 utide>=0.3
+pillow>=10.1
