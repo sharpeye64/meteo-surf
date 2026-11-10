@@ -15,7 +15,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 45.00104,
+  "mlon": -1.20311
  },
  {
   "name": "Le Porge",
@@ -33,7 +35,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 44.89045,
+  "mlon": -1.21882
  },
  {
   "name": "La Jenny",
@@ -51,7 +55,9 @@
   "level": "Tous",
   "notes": "Plage naturiste",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 44.86843,
+  "mlon": -1.22203
  },
  {
   "name": "Le Grand Crohot",
@@ -69,7 +75,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 44.79182,
+  "mlon": -1.2357
  },
  {
   "name": "Le Truc Vert",
@@ -87,7 +95,9 @@
   "level": "Intermédiaire",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 44.72653,
+  "mlon": -1.24849
  },
  {
   "name": "Le Cap Ferret",
@@ -105,7 +115,9 @@
   "level": "Intermédiaire",
   "notes": "Courants forts près de la passe",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 44.6448,
+  "mlon": -1.26127
  },
  {
   "name": "La Salie",
@@ -123,7 +135,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 44.56482,
+  "mlon": -1.25231
  },
  {
   "name": "Biscarrosse",
@@ -141,7 +155,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 44.44396,
+  "mlon": -1.25703
  },
  {
   "name": "Mimizan",
@@ -159,7 +175,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 44.21619,
+  "mlon": -1.29857
  },
  {
   "name": "Contis",
@@ -177,7 +195,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 44.09252,
+  "mlon": -1.32662
  },
  {
   "name": "Cap de l'Homy",
@@ -195,7 +215,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 44.03435,
+  "mlon": -1.3422
  },
  {
   "name": "Saint Girons",
@@ -213,7 +235,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.95281,
+  "mlon": -1.36515
  },
  {
   "name": "Moliets",
@@ -231,7 +255,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.85412,
+  "mlon": -1.3944
  },
  {
   "name": "Messanges",
@@ -249,7 +275,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.81593,
+  "mlon": -1.40634
  },
  {
   "name": "Vieux Boucau",
@@ -267,7 +295,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.7883,
+  "mlon": -1.41483
  },
  {
   "name": "Soustons Plage",
@@ -285,7 +315,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.76608,
+  "mlon": -1.42152
  },
  {
   "name": "Les Casernes",
@@ -303,7 +335,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.71515,
+  "mlon": -1.43592
  },
  {
   "name": "Le Penon",
@@ -321,7 +355,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.70014,
+  "mlon": -1.43947
  },
  {
   "name": "Les Bourdaines",
@@ -339,7 +375,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.69257,
+  "mlon": -1.44073
  },
  {
   "name": "Les Estagnots",
@@ -357,7 +395,9 @@
   "level": "Intermédiaire",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.68302,
+  "mlon": -1.44149
  },
  {
   "name": "Les Culs Nus",
@@ -375,7 +415,9 @@
   "level": "Confirmé",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.67191,
+  "mlon": -1.44252
  },
  {
   "name": "La Gravière",
@@ -393,7 +435,9 @@
   "level": "Expert",
   "notes": "Ferme quand c'est trop gros",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.66481,
+  "mlon": -1.44359
  },
  {
   "name": "La Nord",
@@ -411,7 +455,9 @@
   "level": "Confirmé",
   "notes": "Amplifiée par le Gouf de Capbreton",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.66082,
+  "mlon": -1.44522
  },
  {
   "name": "La Centrale",
@@ -429,7 +475,9 @@
   "level": "Confirmé",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.65738,
+  "mlon": -1.44703
  },
  {
   "name": "La Sud",
@@ -447,7 +495,9 @@
   "level": "Débutant → intermédiaire",
   "notes": "Plus abritée",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.65207,
+  "mlon": -1.44636
  },
  {
   "name": "L'Estacade",
@@ -465,7 +515,9 @@
   "level": "Intermédiaire → confirmé",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.64704,
+  "mlon": -1.44567
  },
  {
   "name": "Le Prévent",
@@ -483,7 +535,9 @@
   "level": "Tous",
   "notes": "Abrité, marche sur houle plus grosse",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.64194,
+  "mlon": -1.44776
  },
  {
   "name": "Le Santocha",
@@ -501,7 +555,9 @@
   "level": "Tous",
   "notes": "Abrité, marche sur houle plus grosse",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.63362,
+  "mlon": -1.45223
  },
  {
   "name": "La Piste",
@@ -519,7 +575,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.62827,
+  "mlon": -1.45507
  },
  {
   "name": "Labenne",
@@ -537,7 +595,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.6009,
+  "mlon": -1.47311
  },
  {
   "name": "Ondres",
@@ -555,7 +615,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.57407,
+  "mlon": -1.49107
  },
  {
   "name": "Tarnos",
@@ -573,7 +635,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.54991,
+  "mlon": -1.5082
  },
  {
   "name": "La Barre",
@@ -591,7 +655,9 @@
   "level": "Confirmé",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.52831,
+  "mlon": -1.52415
  },
  {
   "name": "Les Cavaliers",
@@ -609,7 +675,9 @@
   "level": "Intermédiaire → confirmé",
   "notes": "Puissant",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.51941,
+  "mlon": -1.52868
  },
  {
   "name": "L'Océan",
@@ -627,7 +695,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.51375,
+  "mlon": -1.53335
  },
  {
   "name": "La Madrague",
@@ -645,7 +715,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.5091,
+  "mlon": -1.53688
  },
  {
   "name": "Les Corsaires",
@@ -663,7 +735,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.50616,
+  "mlon": -1.53887
  },
  {
   "name": "Marinella",
@@ -681,7 +755,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.5044,
+  "mlon": -1.5401
  },
  {
   "name": "Les Sables d'Or",
@@ -699,7 +775,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.5005,
+  "mlon": -1.54334
  },
  {
   "name": "Le Club",
@@ -717,7 +795,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.49773,
+  "mlon": -1.54502
  },
  {
   "name": "Le VVF",
@@ -735,7 +815,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.49469,
+  "mlon": -1.54686
  },
  {
   "name": "La Grande Plage",
@@ -753,7 +835,9 @@
   "level": "Tous",
   "notes": "Très fréquenté",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.48498,
+  "mlon": -1.55918
  },
  {
   "name": "La Côte des Basques",
@@ -771,7 +855,9 @@
   "level": "Débutant / longboard",
   "notes": "Disparaît à marée haute",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.47796,
+  "mlon": -1.56699
  },
  {
   "name": "Marbella",
@@ -789,7 +875,9 @@
   "level": "Intermédiaire",
   "notes": "",
   "tide_port": "boucau",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.47059,
+  "mlon": -1.57118
  },
  {
   "name": "La Milady",
@@ -807,7 +895,9 @@
   "level": "Débutant / longboard",
   "notes": "",
   "tide_port": "socoa",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.46498,
+  "mlon": -1.57501
  },
  {
   "name": "Ilbarritz",
@@ -825,7 +915,9 @@
   "level": "Intermédiaire",
   "notes": "",
   "tide_port": "socoa",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.45775,
+  "mlon": -1.58083
  },
  {
   "name": "Erretegia",
@@ -843,7 +935,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "socoa",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.44949,
+  "mlon": -1.58714
  },
  {
   "name": "Bidart Centre",
@@ -861,7 +955,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "socoa",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.43927,
+  "mlon": -1.59482
  },
  {
   "name": "L'Uhabia",
@@ -879,7 +975,9 @@
   "level": "Tous",
   "notes": "",
   "tide_port": "socoa",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.43287,
+  "mlon": -1.59971
  },
  {
   "name": "Parlementia",
@@ -897,7 +995,9 @@
   "level": "Expert",
   "notes": "Vague de gros",
   "tide_port": "socoa",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.42622,
+  "mlon": -1.60987
  },
  {
   "name": "Les Alcyons",
@@ -915,7 +1015,9 @@
   "level": "Confirmé",
   "notes": "",
   "tide_port": "socoa",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.4257,
+  "mlon": -1.61375
  },
  {
   "name": "Avalanche",
@@ -933,7 +1035,9 @@
   "level": "Expert",
   "notes": "Vague de gros",
   "tide_port": "socoa",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.42479,
+  "mlon": -1.61697
  },
  {
   "name": "Cenitz",
@@ -951,7 +1055,9 @@
   "level": "Confirmé",
   "notes": "",
   "tide_port": "socoa",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.41354,
+  "mlon": -1.62864
  },
  {
   "name": "Lafitenia",
@@ -969,7 +1075,9 @@
   "level": "Confirmé",
   "notes": "",
   "tide_port": "socoa",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.40965,
+  "mlon": -1.6375
  },
  {
   "name": "Erromardie",
@@ -987,7 +1095,9 @@
   "level": "Intermédiaire",
   "notes": "",
   "tide_port": "socoa",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.40481,
+  "mlon": -1.64711
  },
  {
   "name": "Sainte Barbe",
@@ -1005,7 +1115,9 @@
   "level": "Tous",
   "notes": "Ne marche que sur grosse houle",
   "tide_port": "socoa",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.3938,
+  "mlon": -1.6623
  },
  {
   "name": "Belharra",
@@ -1041,6 +1153,8 @@
   "level": "Débutant",
   "notes": "Très abrité, il faut une grosse houle",
   "tide_port": "socoa",
-  "tide_offset_min": 0
+  "tide_offset_min": 0,
+  "mlat": 43.37471,
+  "mlon": -1.77524
  }
 ]

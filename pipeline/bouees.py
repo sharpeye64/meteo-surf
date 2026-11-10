@@ -147,7 +147,7 @@ def spot_forecasts(payload, now):
         h = by.get(key)
         if h is None:
             continue
-        res.append({"name": sp["name"], "slug": slugify(sp["name"]), "lat": mm["lat"], "lon": mm["lon"], "h": h, "by": by})
+        res.append({"name": sp["name"], "slug": slugify(sp["name"]), "lat": mm.get("mlat", mm["lat"]), "lon": mm.get("mlon", mm["lon"]), "h": h, "by": by})
     return res
 
 
