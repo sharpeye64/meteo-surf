@@ -8,7 +8,7 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   Toute source sauf Open-Meteo peut échouer sans bloquer la génération (erreurs listées dans `meta.errors`).
 - `web/index.html` : site statique autonome (WebGL, Leaflet via jsDelivr, trait de côte embarqué). Il lit
   `web/data/forecast.json` et, à défaut, appelle Open-Meteo en direct (`loadLive`).
-- `.github/workflows/update.yml` : génération toutes les 3 h et publication sur GitHub Pages.
+- `.github/workflows/update.yml` : génération environ toutes les 1 h 30 (deux séries de passages décalées, car GitHub saute des passages : 9 h de trou constaté le 11/11/2026) et publication sur GitHub Pages ; l'archive n'est écrite qu'aux heures UTC multiples de 3.
 - `tests/test_offline.py` : tout le pipeline avec des sources simulées. À garder vert.
 
 ## Points à vérifier au premier vrai lancement (non testés en conditions réelles)

@@ -2,7 +2,10 @@ name: Mise à jour des prévisions
 
 on:
   schedule:
-    - cron: "20 */3 * * *"   # toutes les 3 heures (UTC)
+    # Toutes les 1 h 30 en moyenne (UTC), à des minutes « calmes » : GitHub saute des passages programmés quand il est chargé
+    # (constaté le 11/11/2026 : 9 h sans aucun passage avec une seule programmation toutes les 3 h). Deux séries décalées = moins de trous.
+    - cron: "17 0,3,6,9,12,15,18,21 * * *"
+    - cron: "47 1,4,7,10,13,16,19,22 * * *"
   workflow_dispatch: {}        # bouton « Run workflow » pour lancer à la main
   push:
     branches: [main]
@@ -41,10 +44,12 @@ jobs:
           fi
       - name: Construire forecast.json
         env:
-          METEO_ARCHIVE: "1"
           METEO_SITE_URL: "https://houlalah.fr"
           METEOFRANCE_APIKEY: ${{ secrets.METEOFRANCE_APIKEY }}
-        run: python -m pipeline.build
+        run: |
+          # L'archive prévision/réalité reste à un passage toutes les 3 h (UTC) : sinon elle grossirait 3 fois plus vite pour rien.
+          if [ $(( 10#$(date -u +%H) % 3 )) -eq 0 ]; then export METEO_ARCHIVE=1; fi
+          python -m pipeline.build
       - name: Enregistrer l'archive
         continue-on-error: true   # un échec d'archivage ne doit jamais empêcher la publication du site
         run: |
