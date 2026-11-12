@@ -1251,12 +1251,14 @@ body.homeOn{overflow:hidden}
 .hero.v5.fr .wlist{margin-top:6px}
 .hero.v5.fr .wlist.in{opacity:1;transform:none;animation:none}
 .gtwrap{margin:4px 0 14px;padding:0 14px}
-.gthd #inM{font-weight:700;letter-spacing:.04em;text-transform:none;color:#aebdc2}
 .gtc.b svg.cp{width:24px;height:24px;flex:none}.gtc.b svg.cp circle{fill:rgba(42,33,18,.08);stroke:rgba(42,33,18,.32)}.gtc.b svg.cp line{stroke:rgba(42,33,18,.3)}
 .gthd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 2px 10px;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#e6edf0}
 .gthd em{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2fbf71;margin-right:8px;box-shadow:0 0 0 4px rgba(47,191,113,.2)}
 .gthd b{color:var(--sand);font-weight:800}
-.gt{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+.gt{display:grid;gap:10px;grid-template-columns:1fr}
+.gtc.h,.gtc.w{display:grid;grid-template-columns:1fr auto;grid-template-areas:"l k" "v k" "s k";align-content:space-between;align-items:center;row-gap:8px;min-height:116px}
+.gtc.h .gtl,.gtc.w .gtl{grid-area:l;align-self:start}.gtc.h .gtv,.gtc.w .gtv{grid-area:v;font-size:50px}.gtc.h .gts,.gtc.w .gts{grid-area:s;align-self:end}
+.gtk{grid-area:k;align-self:center;padding-right:2px}.gtk svg.cp{width:68px;height:68px;display:block;filter:drop-shadow(0 6px 14px rgba(0,0,0,.3))}
 .gtc{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:122px;padding:14px 15px 13px;border-radius:24px;color:#fff;text-decoration:none;
   background:radial-gradient(120% 90% at 0% 0%,var(--cg),transparent 60%),linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.04)),rgba(12,20,28,.5);
   border:1px solid rgba(255,255,255,.16);box-shadow:0 14px 34px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.2)}
@@ -1270,8 +1272,6 @@ body.homeOn{overflow:hidden}
 .gts .pp{background:rgba(255,255,255,.16);border-radius:999px;padding:3px 9px;font-weight:800;color:#fff}
 .gtc.h{--cg:rgba(91,140,255,.24);--cb:rgba(91,140,255,.34);--cl:rgba(91,140,255,.65)}
 .gtc.w{--cg:rgba(47,199,184,.22);--cb:rgba(47,199,184,.32);--cl:rgba(47,199,184,.62)}
-.gtc.t{--cg:rgba(155,123,255,.24);--cb:rgba(155,123,255,.34);--cl:rgba(155,123,255,.65);grid-column:1/-1;display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"l s v";align-items:center;column-gap:12px;min-height:0;height:58px;padding:0 16px 0 14px}
-.gtc.t .gtl{grid-area:l}.gtc.t .gts{grid-area:s;justify-content:flex-end}.gtc.t .gtv{grid-area:v;font-size:24px}
 .gtc.b{grid-column:1/-1;min-height:112px;padding:16px 18px 15px 18px;color:#2a2112;border:1px solid rgba(255,255,255,.5);
   background:radial-gradient(90% 120% at 0% 0%,rgba(255,255,255,.62),transparent 60%),linear-gradient(135deg,#fbefcd 0%,#ecd199 55%,#d9b36c 100%);box-shadow:0 22px 50px rgba(226,190,120,.28),inset 0 1px 0 rgba(255,255,255,.75)}
 .gtc.b .gtl{color:#2a2112;letter-spacing:.14em}.gtc.b .gtl i{background:rgba(42,33,18,.13);border:0;box-shadow:none}
@@ -1286,11 +1286,10 @@ body.homeOn{overflow:hidden}
 .gtc.b:hover,.gtc.b:focus-visible{box-shadow:0 22px 50px rgba(226,190,120,.4),inset 0 1px 0 rgba(255,255,255,.75)}
 @media (min-width:901px){
   .gtwrap{padding:0}
-  .gt{grid-template-columns:1fr 1fr 1fr 1.5fr;gap:14px}
+  .gt{grid-template-columns:1fr 1fr 1.3fr;gap:14px}
   .gtc{min-height:170px;padding:18px 20px 16px}
   .gtc .gtv{font-size:54px}.gtl{font-size:11px}.gtl i{width:32px;height:32px}.gts{font-size:13.5px}
-  .gtc.t{display:flex;flex-direction:column;justify-content:space-between;grid-column:auto;height:auto;padding:18px 20px 16px}
-  .gtc.t .gtv{font-size:54px}.gtc.t .gts{justify-content:flex-start}
+  .gtc.h .gtv,.gtc.w .gtv{font-size:62px}.gtk svg.cp{width:84px;height:84px}
   .gtc.b{grid-column:auto;min-height:170px;padding:18px 22px 16px}.gtc.b .gtv{font-size:74px}
   .gtc.b .br{right:22px;bottom:16px;font-size:15px}
 }
@@ -2482,11 +2481,10 @@ function render(){
   <section class="hourly wrap" aria-labelledby="sHour">
     <div class="hhead"><h2 class="h2s" id="sHour"><span class="hdm">Heure par heure</span><span class="hdd">${dayLabel}, heure par heure</span></h2><span class="hnow" id="nowLbl"></span>${tip('modeles','D’où viennent les prévisions ?')}<button class="playbtn" id="cmpBtn" aria-pressed="${!!state.cmp}">${state.cmp?'Masquer les modèles':'Comparer les modèles'}</button></div>
     <div class="gtwrap" aria-live="polite">
-      <div class="gthd"><span><em></em><b id="inT">—</b></span><span id="inM"></span></div>
+      <div class="gthd"><span><em></em><b id="inT">—</b></span></div>
       <div class="gt">
-        <div class="gtc h"><div class="gtl"><i>${V5I.wave}</i>Houle</div><div class="gtv" id="inS">—</div><div class="gts" id="inPd"></div></div>
-        <div class="gtc w"><div class="gtl"><i>${V5I.wind}</i>Vent</div><div class="gtv" id="inW">—</div><div class="gts" id="inWd"></div></div>
-        <div class="gtc t"><div class="gtl"><i>${V5I.tide}</i><span id="inTl">Marée</span></div><div class="gtv" id="inTv">—</div><div class="gts" id="inTd"></div></div>
+        <div class="gtc h"><div class="gtl"><i>${V5I.wave}</i>Houle</div><div class="gtv" id="inS">—</div><div class="gts" id="inPd"></div><div class="gtk" id="inSk"></div></div>
+        <div class="gtc w"><div class="gtl"><i>${V5I.wind}</i>Vent</div><div class="gtv" id="inW">—</div><div class="gts" id="inWd"></div><div class="gtk" id="inWk"></div></div>
         ${inspBuoy()}
       </div>
     </div>
@@ -2559,15 +2557,12 @@ function inspUpdate(h,day,ex,exact,cfd){
   const isNow=!!state.live&&state.day===0&&state.hour===state.liveHour;
   const dl=state.day===0?'Aujourd’hui':state.day===1?'Demain':DAYS_LONG[new Date(day.date+'T12:00').getDay()].replace(/^./,c=>c.toUpperCase());
   $('inT').textContent=isNow?`Maintenant · ${hhmm(state.hour)}`:`${dl} · ${hhmm(state.hour)}`;
-  $('inM').textContent=cfd&&cfd.length?`coef ${cfd.join(' – ')}`:'';
   $('inS').innerHTML=`${fmt(h.H)}<small>m</small>`;
-  $('inPd').innerHTML=`<span class="pp">${Math.round(h.T||0)} s</span>`+(h.D!=null?`${v5Compass(h.D,'#F4E2B8')}${sector(h.D)}`:'');
+  $('inPd').innerHTML=`<span class="pp">${Math.round(h.T||0)} s</span>`+(h.D!=null?sector(h.D):'');
+  $('inSk').innerHTML=h.D!=null?v5Compass(h.D,'#F4E2B8'):'';
   $('inW').innerHTML=h.v!=null?`${Math.round(h.v)}<small>km/h</small>`:'—';
-  $('inWd').innerHTML=h.wd!=null?`${v5Compass(h.wd,'#F4E2B8')}${sector(h.wd)} <span>· ${(V5_WIND[h.wind]||'').toLowerCase()}</span>`:'';
-  const ph=tidePhase(h), list=(ex||[]).filter(x=>x.hd>=5&&x.hd<=22), nx=list.find(x=>x.hd>=state.hour)||list[list.length-1];
-  $('inTl').textContent=h.rising!=null?(h.rising?'Marée montante':'Marée descendante'):(ph!=='—'?`Marée ${ph.toLowerCase()}`:'Marée');
-  $('inTv').textContent=nx?String(nx.hm).replace('h',':'):'—';
-  $('inTd').innerHTML=nx?`${nx.type==='PM'?'Haute':'Basse'}`:'';
+  $('inWd').innerHTML=h.wd!=null?`${sector(h.wd)} <span>· ${(V5_WIND[h.wind]||'').toLowerCase()}</span>`:'';
+  $('inWk').innerHTML=h.wd!=null?v5Compass(h.wd,'#8fd8ee'):'';
 }
 function v5Update(h,day,ex,exact,cfd){
   const $=id=>document.getElementById(id); if(!$('v5S')) return;
