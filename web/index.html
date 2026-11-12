@@ -1242,6 +1242,47 @@ body.homeOn{overflow:hidden}
   .radar .bgrid>.bcard:first-child{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"head head head" "k2 stats link" "big stats link" "why why why";column-gap:40px;align-items:center}
   .radar .bhead{grid-area:head}.radar .bk2{grid-area:k2}.radar .bbig{grid-area:big}.radar .bstats{grid-area:stats}.radar .bwhy{grid-area:why}.radar .blink{grid-area:link;align-self:center}
 }
+
+/* ===== Page d'un spot : la frise est la page, un panneau de lecture suit l'heure choisie ===== */
+.hero.v5.fr{min-height:0}
+.hero.v5.fr .heroBody{padding-bottom:14px;min-height:0}
+.hero.v5.fr .hcol{display:block;position:absolute;left:-9999px;top:0;width:420px;visibility:hidden;pointer-events:none}
+.hero.v5.fr .hcol::before{display:none}
+.hero.v5.fr .wlist{margin-top:6px}
+.hero.v5.fr .wlist.in{opacity:1;transform:none;animation:none}
+.inspwrap{position:relative}
+.insp{position:relative;z-index:6;border-radius:24px;padding:14px 18px 14px;background:linear-gradient(165deg,rgba(255,255,255,.16),rgba(20,28,40,.92) 60%);border:1px solid rgba(244,226,184,.5);box-shadow:0 18px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.25)}
+.insp .ihd{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#d8e2e4}
+.insp .ihd em{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2fbf71;margin-right:8px}
+.insp .ihd b{color:var(--sand);font-weight:800}
+.insp .im{display:grid;grid-template-columns:repeat(3,1fr);margin-top:12px}
+.insp .im>div{padding:0 12px;min-width:0}.insp .im>div:first-child{padding-left:0}.insp .im>div+div{border-left:1px solid rgba(255,255,255,.14)}
+.insp .il{display:flex;align-items:center;gap:6px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#b9c6c9}
+.insp .il svg,.insp .ic2 svg{width:14px;height:14px;flex:none;fill:none;stroke:var(--sand);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.insp .inn{font-family:Unbounded,system-ui,sans-serif;font-weight:600;font-size:34px;letter-spacing:-.06em;line-height:1;margin-top:8px;white-space:nowrap;background:linear-gradient(180deg,#fff 30%,#bfe3ee);-webkit-background-clip:text;background-clip:text;color:transparent}
+.insp .inn small{font-size:.36em;font-weight:600;letter-spacing:0;margin-left:3px;-webkit-text-fill-color:#b8c7ca}
+.insp .is{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;font-weight:700;white-space:nowrap;color:#eaf1f2}
+.insp .is span{color:#aebdbf;font-weight:600}.insp .is svg.cp{width:22px;height:22px;flex:none}
+.insp .ich{display:flex;gap:8px;margin-top:12px}
+.insp .ich>*{flex:1;min-width:0;display:flex;align-items:center;gap:8px;height:42px;padding:0 13px;border-radius:21px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);font-size:12.5px;font-weight:700;white-space:nowrap;color:#fff;text-decoration:none;overflow:hidden}
+.insp .ich svg{width:17px;height:17px;flex:none;fill:none;stroke:var(--sand);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.insp .ich span{color:#aebdbf;font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.insp .ich .sandc{background:linear-gradient(135deg,#f4e2b8,#e3c283);color:#2a2112;border:0}
+.insp .ich .sandc svg{stroke:#2a2112}.insp .ich .sandc b{margin-left:auto;font-family:Unbounded,system-ui,sans-serif;font-size:15px}
+.insp .ipt{position:absolute;width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent}
+@media (min-width:901px){
+  .inspwrap{height:232px}
+  .insp{position:absolute;top:6px;left:var(--il,0px);width:440px}
+  .insp .ipt{bottom:-11px;left:var(--ia,200px);margin-left:-10px;border-top:11px solid rgba(34,42,54,.96)}
+}
+@media (max-width:900px){
+  .inspwrap{height:0}
+  .hourly{z-index:auto}
+  .insp{position:fixed;left:0;right:0;bottom:calc(62px + env(safe-area-inset-bottom,0px));z-index:54;border-radius:26px 26px 0 0;padding:12px 16px 14px;transition:transform .25s ease,opacity .2s ease}
+  .insp{background:linear-gradient(180deg,#1c2834,#0d151c)}
+  .insp.off{transform:translateY(130%);opacity:0;pointer-events:none}
+  .insp .ipt{top:-10px;left:var(--ia,200px);margin-left:-10px;border-bottom:10px solid rgba(24,34,46,.96)}
+}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -2389,7 +2430,7 @@ function render(){
     <button type="button" data-go="map"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.2-6-10a6 6 0 0 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg><span>Carte</span></button>
     <button type="button" data-go="fav"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-3-5.4 3 1.1-6L3.2 9.4l6.1-.8z"/></svg><span>Favoris</span></button>
   </nav>
-  <header class="hero v5">
+  <header class="hero v5 fr">
     <svg class="sunarc" id="sunarc" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"></svg>
     <div class="bar">
       <a class="brand" href="./" aria-label="Houlalah, accueil"><img class="bmark" src="brand/symbol.svg" alt="" height="24"><img class="bword" src="brand/wordmark.svg" alt="houlalah" height="15"></a>
@@ -2429,6 +2470,12 @@ function render(){
   </header>
   <section class="hourly wrap" aria-labelledby="sHour">
     <div class="hhead"><h2 class="h2s" id="sHour"><span class="hdm">Heure par heure</span><span class="hdd">${dayLabel}, heure par heure</span></h2><span class="hnow" id="nowLbl"></span>${tip('modeles','D’où viennent les prévisions ?')}<button class="playbtn" id="cmpBtn" aria-pressed="${!!state.cmp}">${state.cmp?'Masquer les modèles':'Comparer les modèles'}</button></div>
+    <div class="inspwrap"><div class="insp" id="insp" aria-live="polite"><i class="ipt"></i>
+      <div class="ihd"><span><em></em><b id="inT">—</b></span><span id="inM"></span></div>
+      <div class="im"><div><div class="il">${V5I.wave}Taille</div><div class="inn" id="inS">—</div><div class="is"><span>prévision</span></div></div>
+      <div><div class="il">${V5I.timer}Période</div><div class="inn" id="inP">—</div><div class="is" id="inPd"></div></div>
+      <div><div class="il">${V5I.wind}Vent</div><div class="inn" id="inW">—</div><div class="is" id="inWd"></div></div></div>
+      <div class="ich"><div id="inTd"></div>${inspBuoy()}</div></div></div>
     <div class="hscroll"><div class="hgrid${state.cmp?' cmp':''}" style="--lab:${state.cmp?150:96}px;--n:${hrs.length};grid-template-rows:44px 84px 66px 28px 84px 92px${state.cmp?' '+'34px '.repeat((state.models||[]).length+(state.windModels||[]).length):''}">${hourlyHtml(day,hrs)}</div></div>
     ${windNote(hrs)?`<p class="hnote">${windNote(hrs).trim()}</p>`:''}
   </section>
@@ -2465,7 +2512,10 @@ function render(){
 
   oceanSync(); updateLive(); bind(); markHour();
   const hs=document.querySelector('.hscroll'), hc=document.querySelector('.hhr.sel'); if(hs&&hc) hs.scrollLeft=Math.max(0,hc.offsetLeft-140);
+  inspPlace(); if(hs) hs.addEventListener('scroll',inspPlace,{passive:true});
+  try{ const hsec=document.querySelector('.hourly'), ip=document.getElementById('insp'); if(window.IntersectionObserver&&hsec&&ip){ if(window.__inspIO) window.__inspIO.disconnect(); window.__inspIO=new IntersectionObserver(es=>ip.classList.toggle('off',!es[0].isIntersecting),{threshold:.12}); window.__inspIO.observe(hsec); } }catch(e){}
 }
+window.addEventListener('resize',()=>{ try{ inspPlace(); }catch(e){} });
 
 /* ---- Page d'un spot v5 : chiffres clés et ligne d'infos ---- */
 const V5I = {
@@ -2480,6 +2530,43 @@ const V5_WIND = {lisse:'Lisse', offshore:'De terre', 'side-off':'De travers, cô
 function v5Compass(deg,color){
   let t=''; for(let a=0;a<360;a+=45) t+=`<line x1="0" y1="-31" x2="0" y2="-35" stroke="rgba(255,255,255,.4)" stroke-width="1.5" transform="rotate(${a})"/>`;
   return `<svg class="cp" viewBox="-40 -40 80 80" aria-hidden="true"><circle r="33" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.2)"/>${t}<g transform="rotate(${Math.round((deg+180)%360)})"><path d="M0 -22V20M-8 -10L0 -22L8 -10" fill="none" stroke="${color}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;
+}
+
+/* ---- Panneau de lecture de la frise ---- */
+V5I.buoy = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15a7 7 0 0 1 14 0zM12 8V4M3 19c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/></svg>';
+function inspBuoy(){
+  try{
+    const sp=state.data[state.spot].spot, cur=pickBuoy(buoyChoices(sp)); if(!cur) return '';
+    const L=cur.L, ageH=cur.ageH, when=ageH<1?'à l’instant':ageH<6?`il y a ${Math.round(ageH)} h`:stampTxt(L.time);
+    return `<a class="sandc" href="#sRadar" title="Mesure réelle de la bouée ${cur.name}, ${when}">${V5I.buoy}<span style="color:#5a4a28">Bouée ${cur.name}</span><b>${fmt(L.hs)} m</b></a>`;
+  }catch(e){ return ''; }
+}
+function inspPlace(){
+  const w=document.querySelector('.inspwrap'), ip=document.getElementById('insp'), c=document.querySelector('.hhr.sel');
+  if(!w||!ip||!c) return;
+  const cr=c.getBoundingClientRect(), wr=w.getBoundingClientRect(), cx=cr.left+cr.width/2;
+  if(innerWidth>900){
+    const bw=ip.offsetWidth||440, left=Math.max(0,Math.min(wr.width-bw,cx-wr.left-bw/2));
+    ip.style.setProperty('--il',left+'px'); ip.style.setProperty('--ia',Math.max(24,Math.min(bw-24,cx-wr.left-left))+'px');
+  } else {
+    ip.style.setProperty('--ia',Math.max(24,Math.min(innerWidth-24,cx))+'px');
+  }
+}
+function inspUpdate(h,day,ex,exact,cfd){
+  const $=id=>document.getElementById(id); if(!$('inS')) return;
+  const isNow=!!state.live&&state.day===0&&state.hour===state.liveHour;
+  const dl=state.day===0?'Aujourd’hui':state.day===1?'Demain':DAYS_LONG[new Date(day.date+'T12:00').getDay()].replace(/^./,c=>c.toUpperCase());
+  $('inT').textContent=isNow?`Maintenant · ${hhmm(state.hour)}`:`${dl} · ${hhmm(state.hour)}`;
+  $('inM').textContent=cfd&&cfd.length?`coef ${cfd.join(' – ')}`:'';
+  $('inS').innerHTML=`${fmt(h.H)}<small>m</small>`;
+  $('inP').innerHTML=`${Math.round(h.T||0)}<small>s</small>`;
+  $('inPd').innerHTML=h.D!=null?`${v5Compass(h.D,'#F4E2B8')}${sector(h.D)}`:'';
+  $('inW').innerHTML=h.v!=null?`${Math.round(h.v)}<small>km/h</small>`:'—';
+  $('inWd').innerHTML=h.wd!=null?`${v5Compass(h.wd,'#F4E2B8')}${sector(h.wd)} <span>· ${(V5_WIND[h.wind]||'').toLowerCase()}</span>`:'';
+  const ph=tidePhase(h), list=(ex||[]).filter(x=>x.hd>=5&&x.hd<=22), nx=list.find(x=>x.hd>=state.hour)||list[list.length-1];
+  const hm_=nx?String(nx.hm).replace('h',' h '):'', ext_=nx?(nx.type==='PM'?'haute':'basse'):'';
+  $('inTd').innerHTML=(ph==='Basse'||ph==='Haute')?`${V5I.tide}Marée ${ph.toLowerCase()}${nx?` <span>· ${hm_}</span>`:''}`:`${V5I.tide}${ph!=='—'?ph:'Marée'}${nx?` <span>· ${ext_} ${hm_}</span>`:''}`;
+  inspPlace();
 }
 function v5Update(h,day,ex,exact,cfd){
   const $=id=>document.getElementById(id); if(!$('v5S')) return;
@@ -2538,7 +2625,7 @@ function updateLive(){
   if(hs_&&h.D!=null){ hs_.setAttribute('transform',`rotate(${h.D.toFixed(0)})`); $('hcS').textContent=`Houle ${sector(h.D)} · ${Math.round(h.T||0)} s`; }
   if(hw_&&h.wd!=null){ hw_.setAttribute('transform',`rotate(${h.wd.toFixed(0)})`); const wc=windCol(h.wind); hw_.querySelector('line').setAttribute('stroke',wc); hw_.querySelector('path').setAttribute('fill',wc); $('hcWi').style.background=wc; $('hcW').textContent=`Vent ${sector(h.wd)} · ${Math.round(h.v)} km/h`; }
   const rs=$('roseSwell'), rw=$('roseWind'); if(rs&&h.D!=null) rs.setAttribute('transform',`rotate(${h.D.toFixed(0)})`); if(rw&&h.wd!=null) rw.setAttribute('transform',`rotate(${h.wd.toFixed(0)})`);
-  v5Update(h,day,ex,exact,cfd);
+  v5Update(h,day,ex,exact,cfd); inspUpdate(h,day,ex,exact,cfd);
   oceanUpdate();
 }
 
