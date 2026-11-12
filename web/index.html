@@ -1255,10 +1255,11 @@ body.homeOn{overflow:hidden}
 .gthd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 2px 10px;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#e6edf0}
 .gthd em{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2fbf71;margin-right:8px;box-shadow:0 0 0 4px rgba(47,191,113,.2)}
 .gthd b{color:var(--sand);font-weight:800}
-.gt{display:grid;gap:10px;grid-template-columns:1fr}
-.gtc.h,.gtc.w{display:grid;grid-template-columns:1fr auto;grid-template-areas:"l k" "v k" "s k";align-content:space-between;align-items:center;row-gap:8px;min-height:116px}
-.gtc.h .gtl,.gtc.w .gtl{grid-area:l;align-self:start}.gtc.h .gtv,.gtc.w .gtv{grid-area:v;font-size:50px}.gtc.h .gts,.gtc.w .gts{grid-area:s;align-self:end}
-.gtk{grid-area:k;align-self:center;padding-right:2px}.gtk svg.cp{width:68px;height:68px;display:block;filter:drop-shadow(0 6px 14px rgba(0,0,0,.3))}
+.gt{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+.gtc.h,.gtc.w{display:grid;grid-template-columns:1fr auto;grid-template-areas:"l k" "v v" "s s";align-content:space-between;align-items:center;row-gap:6px;min-height:124px;padding:12px 12px 12px 14px}
+.gtc.h .gtl,.gtc.w .gtl{gap:7px;letter-spacing:.12em}
+.gtc.h .gtl,.gtc.w .gtl{grid-area:l;align-self:start}.gtc.h .gtv,.gtc.w .gtv{grid-area:v;font-size:40px}.gtc.h .gts,.gtc.w .gts{grid-area:s;align-self:end}
+.gtk{grid-area:k;align-self:center;padding-right:2px}.gtk svg.cp{width:40px;height:40px;display:block}
 .gtc{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:122px;padding:14px 15px 13px;border-radius:24px;color:#fff;text-decoration:none;
   background:radial-gradient(120% 90% at 0% 0%,var(--cg),transparent 60%),linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.04)),rgba(12,20,28,.5);
   border:1px solid rgba(255,255,255,.16);box-shadow:0 14px 34px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.2)}
@@ -1272,11 +1273,11 @@ body.homeOn{overflow:hidden}
 .gts .pp{background:rgba(255,255,255,.16);border-radius:999px;padding:3px 9px;font-weight:800;color:#fff}
 .gtc.h{--cg:rgba(91,140,255,.24);--cb:rgba(91,140,255,.34);--cl:rgba(91,140,255,.65)}
 .gtc.w{--cg:rgba(47,199,184,.22);--cb:rgba(47,199,184,.32);--cl:rgba(47,199,184,.62)}
-.gtc.b{grid-column:1/-1;min-height:112px;padding:16px 18px 15px 18px;color:#2a2112;border:1px solid rgba(255,255,255,.5);
+.gtc.b{grid-column:1/-1;min-height:104px;padding:14px 16px 13px 16px;color:#2a2112;border:1px solid rgba(255,255,255,.5);
   background:radial-gradient(90% 120% at 0% 0%,rgba(255,255,255,.62),transparent 60%),linear-gradient(135deg,#fbefcd 0%,#ecd199 55%,#d9b36c 100%);box-shadow:0 22px 50px rgba(226,190,120,.28),inset 0 1px 0 rgba(255,255,255,.75)}
 .gtc.b .gtl{color:#2a2112;letter-spacing:.14em}.gtc.b .gtl i{background:rgba(42,33,18,.13);border:0;box-shadow:none}
 .gtc.b .gtl svg{stroke:#2a2112}
-.gtc.b .gtv{font-weight:700;font-size:56px;color:#2a2112}.gtc.b .gtv small{color:rgba(42,33,18,.62)}
+.gtc.b .gtv{font-weight:700;font-size:50px;color:#2a2112}.gtc.b .gtv small{color:rgba(42,33,18,.62)}
 .gtc.b .bd{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:rgba(42,33,18,.72);margin-top:5px;text-transform:none;letter-spacing:0}
 .gtc.b .bd i{width:7px;height:7px;border-radius:50%;background:#1f9d55;box-shadow:0 0 0 3px rgba(31,157,85,.22);display:inline-block;flex:none}
 .gtc.b.old .bd i{background:#9a8a66;box-shadow:none}
@@ -1289,7 +1290,9 @@ body.homeOn{overflow:hidden}
   .gt{grid-template-columns:1fr 1fr 1.3fr;gap:14px}
   .gtc{min-height:170px;padding:18px 20px 16px}
   .gtc .gtv{font-size:54px}.gtl{font-size:11px}.gtl i{width:32px;height:32px}.gts{font-size:13.5px}
-  .gtc.h .gtv,.gtc.w .gtv{font-size:62px}.gtk svg.cp{width:84px;height:84px}
+  .gtc.h,.gtc.w{grid-template-areas:"l k" "v k" "s k";row-gap:8px;padding:18px 20px 16px}
+  .gtc.h .gtl,.gtc.w .gtl{gap:9px;letter-spacing:.16em}
+  .gtc.h .gtv,.gtc.w .gtv{font-size:62px}.gtk svg.cp{width:84px;height:84px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.3))}
   .gtc.b{grid-column:auto;min-height:170px;padding:18px 22px 16px}.gtc.b .gtv{font-size:74px}
   .gtc.b .br{right:22px;bottom:16px;font-size:15px}
 }
