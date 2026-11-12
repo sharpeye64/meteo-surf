@@ -1296,6 +1296,16 @@ body.homeOn{overflow:hidden}
   .gtc.b{grid-column:auto;min-height:170px;padding:18px 22px 16px}.gtc.b .gtv{font-size:74px}
   .gtc.b .br{right:22px;bottom:16px;font-size:15px}
 }
+@media (max-width:900px){ .hourly .hscroll{margin:0} }
+@media (max-width:520px){
+  .hgrid.fit{--lab:34px!important;grid-template-columns:var(--lab) repeat(var(--n),minmax(0,1fr))!important;width:100%!important;min-width:0!important}
+  .hgrid.fit .hlab{padding:0;justify-content:center}.hgrid.fit .hlab .lt{display:none}.hgrid.fit .hlab .li{width:18px;height:18px}
+  .hgrid.fit .hhr{font-size:12px}
+  .hgrid.fit .hwave b{font-size:16px}
+  .hgrid.fit .hper{font-size:12.5px;gap:2px}.hgrid.fit .hper small{font-size:10px}
+  .hgrid.fit .hwind{font-size:14px;gap:3px}.hgrid.fit .hwind svg{width:20px;height:20px}
+  .hgrid.fit .hacc{transform:scale(.8)}
+}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -2023,7 +2033,7 @@ function hourlyHtml(day,hrs){
   if(tl.length>2){ const n=hrs.length, X=i=>((i+.5)/n*1000), Y=v=>(8+(1-v)*40);
     const pts=hrs.map((h,i)=>h.tideN!=null?[+X(i).toFixed(1),+Y(h.tideN).toFixed(1)]:null).filter(Boolean);
     const d=smooth(pts);
-    c+=`<div class="htide" style="grid-column:2/-1;grid-row:6"><svg viewBox="0 0 1000 56" preserveAspectRatio="none" aria-hidden="true"><path d="${d} L${pts[pts.length-1][0]} 56 L${pts[0][0]} 56 Z" fill="rgba(var(--lilac-rgb),.18)"/><path d="${d}" fill="none" stroke="var(--lilac)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>${(exactTides(state.spot,day.date)||extremes(day.list).map(x=>({type:x.t==='Pleine mer'?'PM':'BM',hm:x.h+'h',hd:x.h}))).filter(x=>x.hd>=6&&x.hd<=21.5).map(x=>`<span class="hext" style="left:${((x.hd-6+.5)/n*100).toFixed(2)}%;top:${x.type==='PM'?2:30}px">${x.type} ${x.hm}</span>`).join('')}</div>`; }
+    c+=`<div class="htide" style="grid-column:2/-1;grid-row:6"><svg viewBox="0 0 1000 56" preserveAspectRatio="none" aria-hidden="true"><path d="${d} L${pts[pts.length-1][0]} 56 L${pts[0][0]} 56 Z" fill="rgba(var(--lilac-rgb),.18)"/><path d="${d}" fill="none" stroke="var(--lilac)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>${(exactTides(state.spot,day.date)||extremes(day.list).map(x=>({type:x.t==='Pleine mer'?'PM':'BM',hm:x.h+'h',hd:x.h}))).filter(x=>x.hd>=6&&x.hd<=21.5).map(x=>`<span class="hext" style="left:${(((x.hd-hrs[0].hour)/(hrs.length>1?hrs[1].hour-hrs[0].hour:1)+.5)/n*100).toFixed(2)}%;top:${x.type==='PM'?2:30}px">${x.type} ${x.hm}</span>`).join('')}</div>`; }
   let row=7;
   if(state.cmp){
     (state.models||[]).forEach(md=>{ c+=lab(row,`<span class="mlab">${md.label}</span>`); hrs.forEach((h,i)=>{ const v=h.models?.[md.key]; c+=`<div class="hc hm${(h.hour>=winA&&h.hour<=winB)?' win':''}" data-h="${h.hour}" style="grid-column:${i+2};grid-row:${row}">${v!=null?fmt(v):'—'}</div>`; }); row++; });
@@ -2034,7 +2044,9 @@ function hourlyHtml(day,hrs){
   return c;
 }
 function markHour(){
-  const hr=Math.min(21,Math.round(state.hour)); const g=document.querySelector('.hgrid'); if(!g) return;
+  const g=document.querySelector('.hgrid'); if(!g) return;
+  const avail=[...g.querySelectorAll('.hhr')].map(x=>+x.dataset.h); if(!avail.length) return;
+  const hr=avail.reduce((b,x)=>Math.abs(x-state.hour)<Math.abs(b-state.hour)?x:b,avail[0]);
   g.querySelectorAll('.hc.sel').forEach(x=>x.classList.remove('sel')); g.querySelectorAll(`.hc[data-h="${hr}"]`).forEach(x=>x.classList.add('sel'));
   const first=g.querySelector(`.hhr[data-h="${hr}"]`), sel=document.getElementById('hsel');
   if(first&&sel){ sel.style.gridColumn=first.style.gridColumn; }
@@ -2429,6 +2441,7 @@ function render(){
   if(day.sun){ ocean.rise=hDec(day.sun.rise); ocean.set=hDec(day.sun.set); }
   const dayLabel = k===0?'Aujourd’hui':k===1?'Demain':DAYS_LONG[new Date(day.date+'T12:00').getDay()].replace(/^./,c=>c.toUpperCase());
   const hrs=day.list.filter(h=>h.hour>=6&&h.hour<=21);
+  const hrsH=(isPhone()&&!state.cmp)?hrs.filter(h=>h.hour%2===0):hrs;
   const rise=day.sun?+day.sun.rise.slice(0,2):8, set=day.sun?+day.sun.set.slice(0,2):18;
   const winA=99, winB=-1;
   const maxH=Math.max(1,...hrs.map(h=>h.H||0));
@@ -2491,7 +2504,7 @@ function render(){
         ${inspBuoy()}
       </div>
     </div>
-    <div class="hscroll"><div class="hgrid${state.cmp?' cmp':''}" style="--lab:${state.cmp?150:96}px;--n:${hrs.length};grid-template-rows:44px 84px 66px 28px 84px 92px${state.cmp?' '+'34px '.repeat((state.models||[]).length+(state.windModels||[]).length):''}">${hourlyHtml(day,hrs)}</div></div>
+    <div class="hscroll"><div class="hgrid${state.cmp?' cmp':''}${hrsH!==hrs?' fit':''}" style="--lab:${state.cmp?150:96}px;--n:${hrsH.length};grid-template-rows:44px 84px 66px 28px 84px 92px${state.cmp?' '+'34px '.repeat((state.models||[]).length+(state.windModels||[]).length):''}">${hourlyHtml(day,hrsH)}</div></div>
     ${windNote(hrs)?`<p class="hnote">${windNote(hrs).trim()}</p>`:''}
   </section>
 
