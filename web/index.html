@@ -2818,10 +2818,6 @@ function homeInitMap(){
   HOME.bu.forEach(b=>{ const w=document.createElement('div'), e=document.createElement('div'); e.className='hm-bu';
     e.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15a7 7 0 0 1 14 0zM12 8V4M3 19c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/></svg><div class="hm-tip">Bouée ${b.n}<small>${hmF(b.L.hs)} m mesuré</small></div>`; w.appendChild(e); w.onclick=()=>homeBuoy(b);
     HOME.bms[b.id]=new maplibregl.Marker({element:w}).setLngLat([b.lon,b.lat]).addTo(map); });
-  const co=D.map(s=>[s.lon-.03,s.lat]);
-  HOME.sea=[[-14,46.3],[-1.28,46.3],[-1.25,45.5],...co,[-1.85,43.5],[-14,43.6]];
-  const mD=D.reduce((a,s)=>a+(s.d||260),0)/D.length, mP=D.reduce((a,s)=>a+(s.p||8),0)/D.length;
-  const br=((mD+180)%360)*Math.PI/180; HOME.sw={tx:Math.sin(br),ty:-Math.cos(br),gap:Math.max(34,Math.min(70,mP*6.5))};
   homeFit(true);
   map.on('moveend',homeDeclutter); map.on('load',homeDeclutter); setTimeout(homeDeclutter,400);
 }
@@ -2848,17 +2844,7 @@ function homeFrameStart(){
     const cx=HOME.cx, map=HOME.map, dpr=devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight, lite=innerWidth<760;
     if(cv.width!==Math.round(W*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
     cx.setTransform(dpr,0,0,dpr,0,0); cx.clearRect(0,0,W,H);
-    if(map&&HOME.sea&&HOME.sw){
-      const {tx,ty,gap}=HOME.sw, nx=-ty, ny=tx;
-      cx.save(); cx.beginPath(); HOME.sea.forEach((p,i)=>{ const q=map.project(p); i?cx.lineTo(q.x,q.y):cx.moveTo(q.x,q.y); }); cx.closePath(); cx.clip();
-      const D=Math.hypot(W,H), cxm=W*.45, cym=H*.5, ph=(REDUCED?0:t||0)*.012; cx.lineCap='round';
-      for(let k=-Math.ceil(D/gap/2);k<=(lite?-Math.ceil(D/gap/2)-1:Math.ceil(D/gap/2));k++){
-        const off=((k*gap+ph)%(gap*40)), al=Math.max(.04,.07+.06*Math.sin(k*1.7));
-        cx.beginPath(); cx.strokeStyle='rgba(190,226,242,'+al+')'; cx.lineWidth=k%4===0?1.6:1;
-        for(let u=-D/2;u<=D/2;u+=18){ const wig=11*Math.sin(u*.011+k*.9+(t||0)*.0004)+6*Math.sin(u*.027-k*.5+(t||0)*.0007);
-          const px=cxm+tx*(off+wig)+nx*u, py=cym+ty*(off+wig)+ny*u; u===-D/2?cx.moveTo(px,py):cx.lineTo(px,py); }
-        cx.stroke(); }
-      cx.restore();
+    if(map){
       if(HOME.ref){ const a=map.project([HOME.ref.a.lon,HOME.ref.a.lat]), b=map.project([HOME.ref.b.lon,HOME.ref.b.lat]);
         cx.save(); cx.setLineDash([3,7]); cx.lineDashOffset=-(t||0)*.02; cx.lineCap='round'; cx.strokeStyle=lite?'#c9972f':'rgba(244,226,184,.9)'; cx.lineWidth=2.2; cx.shadowColor='rgba(233,207,159,.6)'; cx.shadowBlur=lite?0:8;
         cx.beginPath(); cx.moveTo(a.x,a.y); cx.lineTo(b.x,b.y); cx.stroke(); cx.restore();
