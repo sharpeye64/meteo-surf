@@ -1660,7 +1660,7 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
   #home .hmb-col .hmb-top,#home .hmb-col .hmb-card,#home .hmb-col .hmb-res{position:static;width:auto;left:auto;right:auto;top:auto;bottom:auto}
   #home .hmb-col .hmb-chips{margin-top:14px}
   #home .hmb-col .hmb-res{max-height:calc(100vh - 360px)}
-  #home.hm-sel .hmb-col{top:50px;transform:none}
+  #home.hm-sel .hmb-col{top:var(--coltop,50px);transform:none}
   #home .hmb-dcard{bottom:auto;top:200px}
   #home .hmb-col .hmb-dcard{position:static;width:auto;left:auto;top:auto;bottom:auto}
   #home .hmb-dcard[data-side]:after{content:"";position:absolute;top:var(--ay,60px);width:20px;height:20px;background:#fff;transform:translateY(-50%) rotate(45deg);border-radius:0 5px 0 0}
@@ -3262,6 +3262,7 @@ function homeHomePanelM(){
   P.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ HOME.reg=b.dataset.g; homeFit(); homeHomePanelM(); homeDeclutter(); });
   document.getElementById('hmGeo').onclick=e=>homeGeo(e.currentTarget);
   homeBindSearch(); homeRes(); homeTopBtn();
+  requestAnimationFrame(()=>{ const c=document.querySelector('#home .hmb-col'); if(c&&innerWidth>=1200&&!document.getElementById('home').classList.contains('hm-sel')){ const t=Math.round(c.getBoundingClientRect().top); if(t>0) HOME.colTop=t; } });
 }
 function homeHomePanel(){ homeHomePanelM(); }
 function homeRes(){
@@ -3321,7 +3322,7 @@ function homeBuoy(b){
     document.getElementById('hmBk').onclick=()=>{ homeClear(); homeHomePanel(); homeFit(); homeDeclutter(); };
   } else {
     const link=b.id==='gascogne'?'':`bouees/${slugOf(b.n)}/`, tp=L.tp?`Période ${String(L.tp).replace('.',',')} s · `:'', dr=L.dir!=null?`Direction ${hmDn(L.dir)} · `:'', sst=L.sst!=null?`Eau ${String(L.sst).replace('.',',')} °C · `:'';
-    document.getElementById('home').classList.add('hm-sel'); HOME.popAt=[b.lon,b.lat];
+    { const hm=document.getElementById('home'); if(HOME.colTop) hm.style.setProperty('--coltop',HOME.colTop+'px'); hm.classList.add('hm-sel'); } HOME.popAt=[b.lon,b.lat];
     P.innerHTML=`<div class="hmb-col"><div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<span class="nm">Bouée ${b.n}</span></div><div class="hmb-chips"><button type="button" id="hmBk">← Toute la côte</button></div></div></div>
       <div class="hmb-dcard"><div class="hd"><span class="bd" style="background:linear-gradient(135deg,#f6e6bf,#e0bd7a)">${hmF(L.hs)}</span><div><h3>Bouée ${b.n}</h3><div class="sub">${b.sub}</div></div></div>
        <div class="nums"><div class="m${ageH>6?' old':''}"><small><i class="dt"></i>Hauteur mesurée</small><b>${hmF(L.hs)}<i> m</i></b></div>${L.hmax!=null?`<div class="a"><small>Vague max</small><b>${hmF(L.hmax)}<i> m</i></b></div>`:''}</div>
