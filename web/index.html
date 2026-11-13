@@ -1621,6 +1621,32 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
 .mkp:hover,.mkp.hl{transform:scale(1.12)}
 .mkd{width:11px;height:11px;border-radius:50%;background:#fff;border:2px solid #7f95a0;box-shadow:0 2px 6px rgba(16,32,44,.25);transition:transform .15s}
 .mkd:hover,.mkd.hl{transform:scale(1.5)}
+
+/* ----- jours : calendrier ----- */
+.lp .hero .wlist{margin:0;padding:6px 6px 12px;gap:10px}
+.lp .wrow{flex:none;width:96px;padding:14px 0;border-radius:22px;background:#fff;border:1px solid var(--edge);box-shadow:0 10px 30px rgba(16,32,44,.07);gap:2px;color:#10202c}
+.lp .wrow .dn{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.lp .wrow .dd{font:600 30px/1.1 Unbounded,system-ui,sans-serif;letter-spacing:-.05em;margin-top:2px}
+.lp .wrow b{font:800 14px Manrope,system-ui,sans-serif;letter-spacing:0;margin-top:4px}
+.lp .wrow b small{font-weight:600;color:var(--muted);font-size:14px}
+.lp .wrow:hover{background:#fff;border-color:rgba(16,32,44,.28)}
+.lp .wrow[aria-pressed="true"]{background:#10202c;color:#fff;border-color:#10202c;box-shadow:0 12px 30px rgba(16,32,44,.28);outline:0}
+.lp .wrow[aria-pressed="true"] .dn,.lp .wrow[aria-pressed="true"] b small{color:#aab8bf}
+@media (max-width:900px){
+  .lp .hero .wlist{margin:0 -14px;padding:2px 14px 8px;gap:8px;width:auto}
+  .lp .wrow{flex:none;width:64px;min-width:64px;padding:10px 0;border-radius:18px;gap:2px}
+  .lp .wrow .dn{font-size:10.5px}.lp .wrow .dd{font-size:24px}.lp .wrow b{font-size:12.5px;margin-top:4px}.lp .wrow b small{font-size:12.5px}
+}
+
+.lp .heroBody,.lp .hero2{min-width:0;width:100%}
+.lp .lprow{min-width:0;width:100%;box-sizing:border-box}
+.lp .hero .wlist{min-width:0;max-width:100%}
+@media (max-width:900px){
+  .lp .lprow{padding:0 14px;overflow:hidden}
+  .lp .hero .wlist{max-width:none}
+}
+
+.lp .hero .wlist{background:transparent!important;box-shadow:none!important;border:0!important}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1889,8 +1915,7 @@ function weekPill(x,j,k,wmax){
 function weekRow(x,j,k,wmax){
   const m=dayMed(x), Tm=dayMedOf(x,'T'), ag=dayAgree(x);
   const lab=j===0?'Aujourd’hui':j===1?'Demain':x.label;
-  const hpx=m!=null?Math.max(6,Math.round(m/Math.max(wmax,1.2)*40)):0, col=m!=null?sizeCol(m):'#9fb0b4';
-  return `<button class="wrow" data-d="${j}" aria-pressed="${j===k}" aria-label="${lab} : ${m!=null?fmt(m)+' m':'pas de données'}${Tm?', période '+Math.round(Tm)+' s':''}${ag?', accord des modèles '+AGREE_TXT[ag]:''}"><span class="dn">${j===0?'Auj.':x.label.split(' ')[0]}</span><span class="bw"><i style="height:${hpx}px;background:${col}"></i></span><b>${m!=null?fmt(m):'—'}</b><small>${Tm?Math.round(Tm)+' s':'&nbsp;'}</small></button>`;
+  return `<button class="wrow" data-d="${j}" aria-pressed="${j===k}" aria-label="${lab} : ${m!=null?fmt(m)+' m':'pas de données'}${Tm?', période '+Math.round(Tm)+' s':''}${ag?', accord des modèles '+AGREE_TXT[ag]:''}"><span class="dn">${j===0?'Auj.':x.label.split(' ')[0]}</span><span class="dd">${+x.date.slice(8,10)}</span><b>${m!=null?fmt(m):'—'}<small> m</small></b></button>`;
 }
 const TRUST_TXT = ['','Prévision incertaine','Prévision assez fiable','Prévision fiable'];
 function trustHtml(ag){
@@ -2870,6 +2895,7 @@ function render(){
 
   oceanSync(); updateLive(); bind(); markHour();
   const hs=document.querySelector('.hscroll'), hc=document.querySelector('.hhr.sel'); if(hs&&hc) hs.scrollLeft=Math.max(0,hc.offsetLeft-140);
+  { const wr=document.querySelector('.wlist .wrow[aria-pressed="true"]'); if(wr&&wr.parentElement) wr.parentElement.scrollLeft=Math.max(0,wr.offsetLeft-70); }
 }
 
 /* ---- Page d'un spot v5 : chiffres clés et ligne d'infos ---- */
