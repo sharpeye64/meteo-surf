@@ -1662,7 +1662,8 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
   #home .hmb-col .hmb-res{max-height:calc(100vh - 360px)}
   #home.hm-sel .hmb-col{top:50px;transform:none}
   #home .hmb-dcard{bottom:auto;top:200px}
-  #home .hmb-dcard:after{content:"";position:absolute;top:var(--ay,60px);width:20px;height:20px;background:#fff;transform:translateY(-50%) rotate(45deg);border-radius:0 5px 0 0}
+  #home .hmb-col .hmb-dcard{position:static;width:auto;left:auto;top:auto;bottom:auto}
+  #home .hmb-dcard[data-side]:after{content:"";position:absolute;top:var(--ay,60px);width:20px;height:20px;background:#fff;transform:translateY(-50%) rotate(45deg);border-radius:0 5px 0 0}
   #home .hmb-dcard[data-side="r"]:after{right:-9px}
   #home .hmb-dcard[data-side="l"]:after{left:-9px;border-radius:0 0 0 5px}
 }
@@ -3296,15 +3297,14 @@ function homeSpot(s,fly){
     document.getElementById('hmBk').onclick=()=>{ HOME.q=''; homeClear(); homeHomePanel(); homeFit(); homeDeclutter(); };
     document.getElementById('hmGo').onclick=()=>{ homeClose(); go(s.i); };
   } else {
-    document.getElementById('home').classList.add('hm-sel'); HOME.popAt=spotPos(s.i);
-    P.innerHTML=`<div class="hmb-col"><div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<span class="nm">${s.n}</span></div><div class="hmb-chips"><button type="button" id="hmBk">← Toute la côte</button></div></div></div>
+    document.getElementById('home').classList.remove('hm-sel'); HOME.popAt=null;
+    P.innerHTML=`<div class="hmb-col"><div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<span class="nm">${s.n}</span></div><div class="hmb-chips"><button type="button" id="hmBk">← Toute la côte</button></div></div>
       <div class="hmb-dcard"><div class="hd"><span class="bd" style="background:${hmCol(s.h)}">${hmF(s.h)}</span><div><h3>${s.n}</h3><div class="sub">${s.r}</div></div></div>
        <div class="nums"><div class="a"><small>Prévu</small><b>${hmF(s.h)}<i> m</i></b></div>${cur?`<div class="m${cur.ageH>6?' old':''}"><small><i class="dt"></i>Mesuré</small><b>${hmF(cur.L.hs)}<i> m</i></b></div>`:''}</div>
        ${cur?`<p class="cmp">${txt} <span>${ref}</span></p>`:''}
-       <button type="button" class="go" id="hmGo">Ouvrir la prévision complète ${HM_ICON.go}</button></div>`;
+       <button type="button" class="go" id="hmGo">Ouvrir la prévision complète ${HM_ICON.go}</button></div></div>`;
     document.getElementById('hmBk').onclick=()=>{ HOME.q=''; homeClear(); homeHomePanel(); homeFit(); homeDeclutter(); };
     document.getElementById('hmGo').onclick=()=>{ homeClose(); go(s.i); };
-    homePlacePop();
   }
   const bp=cur&&homeBuoyPos(cur.key);
   if(bp&&cur){ HOME.ref={a:spot,b:bp,k:Math.round(cur.km)}; }
