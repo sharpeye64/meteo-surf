@@ -1647,6 +1647,11 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
 }
 
 .lp .hero .wlist{background:transparent!important;box-shadow:none!important;border:0!important}
+
+/* carte « Mesure en mer » : une seule pastille d'état */
+.lp .bfresh.lv{background:rgba(31,157,85,.12)!important;color:#1a6b3d!important;font-weight:800;letter-spacing:.02em}
+.lp .bfresh.lv i{background:#1f9d55!important;animation:lpdot 2s infinite}
+@media (prefers-reduced-motion:reduce){.lp .bfresh.lv i{animation:none}}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -2493,7 +2498,7 @@ function radarHtml(s){
   const bar=(v,cls,lbl)=>`<div class="bc"><span>${lbl}</span><span class="bt"><i class="${cls}" style="width:${(v/cmpMax*100).toFixed(0)}%"></i></span><b>${fmt(v)} m</b></div>`;
   const tog=list.length>1?`<div class="rtog" role="group" aria-label="Choisir la bouée">${list.map(o=>`<button type="button" data-rv="${o.key}" aria-pressed="${o.key===cur.key}">${o.name}</button>`).join('')}</div>`:'';
   const stats=[
-    L.tp?`<div class="bs">${BI.wave}<b>${Math.round(L.tp)} s</b><span>${periodTxt(L.tp)}</span></div>`:(Tm?`<div class="bs">${BI.wave}<b>≈ ${Math.round(Tm)} s</b><span>${periodTxt(Tm)}, estimée</span></div>`:''),
+    L.tp?`<div class="bs">${BI.wave}<b>${Math.round(L.tp)} s</b><span>période</span></div>`:(Tm?`<div class="bs">${BI.wave}<b>≈ ${Math.round(Tm)} s</b><span>période estimée</span></div>`:''),
     L.dir!=null?`<div class="bs">${dirIcon(L.dir)}<b>${sector(L.dir)}</b><span>vient du</span></div>`:'',
     L.sst!=null?`<div class="bs">${BI.temp}<b>${fmt(L.sst)} °C</b><span>eau</span></div>`:''
   ].join('');
@@ -2501,11 +2506,10 @@ function radarHtml(s){
     <div class="hhead"><h2 class="h2s" id="sRadar">Mesure en mer</h2>${tip('radar','Comment fonctionnent les bouées ?')}${tog}</div>
     <div class="bgrid">
       <div class="bcard">
-        <div class="bhead"><span class="bname">Bouée ${cur.name}</span><span class="bsub">${cur.sub}</span><span class="bfresh ${fresh}" title="Mesure en temps réel, non validée."><i></i>${ageH<6?ageTxt(ageH):stampTxt(L.time)}</span>${ageH<2?'<span class="live"><i></i>En direct</span>':''}</div>
+        <div class="bhead"><span class="bname">Bouée ${cur.name}</span><span class="bsub">${cur.sub}</span><span class="bfresh ${fresh}${ageH<2?' lv':''}" title="Mesure en temps réel, non validée."><i></i>${ageH<2?(ageH<1?'En direct':'En direct · '+ageTxt(ageH)):(ageH<6?ageTxt(ageH):stampTxt(L.time))}</span></div>
         <div class="bk2">${view==='large'?'Hauteur de la houle au large':'Hauteur de la houle à la bouée'}</div>
         <div class="bbrow"><div class="bbig">${fmt(L.hs)}<small>m</small></div>${(()=>{ const sk=buoySpark(cur); return sk?`<div class="bsk">${sk}<div class="cap2">24 dernières heures</div></div>`:''; })()}</div>
         <div class="bstats">${stats}</div>
-        <p class="bwhy">${whyText(view,L.tp||Tm)}</p>
         ${cur.key!=='gascogne'?`<a class="blink" href="bouees/${slugOf(cur.name)}/">Voir la page de la bouée →</a>`:''}
         ${fNow!=null?`<div class="bcmp">${bar(L.hs,'m','Mesuré')}${bar(fNow,'f','Prévu')}</div>`:''}
       </div>
@@ -2935,7 +2939,7 @@ function inspBuoy(){
     const per=L.tp||cur.Tm, ps=per?`<span class="pp">${L.tp?'':'≈ '}${Math.round(per)} s</span>`:'';
     const dr=L.dir!=null?`${v5Compass(L.dir,'#2a2112')}${sector(L.dir)}`:'';
     const sk=buoySpark(cur);
-    return `<a class="seg bu${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de la bouée ${cur.name}, ${when}. Mesure en temps réel, non validée. Ce n’est pas la taille des vagues sur ton spot : voir La bouée."><div class="l"><div class="k"><span class="bpulse">${V5I.buoy}</span>Bouée ${cur.name}${fresh?'<span class="live"><i></i>En direct</span>':''}</div><div class="n">${fmt(L.hs)}<small>m</small></div><div class="sm">${ps}${dr} <span>· ${fresh?'mesuré ':''}${when}</span></div></div>${sk?`<div class="r">${sk}<div class="cap2">Mesure des 24 dernières heures</div></div>`:''}</a>`;
+    return `<a class="seg bu${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de la bouée ${cur.name}, ${when}. Mesure en temps réel, non validée. Ce n’est pas la taille des vagues sur ton spot : voir La bouée."><div class="l"><div class="k"><span class="bpulse">${V5I.buoy}</span>Bouée ${cur.name}${fresh?'<span class="live"><i></i>En direct</span>':''}</div><div class="n">${fmt(L.hs)}<small>m</small></div><div class="sm">${ps}${dr} ${fresh&&ageH<1?'':`<span>· ${when}</span>`}</div></div>${sk?`<div class="r">${sk}<div class="cap2">Mesure des 24 dernières heures</div></div>`:''}</a>`;
   }catch(e){ return ''; }
 }
 function inspUpdate(h,day,ex,exact,cfd){
