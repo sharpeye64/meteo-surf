@@ -2783,8 +2783,9 @@ function homeBuoys(){
   return o;
 }
 function homeBuoyPos(key){ if(key==='gascogne') return {lat:+state.gascogne.lat,lon:+state.gascogne.lon}; const b=[...(state.coast||[]),...(state.offshore||[])].find(x=>x.id===key); return b?{lat:+b.lat,lon:+b.lon}:null; }
-async function homeOpen(){
+async function homeOpen(fromSpot){
   const el=document.getElementById('home'); if(!el||!state.data) return;
+  HOME.from=fromSpot===true?state.spot:null;
   HOME.on=true; document.body.classList.add('homeOn'); el.hidden=false;
   homeClear(); HOME.q=''; HOME.reg='Tous'; el.classList.remove('hm-search');
   try{ history.replaceState(null,'','./'); document.title=HOME_TITLE; sessionStorage.setItem('homeOpen','1'); }catch(e){}
@@ -2795,7 +2796,7 @@ async function homeOpen(){
       <aside class="hm-panel" id="hmPanel" aria-live="polite"></aside>
       <div class="hm-leg">Houle prévue (points)<i></i><div><span>0 m</span><span>3 m +</span></div><div class="hm-lg2"><b></b>Bouée : mesure réelle en mer</div></div>`;
     el.setAttribute('role','dialog'); el.setAttribute('aria-label','La côte en ce moment');
-    document.getElementById('hmClose').onclick=()=>{ const i=HOME.sel; homeClose(); if(i!=null) go(i); };
+    document.getElementById('hmClose').onclick=()=>{ const i=innerWidth<760?null:HOME.sel; homeClose(); if(i!=null) go(i); };
     HOME.ready=true; homeHomePanel();
     try{ await homeLoadLib(); homeInitMap(); }catch(e){ const m=document.getElementById('hmMap'); if(m) m.style.background='radial-gradient(ellipse at 70% 50%,#17303f,#09141a)'; }
   } else { homeHomePanel(); if(HOME.map){ HOME.map.resize(); homeFit(); } }
@@ -2869,7 +2870,9 @@ function homeFrameStart(){
   };
   HOME.raf=requestAnimationFrame(frame);
 }
-function homeTopBtn(){ const b=document.getElementById('hmClose'); if(!b||!state.data) return; const i=HOME.sel!=null?HOME.sel:state.spot; b.textContent='Voir '+state.data[i].spot.name+' →'; }
+function homeTopBtn(){ const b=document.getElementById('hmClose'); if(!b||!state.data) return;
+  if(innerWidth<760){ if(HOME.from!=null&&state.data[HOME.from]){ b.style.display=''; b.textContent='← Retour à '+state.data[HOME.from].spot.name; } else b.style.display='none'; return; }
+  b.style.display=''; const i=HOME.sel!=null?HOME.sel:state.spot; b.textContent='Voir '+state.data[i].spot.name+' →'; }
 function homeClear(){ HOME.sel=null; HOME.ref=null; document.querySelectorAll('#home .hm-pt,#home .hm-bu').forEach(e=>e.classList.remove('on')); }
 const HM_ICON={
   srch:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
@@ -2988,7 +2991,7 @@ function homeBuoy(b){
   }
   if(HOME.map){ const mob=innerWidth<760; HOME.map.easeTo({center:[b.lon-(mob?0:.5),b.lat],zoom:9,pitch:0,duration:1000,offset:mob?[0,30]:[0,0]}); }
 }
-document.addEventListener('click',e=>{ const a=e.target.closest&&e.target.closest('.hero .brand'); if(a&&state.data){ e.preventDefault(); homeOpen(); } });
+document.addEventListener('click',e=>{ const a=e.target.closest&&e.target.closest('.hero .brand'); if(a&&state.data){ e.preventDefault(); homeOpen(true); } });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&HOME.on) homeClose(); });
 if(window.visualViewport){ const vv=()=>document.documentElement.style.setProperty('--hmvh',visualViewport.height+'px'); visualViewport.addEventListener('resize',vv); visualViewport.addEventListener('scroll',vv); vv(); }
 addEventListener('resize',()=>{ if(!HOME.on||!HOME.map) return; clearTimeout(HOME.rt); HOME.rt=setTimeout(()=>{ HOME.map.resize(); if(!document.querySelector('#home .hm-card')) homeFit(); },200); });
