@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" class="lp">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -1406,6 +1406,193 @@ body.homeOn{overflow:hidden}
   .hmb-dcard .go{margin-top:18px;height:54px;border-radius:27px;display:flex;align-items:center;justify-content:center;gap:10px;font:800 15.5px Manrope,system-ui,sans-serif;background:linear-gradient(135deg,#f4e2b8,#e3c283);color:#2a2112;border:0;width:100%;cursor:pointer;text-decoration:none}
   .hmb-dcard .go svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 }
+
+/* ===== Page d'un spot, thème clair : barre de lecture + frise dans une carte blanche ===== */
+html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--glass-2:#f4f6f7;color-scheme:light;background:#eef1f2}
+.lp body{color:#10202c}
+.lp #ocean,.lp .sunarc{display:none!important}
+.lp .hero{min-height:0;overflow:visible;background:none}
+.lp .hero::after{display:none}
+.lp .hero .bar,.lp .bar{background:none!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.lp .brand{color:#10202c}
+.lp .brand .bword{display:none}
+.lp .brand::after{content:"houlalah";font:700 18px Unbounded,system-ui,sans-serif;text-transform:lowercase;letter-spacing:-.01em}
+.lp .glassbtn{background:#fff!important;color:#10202c!important;border:0!important;box-shadow:0 10px 30px rgba(16,32,44,.09)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.lp .glassbtn.icon[aria-pressed="true"]{color:#c9972f!important}
+.lp .heroBody{padding:0;min-height:0}
+.lp .hero2{display:block}
+.lprow{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;max-width:1180px;margin:8px auto 24px;padding:0 20px}
+.lpttl .nm{font:700 44px/1.05 Unbounded,system-ui,sans-serif;letter-spacing:-.04em}
+.lpttl .rg{font-size:15px;color:var(--muted);font-weight:600;margin:8px 0 16px}
+.lpch{display:flex;gap:10px;flex-wrap:wrap}
+.lpch .chip{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:999px;background:#fff;border:1px solid var(--edge);box-shadow:0 10px 30px rgba(16,32,44,.09);font-size:13.5px;font-weight:700;color:#10202c}
+.lpch .chip svg,.hch svg{width:16px;height:16px;fill:none;stroke:#b8892f;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.lp .hero .wlist{display:flex!important;gap:8px;overflow-x:auto;margin:-4px;padding:4px 4px 10px;background:none;border:0;width:auto;max-width:none;scrollbar-width:none}
+.lp .hero .wlist::-webkit-scrollbar{display:none}
+.lp .wrow{flex:none;width:78px;display:flex!important;flex-direction:column;align-items:center;gap:6px;padding:11px 0 10px;border-radius:20px;background:transparent;border:0;box-shadow:none;color:#10202c;font-weight:700;cursor:pointer;grid-template-columns:none}
+.lp .wrow .dn{font-size:13px;font-weight:800}
+.lp .wrow .bw{height:40px;display:flex;align-items:flex-end}.lp .wrow .bw i{display:block;width:16px;border-radius:6px 6px 3px 3px}
+.lp .wrow b{font:600 16px Unbounded,system-ui,sans-serif;letter-spacing:-.05em}
+.lp .wrow small{font-size:12px;color:var(--muted);font-weight:700}
+.lp .wrow[aria-pressed="true"]{background:#fff;box-shadow:0 0 0 2px #10202c,0 10px 30px rgba(16,32,44,.09);outline:0}
+.lp .wrow:hover{background:rgba(255,255,255,.7)}
+.lp .hourly{max-width:1180px;margin:0 auto;padding:0 20px 8px}
+.lp .hcard{background:#fff;border:1px solid var(--edge);border-radius:28px;box-shadow:0 10px 30px rgba(16,32,44,.09);padding:22px 24px 20px}
+.lp .hhead{display:flex;align-items:center;gap:10px;margin:0 0 16px;padding:0}
+.lp .gthd{margin:0;flex:1;color:var(--muted)}.lp .gthd b{color:#10202c}
+.lp .gthd em{box-shadow:0 0 0 4px rgba(31,157,85,.18)}
+.lp .hnow{display:none}
+.lp .hch{display:none;gap:11px;font-size:12px;font-weight:700;color:#10202c}.lp .hch span{display:inline-flex;gap:4px;align-items:center}
+.lp .playbtn{margin-left:auto;background:none!important;border:0!important;color:var(--muted)!important;font-weight:700;font-size:13px;padding:6px 10px;border-radius:999px;cursor:pointer;box-shadow:none!important}
+.lp .ro{display:grid;grid-template-columns:1fr 1fr 1.7fr;border-radius:24px;background:#f4f6f7;overflow:hidden}
+.lp .seg{padding:18px 22px;min-width:0;color:#10202c;text-decoration:none}.lp .seg+.seg{border-left:1px solid var(--edge)}
+.lp .seg .k{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.lp .seg .k svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.lp .seg .n{font:600 52px Unbounded,system-ui,sans-serif;letter-spacing:-.06em;line-height:1;margin-top:12px;white-space:nowrap}
+.lp .seg .n small{font:700 .34em Manrope,system-ui,sans-serif;letter-spacing:0;margin-left:3px;color:var(--muted)}
+.lp .seg .sm{display:flex;align-items:center;gap:6px;margin-top:12px;font-size:14px;font-weight:700;white-space:nowrap;min-height:22px}
+.lp .seg .sm span{color:var(--muted);font-weight:600}.lp .seg .sm svg.cp{width:22px;height:22px;flex:none}
+.lp .seg .pp{background:#fff;border-radius:999px;padding:2px 9px;font-weight:800;color:#10202c!important}
+.lp .seg.bu{display:flex;justify-content:space-between;align-items:center;gap:20px;background:linear-gradient(135deg,#fbefcd,#ecd199 60%,#dcb672);color:#2a2112;position:relative;overflow:hidden}
+.lp .seg.bu:before{content:"";position:absolute;inset:0;background:radial-gradient(80% 120% at 0% 0%,rgba(255,255,255,.6),transparent 60%);pointer-events:none}
+.lp .seg.bu>*{position:relative}
+.lp .seg.bu .k,.lp .seg.bu .sm span,.lp .seg.bu .n small{color:rgba(42,33,18,.65)}
+.lp .seg.bu .pp{background:rgba(42,33,18,.13);color:#2a2112!important}
+.lp .seg.bu .sm svg.cp circle{fill:rgba(42,33,18,.08);stroke:rgba(42,33,18,.3)}
+.lp .seg.bu .r{flex:none;text-align:right}
+.lp .cap2{font-size:10.5px;font-weight:700;color:rgba(42,33,18,.6);margin-top:6px}
+.lp .seg.bu.old .live{display:none}
+.lp .live{display:inline-flex;align-items:center;gap:6px;margin-left:8px;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.55);font-size:9.5px;letter-spacing:.14em;color:#1a6b3d;font-weight:800;text-transform:uppercase}
+.lp .live i{flex:none;width:7px;height:7px;border-radius:50%;background:#1f9d55;animation:lpdot 2s infinite}
+@keyframes lpdot{0%{box-shadow:0 0 0 0 rgba(31,157,85,.5)}70%{box-shadow:0 0 0 8px rgba(31,157,85,0)}100%{box-shadow:0 0 0 0 rgba(31,157,85,0)}}
+.lp .bpulse{position:relative;width:26px;height:26px;border-radius:50%;background:rgba(42,33,18,.12);display:grid;place-items:center;flex:none}
+.lp .bpulse svg{width:15px;height:15px;stroke:#2a2112;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.lp .bpulse:before,.lp .bpulse:after{content:"";position:absolute;border-radius:50%;border:1.5px solid rgba(42,33,18,.25);animation:lpring 3s ease-out infinite}
+.lp .bpulse:before{inset:-5px}.lp .bpulse:after{inset:-10px;animation-delay:.9s;border-color:rgba(42,33,18,.12)}
+@keyframes lpring{0%{opacity:0;transform:scale(.7)}30%{opacity:1}100%{opacity:0;transform:scale(1.15)}}
+.lp .spk{overflow:visible}
+.lp .spk .p1,.lp .spk .p2{opacity:0;transform-box:fill-box;transform-origin:center;animation:lpsp 2.4s ease-out infinite}
+.lp .spk .p2{animation-delay:.5s}
+@keyframes lpsp{0%{opacity:.28;transform:scale(.4)}100%{opacity:0;transform:scale(1.5)}}
+@media (prefers-reduced-motion:reduce){.lp .live i,.lp .bpulse:before,.lp .bpulse:after,.lp .spk .p1,.lp .spk .p2{animation:none}}
+.lp .hscroll{background:none!important;border:0!important;border-radius:0;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;margin-top:16px}
+.lp .hlab{background:transparent!important;border-right:0!important;color:var(--muted);position:static}
+.lp .hgrid .hlab small.lu{display:inline!important;font-weight:600;opacity:.85;margin-left:4px;font-size:10.5px}
+.lp .hgrid .hlab small.lu::before{content:"("}.lp .hgrid .hlab small.lu::after{content:")"}
+.lp .hgrid .hwave,.lp .hgrid .hper,.lp .hgrid .hwind{box-shadow:inset 0 0 0 2px #fff;border-radius:10px;border-top:0}
+.lp .hgrid .hc.sel.hwave,.lp .hgrid .hc.sel.hper,.lp .hgrid .hc.sel.hwind{box-shadow:inset 0 0 0 2.5px #10202c}
+.lp .hhr{color:#10202c;border-bottom:2px solid transparent!important}
+.lp .hgrid .hhr.sel{color:#b8892f;box-shadow:inset 0 -2px 0 #e0bd7a}
+.lp .hsun{color:#b8892f}
+.lp .hc:hover{background:rgba(16,32,44,.04)}
+.lp .hper small{color:#2b3d44;opacity:.75}
+.lp .htide{border-top:0;background:#f4f6f7;border-radius:10px;overflow:hidden}
+.lp .hext{background:#fff;color:#5b6b75}
+.lp .hm{color:#5b6b75;background:rgba(16,32,44,.03);border-top:1px solid var(--edge)}
+.lp .hnote{color:var(--muted)}
+@media (max-width:900px){
+  .lp .lpttl{display:none}
+  .lp .lprow{margin:0 0 10px;padding:0 14px;display:block}
+  .lp .hero .wlist{width:100%;gap:4px}
+  .lp .wrow{flex:1 1 0;width:auto;min-width:44px;padding:9px 0 8px;border-radius:16px;gap:4px}
+  .lp .wrow .bw{height:30px}.lp .wrow .bw i{width:12px}.lp .wrow b{font-size:14px}.lp .wrow .dn{font-size:12px}.lp .wrow small{font-size:11px}
+  .lp .hourly.wrap,.lp .hourly{padding:0 14px 8px}
+  .lp .hcard{padding:12px 10px 10px;border-radius:24px}
+  .lp .hhead{padding:0 4px}
+  .lp .hch{display:flex}
+  .lp .playbtn{display:none}
+  .lp .ro{grid-template-columns:1fr 1fr;gap:8px;background:none;border-radius:0;overflow:visible}
+  .lp .seg{padding:12px;border-radius:20px;background:#f4f6f7}.lp .seg+.seg{border-left:0}
+  .lp .seg .n{font-size:30px;margin-top:8px}.lp .seg .sm{font-size:12px;margin-top:8px}
+  .lp .seg.bu{grid-column:1/-1;background:linear-gradient(135deg,#fbefcd,#ecd199 60%,#dcb672)}.lp .seg.bu .n{font-size:34px}
+  .lp .hourly .hscroll{margin:10px 0 0}
+  .lp .hgrid.fit .hlab{padding:0;justify-content:center;flex-direction:column;gap:2px}
+  .lp .hgrid.fit .hlab .lt{display:none}
+  .lp .hgrid .hlab small.lu{display:block!important;margin:0;font-size:9.5px}
+  .lp .hgrid.fit .hlab small.lu::before,.lp .hgrid.fit .hlab small.lu::after{content:none}
+}
+
+/* ----- page claire : le reste de la page ----- */
+.lp .brand img.bword{display:none!important}
+.lp .glassbtn small.lr{color:var(--muted)!important}
+.lp .hhr.night,.lp .hacc.night{background:transparent}
+.lp .hgrid .hc.night.hwave,.lp .hgrid .hc.night.hper,.lp .hgrid .hc.night.hwind{background-image:linear-gradient(rgba(255,255,255,.28),rgba(255,255,255,.28))}
+.lp .stk{background:rgba(255,255,255,.94)!important;color:#10202c!important;border-color:rgba(16,32,44,.1)!important;box-shadow:0 10px 30px rgba(16,32,44,.12)!important;backdrop-filter:none!important}
+.lp .stkspot{color:#10202c!important}
+.lp .tbar{background:rgba(255,255,255,.96)!important;border-top:1px solid rgba(16,32,44,.1)!important;color:#5b6b75!important;backdrop-filter:none!important}
+.lp .tbar button{color:#5b6b75}
+.lp .tbar button.on,.lp .tbar button[aria-current]{color:#10202c}
+/* La bouée (ex-radar) */
+.lp .bcard{background:#fff!important;border:1px solid var(--edge)!important;box-shadow:0 10px 30px rgba(16,32,44,.09);color:#10202c}
+.lp .radar .bgrid>.bcard:first-child{background:linear-gradient(135deg,#fbf3dc,#fff 62%)!important;border:1px solid rgba(201,151,47,.35)!important}
+.lp .bcard .bs,.lp .bstats>*{background:#f4f6f7!important;border-color:var(--edge)!important}
+.lp .bfresh{background:#f4f6f7!important;color:#10202c!important}
+.lp .rtog{background:#fff!important;border:1px solid var(--edge)!important}
+.lp .tabs button,.lp .rtog button{color:#24343e}
+.lp .tabs button[aria-pressed="true"],.lp .rtog button[aria-pressed="true"]{background:#10202c!important;border-color:#10202c!important;color:#fff!important}
+.lp .blink{color:#8a6a1f}
+/* fiabilité, carte des spots proches, pied de page */
+.lp .relc{background:#fff!important;border:1px solid var(--edge)!important;box-shadow:0 10px 30px rgba(16,32,44,.07)}
+.lp .reldiag{background:#f4f6f7}
+.lp .lmap{background:#dfe4e6;border-color:var(--edge)}
+.lp .lmap .leaflet-container{background:#c6cacc!important}
+.lp .lmap .leaflet-control a{background:#fff;color:#10202c}
+.lp .nearit{background:#fff!important;border-color:var(--edge)!important;box-shadow:0 6px 20px rgba(16,32,44,.06)}
+.lp .nearit:hover,.lp .nearit.hl{background:#f4f6f7!important;border-color:rgba(16,32,44,.25)!important}
+.lp .nearit .qbar{background:rgba(16,32,44,.08)}
+.lp .fold .fsum,.lp .fsum{color:#10202c}
+.lp footer a{color:#1b7d91}
+.lp footer h3{color:#10202c}
+.lp footer .fgen{color:var(--muted)}
+.lp footer .fgrid{border-top-color:var(--edge)}
+.lp .allspots summary{color:#10202c}
+.lp .spotlinks a{color:#1b7d91}
+.lp .info,.lp .tipb{color:var(--muted)}
+.lp .twn span{color:#5b6b75}
+
+.lp .stk{display:none!important}
+.lp .gthd{white-space:nowrap}
+@media (max-width:900px){
+  .lp .gthd{font-size:11px;letter-spacing:.08em;min-width:0}
+  .lp .hch{font-size:11.5px;gap:8px}
+  .lp .seg.bu{gap:10px}
+  .lp .seg.bu .spk{width:104px;height:auto}
+  .lp .cap2{font-size:0;margin-top:2px}.lp .cap2::after{content:"24 h";font-size:10.5px}
+}
+
+@media (max-width:900px){
+  .lp .hero .bar{display:flex!important;align-items:center;justify-content:space-between;gap:10px;grid-template-columns:none!important}
+  .lp .brand{flex:none}
+  .lp .brand::after{font-size:16px}
+  .lp #openPicker{flex:none;margin:0 auto}
+  .lp #openPicker small.lr{display:none}
+}
+
+@media (max-width:900px){
+  .lp #openPicker{width:auto!important;min-width:0!important;max-width:60vw;padding:0 16px!important}
+  .lp #favBtn{flex:none;width:42px!important;min-width:42px}
+}
+
+@media (max-width:900px){
+  .lp .seg.bu .l{flex:1;min-width:0}
+  .lp .seg.bu .sm{flex-wrap:wrap;white-space:normal;row-gap:4px}
+  .lp .seg.bu .k{white-space:normal;flex-wrap:wrap;row-gap:6px}
+  .lp .seg.bu .r{flex:none}
+}
+
+/* fenêtres (choix du spot, info-bulles) */
+.lp dialog{background:#fff;color:#10202c;border-color:rgba(16,32,44,.1)}
+.lp dialog::backdrop{background:rgba(16,32,44,.45)}
+.lp .grp{background:#fff;color:#8a6a1f;border-bottom-color:rgba(16,32,44,.08)}
+.lp .it:hover{background:#f4f6f7}
+.lp .search{background:#f4f6f7}
+.lp .tabs button{color:#24343e}
+.lp .tabs button[aria-pressed="true"]{background:#10202c;border-color:#10202c;color:#fff}
+.lp .tip .tipb,.lp .tipbox,.lp .tipp{background:#fff;color:#10202c;border:1px solid rgba(16,32,44,.12);box-shadow:0 14px 40px rgba(16,32,44,.18)}
+
+.lp .tipbtn{border-color:rgba(16,32,44,.25);background:#fff;color:#10202c}
+.lp .tipbox{background:#10202c;color:#e9eef0}
+.lp .tipbox b{color:#fff}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1651,7 +1838,7 @@ function summarise(date, list, sun){
 
 const QC = ['var(--q0)','var(--q1)','var(--q2)','var(--q3)','var(--q4)'];
 const QHEX = ['#55626A','#7FA7C4','#45C4B0','#F5C451','#FF7A45'];
-const windWord = {lisse:'Glassy', offshore:'Offshore', 'side-off':'Side-off', 'de côté':'De côté', onshore:'Onshore'};
+const windWord = {lisse:'Lisse', offshore:'Offshore', 'side-off':'Side-offshore', 'de côté':'Side-shore', onshore:'Onshore'};
 function tidePhase(h){ return h.phase==='basse'?'Basse':h.phase==='haute'?'Haute':h.phase==='mi'?(h.rising?'Montante':'Descendante'):'—'; }
 const AGREE_TXT = ['','faible','moyen','fort'];
 /* Accord des modèles de houle à une heure donnée : écart entre le plus bas et le plus haut, comparé à 15 % de la hauteur. */
@@ -1672,9 +1859,10 @@ function weekPill(x,j,k,wmax){
   return `<button class="wkp" data-d="${j}" aria-pressed="${j===k}" aria-label="${lab} : ${m!=null?fmt(m)+' m':'pas de données'}${c?', coefficient '+c:''}${ag?', accord des modèles '+AGREE_TXT[ag]:''}"><span class="d">${j===0?'Auj.':x.label.split(' ')[0]}</span><span class="wb"><i style="height:${m!=null?Math.max(4,Math.round(m/wmax*30)):0}px"></i></span><span class="m">${m!=null?fmt(m):'—'}</span><span class="cf">${c?'coef '+c:''}</span>${dotsHtml(ag)}</button>`;
 }
 function weekRow(x,j,k,wmax){
-  const m=dayMed(x), cf=state.coef&&state.coef[x.date], Tm=dayMedOf(x,'T'), ag=dayAgree(x);
+  const m=dayMed(x), Tm=dayMedOf(x,'T'), ag=dayAgree(x);
   const lab=j===0?'Aujourd’hui':j===1?'Demain':x.label;
-  return `<button class="wrow" data-d="${j}" aria-pressed="${j===k}" aria-label="${lab} : ${m!=null?fmt(m)+' m':'pas de données'}${Tm?', période '+Math.round(Tm)+' s':''}${ag?', accord des modèles '+AGREE_TXT[ag]:''}"><span class="wd"><span class="wds">${j===0?'Auj.':x.label.split(' ')[0]}</span><span class="wdl">${j===0?'Aujourd’hui':DAYS_LONG[new Date(x.date+'T12:00').getDay()].replace(/^./,c=>c.toUpperCase())}</span></span><span class="wrb"><i style="width:${m!=null?Math.max(3,Math.round(m/wmax*100)):0}%"></i></span><span class="wm" style="--c:${sizeCol(m)}">${m!=null?fmt(m)+'<small> m</small>':'—'}</span><span class="wc">${Tm?Math.round(Tm)+' s':''}</span></button>`;
+  const hpx=m!=null?Math.max(6,Math.round(m/Math.max(wmax,1.2)*40)):0, col=m!=null?sizeCol(m):'#9fb0b4';
+  return `<button class="wrow" data-d="${j}" aria-pressed="${j===k}" aria-label="${lab} : ${m!=null?fmt(m)+' m':'pas de données'}${Tm?', période '+Math.round(Tm)+' s':''}${ag?', accord des modèles '+AGREE_TXT[ag]:''}"><span class="dn">${j===0?'Auj.':x.label.split(' ')[0]}</span><span class="bw"><i style="height:${hpx}px;background:${col}"></i></span><b>${m!=null?fmt(m):'—'}</b><small>${Tm?Math.round(Tm)+' s':'&nbsp;'}</small></button>`;
 }
 const TRUST_TXT = ['','Prévision incertaine','Prévision assez fiable','Prévision fiable'];
 function trustHtml(ag){
@@ -1926,6 +2114,7 @@ function oceanBuild(){
   }catch(e){ console.warn('Océan : shader non compilé', e.message); return false; }
 }
 function oceanInit(){
+  return;   // plus d'océan animé : la page est claire et sobre
   if(OC.canvas) return;                                   // jamais deux fois
   const c=document.getElementById('ocean'); if(!c) return; OC.canvas=c;
   try{ OC.gl=c.getContext('webgl',{antialias:false,premultipliedAlpha:false,powerPreference:'low-power'}); }catch(e){ OC.gl=null; }
@@ -2116,9 +2305,9 @@ function hourlyHtml(day,hrs){
   const rise=day.sun?hDec(day.sun.rise):8, set=day.sun?hDec(day.sun.set):18;
   const winA=99, winB=-1;
   const mx=Math.max(1,...hrs.map(h=>h.H||0)); let c='';
-  const lab=(row,txt,ic)=>`<div class="hlab" style="grid-row:${row}">${ic?`<svg class="li" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ic}</svg>`:''}<span class="lt">${txt}</span></div>`;
+  const lab=(row,txt,ic,unit)=>`<div class="hlab" style="grid-row:${row}">${ic?`<svg class="li" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ic}</svg>`:''}<span class="lt">${txt}</span>${unit?`<small class="lu">${unit}</small>`:''}</div>`;
   const IC={wave:'<path d="M3 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>',per:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',acc:'<circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/>',wind:'<path d="M3 8h10a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2 2 0 1 1-2 2"/>',tide:'<path d="M7 3v8M4 6l3-3 3 3"/><path d="M17 21v-8M14 18l3 3 3-3"/>'};
-  c+=lab(1,'')+lab(2,'Vagues <small>m</small>',IC.wave)+lab(3,'Période <small>· dir.</small>',IC.per)+lab(4,'Accord',IC.acc)+lab(5,'Vent <small>km/h</small>',IC.wind)+lab(6,'Marée',IC.tide);
+  c+=lab(1,'')+lab(2,'Vagues',IC.wave,'m')+lab(3,'Période',IC.per,'s')+lab(4,'Accord',IC.acc)+lab(5,'Vent',IC.wind,'km/h')+lab(6,'Marée',IC.tide);
   hrs.forEach((h,i)=>{
     const col=i+2, sc=Math.round(h.score||0), nt=(h.hour<Math.floor(rise)||h.hour>Math.floor(set))?' night':'', wn=(h.hour>=winA&&h.hour<=winB)?' win':'';
     const sun = h.hour===Math.floor(rise)?'<span class="hsun">Lever</span>':h.hour===Math.floor(set)?'<span class="hsun">Coucher</span>':'';
@@ -2408,7 +2597,7 @@ function initMap(){
   const k=state.day, sel=state.spot;
   lmap=L.map(box,{scrollWheelZoom:false,zoomControl:true,attributionControl:true,zoomSnap:0.25,maxZoom:14,minZoom:7,maxBounds:[[42.9,-2.8],[45.7,0]]});
   lmap.attributionControl.setPrefix(false).addAttribution('Côte : IGN / Natural Earth');
-  L.geoJSON(COAST,{interactive:false,style:{color:'rgba(var(--sand-rgb),.55)',weight:1.2,fillColor:'#1C2624',fillOpacity:1}}).addTo(lmap);
+  L.geoJSON(COAST,{interactive:false,style:{color:'rgba(16,32,44,.28)',weight:1.2,fillColor:'#f1f2f1',fillOpacity:1}}).addTo(lmap);
   TOWNS.forEach(([n,la,lo])=>L.marker([la,lo],{interactive:false,keyboard:false,icon:L.divIcon({className:'twn',html:`<span>${n}</span>`,iconSize:[0,0]})}).addTo(lmap));
   const nearSet=new Set(nearOf(sel,7).map(o=>o.i));
   state.data.forEach((x,i)=>{
@@ -2589,24 +2778,24 @@ function render(){
           </div>
           </div>
         </div>
-        <h2 class="whd">Cette semaine</h2>
-        <nav class="wlist in d3" aria-label="La semaine à ${s.name}">${d.days.map((x,j)=>x.tag==='—'?'':weekRow(x,j,k,wmax)).join('')}</nav>
+        <div class="lprow">
+          <div class="lpttl"><div class="nm">${s.name}</div><div class="rg">${s.region}</div>
+            <div class="lpch"><span class="chip">${V5I.therm}${sst!=null?Math.round(sst)+' °C':'—'}</span>${day.sun?`<span class="chip">${V5I.sunr}${day.sun.rise}</span><span class="chip">${V5I.suns}${day.sun.set}</span>`:''}</div></div>
+          <nav class="wlist in d3" aria-label="La semaine à ${s.name}">${d.days.map((x,j)=>x.tag==='—'?'':weekRow(x,j,k,wmax)).join('')}</nav>
+        </div>
       </div>
     </div>
   </header>
-  <section class="hourly wrap" aria-labelledby="sHour">
-    <div class="hhead"><h2 class="h2s" id="sHour"><span class="hdm">Heure par heure</span><span class="hdd">${dayLabel}, heure par heure</span></h2><span class="hnow" id="nowLbl"></span>${tip('modeles','D’où viennent les prévisions ?')}<button class="playbtn" id="cmpBtn" aria-pressed="${!!state.cmp}">${state.cmp?'Masquer les modèles':'Comparer les modèles'}</button></div>
-    <div class="gtwrap" aria-live="polite">
-      <div class="gthd"><span><em></em><b id="inT">—</b></span></div>
-      <div class="gt">
-        <div class="gtc h"><div class="gtl"><i>${V5I.wave}</i>Houle</div><div class="gtv" id="inS">—</div><div class="gts" id="inPd"></div><div class="gtk" id="inSk"></div></div>
-        <div class="gtc w"><div class="gtl"><i>${V5I.wind}</i>Vent</div><div class="gtv" id="inW">—</div><div class="gts" id="inWd"></div><div class="gtk" id="inWk"></div></div>
-        ${inspBuoy()}
-      </div>
+  <section class="hourly wrap" aria-labelledby="sHour"><div class="hcard">
+    <div class="hhead"><h2 class="sr" id="sHour">${dayLabel}, heure par heure</h2><div class="gthd" aria-live="polite"><span><em></em><b id="inT">—</b></span></div><span class="hch"><span>${V5I.therm}${sst!=null?Math.round(sst)+' °C':'—'}</span>${day.sun?`<span>${V5I.sunr}${day.sun.rise}</span><span>${V5I.suns}${day.sun.set}</span>`:''}</span><span class="hnow" id="nowLbl"></span>${tip('modeles','D’où viennent les prévisions ?')}<button class="playbtn" id="cmpBtn" aria-pressed="${!!state.cmp}">${state.cmp?'Masquer les modèles':'Comparer les modèles'}</button></div>
+    <div class="ro" aria-live="polite">
+      <div class="seg"><div class="k">${V5I.wave}Houle</div><div class="n" id="inS">—</div><div class="sm" id="inPd"></div></div>
+      <div class="seg"><div class="k">${V5I.wind}Vent</div><div class="n" id="inW">—</div><div class="sm" id="inWd"></div></div>
+      ${inspBuoy()}
     </div>
     <div class="hscroll"><div class="hgrid${state.cmp?' cmp':''}${hrsH!==hrs?' fit':''}" style="--lab:${state.cmp?150:96}px;--n:${hrsH.length};grid-template-rows:44px 84px 66px 28px 84px 92px${state.cmp?' '+'34px '.repeat((state.models||[]).length+(state.windModels||[]).length):''}">${hourlyHtml(day,hrsH)}</div></div>
     ${windNote(hrs)?`<p class="hnote">${windNote(hrs).trim()}</p>`:''}
-  </section>
+  </div></section>
 
   ${radarHtml(s)}
 
@@ -2649,23 +2838,37 @@ const V5I = {
   wind:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h10.5a2.7 2.7 0 1 0-2.7-2.7M3 12.5h15.5a2.7 2.7 0 1 1-2.7 2.7M3 17h7"/></svg>',
   tide:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 17c2.2-3 4.4-3 6.6 0s4.4 3 6.6 0 3.4-2.4 6.8-.5M12 3.5v8m-3-3 3 3 3-3"/></svg>',
   therm:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14.2V5.5a2 2 0 0 1 4 0v8.7a4 4 0 1 1-4 0z"/></svg>',
-  sun:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4m-4.2-1.8L12 8l4.2-2.8M3 18h18M6.5 14a5.5 5.5 0 0 1 11 0"/></svg>'
+  sun:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4m-4.2-1.8L12 8l4.2-2.8M3 18h18M6.5 14a5.5 5.5 0 0 1 11 0"/></svg>',
+  sunr:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9V3m0 0-3 3m3-3 3 3M3 18h18M6.5 18a5.5 5.5 0 0 1 11 0"/></svg>',
+  suns:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v6m0 0-3-3m3 3 3-3M3 18h18M6.5 18a5.5 5.5 0 0 1 11 0"/></svg>'
 };
-const V5_WIND = {lisse:'Lisse', offshore:'De terre', 'side-off':'De travers, côté terre', 'de côté':'De travers', onshore:'De mer'};
+const V5_WIND = {lisse:'Lisse', offshore:'Offshore', 'side-off':'Side-offshore', 'de côté':'Side-shore', onshore:'Onshore'};
 function v5Compass(deg,color){
-  let t=''; for(let a=0;a<360;a+=45) t+=`<line x1="0" y1="-31" x2="0" y2="-35" stroke="rgba(255,255,255,.4)" stroke-width="1.5" transform="rotate(${a})"/>`;
-  return `<svg class="cp" viewBox="-40 -40 80 80" aria-hidden="true"><circle r="33" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.2)"/>${t}<g transform="rotate(${Math.round((deg+180)%360)})"><path d="M0 -22V20M-8 -10L0 -22L8 -10" fill="none" stroke="${color}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;
+  let t=''; for(let a=0;a<360;a+=45) t+=`<line x1="0" y1="-31" x2="0" y2="-35" stroke="rgba(16,32,44,.3)" stroke-width="1.5" transform="rotate(${a})"/>`;
+  return `<svg class="cp" viewBox="-40 -40 80 80" aria-hidden="true"><circle r="33" fill="rgba(16,32,44,.05)" stroke="rgba(16,32,44,.22)"/>${t}<g transform="rotate(${Math.round((deg+180)%360)})"><path d="M0 -22V20M-8 -10L0 -22L8 -10" fill="none" stroke="${color}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;
 }
 
 /* ---- Panneau de lecture de la frise ---- */
 V5I.buoy = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15a7 7 0 0 1 14 0zM12 8V4M3 19c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/></svg>';
+function buoySpark(cur){
+  try{
+    const L=cur.L, t1=new Date(L.time+':00').getTime(), obs=(cur.obs||[]).filter(o=>o.hs!=null&&t1-new Date(o.t.length<=16?o.t+':00':o.t).getTime()<=24*36e5);
+    if(obs.length<4) return '';
+    const P=[]; const n=Math.min(13,obs.length); for(let i=0;i<n;i++) P.push(obs[Math.round(i*(obs.length-1)/(n-1))].hs);
+    const W=150,H=56, mx=Math.max(...P), mn=Math.min(...P), y=v=>H-10-(v-mn+.05)/(mx-mn+.1)*(H-24), x=i=>4+i*(W-16)/(P.length-1);
+    let d=`M${x(0).toFixed(1)},${y(P[0]).toFixed(1)}`; for(let i=1;i<P.length;i++){ const cx=(x(i-1)+x(i))/2; d+=` C${cx.toFixed(1)},${y(P[i-1]).toFixed(1)} ${cx.toFixed(1)},${y(P[i]).toFixed(1)} ${x(i).toFixed(1)},${y(P[i]).toFixed(1)}`; }
+    const lx=x(P.length-1), ly=y(P[P.length-1]);
+    return `<svg class="spk" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true"><defs><linearGradient id="spg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2112" stop-opacity=".22"/><stop offset="1" stop-color="#2a2112" stop-opacity="0"/></linearGradient></defs><path d="${d} L${lx.toFixed(1)},${H} L${x(0).toFixed(1)},${H} Z" fill="url(#spg)"/><path d="${d}" fill="none" stroke="#2a2112" stroke-width="2.2" stroke-linecap="round"/><circle class="p2" cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="9" fill="#2a2112"/><circle class="p1" cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="14" fill="#2a2112"/><circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="4.6" fill="#fff" stroke="#2a2112" stroke-width="2.2"/></svg>`;
+  }catch(e){ return ''; }
+}
 function inspBuoy(){
   try{
     const sp=state.data[state.spot].spot, cur=pickBuoy(buoyChoices(sp)); if(!cur) return '';
-    const L=cur.L, ageH=cur.ageH, when=ageH<1?'à l’instant':ageH<6?`il y a ${Math.round(ageH)} h`:stampTxt(L.time);
+    const L=cur.L, ageH=cur.ageH, when=ageH<1?'à l’instant':ageH<6?`il y a ${Math.round(ageH)} h`:stampTxt(L.time), fresh=ageH<2;
     const per=L.tp||cur.Tm, ps=per?`<span class="pp">${L.tp?'':'≈ '}${Math.round(per)} s</span>`:'';
-    const dr=L.dir!=null?`<span class="d">${v5Compass(L.dir,'#2a2112')}${sector(L.dir)}</span>`:'';
-    return `<a class="gtc b${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de la bouée ${cur.name}, ${when}. Mesure en temps réel, non validée. Ce n’est pas la taille des vagues sur ton spot : voir La bouée."><div><div class="gtl"><i>${V5I.buoy}</i>Bouée ${cur.name}</div><div class="bd"><i></i>Mesuré en mer · ${when}</div></div><div class="gtv">${fmt(L.hs)}<small>m</small></div><div class="br">${ps}${dr}</div></a>`;
+    const dr=L.dir!=null?`${v5Compass(L.dir,'#2a2112')}${sector(L.dir)}`:'';
+    const sk=buoySpark(cur);
+    return `<a class="seg bu${ageH>6?' old':''}" href="#sRadar" title="Mesure réelle de la bouée ${cur.name}, ${when}. Mesure en temps réel, non validée. Ce n’est pas la taille des vagues sur ton spot : voir La bouée."><div class="l"><div class="k"><span class="bpulse">${V5I.buoy}</span>Bouée ${cur.name}${fresh?'<span class="live"><i></i>En direct</span>':''}</div><div class="n">${fmt(L.hs)}<small>m</small></div><div class="sm">${ps}${dr} <span>· ${fresh?'mesuré ':''}${when}</span></div></div>${sk?`<div class="r">${sk}<div class="cap2">Mesure des 24 dernières heures</div></div>`:''}</a>`;
   }catch(e){ return ''; }
 }
 function inspUpdate(h,day,ex,exact,cfd){
@@ -2674,11 +2877,9 @@ function inspUpdate(h,day,ex,exact,cfd){
   const dl=state.day===0?'Aujourd’hui':state.day===1?'Demain':DAYS_LONG[new Date(day.date+'T12:00').getDay()].replace(/^./,c=>c.toUpperCase());
   $('inT').textContent=isNow?`Maintenant · ${hhmm(state.hour)}`:`${dl} · ${hhmm(state.hour)}`;
   $('inS').innerHTML=`${fmt(h.H)}<small>m</small>`;
-  $('inPd').innerHTML=`<span class="pp">${Math.round(h.T||0)} s</span>`+(h.D!=null?sector(h.D):'');
-  $('inSk').innerHTML=h.D!=null?v5Compass(h.D,'#F4E2B8'):'';
+  $('inPd').innerHTML=`<span class="pp">${Math.round(h.T||0)} s</span>`+(h.D!=null?`${v5Compass(h.D,'#c9972f')}${sector(h.D)}`:'');
   $('inW').innerHTML=h.v!=null?`${Math.round(h.v)}<small>km/h</small>`:'—';
-  $('inWd').innerHTML=h.wd!=null?`${sector(h.wd)} <span>· ${(V5_WIND[h.wind]||'').toLowerCase()}</span>`:'';
-  $('inWk').innerHTML=h.wd!=null?v5Compass(h.wd,'#8fd8ee'):'';
+  $('inWd').innerHTML=h.wd!=null?`${v5Compass(h.wd,'#1b99a8')}${sector(h.wd)} <span>· ${(V5_WIND[h.wind]||'').toLowerCase()}</span>`:'';
 }
 function v5Update(h,day,ex,exact,cfd){
   const $=id=>document.getElementById(id); if(!$('v5S')) return;
