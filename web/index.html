@@ -1652,6 +1652,20 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
 .lp .bfresh.lv{background:rgba(31,157,85,.12)!important;color:#1a6b3d!important;font-weight:800;letter-spacing:.02em}
 .lp .bfresh.lv i{background:#1f9d55!important;animation:lpdot 2s infinite}
 @media (prefers-reduced-motion:reduce){.lp .bfresh.lv i{animation:none}}
+
+/* grand écran (≥ 1200 px) : colonne groupée vers le quart gauche, centrée en hauteur ; la fiche se pose à côté du marqueur */
+.hmb-col{display:contents}
+@media (min-width:1200px){
+  #home .hmb-col{display:flex;flex-direction:column;gap:16px;position:absolute;z-index:14;width:400px;left:max(28px,calc(25vw - 200px));top:50%;transform:translateY(-50%);max-height:calc(100% - 140px)}
+  #home .hmb-col .hmb-top,#home .hmb-col .hmb-card,#home .hmb-col .hmb-res{position:static;width:auto;left:auto;right:auto;top:auto;bottom:auto}
+  #home .hmb-col .hmb-chips{margin-top:14px}
+  #home .hmb-col .hmb-res{max-height:calc(100vh - 360px)}
+  #home.hm-sel .hmb-col{top:50px;transform:none}
+  #home .hmb-dcard{bottom:auto;top:200px}
+  #home .hmb-dcard:after{content:"";position:absolute;top:var(--ay,60px);width:20px;height:20px;background:#fff;transform:translateY(-50%) rotate(45deg);border-radius:0 5px 0 0}
+  #home .hmb-dcard[data-side="r"]:after{right:-9px}
+  #home .hmb-dcard[data-side="l"]:after{left:-9px;border-radius:0 0 0 5px}
+}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -3134,7 +3148,7 @@ function homeInitMap(){
     e.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15a7 7 0 0 1 14 0zM12 8V4M3 19c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/></svg><div class="hm-tip">Bouée ${b.n}<small>${hmF(b.L.hs)} m mesuré</small></div>`; w.appendChild(e); w.onclick=()=>homeBuoy(b);
     HOME.bms[b.id]=new maplibregl.Marker({element:w}).setLngLat([b.lon,b.lat]).addTo(map); });
   homeFit(true);
-  map.on('moveend',homeDeclutter); map.on('load',()=>{ homeDeclutter(); try{ homeHalo(); }catch(e){} }); setTimeout(homeDeclutter,400);
+  map.on('moveend',homeDeclutter); map.on('move',homePlacePop); map.on('load',()=>{ homeDeclutter(); try{ homeHalo(); }catch(e){} }); setTimeout(homeDeclutter,400);
 }
 /* mobile : une seule épingle par groupe de spots trop proches (on en voit plus en zoomant) */
 
@@ -3163,6 +3177,16 @@ function homeHalo(){
   map.addLayer({id:'hmhalo-core',type:'line',source:'hmhalo',layout:{'line-cap':'round','line-join':'round'},paint:{'line-gradient':grad,'line-width':z(14,28,52,100),'line-blur':z(10,20,36,70),'line-opacity':.7,'line-offset':z(7,14,26,48)}},before);
   map.addLayer({id:'hmhalo-edge',type:'line',source:'hmhalo',layout:{'line-cap':'round','line-join':'round'},paint:{'line-gradient':grad,'line-width':z(2.2,3,4,6),'line-blur':z(1,1.5,2.4,4),'line-opacity':.9,'line-offset':z(2,4,7,12)}},before);
   HOME.halo=true;
+}
+/* grand écran : la fiche se pose à côté du marqueur choisi (à sa gauche, sinon à sa droite), avec une pointe vers lui */
+function homePlacePop(){
+  const pop=document.querySelector('#home .hmb-dcard'); if(!pop||!HOME.map||!HOME.popAt||innerWidth<1200) return;
+  const q=HOME.map.project(HOME.popAt), w=pop.offsetWidth||400, h=pop.offsetHeight||360, gap=34;
+  let left=q.x-gap-w, side='r'; if(left<24){ left=q.x+gap; side='l'; }
+  left=Math.max(24,Math.min(innerWidth-24-w,left));
+  const top=Math.max(150,Math.min(innerHeight-h-24,q.y-100));
+  pop.style.left=left+'px'; pop.style.top=top+'px'; pop.style.bottom='auto';
+  pop.style.setProperty('--ay',Math.max(34,Math.min(h-34,q.y-top))+'px'); pop.dataset.side=side;
 }
 function homeDeclutter(){
   if(!HOME.map||!HOME.data) return;
@@ -3227,11 +3251,12 @@ function homeHomePanelM(){
   const P=document.getElementById('hmPanel'), D=HOME.data, regs=['Tous',...Array.from(new Set(D.map(s=>s.r)))], n=new Date().getHours();
   const order=['Cap Ferret','Anglet','Saint-Jean-de-Luz','Donostia','Bilbao-Vizcaya','Gascogne'];
   const bu=[...HOME.bu].sort((a,b)=>{ const x=order.indexOf(a.n), y=order.indexOf(b.n); return (x<0?99:x)-(y<0?99:y); });
-  P.innerHTML=`<div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<input id="hmQ" placeholder="Chercher un spot…" autocomplete="off" aria-label="Chercher un spot" value="${HOME.q.replace(/"/g,'')}"><button type="button" class="hmb-x" id="hmQx">Annuler</button></div>
+  document.getElementById('home').classList.remove('hm-sel'); HOME.popAt=null;
+  P.innerHTML=`<div class="hmb-col"><div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<input id="hmQ" placeholder="Chercher un spot…" autocomplete="off" aria-label="Chercher un spot" value="${HOME.q.replace(/"/g,'')}"><button type="button" class="hmb-x" id="hmQx">Annuler</button></div>
     <div class="hmb-chips">${regs.map(g=>`<button type="button" class="${g===HOME.reg?'on':''}" data-g="${g}">${g}</button>`).join('')}<button type="button" id="hmGeo">${HM_ICON.loc}Près de moi</button></div></div>
     <div class="hmb-res" id="hmRes" hidden></div>
     <div class="hmb-card"><div class="hd"><div><h3>La houle du moment</h3><div class="sub">Prévision de ${n} h · ${D.length} spots</div></div><div class="hmb-leg"><i></i><span><span>0 m</span><span>3 m +</span></span></div></div>
-      <div class="hmb-row">${bu.map(b=>`<button type="button" data-b="${b.id}"><span>${b.n}<small>${b.large?'au large · ':''}${ageTxt((new Date()-new Date(b.L.time+':00'))/36e5)}${b.L.tp?' · '+Math.round(b.L.tp)+' s':''}</small></span><b>${hmF(b.L.hs)}</b></button>`).join('')}</div></div>`;
+      <div class="hmb-row">${bu.map(b=>`<button type="button" data-b="${b.id}"><span>${b.n}<small>${b.large?'au large · ':''}${ageTxt((new Date()-new Date(b.L.time+':00'))/36e5)}${b.L.tp?' · '+Math.round(b.L.tp)+' s':''}</small></span><b>${hmF(b.L.hs)}</b></button>`).join('')}</div></div></div>`;
   P.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>homeBuoy(HOME.bu.find(x=>x.id===b.dataset.b)));
   P.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ HOME.reg=b.dataset.g; homeFit(); homeHomePanelM(); homeDeclutter(); });
   document.getElementById('hmGeo').onclick=e=>homeGeo(e.currentTarget);
@@ -3271,13 +3296,15 @@ function homeSpot(s,fly){
     document.getElementById('hmBk').onclick=()=>{ HOME.q=''; homeClear(); homeHomePanel(); homeFit(); homeDeclutter(); };
     document.getElementById('hmGo').onclick=()=>{ homeClose(); go(s.i); };
   } else {
-    P.innerHTML=`<div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<span class="nm">${s.n}</span></div><div class="hmb-chips"><button type="button" id="hmBk">← Toute la côte</button></div></div>
+    document.getElementById('home').classList.add('hm-sel'); HOME.popAt=spotPos(s.i);
+    P.innerHTML=`<div class="hmb-col"><div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<span class="nm">${s.n}</span></div><div class="hmb-chips"><button type="button" id="hmBk">← Toute la côte</button></div></div></div>
       <div class="hmb-dcard"><div class="hd"><span class="bd" style="background:${hmCol(s.h)}">${hmF(s.h)}</span><div><h3>${s.n}</h3><div class="sub">${s.r}</div></div></div>
        <div class="nums"><div class="a"><small>Prévu</small><b>${hmF(s.h)}<i> m</i></b></div>${cur?`<div class="m${cur.ageH>6?' old':''}"><small><i class="dt"></i>Mesuré</small><b>${hmF(cur.L.hs)}<i> m</i></b></div>`:''}</div>
        ${cur?`<p class="cmp">${txt} <span>${ref}</span></p>`:''}
        <button type="button" class="go" id="hmGo">Ouvrir la prévision complète ${HM_ICON.go}</button></div>`;
     document.getElementById('hmBk').onclick=()=>{ HOME.q=''; homeClear(); homeHomePanel(); homeFit(); homeDeclutter(); };
     document.getElementById('hmGo').onclick=()=>{ homeClose(); go(s.i); };
+    homePlacePop();
   }
   const bp=cur&&homeBuoyPos(cur.key);
   if(bp&&cur){ HOME.ref={a:spot,b:bp,k:Math.round(cur.km)}; }
@@ -3294,12 +3321,14 @@ function homeBuoy(b){
     document.getElementById('hmBk').onclick=()=>{ homeClear(); homeHomePanel(); homeFit(); homeDeclutter(); };
   } else {
     const link=b.id==='gascogne'?'':`bouees/${slugOf(b.n)}/`, tp=L.tp?`Période ${String(L.tp).replace('.',',')} s · `:'', dr=L.dir!=null?`Direction ${hmDn(L.dir)} · `:'', sst=L.sst!=null?`Eau ${String(L.sst).replace('.',',')} °C · `:'';
-    P.innerHTML=`<div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<span class="nm">Bouée ${b.n}</span></div><div class="hmb-chips"><button type="button" id="hmBk">← Toute la côte</button></div></div>
+    document.getElementById('home').classList.add('hm-sel'); HOME.popAt=[b.lon,b.lat];
+    P.innerHTML=`<div class="hmb-col"><div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<span class="nm">Bouée ${b.n}</span></div><div class="hmb-chips"><button type="button" id="hmBk">← Toute la côte</button></div></div></div>
       <div class="hmb-dcard"><div class="hd"><span class="bd" style="background:linear-gradient(135deg,#f6e6bf,#e0bd7a)">${hmF(L.hs)}</span><div><h3>Bouée ${b.n}</h3><div class="sub">${b.sub}</div></div></div>
        <div class="nums"><div class="m${ageH>6?' old':''}"><small><i class="dt"></i>Hauteur mesurée</small><b>${hmF(L.hs)}<i> m</i></b></div>${L.hmax!=null?`<div class="a"><small>Vague max</small><b>${hmF(L.hmax)}<i> m</i></b></div>`:''}</div>
        <p class="cmp"><b>${tp}${dr}${sst}${ageTxt(ageH)}.</b> <span>Cette bouée mesure la mer en continu. Ce n’est pas la taille des vagues sur un spot précis.</span></p>
        ${link?`<a class="go" href="${link}">Voir la page de la bouée ${HM_ICON.go}</a>`:''}</div>`;
     document.getElementById('hmBk').onclick=()=>{ homeClear(); homeHomePanel(); homeFit(); homeDeclutter(); };
+    homePlacePop();
   }
   if(HOME.map){ const mob=innerWidth<760; HOME.map.easeTo({center:[b.lon-(mob?0:.5),b.lat],zoom:9,pitch:0,duration:1000,offset:mob?[0,30]:[0,0]}); }
 }
