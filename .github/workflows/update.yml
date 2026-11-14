@@ -2,10 +2,11 @@ name: Mise à jour des prévisions
 
 on:
   schedule:
-    # Toutes les 1 h 30 en moyenne (UTC), à des minutes « calmes » : GitHub saute des passages programmés quand il est chargé
-    # (constaté le 11/11/2026 : 9 h sans aucun passage avec une seule programmation toutes les 3 h). Deux séries décalées = moins de trous.
+    # Une fois par heure environ (UTC, trois séries décalées de 3 h), à des minutes « calmes » : GitHub saute des passages programmés quand il est chargé
+    # (constaté le 11/11/2026 : 9 h sans aucun passage avec une seule programmation toutes les 3 h). Trois séries décalées = moins de trous (1 h entre deux passages si rien n'est sauté).
     - cron: "17 0,3,6,9,12,15,18,21 * * *"
     - cron: "47 1,4,7,10,13,16,19,22 * * *"
+    - cron: "32 2,5,8,11,14,17,20,23 * * *"
   workflow_dispatch: {}        # bouton « Run workflow » pour lancer à la main
   push:
     branches: [main]
