@@ -20,13 +20,13 @@ EXTRA_CSS = """
 .sg b{display:block;font-size:26px;font-weight:800;letter-spacing:-.02em;margin:4px 0 2px}.sg b i{font-size:.55em;font-style:normal;opacity:.6;font-weight:600}.sg small{display:block;font-size:12px;color:var(--muted)}.sg .k{color:var(--muted)}
 .dbars{margin-top:20px}.dbars svg{display:block;width:100%;height:84px;margin-top:8px}.dax{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px}
 .crumb{font-size:13px;color:var(--muted);margin:0 0 12px}.crumb a{color:var(--muted)}.crumb b{color:var(--text);font-weight:600}
-.live{display:inline-flex;gap:8px;align-items:center;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#F4E2B8;margin-bottom:8px}
+.live{display:inline-flex;gap:8px;align-items:center;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#7a5a1c;margin-bottom:8px}
 .live:before{content:"";width:8px;height:8px;border-radius:50%;background:#1f9d55}
 .bh{display:grid;grid-template-columns:1.25fr 1fr;gap:14px;margin:22px 0 0}
 @media(max-width:760px){.bh{grid-template-columns:1fr}}
-.mapbox{position:relative;border-radius:22px;overflow:hidden;min-height:400px;border:1px solid rgba(255,255,255,.12);background:radial-gradient(ellipse at 60% 45%,#17303f,#0A1114)}
+.mapbox{position:relative;border-radius:22px;overflow:hidden;min-height:400px;border:1px solid var(--edge);background:#e9eceb}
 @media(max-width:760px){.mapbox{min-height:300px}}
-#bmap{position:absolute;inset:0}#bmap .maplibregl-canvas{filter:invert(1) hue-rotate(188deg) saturate(.7) brightness(.92) contrast(.98)}
+#bmap{position:absolute;inset:0}#bmap .maplibregl-canvas{filter:none}
 .cur{background:linear-gradient(135deg,#f4e2b8,#e3c283);color:#2a2112;border-radius:22px;padding:22px 24px;display:flex;flex-direction:column;gap:16px}
 .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:800}.cur .k{color:#5a4a28}
 .big{font-size:clamp(60px,9vw,88px);font-weight:800;line-height:.95;letter-spacing:-.04em}.big small{font-size:.3em;font-weight:600;letter-spacing:0;opacity:.7}
@@ -34,20 +34,20 @@ EXTRA_CSS = """
 .cg{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cg div{background:rgba(42,33,18,.1);border-radius:14px;padding:11px 14px}
 .cg b{display:flex;gap:8px;align-items:center;font-size:23px;line-height:1.15}.cg b i{font-size:.55em;font-style:normal;opacity:.7;font-weight:600}
 .bcard{background:var(--card);border-radius:20px;padding:16px 18px}
-.chart{width:100%;height:auto;display:block}.leg{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:#cfe3ee;margin-top:6px}
+.chart{width:100%;height:auto;display:block}.leg{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:6px}
 .leg i{display:inline-block;width:18px;height:3px;border-radius:2px;margin-right:7px;vertical-align:middle}
 .tw{overflow-x:auto}table.rel td{white-space:nowrap}table.rel{background:none;border-radius:0}
-table.rel td.h{font-size:17px;font-weight:800}tr.now td{background:rgba(228,199,155,.1);font-weight:700}tr.now td:first-child{border-left:3px solid var(--sand)}
-.tr{font-size:11px;margin-left:6px}.tr.u{color:#f0a35a}.tr.d{color:#7fd0e8}
-details.more summary{list-style:none;cursor:pointer;text-align:center;margin-top:8px;padding:12px;border:1px solid rgba(255,255,255,.18);border-radius:14px;font-weight:700;font-size:14px}
+table.rel td.h{font-size:17px;font-weight:800}tr.now td{background:rgba(227,194,131,.22);font-weight:700}tr.now td:first-child{border-left:3px solid var(--sand)}
+.tr{font-size:11px;margin-left:6px}.tr.u{color:#c4691a}.tr.d{color:#2b8aa8}
+details.more summary{list-style:none;cursor:pointer;text-align:center;margin-top:8px;padding:12px;border:1px solid rgba(16,32,44,.18);border-radius:14px;font-weight:700;font-size:14px}
 details.more summary::-webkit-details-marker{display:none}details.more[open] summary{margin-bottom:6px}
 .chips{display:flex;gap:8px;flex-wrap:wrap;list-style:none;padding:0;margin:0}
 .chips a{display:flex;align-items:center;gap:9px;background:var(--card);border-radius:14px;padding:10px 14px;text-decoration:none;color:var(--text);font-size:14px}
 .chips small{color:var(--muted)}.chips .v{font-weight:800;margin-left:4px}.dot{width:10px;height:10px;border-radius:50%;flex:none}
-.pt{width:15px;height:15px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 8px #000a;cursor:pointer}
-.bu{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f6e6bf,#e0bd7a);color:#2a2112;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 4px 14px #000a}
-.lbl{font:700 12px system-ui;background:rgba(11,24,32,.92);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:3px 8px;white-space:nowrap;margin-top:46px}
-.maplibregl-popup-content{background:rgba(11,24,32,.96);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:10px 14px;font:600 13px system-ui}.maplibregl-popup-tip{display:none}
+.pt{width:15px;height:15px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 8px rgba(16,32,44,.35);cursor:pointer}
+.bu{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f6e6bf,#e0bd7a);color:#2a2112;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 4px 14px rgba(16,32,44,.35)}
+.lbl{font:700 12px system-ui;background:#fff;color:#10202c;border:1px solid var(--edge);box-shadow:0 2px 8px rgba(16,32,44,.2);border-radius:10px;padding:3px 8px;white-space:nowrap;margin-top:46px}
+.maplibregl-popup-content{background:#fff;color:#10202c;border:1px solid var(--edge);box-shadow:0 6px 20px rgba(16,32,44,.2);border-radius:14px;padding:10px 14px;font:600 13px system-ui}.maplibregl-popup-tip{display:none}
 .bidx{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;list-style:none;padding:0;margin:0}
 .bidx a{display:block;background:var(--card);border-radius:18px;padding:16px 18px;text-decoration:none;color:var(--text)}
 .bidx b{font-size:18px}.bidx small{display:block;color:var(--muted)}.bidx .v{font-size:28px;font-weight:800;margin-top:6px}
@@ -76,10 +76,10 @@ MAP_JS = """
       if(D.s.length) m.fitBounds([lo,hi],{padding:mob?50:70,maxZoom:10,duration:0});
       var pop=new maplibregl.Popup({closeButton:false,offset:12});
       D.s.forEach(function(p){var e=document.createElement('div'); e.className='pt'; e.style.background=col(p.h); e.title=p.n;
-        e.onclick=function(){pop.setLngLat([p.lon,p.lat]).setHTML('<b>'+p.n+'</b> · '+fm(p.h)+' m prévu<br><a style="color:#E4C79B" href="'+D.base+'?spot='+p.slug+'">Ouvrir la prévision →</a>').addTo(m);};
+        e.onclick=function(){pop.setLngLat([p.lon,p.lat]).setHTML('<b>'+p.n+'</b> · '+fm(p.h)+' m prévu<br><a style="color:#8a5f14" href="'+D.base+'?spot='+p.slug+'">Ouvrir la prévision →</a>').addTo(m);};
         new maplibregl.Marker({element:e}).setLngLat([p.lon,p.lat]).addTo(m);});
       m.on('load',function(){m.addSource('l',{type:'geojson',data:{type:'FeatureCollection',features:D.s.map(function(p){return {type:'Feature',geometry:{type:'LineString',coordinates:[[D.b.lon,D.b.lat],[p.lon,p.lat]]}};})}});
-        m.addLayer({id:'l',type:'line',source:'l',paint:{'line-color':'#2a4a58','line-width':1.5,'line-dasharray':[2,3]}});});
+        m.addLayer({id:'l',type:'line',source:'l',paint:{'line-color':'#8aa0ab','line-width':1.5,'line-dasharray':[2,3]}});});
     };
     document.head.appendChild(s);
   }
@@ -198,19 +198,19 @@ def chart_svg(obs, fc, label):
     pf = " ".join(f"{X(i):.1f},{Y(v):.1f}" for i, v in enumerate(fc) if v is not None)
     g, v = "", 0.0
     while v <= mx + 1e-9:
-        g += f'<line x1="{pl}" x2="{W - pr}" y1="{Y(v):.1f}" y2="{Y(v):.1f}" stroke="rgba(255,255,255,.1)"/><text x="{pl - 6}" y="{Y(v) + 4:.1f}" text-anchor="end" font-size="11" fill="#AEB6B4">{fr(v)}</text>'
+        g += f'<line x1="{pl}" x2="{W - pr}" y1="{Y(v):.1f}" y2="{Y(v):.1f}" stroke="rgba(16,32,44,.1)"/><text x="{pl - 6}" y="{Y(v) + 4:.1f}" text-anchor="end" font-size="11" fill="#5b6b75">{fr(v)}</text>'
         v += 0.5
     ax = ""
     for i, o in enumerate(obs):
         d = datetime.strptime(o["t"][:16], "%Y-%m-%dT%H:%M")
         if d.hour == 0:
-            ax += f'<text x="{X(i):.1f}" y="{H - 5}" font-size="11" fill="#AEB6B4">{DAYS[d.weekday()]}</text>'
+            ax += f'<text x="{X(i):.1f}" y="{H - 5}" font-size="11" fill="#5b6b75">{DAYS[d.weekday()]}</text>'
     last = obs[-1]
-    fcl = f'<polyline points="{pf}" fill="none" stroke="#8fc6e0" stroke-width="2.2" stroke-dasharray="7 6"/>' if pf else ""
-    legend = '<span><i style="background:#E4C79B;height:4px"></i>Mesuré par la bouée</span>' + (f'<span><i style="background:#8fc6e0"></i>{esc(label)}</span>' if pf else "")
+    fcl = f'<polyline points="{pf}" fill="none" stroke="#3f8fb0" stroke-width="2.2" stroke-dasharray="7 6"/>' if pf else ""
+    legend = '<span><i style="background:#c8962f;height:4px"></i>Mesuré par la bouée</span>' + (f'<span><i style="background:#3f8fb0"></i>{esc(label)}</span>' if pf else "")
     return (f'<svg class="chart" viewBox="0 0 {W} {H}" role="img" aria-label="Hauteur de vagues mesurée par la bouée sur 48 heures">{g}{ax}{fcl}'
-            f'<polyline points="{pm}" fill="none" stroke="#E4C79B" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>'
-            f'<circle cx="{X(n - 1):.1f}" cy="{Y(last["hs"]):.1f}" r="5.5" fill="#E4C79B" stroke="#fff" stroke-width="2"/></svg><div class="leg">{legend}</div>')
+            f'<polyline points="{pm}" fill="none" stroke="#c8962f" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>'
+            f'<circle cx="{X(n - 1):.1f}" cy="{Y(last["hs"]):.1f}" r="5.5" fill="#c8962f" stroke="#fff" stroke-width="2"/></svg><div class="leg">{legend}</div>')
 
 
 def rows_html(obs, upto, skip=0):

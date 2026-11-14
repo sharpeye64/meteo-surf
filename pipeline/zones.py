@@ -19,7 +19,7 @@ ZONES = [
 EXTRA_CSS = """
 table.z{width:100%;border-collapse:collapse;font-size:15px}
 table.z th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;font-weight:700}
-table.z td{padding:10px;border-top:1px solid rgba(255,255,255,.08);vertical-align:top}
+table.z td{padding:10px;border-top:1px solid var(--edge);vertical-align:top}
 table.z td small{display:block;color:var(--muted);font-size:12px}
 table.z a{color:var(--text);font-weight:600;text-decoration:none}table.z a:hover{text-decoration:underline}
 .zw{overflow-x:auto;background:var(--card);border-radius:18px;padding:6px 8px}
