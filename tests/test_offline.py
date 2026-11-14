@@ -199,9 +199,9 @@ assert any("marc" in s["wave_models"] for s in data["spots"]), "MARC doit être 
 print("vent complété sur", len(w0), "heures · houle secondaire présente")
 assert data["gascogne"]["latest"]["hs"] > 0 and len(data["gascogne"]["obs"]) >= 24
 
-assert len(data["coast"]) == 3, data["meta"]["errors"]
+assert len(data["coast"]) == 4, data["meta"]["errors"]
 _cs = history.coast_summary(_hist)
-assert set(_cs["buoys"]) == {"03302", "06402", "06403", "6200024", "donostia"} and all(_cs["buoys"][k]["n"] >= 40 for k in ("03302", "06402", "06403")) and _cs["runs"] == 1, _cs
+assert set(_cs["buoys"]) == {"03302", "06402", "06403", "04403", "6200024", "donostia"} and all(_cs["buoys"][k]["n"] >= 40 for k in ("03302", "06402", "06403")) and _cs["runs"] == 1, _cs
 _co = json.loads(sorted((__import__("pathlib").Path(_hist) / "coast_obs").glob("*.json"))[0].read_text())["06402"]
 assert any(r["dir"] is not None and r["hmax"] is not None for r in _co.values()), "direction et Hmax horaires attendus"
 print("archive côtière OK :", _cs)
@@ -217,7 +217,7 @@ print("CANDHIS OK :", [b["name"] for b in data["coast"]], c0["latest"])
 import re as _re
 sm = (config.ROOT / "web" / "sitemap.xml").read_text(encoding="utf-8")
 _nb = len(data["coast"]) + len(data["offshore"]) + (1 if (data.get("gascogne") or {}).get("latest") else 0)   # pages des bouées (Gascogne comprise) + leur page liste
-assert sm.count("<url>") == len(data["spots"]) + 5 + _nb + 1 + 3, sm.count("<url>")
+assert sm.count("<url>") == len(data["spots"]) + 5 + _nb + 1 + 5, sm.count("<url>")
 assert "Sitemap:" in (config.ROOT / "web" / "robots.txt").read_text()
 pg = (config.ROOT / "web" / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
 assert "<h1>Prévisions surf à Lacanau</h1>" in pg and "application/ld+json" in pg and 'rel="canonical"' in pg and "<table>" in pg

@@ -17,6 +17,7 @@ STATIONS = [
     {"id": "03302", "name": "Cap Ferret", "lat": 44.6525, "lon": -1.4467, "page": "Y2FtcD0wMzMwMg=="},
     {"id": "06402", "name": "Anglet", "lat": 43.5322, "lon": -1.6150, "page": "Y2FtcD0wNjQwMg=="},
     {"id": "06403", "name": "Saint-Jean-de-Luz", "lat": 43.4083, "lon": -1.6817, "page": "Y2FtcD0wNjQwMw=="},
+    {"id": "04403", "name": "Plateau du Four", "lat": 47.239, "lon": -2.787, "page": "Y2FtcD0wNDQwMw=="},
 ]
 URL = "https://candhis.cerema.fr/_public_/campagne.php?{page}"
 UA = {"User-Agent": "meteo-surf-prototype (prévisions surf, 1 requête/bouée toutes les 3 h)"}

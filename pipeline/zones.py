@@ -14,6 +14,8 @@ ZONES = [
     {"key": "Gironde", "slug": "meteo-surf-gironde", "name": "Gironde", "in": "en Gironde"},
     {"key": "Landes", "slug": "meteo-surf-landes", "name": "Landes", "in": "dans les Landes"},
     {"key": "Pays Basque", "slug": "meteo-surf-pays-basque", "name": "Pays basque", "in": "au Pays basque"},
+    {"key": "Charentes", "slug": "meteo-surf-charentes", "name": "Charentes", "in": "en Charentes"},
+    {"key": "Vendée", "slug": "meteo-surf-vendee", "name": "Vendée", "in": "en Vendée"},
 ]
 
 EXTRA_CSS = """
@@ -102,15 +104,20 @@ def _zone_pages(zone, spots, payload, now, site):
     except Exception:
         bl = ""
     # profil de la zone, tiré des fiches de spots
-    beach = sum(1 for s in zs if s["type"].lower().startswith("beach"))
-    reef = sum(1 for s in zs if "reef" in s["type"].lower() or "récif" in s["bottom"].lower() or "point" in s["type"].lower())
-    easy = sum(1 for s in zs if s["level"] in ("Tous", "Débutant", "Débutant / longboard", "Débutant → intermédiaire"))
-    exp = sum(1 for s in zs if s["level"] in ("Expert", "Big wave / tow-in"))
-    prof = (f"{where[0].upper() + where[1:]}, Houlalah suit <b>{n} spots</b> : {beach} beach breaks"
-            + (f" et {reef} spot{'s' if reef > 1 else ''} de reef ou de roche" if reef else "")
-            + f". {easy} {'est accessible' if easy == 1 else 'sont accessibles'} aux débutants ou à tous les niveaux"
-            + (f", {exp} {'est réservé' if exp == 1 else 'sont réservés'} aux surfeurs très expérimentés" if exp else "") + ". "
-            "La houle vient surtout de l'ouest au nord-ouest ; le vent de terre (qui lisse les vagues) dépend de l'orientation de chaque plage, indiquée sur la fiche du spot.")
+    kn = [s for s in zs if s.get("type")]   # spots dont la fiche est détaillée (les autres : orientation seulement, rien d'inventé)
+    beach = sum(1 for s in kn if s["type"].lower().startswith("beach"))
+    reef = sum(1 for s in kn if "reef" in s["type"].lower() or "récif" in (s.get("bottom") or "").lower() or "point" in s["type"].lower())
+    easy = sum(1 for s in kn if s.get("level") in ("Tous", "Débutant", "Débutant / longboard", "Débutant → intermédiaire"))
+    exp = sum(1 for s in kn if s.get("level") in ("Expert", "Big wave / tow-in"))
+    if kn:
+        prof = (f"{where[0].upper() + where[1:]}, Houlalah suit <b>{n} spots</b> : {beach} beach breaks"
+                + (f" et {reef} spot{'s' if reef > 1 else ''} de reef ou de roche" if reef else "")
+                + f". {easy} {'est accessible' if easy == 1 else 'sont accessibles'} aux débutants ou à tous les niveaux"
+                + (f", {exp} {'est réservé' if exp == 1 else 'sont réservés'} aux surfeurs très expérimentés" if exp else "") + ". "
+                "La houle vient surtout de l'ouest au nord-ouest ; le vent de terre (qui lisse les vagues) dépend de l'orientation de chaque plage, indiquée sur la fiche du spot.")
+    else:
+        prof = (f"{where[0].upper() + where[1:]}, Houlalah suit <b>{n} spots</b>. Pour chacun : la houle et la période, le vent, la marée, "
+                "et si le vent est de terre ou de mer selon l'orientation de la plage.")
     others = [z for z in ZONES if z["slug"] != zone["slug"]]
     ol = "".join(f'<li><a href="../{z["slug"]}/">Météo surf {z["name"]}<small>{sum(1 for s in spots if s["region"] == z["key"])} spots</small></a></li>' for z in others)
     title = f"Météo surf {name} : {n} spots, houle, vent et marée | {BRAND}"
@@ -125,7 +132,7 @@ def _zone_pages(zone, spots, payload, now, site):
 <h2>La semaine {esc(where)}</h2>{table_wk}
 {bl}
 <h2>Les spots {esc(where)}</h2><p>{prof}</p>
-<h2>Autres zones</h2><ul class="near">{ol}<li><a href="{base}spots/">Tous les spots<small>{len(spots)} spots, de Lacanau à Hendaye</small></a></li></ul>
+<h2>Autres zones</h2><ul class="near">{ol}<li><a href="{base}spots/">Tous les spots<small>{len(spots)} spots, de la Vendée au Pays basque</small></a></li></ul>
 <p class="muted" style="margin-top:22px">Mis à jour le {now:%d/%m/%Y à %Hh%M}. Prévisions indicatives, à confirmer sur place.</p>"""
     ld = [{"@context": "https://schema.org", "@type": "CollectionPage", "name": title, "description": desc, "url": canonical, "inLanguage": "fr",
            "isPartOf": {"@type": "WebSite", "name": BRAND, "url": site + "/"}, "dateModified": now.strftime("%Y-%m-%dT%H:%M:00")},

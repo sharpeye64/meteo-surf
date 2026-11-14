@@ -62,6 +62,8 @@ BUOY_MAX_AGE_HOURS = 36     # au-delà, la mesure est trop ancienne : on ne corr
 TIDE_PORTS = {
     "socoa": "Socoa (Saint-Jean-de-Luz)",
     "boucau": "Boucau-Bayonne",
+    "larochelle": "La Rochelle-Pallice",
+    "sables": "Les Sables-d'Olonne",
 }
 
 # Limites de l'API gratuite Open-Meteo : on espace les appels.
