@@ -216,7 +216,7 @@ print("CANDHIS OK :", [b["name"] for b in data["coast"]], c0["latest"])
 
 import re as _re
 sm = (config.ROOT / "web" / "sitemap.xml").read_text(encoding="utf-8")
-_nb = len(data["coast"]) + len(data["offshore"])   # pages des bouées + leur page liste
+_nb = len(data["coast"]) + len(data["offshore"]) + (1 if (data.get("gascogne") or {}).get("latest") else 0)   # pages des bouées (Gascogne comprise) + leur page liste
 assert sm.count("<url>") == len(data["spots"]) + 5 + _nb + 1 + 3, sm.count("<url>")
 assert "Sitemap:" in (config.ROOT / "web" / "robots.txt").read_text()
 pg = (config.ROOT / "web" / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
