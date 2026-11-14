@@ -153,7 +153,7 @@ def spot_image(root, sp, t, now):
             pills.append(("Vent", _fr(t["wind"], 0), "km/h " + _sector(t.get("wdir"))))
         rel = f"og/spots/{sp['slug']}.png"
         render(Path(root) / rel, "Prévisions surf", f"Aujourd'hui · mis à jour à {now:%H} h {now:%M}", sp["name"],
-               f"{sp['commune'] if sp['commune'] != sp['name'] else sp['region']} · {sp['type']}", pills)
+               f"{sp['commune'] if sp['commune'] != sp['name'] else sp['region']}{' · ' + sp['type'] if sp.get('type') else ''}", pills)
         return rel
     except Exception:
         return None

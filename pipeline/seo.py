@@ -126,12 +126,31 @@ def _low(x):
     return x[:1].lower() + x[1:] if x else x
 
 
+def _profile_generic(sp, t):
+    esc = html.escape
+    name, ori = sp["name"], sp["ori"]
+    off_dir = (ori + 180) % 360
+    p = (f"<p><b>{esc(name)}</b> ({esc(sp['region'])}) : la plage fait face au secteur {esc(sector(ori))}. Le vent de terre, qui lisse la surface, "
+         f"vient donc du secteur {esc(sector(off_dir))} ; un vent du secteur {esc(sector(ori))} est un vent de mer qui hache les vagues.")
+    if t and t.get("wdir") is not None:
+        d = _angle(t["wdir"], off_dir)
+        kindw = "de terre" if d <= 60 else ("de travers" if d <= 120 else "de mer")
+        p += f" Aujourd'hui, le vent de {fr(t['wind'], 0)} km/h vient du secteur {esc(sector(t['wdir']))} : c'est un vent {kindw} ici."
+    p += "</p>"
+    items = [("Orientation", f"vers le {sector(ori)}")]
+    dl = "".join(f"<div><dt>{k}</dt><dd>{esc(v)}</dd></div>" for k, v in items)
+    return (f'<h2>{esc(name)} en bref</h2><dl class="fiche">{dl}</dl>{p}'
+            '<p class="muted">Fiche détaillée (fond, niveau, marée idéale) bientôt disponible. Repères indicatifs, à confirmer sur place.</p>')
+
+
 def profile_html(sp, t):
     """« Le spot en bref » : fiche tirée des champs du spot (orientation, fond, marée, niveau, taille) + lecture des conditions du jour.
     Rien n'est inventé : tout vient de pipeline/spots.json et des prévisions."""
     esc = html.escape
     name, ori = sp["name"], sp.get("ori")
     off_dir = None if ori is None else (ori + 180) % 360
+    if sp.get("generic"):   # spot ajouté sans fiche détaillée : seuls l'orientation et les prévisions sont connus, rien n'est inventé
+        return _profile_generic(sp, t)
     kind = _low(sp["type"])
     p1 = (f"<b>{esc(name)}</b> est un spot de type {esc(kind)} à {esc(sp['commune'])} ({esc(sp['region'])}), au fond de {esc(_low(sp['bottom']))}. "
           f"Il fonctionne en général avec une houle de {fr(sp['min'])} à {fr(sp['max'])} m orientée {esc(sp['swell'])}. ")
@@ -205,7 +224,7 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
     body = f"""<h1>Prévisions surf à {esc(name)}</h1>
 <p class="lead">{lead}</p>
 <p><a class="cta" href="{app}">Voir les prévisions heure par heure</a></p>
-<p class="muted">{esc(sp['type'])} · fond de {esc(sp['bottom'].lower())} · {esc(sp['commune'])}, {esc(sp['region'])}. Mis à jour le {now:%d/%m/%Y à %Hh%M}.</p>
+<p class="muted">{(esc(sp['type']) + ' · fond de ' + esc(sp['bottom'].lower()) + ' · ') if sp.get('type') and sp.get('bottom') else ''}{esc(sp['commune'])}, {esc(sp['region'])}. Mis à jour le {now:%d/%m/%Y à %Hh%M}.</p>
 {buoy_line}<h2>La semaine à {esc(name)}</h2>
 <table><thead><tr><th>Jour</th><th>Houle</th><th>Période</th><th>Vent</th><th>Coef.</th></tr></thead><tbody>{trs}</tbody></table>
 {profile_html(sp, t)}
@@ -238,12 +257,13 @@ def index_page(site, spots_meta, now):
         if s["region"] not in groups:
             order.append(s["region"])
         groups.setdefault(s["region"], []).append(s)
+    order.sort(key=lambda r: -max(x["lat"] for x in groups[r]))   # du nord au sud
     sec = "".join(
         f'<div class="grp"><h2>{esc(r)}</h2>{_zl(r)}<ul class="near">' + "".join(
             f'<li><a href="{s["slug"]}/">{esc(s["name"])}<small>{esc(s["commune"])}</small></a></li>' for s in groups[r]) + "</ul></div>"
         for r in order)
-    title = f"Spots de surf de Lacanau à Hendaye : prévisions houle, vent, marée | {BRAND}"
-    desc = f"Prévisions surf pour {len(spots_meta)} spots de la côte Atlantique, de la Gironde au Pays basque : houle, vent, marées et coefficients, mises à jour toutes les 3 heures."
+    title = f"Spots de surf de {order[0]} à {order[-1]} : prévisions houle, vent, marée | {BRAND}"
+    desc = f"Prévisions surf pour {len(spots_meta)} spots de la côte Atlantique, de {order[0]} au {order[-1]} : houle, vent, marées et coefficients, mises à jour toutes les 3 heures."
     body = f'<h1>Spots de surf, de Lacanau à Hendaye</h1><p class="lead">{len(spots_meta)} spots, de la Gironde au Pays basque. Choisis ton spot pour voir la houle, le vent, la marée et le coefficient.</p>{sec}'
     ld = [{"@context": "https://schema.org", "@type": "CollectionPage", "name": title, "description": desc, "url": f"{site}/spots/", "inLanguage": "fr"},
           {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [

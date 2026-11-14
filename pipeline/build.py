@@ -109,7 +109,7 @@ def main():
     log("Marées (calcul harmonique)")
     start = times[0][:10] + "T00:00"
     tide_ports = {}
-    for port in sorted({s["tide_port"] for s in spots}):
+    for port in sorted({s["tide_port"] for s in spots if s["tide_port"]}):
         try:
             t = tides.predict(port, start, config.FORECAST_DAYS)
             if t:
