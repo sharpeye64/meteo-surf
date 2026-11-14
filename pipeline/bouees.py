@@ -165,6 +165,11 @@ def collect(payload):
         out.append({"id": b["id"], "name": b["name"], "slug": slugify(b["name"]), "sub": b.get("sub") or "sur la côte", "lat": float(b["lat"]),
                     "lon": float(b["lon"]), "L": L, "obs": b.get("obs") or [], "model": b.get("model") or [],
                     "st": (payload.get("buoy_stats") or {}).get(b["id"])})
+    g = payload.get("gascogne") or {}
+    L = g.get("latest") or {}
+    if L.get("hs") is not None:   # bouée du large (Météo-France 62001) : même page que les autres
+        out.append({"id": "gascogne", "name": "Gascogne", "slug": "gascogne", "sub": "au large, bouée Météo-France 62001", "lat": float(g["lat"]),
+                    "lon": float(g["lon"]), "L": L, "obs": g.get("obs") or [], "model": g.get("model") or [], "st": None, "far": True})
     return out
 
 
@@ -245,7 +250,7 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
     near = sorted(((hav(b, s), s) for s in spots), key=lambda x: x[0])
     kept = []   # spots espacés d'au moins 4 km : sinon une zone dense (Anglet) donne 7 points collés
     for k, s in near:
-        if k > 70 or len(kept) >= 8:
+        if k > (400 if b.get("far") else 70) or len(kept) >= 8:
             break
         if all(hav(s, t) >= 4 for _, t in kept):
             kept.append((k, s))

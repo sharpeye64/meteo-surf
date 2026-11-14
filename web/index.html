@@ -2525,7 +2525,7 @@ function radarHtml(s){
         <div class="bk2">${view==='large'?'Hauteur de la houle au large':'Hauteur de la houle à la bouée'}</div>
         <div class="bbrow"><div class="bbig">${fmt(L.hs)}<small>m</small></div>${(()=>{ const sk=buoySpark(cur); return sk?`<div class="bsk">${sk}<div class="cap2">24 dernières heures</div></div>`:''; })()}</div>
         <div class="bstats">${stats}</div>
-        ${cur.key!=='gascogne'?`<a class="blink" href="bouees/${slugOf(cur.name)}/">Voir la page de la bouée →</a>`:''}
+        <a class="blink" href="bouees/${slugOf(cur.name)}/">Voir la page de la bouée →</a>
         ${fNow!=null?`<div class="bcmp">${bar(L.hs,'m','Mesuré')}${bar(fNow,'f','Prévu')}</div>`:''}
       </div>
       <div class="bcard">${buoyChart(obs,fc,fLabel)}</div>
@@ -3316,12 +3316,12 @@ function homeBuoy(b){
   homeClear(); homeTopBtn(); const e=HOME.bms[b.id]; if(e) e.getElement().querySelector('.hm-bu').classList.add('on');
   const L=b.L, P=document.getElementById('hmPanel'), ageH=(new Date()-new Date(L.time+':00'))/36e5;
   if(innerWidth<760){
-    const link=b.id==='gascogne'?'':`bouees/${slugOf(b.n)}/`;
+    const link=`bouees/${slugOf(b.n)}/`;
     P.innerHTML=`<div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<span class="nm">Bouée ${b.n}</span></div><div class="hmb-chips"><button type="button" id="hmBk">← Toute la côte</button></div></div>
       <${link?'a':'div'} class="hmb-pill${link?'':' off'}"${link?` href="${link}"`:''}><span class="bd" style="background:linear-gradient(135deg,#f6e6bf,#e0bd7a)">${hmF(L.hs)}</span><span class="t"><b>Bouée ${b.n}</b><span><i></i>Mesure réelle · ${ageTxt(ageH)}${L.tp?' · '+String(L.tp).replace('.',',')+' s':''}</span></span><span class="rd">${HM_ICON.go}</span></${link?'a':'div'}>`;
     document.getElementById('hmBk').onclick=()=>{ homeClear(); homeHomePanel(); homeFit(); homeDeclutter(); };
   } else {
-    const link=b.id==='gascogne'?'':`bouees/${slugOf(b.n)}/`, tp=L.tp?`Période ${String(L.tp).replace('.',',')} s · `:'', dr=L.dir!=null?`Direction ${hmDn(L.dir)} · `:'', sst=L.sst!=null?`Eau ${String(L.sst).replace('.',',')} °C · `:'';
+    const link=`bouees/${slugOf(b.n)}/`, tp=L.tp?`Période ${String(L.tp).replace('.',',')} s · `:'', dr=L.dir!=null?`Direction ${hmDn(L.dir)} · `:'', sst=L.sst!=null?`Eau ${String(L.sst).replace('.',',')} °C · `:'';
     { const hm=document.getElementById('home'); if(HOME.colTop) hm.style.setProperty('--coltop',HOME.colTop+'px'); hm.classList.add('hm-sel'); } HOME.popAt=[b.lon,b.lat];
     P.innerHTML=`<div class="hmb-col"><div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<span class="nm">Bouée ${b.n}</span></div><div class="hmb-chips"><button type="button" id="hmBk">← Toute la côte</button></div></div></div>
       <div class="hmb-dcard"><div class="hd"><span class="bd" style="background:linear-gradient(135deg,#f6e6bf,#e0bd7a)">${hmF(L.hs)}</span><div><h3>Bouée ${b.n}</h3><div class="sub">${b.sub}</div></div></div>
