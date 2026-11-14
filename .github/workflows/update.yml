@@ -49,7 +49,13 @@ jobs:
         run: |
           # L'archive prévision/réalité reste à un passage toutes les 3 h (UTC) : sinon elle grossirait 3 fois plus vite pour rien.
           if [ $(( 10#$(date -u +%H) % 3 )) -eq 0 ]; then export METEO_ARCHIVE=1; fi
-          python -m pipeline.build
+          # Une panne passagère d'Open-Meteo ne doit pas bloquer la mise en ligne : 3 tentatives espacées de 2 min.
+          for n in 1 2 3; do
+            python -m pipeline.build && exit 0
+            echo "::warning::Construction échouée (tentative $n/3)"
+            [ $n -lt 3 ] && sleep 120
+          done
+          exit 1
       - name: Enregistrer l'archive
         continue-on-error: true   # un échec d'archivage ne doit jamais empêcher la publication du site
         run: |

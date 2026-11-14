@@ -12,19 +12,32 @@ session = requests.Session()
 session.headers["User-Agent"] = "meteo-surf-prototype (non commercial)"
 
 
-def get(url, params, tries=3):
+def get(url, params, tries=5):
+    """Appel Open-Meteo avec reprises : 429 (quota), erreurs 5xx, coupures réseau et délais dépassés sont transitoires."""
+    last = "trop de requêtes"
     for attempt in range(tries):
-        r = session.get(url, params=params, timeout=60)
-        if r.status_code == 429 and attempt < tries - 1:
-            time.sleep(20 * (attempt + 1))
-            continue
+        wait = 20 * (attempt + 1)
+        try:
+            r = session.get(url, params=params, timeout=60)
+        except (requests.ConnectionError, requests.Timeout) as e:
+            last = f"réseau : {type(e).__name__}"
+            if attempt < tries - 1:
+                time.sleep(wait)
+                continue
+            break
+        if r.status_code == 429 or r.status_code >= 500:
+            last = f"HTTP {r.status_code}"
+            if attempt < tries - 1:
+                time.sleep(wait)
+                continue
+            break
         if r.status_code == 400:
             raise ValueError(r.json().get("reason", "requête invalide"))
         r.raise_for_status()
         time.sleep(config.REQUEST_PAUSE_S)
         data = r.json()
         return data if isinstance(data, list) else [data]
-    raise RuntimeError("Open-Meteo : trop de requêtes")
+    raise RuntimeError(f"Open-Meteo : échec après {tries} essais ({last})")
 
 
 def sea_point(spot, km=3.0):
