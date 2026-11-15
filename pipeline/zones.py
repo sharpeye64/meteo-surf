@@ -16,6 +16,8 @@ ZONES = [
     {"key": "Pays Basque", "slug": "meteo-surf-pays-basque", "name": "Pays basque", "in": "au Pays basque"},
     {"key": "Charentes", "slug": "meteo-surf-charentes", "name": "Charentes", "in": "en Charentes"},
     {"key": "Vendée", "slug": "meteo-surf-vendee", "name": "Vendée", "in": "en Vendée"},
+    {"key": "Bretagne Sud", "slug": "meteo-surf-bretagne-sud", "name": "Bretagne Sud", "in": "en Bretagne Sud"},
+    {"key": "Bretagne Nord", "slug": "meteo-surf-bretagne-nord", "name": "Bretagne Nord", "in": "en Bretagne Nord"},
 ]
 
 EXTRA_CSS = """
@@ -132,7 +134,7 @@ def _zone_pages(zone, spots, payload, now, site):
 <h2>La semaine {esc(where)}</h2>{table_wk}
 {bl}
 <h2>Les spots {esc(where)}</h2><p>{prof}</p>
-<h2>Autres zones</h2><ul class="near">{ol}<li><a href="{base}spots/">Tous les spots<small>{len(spots)} spots, de la Vendée au Pays basque</small></a></li></ul>
+<h2>Autres zones</h2><ul class="near">{ol}<li><a href="{base}spots/">Tous les spots<small>{len(spots)} spots, de la Bretagne au Pays basque</small></a></li></ul>
 <p class="muted" style="margin-top:22px">Mis à jour le {now:%d/%m/%Y à %Hh%M}. Prévisions indicatives, à confirmer sur place.</p>"""
     ld = [{"@context": "https://schema.org", "@type": "CollectionPage", "name": title, "description": desc, "url": canonical, "inLanguage": "fr",
            "isPartOf": {"@type": "WebSite", "name": BRAND, "url": site + "/"}, "dateModified": now.strftime("%Y-%m-%dT%H:%M:00")},

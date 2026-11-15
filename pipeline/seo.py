@@ -264,7 +264,7 @@ def index_page(site, spots_meta, now):
         for r in order)
     title = f"Spots de surf de {order[0]} à {order[-1]} : prévisions houle, vent, marée | {BRAND}"
     desc = f"Prévisions surf pour {len(spots_meta)} spots de la côte Atlantique, de {order[0]} au {order[-1]} : houle, vent, marées et coefficients, mises à jour toutes les 3 heures."
-    body = f'<h1>Spots de surf, de la Vendée au Pays basque</h1><p class="lead">{len(spots_meta)} spots, de la Vendée au Pays basque. Choisis ton spot pour voir la houle, le vent, la marée et le coefficient.</p>{sec}'
+    body = f'<h1>Spots de surf, de la Bretagne au Pays basque</h1><p class="lead">{len(spots_meta)} spots, de la Bretagne au Pays basque. Choisis ton spot pour voir la houle, le vent, la marée et le coefficient.</p>{sec}'
     ld = [{"@context": "https://schema.org", "@type": "CollectionPage", "name": title, "description": desc, "url": f"{site}/spots/", "inLanguage": "fr"},
           {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
               {"@type": "ListItem", "position": 1, "name": BRAND, "item": site + "/"},

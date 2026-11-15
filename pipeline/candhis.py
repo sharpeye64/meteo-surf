@@ -18,6 +18,9 @@ STATIONS = [
     {"id": "06402", "name": "Anglet", "lat": 43.5322, "lon": -1.6150, "page": "Y2FtcD0wNjQwMg=="},
     {"id": "06403", "name": "Saint-Jean-de-Luz", "lat": 43.4083, "lon": -1.6817, "page": "Y2FtcD0wNjQwMw=="},
     {"id": "04403", "name": "Plateau du Four", "lat": 47.239, "lon": -2.787, "page": "Y2FtcD0wNDQwMw=="},
+    {"id": "02911", "name": "Les Pierres Noires", "lat": 48.2903, "lon": -4.9683, "page": "Y2FtcD0wMjkxMQ=="},
+    {"id": "02922", "name": "Île de Batz", "lat": 48.7283, "lon": -4.0717, "page": "Y2FtcD0wMjkyMg=="},
+    {"id": "05602", "name": "Belle-Île", "lat": 47.285, "lon": -3.285, "page": "Y2FtcD0wNTYwMg=="},
 ]
 URL = "https://candhis.cerema.fr/_public_/campagne.php?{page}"
 UA = {"User-Agent": "meteo-surf-prototype (prévisions surf, 1 requête/bouée toutes les 3 h)"}

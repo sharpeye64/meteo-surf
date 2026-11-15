@@ -64,6 +64,10 @@ TIDE_PORTS = {
     "boucau": "Boucau-Bayonne",
     "larochelle": "La Rochelle-Pallice",
     "sables": "Les Sables-d'Olonne",
+    "brest": "Brest",
+    "roscoff": "Roscoff",
+    "porttudy": "Port-Tudy (Groix)",
+    "saintnazaire": "Saint-Nazaire",
 }
 
 # Limites de l'API gratuite Open-Meteo : on espace les appels.

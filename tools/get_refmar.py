@@ -17,7 +17,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parent.parent
 URL = "https://services.data.shom.fr/maregraphie/observation/json/{}"
-STATIONS = {"socoa": 95, "boucau": 94, "brest": 3, "larochelle": 34, "sables": 62}  # numéros REFMAR : Socoa, Bayonne Boucau, Brest (port de référence des coefficients)
+STATIONS = {"socoa": 95, "boucau": 94, "brest": 3, "larochelle": 34, "sables": 62, "roscoff": 54, "porttudy": 71, "saintnazaire": 37}  # numéros REFMAR : Socoa, Bayonne Boucau, Brest (port de référence des coefficients)
 SOURCE_VALIDEE_10MIN = 3
 
 
