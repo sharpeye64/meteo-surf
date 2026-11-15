@@ -53,10 +53,10 @@ lx, ly = 84 * S, 52 * S
 img.paste(lock, (lx, ly), lock)
 d = ImageDraw.Draw(img)
 tx = lx + lw + 64 * S                               # colonne de texte à droite du logo
-d.text((tx, 118 * S), "Prévisions surf", font=font("segoeuib.ttf", 52), fill=SAND)
-d.text((tx, 184 * S), "de Lacanau à Hendaye", font=font("segoeuib.ttf", 52), fill=SAND)
+d.text((tx, 124 * S), "Prévisions surf", font=font("segoeuib.ttf", 42), fill=SAND)
+d.text((tx, 176 * S), "de la Bretagne au Portugal", font=font("segoeuib.ttf", 42), fill=SAND)
 d.text((tx, 262 * S), "Houle · vent · marée · coefficient", font=font("segoeui.ttf", 30), fill=MUTED)
-d.text((84 * S, 540 * S), "58 spots · croisés entre plusieurs modèles · vérifiés avec les bouées", font=font("segoeui.ttf", 26), fill=(150, 160, 158))
+d.text((84 * S, 540 * S), "214 spots · croisés entre plusieurs modèles · vérifiés avec les bouées", font=font("segoeui.ttf", 26), fill=(150, 160, 158))
 
 OUT.parent.mkdir(parents=True, exist_ok=True)
 img.resize((W, H), Image.LANCZOS).save(OUT, optimize=True)

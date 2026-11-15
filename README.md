@@ -1,8 +1,8 @@
 # Houlalah · prévisions surf (prototype)
 
-Site de prévisions surf de Lacanau à Hendaye (58 spots).
+Site de prévisions surf de la Bretagne au Portugal (214 spots, 22 bouées en direct).
 
-Toutes les 3 heures, un robot (GitHub Actions) récupère les données, les croise et publie le site.
+Environ toutes les 30 minutes (déclenché par cron-job.org, avec les passages programmés de GitHub en secours), un robot (GitHub Actions) récupère les données, les croise et publie le site.
 
 ## Ce que fait le robot
 
@@ -20,7 +20,7 @@ Toutes les 3 heures, un robot (GitHub Actions) récupère les données, les croi
 ## Mise en ligne (une étape à la fois)
 
 1. Crée un compte sur github.com si tu n'en as pas.
-2. Crée un nouveau dépôt **public** nommé `meteo-surf`.
+2. Crée un nouveau dépôt nommé `meteo-surf` (privé : il faut GitHub Pro pour publier un site depuis un dépôt privé).
 3. Envoie tout le contenu de ce dossier dans le dépôt. Avec Claude Code, demande : « pousse ce dossier sur mon dépôt GitHub meteo-surf ».
 4. Dans le dépôt, va dans **Settings → Pages** et choisis **Source : GitHub Actions**.
 5. Va dans l'onglet **Actions**, ouvre « Mise à jour des prévisions » et clique **Run workflow**.

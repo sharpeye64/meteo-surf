@@ -93,14 +93,20 @@ def load_copernicus(days=3):
     return clean(df)
 
 
+MF_ERROR = None
+
+
 def load():
     """Météo-France (frais, si clé) complétée par Copernicus (plus long, plus tardif), NDBC en secours.
     Renvoie (mesures, nom de la source)."""
     from . import meteofrance
+    global MF_ERROR
+    MF_ERROR = None
     try:
         df_mf = meteofrance.load()
-    except Exception:
+    except Exception as e:  # on retombe sur Copernicus, mais on garde la raison pour la rendre visible (meta.errors)
         df_mf = None
+        MF_ERROR = str(e)[:250]
     if df_mf is not None:
         try:
             df_c = load_copernicus()

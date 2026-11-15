@@ -45,6 +45,8 @@ def main():
     gascogne = None
     try:
         gascogne = buoy.fetch(spots)
+        if buoy.MF_ERROR:
+            meta["errors"]["meteofrance"] = buoy.MF_ERROR
         meta["sources"]["gascogne"] = ("Bouée Gascogne 62001 (Météo-France)" if gascogne["source"] == "Météo-France"
                                        else f"Bouée Gascogne 62001 (Météo-France, via {gascogne['source']})")
     except Exception as e:
