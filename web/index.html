@@ -1625,6 +1625,13 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
 #home .hmb-res .hmb-reg small{font:600 12.5px Manrope,system-ui,sans-serif;color:#6b7b85}
 #home .hmb-res .hmb-reg svg{width:20px;height:20px;fill:none;stroke:#9aa7ae;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 #home .hmb-res .hmb-reg:hover{background:#f4f6f7}
+#home .hmb-res .hmb-reg{padding:10px 12px 10px 22px}
+#home .hmb-res .hmb-reg b{font-size:15.5px}
+#home .hmb-res .hmb-cty{display:flex;align-items:baseline;justify-content:space-between;width:100%;padding:14px 12px 6px;margin-top:4px;background:none;border:0;border-top:1px solid #e3e8ea;cursor:pointer;font-family:inherit;color:#10202c;text-align:left}
+#home .hmb-res .hmb-cty:first-child{border-top:0;margin-top:0}
+#home .hmb-res .hmb-cty span{font:800 11.5px Manrope,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#b8892f}
+#home .hmb-res .hmb-cty small{font:600 12px Manrope,system-ui,sans-serif;color:#6b7b85}
+#home .hmb-res .hmb-cty:hover small{color:#10202c}
 /* carte des spots proches */
 .lp .lmap{background:#e9eceb}
 .lp .fsum{background:#fff!important;border:1px solid var(--edge)!important;color:#10202c!important;box-shadow:0 10px 30px rgba(16,32,44,.07)}
@@ -3056,11 +3063,16 @@ function renderPicker(){
   const regions=[...new Set(state.data.map(x=>x.spot.region))].sort((a,b)=>Math.max(...state.data.filter(x=>x.spot.region===b).map(x=>x.spot.lat))-Math.max(...state.data.filter(x=>x.spot.region===a).map(x=>x.spot.lat)));            // du nord au sud
   const cnt=r=>state.data.filter(x=>x.spot.region===r).length;
   const tab=(f,label,n)=>`<button data-f="${f}" aria-pressed="${state.filter===f}">${label}${n!=null?`<span class="tc">${n}</span>`:''}</button>`;
-  document.getElementById('pkTabs').innerHTML=tab('geo','Tous',state.data.length)+regions.map(r=>tab(r,r.replace('Pays Basque','Pays basque'),cnt(r))).join('')+tab('fav','★ Mes spots',null);
+  const ctry=r=>/^Portugal/.test(r)?'Portugal':(r==='Espagne Nord'||r==='Galice')?'Espagne':'France';
+  const ctryN=c=>state.data.filter(x=>ctry(x.spot.region)===c).length;
+  const cur=state.filter.startsWith('c:')?state.filter.slice(2):(regions.includes(state.filter)?ctry(state.filter):null);
+  const sub=cur?`<div style="flex-basis:100%;display:flex;gap:8px;flex-wrap:wrap">`+tab('c:'+cur,'Toute la zone',ctryN(cur))+regions.filter(r=>ctry(r)===cur).map(r=>tab(r,r.replace('Pays Basque','Pays basque').replace('Espagne Nord','Espagne du Nord'),cnt(r))).join('')+`</div>`:'';
+  document.getElementById('pkTabs').innerHTML=tab('geo','Tous',state.data.length)+['France','Espagne','Portugal'].filter(c=>ctryN(c)).map(c=>`<button data-f="c:${c}" aria-pressed="${cur===c}">${c}<span class="tc">${ctryN(c)}</span></button>`).join('')+tab('fav','★ Mes spots',null)+sub;
   let items=state.data.map((x,i)=>({x,i})).filter(({x})=>!q||x.spot.name.toLowerCase().includes(q)||(x.spot.commune||'').toLowerCase().includes(q));
   if(state.filter==='fav') items=items.filter(({x})=>state.fav.includes(x.spot.name));
+  else if(state.filter.startsWith('c:')) items=items.filter(({x})=>ctry(x.spot.region)===state.filter.slice(2));
   else if(state.filter!=='geo') items=items.filter(({x})=>x.spot.region===state.filter);
-  const grouped=state.filter==='geo'||state.filter==='fav';
+  const grouped=state.filter==='geo'||state.filter==='fav'||state.filter.startsWith('c:');
   let html='',reg=null;
   items.forEach(({x,i})=>{
     if(grouped&&x.spot.region!==reg){ reg=x.spot.region; const n=items.filter(o=>o.x.spot.region===reg).length; html+=`<div class="grp"><span>${reg.replace('Pays Basque','Pays basque')}</span><span class="gc">${n}</span></div>`; }
@@ -3186,12 +3198,12 @@ function homeDeclutter(){
   const sel=HOME.sel, vis=[], W=innerWidth, H=innerHeight;
   [...HOME.data].sort((a,b)=>((b.i===sel)-(a.i===sel))||(b.h-a.h)).forEach(s=>{
     const m=HOME.pts[s.n]; if(!m) return; const el=m.getElement(), p=HOME.map.project([s.lon,s.lat]);
-    let ok=(HOME.reg==='Tous'||s.r===HOME.reg)&&p.x>-20&&p.x<W+20&&p.y>-20&&p.y<H+20&&!vis.some(q=>Math.abs(q.x-p.x)<46&&Math.abs(q.y-p.y)<30);
+    let ok=homeRegOk(s)&&p.x>-20&&p.x<W+20&&p.y>-20&&p.y<H+20&&!vis.some(q=>Math.abs(q.x-p.x)<46&&Math.abs(q.y-p.y)<30);
     if(s.i===sel) ok=true; if(ok) vis.push(p); el.style.display=ok?'':'none'; });
 }
 function homeFit(instant){
   const map=HOME.map; if(!map) return; const mob=innerWidth<760;
-  const L=HOME.data.filter(s=>HOME.reg==='Tous'||s.r===HOME.reg); if(!L.length) return;
+  const L=HOME.data.filter(homeRegOk); if(!L.length) return;
   const lo=L.reduce((a,s)=>[Math.min(a[0],s.lon),Math.min(a[1],s.lat),Math.max(a[2],s.lon),Math.max(a[3],s.lat)],[9,99,-9,-99]);
   map.fitBounds([[lo[0],lo[1]],[lo[2],lo[3]]],{padding:mob?{top:180,bottom:210,left:50,right:50}:{top:90,bottom:90,left:Math.min(470,innerWidth*.34),right:Math.min(150,innerWidth*.1)},duration:instant?0:1100,maxZoom:10,pitch:0,bearing:0});
 }
@@ -3240,13 +3252,23 @@ function homeGeo(btn){
     if(near&&d(near)<150) homeSpot(near,true); else fail();
   },fail,{timeout:8000,maximumAge:600000});
 }
+function homeCtry(r){ return /^Portugal/.test(r)?'Portugal':(r==='Espagne Nord'||r==='Galice')?'Espagne':'France'; }
+function homeRegOk(s){ const g=HOME.reg; return g==='Tous'||(g.startsWith('c:')?homeCtry(s.r)===g.slice(2):s.r===g); }
+function homeChipsHtml(D){
+  const regs=Array.from(new Set(D.map(s=>s.r))), g=HOME.reg, cur=g.startsWith('c:')?g.slice(2):(regs.includes(g)?homeCtry(g):null);
+  const b=(v,l,on)=>`<button type="button" class="${on?'on':''}" data-g="${v}">${l}</button>`;
+  const nm=r=>r.replace('Pays Basque','Pays basque').replace('Espagne Nord','Espagne du Nord');
+  return b('Tous','Tous',g==='Tous')+['France','Espagne','Portugal'].filter(c=>regs.some(r=>homeCtry(r)===c)).map(c=>b('c:'+c,c,cur===c)).join('')
+    +`<button type="button" id="hmGeo">${HM_ICON.loc}Près de moi</button>`
+    +`</div><div class="hmb-chips hmb-sub"${cur?'':' style="display:none"'}>`+(cur?b('c:'+cur,'Toute la zone',g==='c:'+cur)+regs.filter(r=>homeCtry(r)===cur).map(r=>b(r,nm(r),g===r)).join(''):'');
+}
 function homeHomePanelM(){
-  const P=document.getElementById('hmPanel'), D=HOME.data, regs=['Tous',...Array.from(new Set(D.map(s=>s.r)))], n=new Date().getHours();
+  const P=document.getElementById('hmPanel'), D=HOME.data, n=new Date().getHours();
   const order=['Cap Ferret','Anglet','Saint-Jean-de-Luz','Donostia','Bilbao-Vizcaya','Gascogne'];
   const bu=[...HOME.bu].sort((a,b)=>{ const x=order.indexOf(a.n), y=order.indexOf(b.n); return (x<0?99:x)-(y<0?99:y); });
   document.getElementById('home').classList.remove('hm-sel'); HOME.popAt=null;
   P.innerHTML=`<div class="hmb-col"><div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<input id="hmQ" placeholder="Chercher un spot…" autocomplete="off" aria-label="Chercher un spot" value="${HOME.q.replace(/"/g,'')}"><button type="button" class="hmb-x" id="hmQx">Annuler</button></div>
-    <div class="hmb-chips">${regs.map(g=>`<button type="button" class="${g===HOME.reg?'on':''}" data-g="${g}">${g}</button>`).join('')}<button type="button" id="hmGeo">${HM_ICON.loc}Près de moi</button></div></div>
+    <div class="hmb-chips">${homeChipsHtml(D)}</div></div>
     <div class="hmb-res" id="hmRes" hidden></div>
     <div class="hmb-card"><div class="hd"><div><h3>La houle du moment</h3><div class="sub">Prévision de ${n} h · ${D.length} spots</div></div><div class="hmb-leg"><i></i><span><span>0 m</span><span>3 m +</span></span></div></div>
       <div class="hmb-row">${bu.map(b=>`<button type="button" data-b="${b.id}"><span>${b.n}<small>${b.large?'au large · ':''}${ageTxt((new Date()-new Date(b.L.time+':00'))/36e5)}${b.L.tp?' · '+Math.round(b.L.tp)+' s':''}</small></span><b>${hmF(b.L.hs)}</b></button>`).join('')}</div></div></div>`;
@@ -3266,11 +3288,16 @@ function homeRes(){
   r.hidden=false;
   if(!t&&!HOME.sr){
     const regs=[...new Set(HOME.data.map(s=>s.r))];
-    r.innerHTML='<div class="hmb-hd">Choisir une zone</div>'+regs.map(g=>{ const L=HOME.data.filter(s=>s.r===g); return `<button type="button" class="hmb-reg" data-sr="${g}"><span><b>${g}</b><small>${L.length} spots</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>`; }).join('');
+    const nm=g=>g.replace('Pays Basque','Pays basque').replace('Espagne Nord','Espagne du Nord');
+    r.innerHTML=['France','Espagne','Portugal'].map(c=>{ const rs=regs.filter(g=>homeCtry(g)===c); if(!rs.length) return '';
+      const n=HOME.data.filter(s=>homeCtry(s.r)===c).length;
+      return `<button type="button" class="hmb-cty" data-sr="c:${c}"><span>${c}</span><small>Tous les spots · ${n}</small></button>`
+        +rs.map(g=>`<button type="button" class="hmb-reg" data-sr="${g}"><span><b>${nm(g)}</b><small>${HOME.data.filter(s=>s.r===g).length} spots</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>`).join(''); }).join('');
     bind(); return;
   }
-  const L=HOME.data.filter(s=>(!HOME.sr||s.r===HOME.sr)&&(!t||s.n.toLowerCase().includes(t)));
-  r.innerHTML=(HOME.sr?`<button type="button" class="hmb-hd back" data-sr="">← Zones<b>${HOME.sr}</b></button>`:'')+(L.map(row).join('')||'<p class="hmb-none">Aucun spot trouvé.</p>');
+  const inSr=s=>!HOME.sr||(HOME.sr.startsWith('c:')?homeCtry(s.r)===HOME.sr.slice(2):s.r===HOME.sr);
+  const L=HOME.data.filter(s=>inSr(s)&&(!t||s.n.toLowerCase().includes(t)));
+  r.innerHTML=(HOME.sr?`<button type="button" class="hmb-hd back" data-sr="">← Zones<b>${HOME.sr.replace(/^c:/,'').replace('Pays Basque','Pays basque').replace('Espagne Nord','Espagne du Nord')}</b></button>`:'')+(L.map(row).join('')||'<p class="hmb-none">Aucun spot trouvé.</p>');
   bind();
 }
 function homeSpot(s,fly){
