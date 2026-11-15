@@ -3190,9 +3190,8 @@ function homeHalo(){
   map.addSource('hmhalo',{type:'geojson',lineMetrics:true,data:{type:'Feature',geometry:{type:'LineString',coordinates:P.map(q=>[q.x,q.y])}}});
   const first=(map.getStyle().layers||[]).find(l=>l.type==='symbol'), before=first&&first.id;
   const z=(a,b,c,d)=>['interpolate',['linear'],['zoom'],6,a,8,b,10,c,12,d];
-  map.addLayer({id:'hmhalo-wide',type:'line',source:'hmhalo',layout:{'line-cap':'round','line-join':'round'},paint:{'line-gradient':grad,'line-width':z(40,80,150,300),'line-blur':z(24,48,90,160),'line-opacity':.5,'line-offset':z(14,30,56,100)}},before);
-  map.addLayer({id:'hmhalo-core',type:'line',source:'hmhalo',layout:{'line-cap':'round','line-join':'round'},paint:{'line-gradient':grad,'line-width':z(14,28,52,100),'line-blur':z(10,20,36,70),'line-opacity':.7,'line-offset':z(7,14,26,48)}},before);
-  map.addLayer({id:'hmhalo-edge',type:'line',source:'hmhalo',layout:{'line-cap':'round','line-join':'round'},paint:{'line-gradient':grad,'line-width':z(2.2,3,4,6),'line-blur':z(1,1.5,2.4,4),'line-opacity':.9,'line-offset':z(2,4,7,12)}},before);
+  /* Lueur discrète (proposition C) : une seule bande étroite et pâle le long du rivage, sans nappe floue ni liseré */
+  map.addLayer({id:'hmhalo-core',type:'line',source:'hmhalo',layout:{'line-cap':'round','line-join':'round'},paint:{'line-gradient':grad,'line-width':z(9,15,24,40),'line-blur':z(4,7,11,18),'line-opacity':.4,'line-offset':z(5,9,15,26)}},before);
   HOME.halo=true;
 }
 /* grand écran : la fiche se pose à côté du marqueur choisi (à sa gauche, sinon à sa droite), avec une pointe vers lui */
