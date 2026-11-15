@@ -3165,35 +3165,11 @@ function homeInitMap(){
     e.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15a7 7 0 0 1 14 0zM12 8V4M3 19c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/></svg><div class="hm-tip"><b>Bouée ${b.n}</b><span class="hm-tv">${hmF(b.L.hs)} m${b.L.tp?` · ${Math.round(b.L.tp)} s`:''}${b.L.dir!=null?` · ${sector(b.L.dir)}`:''}</span><span class="hm-tn">mesuré ${ageTxt((new Date()-new Date(b.L.time+':00'))/36e5)}</span></div>`; w.appendChild(e); w.onclick=()=>homeBuoy(b);
     HOME.bms[b.id]=new maplibregl.Marker({element:w}).setLngLat([b.lon,b.lat]).addTo(map); });
   homeFit(true);
-  map.on('moveend',homeDeclutter); map.on('move',homePlacePop); map.on('load',()=>{ homeDeclutter(); try{ homeHalo(); }catch(e){} }); setTimeout(homeDeclutter,400);
+  map.on('moveend',homeDeclutter); map.on('move',homePlacePop); map.on('load',()=>{ homeDeclutter(); }); setTimeout(homeDeclutter,400);
 }
 /* mobile : une seule épingle par groupe de spots trop proches (on en voit plus en zoomant) */
 
 /* Halo de houle : un voile lumineux le long de la côte, dont la couleur suit la hauteur prévue de chaque spot */
-function homeHalo(){
-  const map=HOME.map; if(!map||!HOME.data||HOME.halo||map.getSource('hmhalo')) return;
-  const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)), mix=(a,b,t)=>a.map((v,i)=>Math.round(v+(b[i]-v)*t));
-  let P=HOME.data.filter(d=>{ const sp=state.data[d.i].spot; return sp.mlat!=null&&sp.mlon!=null; }).map(d=>({x:d.lon,y:d.lat,c:hex(hmCol(d.h))}));
-  if(P.length<4) return;
-  // regroupe les points trop proches (spots serrés) pour éviter les zigzags
-  const G=[]; P.forEach(q=>{ const l=G[G.length-1]; if(l&&Math.hypot(q.x-l.x/l.n,q.y-l.y/l.n)<.012){ l.x+=q.x; l.y+=q.y; l.n++; l.c=l.c.map((v,i)=>v+q.c[i]); } else G.push({x:q.x,y:q.y,n:1,c:q.c.slice()}); });
-  P=G.map(g=>({x:g.x/g.n,y:g.y/g.n,c:g.c.map(v=>v/g.n)}));
-  // courbe lisse (Catmull-Rom) qui passe par les points, la couleur glisse d'un spot au suivant
-  { const Q=[], n=P.length, cr=(a,b,c,d,t)=>.5*((2*b)+(-a+c)*t+(2*a-5*b+4*c-d)*t*t+(-a+3*b-3*c+d)*t*t*t);
-    for(let i=0;i<n-1;i++){ const p0=P[Math.max(i-1,0)], p1=P[i], p2=P[i+1], p3=P[Math.min(i+2,n-1)];
-      for(let k=0;k<14;k++){ const t=k/14, e=t*t*(3-2*t); Q.push({x:cr(p0.x,p1.x,p2.x,p3.x,t),y:cr(p0.y,p1.y,p2.y,p3.y,t),c:mix(p1.c,p2.c,e)}); } }
-    Q.push(P[n-1]); P=Q; }
-  const L=[0]; for(let i=1;i<P.length;i++) L.push(L[i-1]+Math.hypot((P[i].x-P[i-1].x)*Math.cos(P[i].y*Math.PI/180),P[i].y-P[i-1].y)); const T=L[L.length-1]||1;
-  const stops=[]; let last=-1; P.forEach((q,i)=>{ const t=L[i]/T; if(t-last>=.01||i===P.length-1){ stops.push(t,`rgb(${q.c.map(Math.round).join(',')})`); last=t; } });
-  stops[0]=0; stops[stops.length-2]=1;
-  const grad=['interpolate',['linear'],['line-progress'],...stops];
-  map.addSource('hmhalo',{type:'geojson',lineMetrics:true,data:{type:'Feature',geometry:{type:'LineString',coordinates:P.map(q=>[q.x,q.y])}}});
-  const first=(map.getStyle().layers||[]).find(l=>l.type==='symbol'), before=first&&first.id;
-  const z=(a,b,c,d)=>['interpolate',['linear'],['zoom'],6,a,8,b,10,c,12,d];
-  /* Lueur discrète (proposition C) : une seule bande étroite et pâle le long du rivage, sans nappe floue ni liseré */
-  map.addLayer({id:'hmhalo-core',type:'line',source:'hmhalo',layout:{'line-cap':'round','line-join':'round'},paint:{'line-gradient':grad,'line-width':z(9,15,24,40),'line-blur':z(4,7,11,18),'line-opacity':.4,'line-offset':z(5,9,15,26)}},before);
-  HOME.halo=true;
-}
 /* grand écran : la fiche se pose à côté du marqueur choisi (à sa gauche, sinon à sa droite), avec une pointe vers lui */
 function homePlacePop(){
   const pop=document.querySelector('#home .hmb-dcard'); if(!pop||!HOME.map||!HOME.popAt||innerWidth<1200) return;
