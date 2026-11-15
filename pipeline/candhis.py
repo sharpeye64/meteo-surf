@@ -67,7 +67,7 @@ def fetch_station(st):
         "id": st["id"], "name": st["name"], "lat": st["lat"], "lon": st["lon"],
         "latest": {"time": fmt(last["time"]), "hs": nz(last["hs"], 2), "hmax": nz(last["hmax"]), "tp": nz(last["tp"]),
                    "dir": None if pd.isna(last["dir"]) else round(float(last["dir"])), "sst": nz(last["sst"])},
-        "obs": [{"t": fmt(r.hour), "hs": round(float(r.hs), 2), "tp": nz(r.tp), "hmax": nz(r.hmax), "dir": None if r.dir is None else round(r.dir), "sst": nz(r.sst)}
+        "obs": [{"t": fmt(r.hour), "hs": round(float(r.hs), 2), "tp": nz(r.tp), "hmax": nz(r.hmax), "dir": None if pd.isna(r.dir) else round(r.dir), "sst": nz(r.sst)}
                 for r in hourly.itertuples()],
     }
 
