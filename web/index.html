@@ -1308,6 +1308,13 @@ body.homeOn{overflow:hidden}
 }
 
 /* ===== Accueil mobile : carte claire, recherche et zones en haut, une carte ou une pastille en bas ===== */
+/* Survol de l'accueil sur ordinateur : halo doux autour du spot ou de la bouée, qui monte d'un cran */
+@media (hover:hover) and (pointer:fine){
+  html #home .hm-pt{transition:transform .22s ease,box-shadow .22s ease,background .2s ease}
+  html #home .hm-pt:hover{transform:translateY(-2px) scale(1.12);box-shadow:0 6px 16px rgba(16,32,44,.35),0 0 0 7px rgba(255,255,255,.42)}
+  html #home .hm-bu{transition:transform .22s ease,box-shadow .22s ease}
+  html #home .hm-bu:hover{transform:translateY(-2px) scale(1.12);box-shadow:0 6px 16px rgba(16,32,44,.35),0 0 0 8px rgba(233,207,159,.55)}
+}
 @media all{
   #home{background:#e9eceb;color:#10202c}
   #home .hm-map .maplibregl-canvas{filter:none}
