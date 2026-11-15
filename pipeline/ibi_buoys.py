@@ -18,6 +18,18 @@ from .buoy import _copernicus_series
 STATIONS = [
     {"id": "6200024", "file": "IR_TS_MO_6200024", "name": "Bilbao-Vizcaya", "lat": 43.65, "lon": -3.04, "sub": "au large, Espagne"},
     {"id": "donostia", "file": "IR_TS_MO_Donostia-buoy", "name": "Donostia", "lat": 43.57, "lon": -2.01, "sub": "au large, Saint-Sébastien"},
+    {"id": "bilbao-cote", "file": "IR_TS_MO_Bilbao-coast-buoy", "name": "Bilbao (côte)", "lat": 43.4, "lon": -3.13, "sub": "sur la côte, Biscaye"},
+    {"id": "pasaia", "file": "IR_TS_MO_PasaiaII-coast-buoy", "name": "Pasaia (côte)", "lat": 43.363, "lon": -1.889, "sub": "sur la côte, Guipuscoa"},
+    {"id": "gijon", "file": "IR_TS_MO_Gijon-coast-buoy", "name": "Gijón", "lat": 43.62, "lon": -5.66, "sub": "sur la côte, Asturies"},
+    {"id": "6200025", "file": "IR_TS_MO_6200025", "name": "Cabo Peñas", "lat": 43.754, "lon": -6.165, "sub": "au large, Asturies"},
+    {"id": "6200082", "file": "IR_TS_MO_6200082", "name": "Estaca de Bares", "lat": 44.123, "lon": -7.659, "sub": "au large, Galice"},
+    {"id": "6201070", "file": "IR_TS_MO_6201070", "name": "A Coruña", "lat": 43.35, "lon": -8.55, "sub": "sur la côte, Galice"},
+    {"id": "6200083", "file": "IR_TS_MO_6200083", "name": "Cabo Vilano-Sisargas", "lat": 43.495, "lon": -9.213, "sub": "au large, Galice"},
+    {"id": "6200084", "file": "IR_TS_MO_6200084", "name": "Cabo Silleiro", "lat": 42.119, "lon": -9.429, "sub": "au large, Galice"},
+    {"id": "leixoes", "file": "IR_TS_MO_Leixoes-coast-buoy", "name": "Leixões", "lat": 41.317, "lon": -8.983, "sub": "sur la côte, Portugal"},
+    {"id": "6200199", "file": "IR_TS_MO_6200199", "name": "Nazaré (large)", "lat": 39.56, "lon": -9.21, "sub": "au large, Portugal"},
+    {"id": "sines", "file": "IR_TS_MO_Sines-coast-buoy", "name": "Sines", "lat": 37.921, "lon": -8.929, "sub": "sur la côte, Portugal"},
+    {"id": "faro", "file": "IR_TS_MO_Faro-coast-buoy", "name": "Faro", "lat": 36.905, "lon": -7.898, "sub": "sur la côte, Algarve"},
 ]
 VARS = {"hs": ("VHM0", "VAVH", "VGHS"), "tp": ("VTPK",), "dir": ("VMDR", "VPED", "VDIR"), "sst": ("TEMP",), "hmax": ("VZMX", "VEMH")}
 UA = {"User-Agent": "meteo-surf-prototype (prévisions surf, 1 requête par bouée toutes les 3 h)"}

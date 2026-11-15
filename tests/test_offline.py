@@ -201,13 +201,14 @@ assert data["gascogne"]["latest"]["hs"] > 0 and len(data["gascogne"]["obs"]) >= 
 
 assert len(data["coast"]) == 7, data["meta"]["errors"]
 _cs = history.coast_summary(_hist)
-assert set(_cs["buoys"]) == {"03302", "06402", "06403", "04403", "02911", "02922", "05602", "6200024", "donostia"} and all(_cs["buoys"][k]["n"] >= 40 for k in ("03302", "06402", "06403")) and _cs["runs"] == 1, _cs
+from pipeline import candhis as _cd, ibi_buoys as _ib
+assert set(_cs["buoys"]) == {s["id"] for s in _cd.STATIONS} | {s["id"] for s in _ib.STATIONS} and all(_cs["buoys"][k]["n"] >= 40 for k in ("03302", "06402", "06403")) and _cs["runs"] == 1, _cs
 _co = json.loads(sorted((__import__("pathlib").Path(_hist) / "coast_obs").glob("*.json"))[0].read_text())["06402"]
 assert any(r["dir"] is not None and r["hmax"] is not None for r in _co.values()), "direction et Hmax horaires attendus"
 print("archive côtière OK :", _cs)
 c0 = data["coast"][1]
 assert c0["name"] == "Anglet" and c0["latest"]["hs"] > 0 and c0["latest"]["tp"] == 9.5 and len(c0["obs"]) >= 40
-assert [b["name"] for b in data["offshore"]] == ["Bilbao-Vizcaya", "Donostia"], data["meta"]["errors"]
+assert [b["name"] for b in data["offshore"]] == [s["name"] for s in _ib.STATIONS], data["meta"]["errors"]
 _o = data["offshore"][0]
 assert _o["latest"]["hs"] == 0.9 and _o["latest"]["tp"] == 11.0 and _o["latest"]["dir"] == 285 and len(_o["obs"]) >= 1 and _o["model"], _o["latest"]
 assert "6200024" in history.coast_summary(_hist)["buoys"], "les bouées du large doivent aussi être archivées"
@@ -217,7 +218,7 @@ print("CANDHIS OK :", [b["name"] for b in data["coast"]], c0["latest"])
 import re as _re
 sm = (config.ROOT / "web" / "sitemap.xml").read_text(encoding="utf-8")
 _nb = len(data["coast"]) + len(data["offshore"]) + (1 if (data.get("gascogne") or {}).get("latest") else 0)   # pages des bouées (Gascogne comprise) + leur page liste
-assert sm.count("<url>") == len(data["spots"]) + 5 + _nb + 1 + 7, sm.count("<url>")
+assert sm.count("<url>") == len(data["spots"]) + 5 + _nb + 1 + 12, sm.count("<url>")
 assert "Sitemap:" in (config.ROOT / "web" / "robots.txt").read_text()
 pg = (config.ROOT / "web" / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
 assert "<h1>Prévisions surf à Lacanau</h1>" in pg and "application/ld+json" in pg and 'rel="canonical"' in pg and "<table>" in pg
