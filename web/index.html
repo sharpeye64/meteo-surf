@@ -1169,6 +1169,9 @@ body.homeOn{overflow:hidden}
 #home .hm-tip{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);white-space:nowrap;background:#0b1820f0;border:1px solid #ffffff2a;border-radius:12px;padding:6px 11px;font:700 13px inherit;font-family:inherit;color:#fff;opacity:0;pointer-events:none;transition:.15s;z-index:5}
 #home .hm-pt:hover .hm-tip,#home .hm-pt.on .hm-tip,#home .hm-bu:hover .hm-tip,#home .hm-bu.on .hm-tip{opacity:1}
 #home .hm-tip small{color:#9fb4bd;font-weight:600;margin-left:6px}
+#home .hm-tip{display:flex;flex-direction:column;gap:1px;text-align:left;line-height:1.3;padding:8px 12px}
+#home .hm-tip b{font-weight:800}#home .hm-tip .hm-rg{margin:0;font-size:11px}
+#home .hm-tip .hm-tv{font-weight:700;margin-top:3px}#home .hm-tip .hm-tn{font-size:11px;font-weight:600;color:#9fb4bd}
 #home .hm-bu{position:relative;width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#f6e6bf,#e0bd7a);color:#2a2112;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 4px 14px #000a;cursor:pointer;transition:transform .2s}
 #home .hm-bu:before{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid #e9cf9f;opacity:0;animation:hmr 3s ease-out infinite}
 #home .hm-bu:hover,#home .hm-bu.on{transform:scale(1.25)}
@@ -1314,6 +1317,9 @@ body.homeOn{overflow:hidden}
   html #home .hm-pt:hover{transform:translateY(-2px) scale(1.12);box-shadow:0 6px 16px rgba(16,32,44,.35),0 0 0 7px rgba(255,255,255,.42)}
   html #home .hm-bu{transition:transform .22s ease,box-shadow .22s ease}
   html #home .hm-bu:hover{transform:translateY(-2px) scale(1.12);box-shadow:0 6px 16px rgba(16,32,44,.35),0 0 0 8px rgba(233,207,159,.55)}
+  html #home .hm-tip{display:flex!important;bottom:calc(100% + 12px);z-index:30}
+  html #home .hm-bu .hm-tip{bottom:calc(100% + 12px)}
+  html #home .maplibregl-marker:hover{z-index:40}
 }
 @media all{
   #home{background:#e9eceb;color:#10202c}
@@ -3153,10 +3159,10 @@ function homeInitMap(){
   const mob=innerWidth<760, D=HOME.data;
   const map=HOME.map=new maplibregl.Map({container:'hmMap',style:'https://tiles.openfreemap.org/styles/positron',center:[-1.5,44.2],zoom:6.5,pitch:0,bearing:0,attributionControl:{compact:true},dragRotate:false,pitchWithRotate:false});
   D.forEach((s,i)=>{ const w=document.createElement('div'), e=document.createElement('div'); e.className='hm-pt'; e.style.setProperty('--c',hmCol(s.h)); e.style.setProperty('--d',(i%9)*.35+'s');
-    e.innerHTML=`<span class="hm-n">${hmF(s.h)}</span><div class="hm-tip">${s.n}<small>${hmF(s.h)} m</small></div>`; w.appendChild(e); w.onclick=()=>homeSpot(s,true);
+    e.innerHTML=`<span class="hm-n">${hmF(s.h)}</span><div class="hm-tip"><b>${s.n}</b><small class="hm-rg">${s.r}</small><span class="hm-tv">${hmF(s.h)} m${s.p?` · ${s.p} s`:''}${s.d!=null?` · ${sector(s.d)}`:''}</span><span class="hm-tn">houle prévue</span></div>`; w.appendChild(e); w.onclick=()=>homeSpot(s,true);
     HOME.pts[s.n]=new maplibregl.Marker({element:w}).setLngLat([s.lon,s.lat]).addTo(map); });
   HOME.bu.forEach(b=>{ const w=document.createElement('div'), e=document.createElement('div'); e.className='hm-bu';
-    e.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15a7 7 0 0 1 14 0zM12 8V4M3 19c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/></svg><div class="hm-tip">Bouée ${b.n}<small>${hmF(b.L.hs)} m mesuré</small></div>`; w.appendChild(e); w.onclick=()=>homeBuoy(b);
+    e.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15a7 7 0 0 1 14 0zM12 8V4M3 19c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/></svg><div class="hm-tip"><b>Bouée ${b.n}</b><span class="hm-tv">${hmF(b.L.hs)} m${b.L.tp?` · ${Math.round(b.L.tp)} s`:''}${b.L.dir!=null?` · ${sector(b.L.dir)}`:''}</span><span class="hm-tn">mesuré ${ageTxt((new Date()-new Date(b.L.time+':00'))/36e5)}</span></div>`; w.appendChild(e); w.onclick=()=>homeBuoy(b);
     HOME.bms[b.id]=new maplibregl.Marker({element:w}).setLngLat([b.lon,b.lat]).addTo(map); });
   homeFit(true);
   map.on('moveend',homeDeclutter); map.on('move',homePlacePop); map.on('load',()=>{ homeDeclutter(); try{ homeHalo(); }catch(e){} }); setTimeout(homeDeclutter,400);
