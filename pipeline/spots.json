@@ -2878,5 +2878,26 @@
   "mlat": 48.6954,
   "mlon": -4.115,
   "generic": true
+ },
+ {
+  "name": "Le Petit Minou",
+  "region": "Bretagne Nord",
+  "commune": "Le Petit Minou",
+  "lat": 48.3366,
+  "lon": -4.6142,
+  "ori": 180,
+  "swell": "S",
+  "tide": null,
+  "min": 0.5,
+  "max": 2.5,
+  "bottom": null,
+  "type": null,
+  "level": null,
+  "notes": "",
+  "tide_port": "brest",
+  "tide_offset_min": 0,
+  "mlat": 48.3375,
+  "mlon": -4.6142,
+  "generic": true
  }
 ]
