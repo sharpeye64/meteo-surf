@@ -66,12 +66,16 @@ export default function App() {
       onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} onOpen={openSpot} onBuoy={openBuoy} />;
   }
 
+  const ready = !!(fonts && index && favs != null);
+  const fullMap = ready && tab === 'carte' && !top;   // carte plein écran : sous la barre d'état, barre d'onglets flottante
+  const onTab = (t: Tab) => { setTab(t); setStack([]); };
+
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={st.root} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={st.root} edges={fullMap ? [] : ['top', 'left', 'right']}>
         <StatusBar style="dark" />
         <View style={{ flex: 1 }}>{body}</View>
-        {fonts && index && favs != null && <TabBar tab={tab} onTab={t => { setTab(t); setStack([]); }} />}
+        {ready && <TabBar tab={tab} onTab={onTab} floating={fullMap} />}
       </SafeAreaView>
     </SafeAreaProvider>
   );
