@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Houlalah",
+    "slug": "houlalah",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "fr.houlalah.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#10202c",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "fr.houlalah.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "scheme": "houlalah"
+  }
+}
