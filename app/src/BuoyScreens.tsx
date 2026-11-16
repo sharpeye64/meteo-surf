@@ -3,17 +3,19 @@ import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, V
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
 import { ageH, ageTxt, Buoy, BuoySheet, fr, Index, loadBuoy, sector } from './data';
+import { useBarSpace } from './TabBar';
 import { C, F } from './theme';
 
 /** Liste des bouées : les mesures fraîches d'abord, puis du nord au sud. */
 export function BuoyList({ index, onOpen }: { index: Index; onOpen: (b: Buoy) => void }) {
+  const pad = useBarSpace();
   const list = useMemo(() => [...index.buoys].sort((a, b) => (Number(ageH(a.time) >= 6) - Number(ageH(b.time) >= 6)) || (b.lat - a.lat)), [index]);
   const fresh = list.filter(b => ageH(b.time) < 2).length;
   return (
     <FlatList
       data={list}
       keyExtractor={b => b.id}
-      contentContainerStyle={{ paddingBottom: 30 }}
+      contentContainerStyle={{ paddingBottom: pad }}
       ListHeaderComponent={
         <View style={{ paddingHorizontal: 20, paddingTop: 14, paddingBottom: 10 }}>
           <Text style={st.h1}>Les bouées</Text>
@@ -42,6 +44,7 @@ export function BuoyList({ index, onOpen }: { index: Index; onOpen: (b: Buoy) =>
 
 /** Page d'une bouée : relevé actuel, courbe 48 h mesuré / prévu, records, derniers relevés, spots autour. */
 export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => void; onSpot: (slug: string) => void }) {
+  const pad = useBarSpace();
   const [d, setD] = useState<BuoySheet | null>(null);
   const [err, setErr] = useState(false);
   useEffect(() => { loadBuoy(buoy.slug).then(r => setD(r.data)).catch(() => setErr(true)); }, [buoy.slug]);
@@ -58,7 +61,7 @@ export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => v
           {err ? <Text style={st.sub}>Relevés indisponibles. Vérifie la connexion.</Text> : <ActivityIndicator color={C.ink} />}
         </View>
       ) : (
-        <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+        <ScrollView contentContainerStyle={{ paddingBottom: pad + 10 }}>
           <View style={[st.card, { backgroundColor: C.sand }]}>
             <View style={st.nowRow}>
               <View style={[st.lamp, a >= 2 && { backgroundColor: '#a08a5a' }]} />

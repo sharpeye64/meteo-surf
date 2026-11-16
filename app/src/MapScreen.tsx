@@ -33,17 +33,27 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
   const live = index.buoys.filter(b => ageH(b.time) < 2).length;
   const bottom = Math.max(ins.bottom, 10) + FLOAT_BAR_H + 14;
 
-  // Une seule pastille par case de la grille (les bouées d'abord, puis les plus grosses houles) : on en voit plus en zoomant.
-  const { spots, buoys } = useMemo(() => {
-    const cell = reg.latitudeDelta / 11, taken = new Set<string>();
+  // Tous les spots sont toujours sur la carte. Une seule pastille chiffrée par case de la grille (bouées d'abord, puis les
+  // plus grosses houles) ; les autres spots sont de petits points de couleur, qui deviennent des pastilles en zoomant.
+  const { labeled, buoyLab } = useMemo(() => {
+    const cell = reg.latitudeDelta / 16, taken = new Set<string>(), labeled = new Set<string>(), buoyLab = new Set<string>();
     const free = (lat: number, lon: number) => {
-      const k = `${Math.round(lat / cell)}:${Math.round(lon / (cell * 1.5))}`;
+      const k = `${Math.round(lat / cell)}:${Math.round(lon / (cell * 1.6))}`;
       if (taken.has(k)) return false; taken.add(k); return true;
     };
-    const bs = [...index.buoys].sort((a, b) => ageH(a.time) - ageH(b.time)).filter(b => free(b.lat, b.lon));
-    const ss = [...index.spots].sort((a, b) => (b.now.hs ?? 0) - (a.now.hs ?? 0)).filter(s => free(s.lat, s.lon));
-    return { spots: ss, buoys: bs };
+    [...index.buoys].sort((a, b) => ageH(a.time) - ageH(b.time)).forEach(b => { if (free(b.lat, b.lon)) buoyLab.add(b.id); });
+    [...index.spots].sort((a, b) => (b.now.hs ?? 0) - (a.now.hs ?? 0)).forEach(s => { if (free(s.lat, s.lon)) labeled.add(s.slug); });
+    return { labeled, buoyLab };
   }, [index, reg.latitudeDelta]);
+
+  // Toucher d'un repère : on passe par la carte (onMarkerPress, plus fiable sur iPhone) et par le repère lui-même,
+  // en ignorant le second appel s'ils arrivent tous les deux.
+  const last = useRef(0);
+  const open = (id: string) => {
+    const now = Date.now(); if (now - last.current < 600) return; last.current = now;
+    if (id.startsWith('b:')) { const b = index.buoys.find(x => x.id === id.slice(2)); if (b) onBuoy(b); }
+    else { const s = index.spots.find(x => x.slug === id.slice(2)); if (s) onSpot(s); }
+  };
 
   const hour = useMemo(() => { const d = new Date(); return `${d.getHours()} h`; }, [index]);
 
@@ -51,25 +61,36 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
     <View style={StyleSheet.absoluteFill}>
       <StatusBar style={sat ? 'light' : 'dark'} />
       <MapView ref={map} style={StyleSheet.absoluteFill} initialRegion={START} onRegionChangeComplete={setReg} mapType={type}
-        mapPadding={{ top: ins.top, bottom, left: 0, right: 0 }}
+        mapPadding={{ top: ins.top, bottom, left: 0, right: 0 }} onMarkerPress={e => open(e.nativeEvent.id)}
         rotateEnabled={false} pitchEnabled={false} showsPointsOfInterests={false} showsCompass={false} toolbarEnabled={false}>
-        {spots.map(s => (
-          <Marker key={s.slug} coordinate={{ latitude: s.lat, longitude: s.lon }} onPress={() => onSpot(s)} tracksViewChanges={false} anchor={{ x: 0.5, y: 0.5 }}>
-            <View style={[st.spot, { backgroundColor: sizeCell(s.now.hs) }]}>
-              {!!arrow(s.now.dir) && <Text style={[st.spotA, arrow(s.now.dir)]}>↑</Text>}
-              <Text style={st.spotT}>{fr(s.now.hs)}</Text>
-            </View>
-          </Marker>
-        ))}
-        {buoys.map(b => {
-          const old = ageH(b.time) >= 6, fresh = ageH(b.time) < 2;
+        {index.spots.map(s => {
+          const big = labeled.has(s.slug);
           return (
-            <Marker key={b.id} coordinate={{ latitude: b.lat, longitude: b.lon }} onPress={() => onBuoy(b)} tracksViewChanges={false} anchor={{ x: 0.5, y: 0.3 }}>
+            <Marker key={`${s.slug}:${big}`} identifier={`s:${s.slug}`} coordinate={{ latitude: s.lat, longitude: s.lon }} onPress={() => open(`s:${s.slug}`)}
+              tracksViewChanges={false} anchor={{ x: 0.5, y: 0.5 }} zIndex={big ? 5 : 1}>
+              {big ? (
+                <View style={[st.spot, { backgroundColor: sizeCell(s.now.hs) }]}>
+                  {!!arrow(s.now.dir) && <Text style={[st.spotA, arrow(s.now.dir)]}>↑</Text>}
+                  <Text style={st.spotT}>{fr(s.now.hs)}</Text>
+                </View>
+              ) : (
+                <View style={st.hit}><View style={[st.dotSpot, { backgroundColor: sizeCell(s.now.hs) }]} /></View>
+              )}
+            </Marker>
+          );
+        })}
+        {index.buoys.map(b => {
+          const old = ageH(b.time) >= 6, fresh = ageH(b.time) < 2, lab = buoyLab.has(b.id);
+          return (
+            <Marker key={`${b.id}:${lab}`} identifier={`b:${b.id}`} coordinate={{ latitude: b.lat, longitude: b.lon }} onPress={() => open(`b:${b.id}`)}
+              tracksViewChanges={false} anchor={{ x: 0.5, y: lab ? 0.25 : 0.5 }} zIndex={10}>
               <View style={[st.buWrap, old && { opacity: 0.55 }]}>
                 <View style={[st.buRing, fresh && { borderColor: C.live }]}><View style={st.buCore} /></View>
-                <View style={st.buLab}>
-                  <Text style={st.buLabT}>{fr(b.hs)} m{b.tp ? ` · ${Math.round(b.tp)} s` : ''}</Text>
-                </View>
+                {lab && (
+                  <View style={st.buLab}>
+                    <Text style={st.buLabT}>{fr(b.hs)} m{b.tp ? ` · ${Math.round(b.tp)} s` : ''}</Text>
+                  </View>
+                )}
               </View>
             </Marker>
           );
@@ -119,6 +140,7 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
             <View style={st.ramp}>{[0, 0.5, 1, 1.5, 2, 2.5, 3, 4].map(h => <View key={h} style={{ flex: 1, backgroundColor: sizeCell(h) }} />)}</View>
             <View style={st.rampL}><Text style={st.small}>0 m</Text><Text style={st.small}>2 m</Text><Text style={st.small}>4 m +</Text></View>
             <View style={st.legRow}><View style={[st.spot, st.spotMini, { backgroundColor: sizeCell(1.6) }]}><Text style={[st.spotA, arrow(290)]}>↑</Text><Text style={st.spotT}>1,6</Text></View><Text style={st.legTxt}>Spot : hauteur au large, flèche = sens de la houle</Text></View>
+            <View style={st.legRow}><View style={[st.hit, { width: 46 }]}><View style={[st.dotSpot, { backgroundColor: sizeCell(1.2) }]} /></View><Text style={st.legTxt}>Autre spot : zoomez pour voir sa hauteur</Text></View>
             <View style={st.legRow}><View style={[st.buRing, { borderColor: C.live }]}><View style={st.buCore} /></View><Text style={st.legTxt}>Bouée : mesure réelle (contour vert = moins de 2 h)</Text></View>
           </Pressable>
         )}
@@ -145,7 +167,10 @@ const st = StyleSheet.create({
   spotMini: { minWidth: 46 },
   spotA: { fontSize: 11, fontWeight: '900', color: C.ink, marginTop: -1 },
   spotT: { fontFamily: F.num, fontSize: 11.5, color: C.ink },
-  buWrap: { alignItems: 'center' },
+  hit: { width: 26, height: 26, alignItems: 'center', justifyContent: 'center' },
+  dotSpot: { width: 12, height: 12, borderRadius: 6, borderWidth: 2, borderColor: '#fff',
+    shadowColor: '#0b1720', shadowOpacity: 0.3, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
+  buWrap: { alignItems: 'center', padding: 4 },
   buRing: { width: 20, height: 20, borderRadius: 10, backgroundColor: C.sand, borderWidth: 3, borderColor: '#fff', alignItems: 'center', justifyContent: 'center',
     shadowColor: '#0b1720', shadowOpacity: 0.3, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 3 },
   buCore: { width: 7, height: 7, borderRadius: 4, backgroundColor: C.ink },

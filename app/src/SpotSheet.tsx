@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import Svg, { Circle, Path } from 'react-native-svg';
 import Arrow from './Arrow';
 import { ageTxt, Buoy, fr, loadSheet, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { useBarSpace } from './TabBar';
 import { C, F, periodCell, sizeCell, windCell } from './theme';
 
 type Props = { spot: SpotLite; buoys: Buoy[]; fav: boolean; onFav: () => void; onBack: () => void; onBuoy?: (b: Buoy) => void };
@@ -15,6 +16,7 @@ const km = (a: { lat: number; lon: number }, b: { lat: number; lon: number }) =>
 };
 
 export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: Props) {
+  const pad = useBarSpace();
   const [sheet, setSheet] = useState<Sheet | null>(null);
   const [err, setErr] = useState(false);
   const [day, setDay] = useState(0);
@@ -62,7 +64,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: pad + 20 }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.days}>
           {days.map((x, i) => {
             const dd = at(x.idx[0]), mx = Math.max(...x.idx.map(j => sheet.hs[j] ?? 0)), on = i === day;

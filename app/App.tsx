@@ -75,7 +75,7 @@ export default function App() {
       <SafeAreaView style={st.root} edges={fullMap ? [] : ['top', 'left', 'right']}>
         <StatusBar style="dark" />
         <View style={{ flex: 1 }}>{body}</View>
-        {ready && <TabBar tab={tab} onTab={onTab} floating={fullMap} />}
+        {ready && <TabBar tab={tab} onTab={onTab} />}
       </SafeAreaView>
     </SafeAreaProvider>
   );

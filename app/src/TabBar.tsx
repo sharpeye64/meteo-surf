@@ -24,32 +24,23 @@ function Icon({ k, color }: { k: Tab; color: string }) {
 /** Hauteur de la barre flottante (carte plein écran) : la carte place ses commandes au-dessus. */
 export const FLOAT_BAR_H = 62;
 
-export default function TabBar({ tab, onTab, floating }: { tab: Tab; onTab: (t: Tab) => void; floating?: boolean }) {
+/** Place à laisser en bas des écrans qui défilent, pour que la fin du contenu ne reste pas cachée sous la barre flottante. */
+export function useBarSpace() {
   const ins = useSafeAreaInsets();
-  if (floating) {
-    return (
-      <View style={[st.float, { bottom: Math.max(ins.bottom, 10) }]}>
-        {TABS.map(t => {
-          const on = t.k === tab, col = on ? C.ink : C.ink2;
-          return (
-            <Pressable key={t.k} onPress={() => onTab(t.k)} style={[st.fItem, on && st.fOn]} accessibilityRole="tab" accessibilityState={{ selected: on }}>
-              <Icon k={t.k} color={col} />
-              <Text style={[st.t, { color: col, fontSize: 11 }, on && { fontFamily: F.tX }]}>{t.label}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
-    );
-  }
+  return Math.max(ins.bottom, 10) + FLOAT_BAR_H + 18;
+}
+
+/** Barre d'onglets flottante (pilule posée sur le contenu), sur tous les écrans. */
+export default function TabBar({ tab, onTab }: { tab: Tab; onTab: (t: Tab) => void }) {
+  const ins = useSafeAreaInsets();
   return (
-    <View style={[st.bar, { paddingBottom: Math.max(ins.bottom, 8) }]}>
+    <View style={[st.float, { bottom: Math.max(ins.bottom, 10) }]}>
       {TABS.map(t => {
-        const on = t.k === tab, col = on ? C.ink : C.ink3;
+        const on = t.k === tab, col = on ? C.ink : C.ink2;
         return (
-          <Pressable key={t.k} onPress={() => onTab(t.k)} style={st.item} accessibilityRole="tab" accessibilityState={{ selected: on }}>
+          <Pressable key={t.k} onPress={() => onTab(t.k)} style={[st.fItem, on && st.fOn]} accessibilityRole="tab" accessibilityState={{ selected: on }}>
             <Icon k={t.k} color={col} />
             <Text style={[st.t, { color: col }, on && { fontFamily: F.tX }]}>{t.label}</Text>
-            {on && <View style={st.pip} />}
           </Pressable>
         );
       })}
@@ -58,12 +49,9 @@ export default function TabBar({ tab, onTab, floating }: { tab: Tab; onTab: (t: 
 }
 
 const st = StyleSheet.create({
-  bar: { flexDirection: 'row', backgroundColor: C.card, paddingTop: 8, borderTopWidth: 1, borderTopColor: C.line },
-  item: { flex: 1, alignItems: 'center', gap: 3 },
-  t: { fontFamily: F.tB, fontSize: 11.5 },
+  t: { fontFamily: F.tB, fontSize: 11 },
   float: { position: 'absolute', left: 14, right: 14, height: FLOAT_BAR_H, borderRadius: FLOAT_BAR_H / 2, padding: 5, flexDirection: 'row',
     backgroundColor: 'rgba(255,255,255,0.94)', shadowColor: '#0b1720', shadowOpacity: 0.2, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
   fItem: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2, borderRadius: (FLOAT_BAR_H - 10) / 2 },
   fOn: { backgroundColor: 'rgba(233,198,148,0.45)' },
-  pip: { position: 'absolute', top: -8, width: 22, height: 3, borderRadius: 2, backgroundColor: C.sandB },
 });

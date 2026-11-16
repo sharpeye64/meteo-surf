@@ -3,12 +3,14 @@ import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, Text
 import Arrow from './Arrow';
 import Brand from './Brand';
 import { ageTxt, country, fr, Index, regionName, sector, SpotLite } from './data';
+import { useBarSpace } from './TabBar';
 import { C, F, sizeCell, windCell } from './theme';
 
 type Props = { index: Index; favs: string[]; offline: boolean; refreshing: boolean; onRefresh: () => void; onOpen: (s: SpotLite) => void; onBuoy?: (b: Index['buoys'][number]) => void; favOnly?: boolean };
 const FILTERS = ['Tous', 'France', 'Espagne', 'Portugal', '★ Favoris'];
 
 export default function SpotList({ index, favs, offline, refreshing, onRefresh, onOpen, onBuoy, favOnly }: Props) {
+  const pad = useBarSpace();
   const [q, setQ] = useState('');
   const [f, setF] = useState(favOnly ? '★ Favoris' : 'Tous');
   const top = useMemo(() => { const t: Record<string, number> = {}; index.spots.forEach(s => { t[s.region] = Math.max(t[s.region] ?? -90, s.lat); }); return t; }, [index]);
@@ -27,7 +29,7 @@ export default function SpotList({ index, favs, offline, refreshing, onRefresh, 
       keyExtractor={s => s.slug}
       keyboardShouldPersistTaps="handled"
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={C.ink} />}
-      contentContainerStyle={{ paddingBottom: 30 }}
+      contentContainerStyle={{ paddingBottom: pad }}
       ListHeaderComponent={
         <View>
           <View style={st.head}>
