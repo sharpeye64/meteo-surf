@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
-import { ageTxt, Buoy, buoyFits, fr, loadSheet, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { ageH, ageTxt, Buoy, buoyFits, fr, loadSheet, regionName, sector, Sheet, SpotLite, windRel } from './data';
 import { useBarSpace } from './TabBar';
 import { C, F, periodCell, sizeCell, windCell } from './theme';
 
@@ -51,7 +51,9 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
   const rel = windRel(sheet.wdir[sel], sheet.ori);
   const tides = (sheet.tide?.extremes || []).filter(e => new Date(e.t + ':00').toDateString() === d.date);
   const sunI = sheet.sun ? sheet.sun.time.findIndex(x => new Date(x + 'T12:00').toDateString() === d.date) : -1;
-  const near = buoys.filter(b => buoyFits(b, spot.name)).map(b => ({ b, k: km(spot, b) })).filter(x => x.k < 130).sort((a, b) => a.k - b.k)[0];
+  // Bouée de comparaison : la plus proche en direct (moins de 2 h, à moins de 60 km), sinon de moins de 6 h, sinon la plus proche.
+  const cands = buoys.filter(b => buoyFits(b, spot.name)).map(b => ({ b, k: km(spot, b) })).filter(x => x.k < 130).sort((a, b) => a.k - b.k);
+  const near = cands.find(x => ageH(x.b.time) < 2 && x.k < 60) || cands.find(x => ageH(x.b.time) < 6) || cands[0];
   const sea = d.idx.map(i => sheet.sea[i]);
 
   return (
@@ -85,67 +87,58 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
           </View>
           <View style={st.tiles}>
             <View style={st.tile}>
-              <Text style={st.tileK}>≈  HOULE</Text>
+              <Text style={st.tileK}>HOULE</Text>
               <Text style={st.big}>{fr(sheet.hs[sel])}<Text style={st.bigU}> m</Text></Text>
-              <View style={st.tileRow}>
-                <Text style={st.tileS}>{fr(sheet.tp[sel], 0)} s</Text>
-                <View style={st.badge}><Arrow dir={sheet.dir[sel]} size={11} /><Text style={st.badgeT}>{sector(sheet.dir[sel])}</Text></View>
-              </View>
+              <View style={st.tileRow}><Text style={st.tileS}>{fr(sheet.tp[sel], 0)} s</Text><Arrow dir={sheet.dir[sel]} size={9} color={C.ink2} /><Text style={st.tileS}>{sector(sheet.dir[sel])}</Text></View>
             </View>
             <View style={st.tile}>
-              <Text style={st.tileK}>〜  VENT</Text>
+              <Text style={st.tileK}>VENT</Text>
               <Text style={st.big}>{fr(sheet.wind[sel], 0)}<Text style={st.bigU}> km/h</Text></Text>
-              <View style={st.tileRow}>
-                <View style={[st.badge, { backgroundColor: windCell(sheet.wind[sel]) }]}><Arrow dir={sheet.wdir[sel]} size={11} /><Text style={st.badgeT}>{sector(sheet.wdir[sel])}</Text></View>
-                {rel && <Text style={st.tileS}>{rel}</Text>}
-              </View>
-              {sheet.gust[sel] != null && <Text style={st.gustT}>rafales <Text style={{ fontFamily: F.tX, color: C.ink }}>{fr(sheet.gust[sel], 0)}</Text> km/h</Text>}
+              <View style={st.tileRow}><Arrow dir={sheet.wdir[sel]} size={9} color={C.ink2} /><Text style={st.tileS}>{sheet.gust[sel] != null ? `raf. ${fr(sheet.gust[sel], 0)}` : sector(sheet.wdir[sel])}</Text></View>
             </View>
+            <View style={[st.tile, { backgroundColor: '#dcebf3' }]}>
+              <Text style={[st.tileK, { color: '#3d6a82' }]}>EAU</Text>
+              <Text style={[st.big, { color: '#123c55' }]}>{fr(sheet.sst[sel], 0)}<Text style={st.bigU}> °C</Text></Text>
+              <Text style={[st.tileS, { color: '#3d6a82' }]}>{waterRange(sheet.sst)}</Text>
+            </View>
+            <SunTile sun={sunI >= 0 && sheet.sun ? { rise: sheet.sun.sunrise[sunI], set: sheet.sun.sunset[sunI] } : null} today={day === 0} />
           </View>
+          {rel && <Text style={st.rel}>Vent {rel}</Text>}
 
           <ScrollView ref={strip as never} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.grid}
             onContentSizeChange={() => { const k = hrs.indexOf(sel); if (k > 2) strip.current?.scrollTo({ x: (k - 2) * (COL + 4), animated: false }); }}>
             <View style={st.labels}>
-              <Text style={[st.lab, { height: 30 }]} />
-              <Text style={[st.lab, { height: 66 }]}>m</Text>
-              <Text style={[st.lab, { height: 46 }]}>s</Text>
-              <Text style={[st.lab, { height: 52 }]}>km/h</Text>
+              <Text style={[st.lab, { height: 26 }]} />
+              <Text style={[st.lab, { height: 46 }]}>m</Text>
+              <Text style={[st.lab, { height: 36 }]}>s</Text>
+              <Text style={[st.lab, { height: 40 }]}>km/h</Text>
+              <Text style={[st.lab, { height: TIDE_H }]}>marée</Text>
             </View>
+            <View>
+            <View style={{ flexDirection: 'row', gap: 4 }}>
             {hrs.map(i => {
               const on = i === sel, h = at(i).getHours();
               return (
                 <Pressable key={i} onPress={() => setHour(i)} style={st.col}>
                   <Text style={[st.hh, on && { color: C.ink }]}>{h}h</Text>
-                  <View style={[st.cell, { height: 62, backgroundColor: sizeCell(sheet.hs[i]) }, on && st.cellOn]}><Text style={st.cellBig}>{fr(sheet.hs[i])}</Text></View>
-                  <View style={[st.cell, { height: 42, backgroundColor: periodCell(sheet.tp[i]) }, on && st.cellOn]}>
+                  <View style={[st.cell, { height: 46, backgroundColor: sizeCell(sheet.hs[i]) }, on && st.cellOn]}><Text style={st.cellBig}>{fr(sheet.hs[i])}</Text></View>
+                  <View style={[st.cell, { height: 36, backgroundColor: periodCell(sheet.tp[i]) }, on && st.cellOn]}>
                     <Text style={st.cellMid}>{fr(sheet.tp[i], 0)} s</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><Arrow dir={sheet.dir[i]} size={8} /><Text style={st.cellSm}>{sector(sheet.dir[i])}</Text></View>
                   </View>
-                  <View style={[st.cell, { height: 48, backgroundColor: windCell(sheet.wind[i]) }, on && st.cellOn]}>
-                    <Arrow dir={sheet.wdir[i]} size={14} />
+                  <View style={[st.cell, { height: 40, backgroundColor: windCell(sheet.wind[i]) }, on && st.cellOn]}>
+                    <Arrow dir={sheet.wdir[i]} size={12} />
                     <Text style={st.cellMid}>{fr(sheet.wind[i], 0)}</Text>
                   </View>
                 </Pressable>
               );
             })}
+            </View>
+            <TideRow sheet={sheet} hrs={hrs} sel={sel} t0={t0} />
+            </View>
           </ScrollView>
+          {sheet.tide ? <Text style={st.port}>Marée : {sheet.tide.label}</Text> : <Text style={st.port}>Marée indicative (modèle)</Text>}
         </View>
-
-        <View style={st.card}>
-          <Text style={st.cardT}>Marée{sheet.tide ? <Text style={st.cardS}>  ·  {sheet.tide.label}</Text> : null}</Text>
-          <TideCurve sea={sea} />
-          {tides.length ? (
-            <View style={st.tides}>{tides.map(e => (
-              <View key={e.t} style={[st.tide, e.type === 'PM' && { backgroundColor: '#e6eef6' }]}>
-                <Text style={st.tideK}>{e.type === 'PM' ? 'PM' : 'BM'}</Text>
-                <Text style={st.tideV}>{e.t.slice(11, 13)}h{e.t.slice(14, 16)}</Text>
-                <Text style={st.tideS}>{fr(e.h, 2)} m</Text>
-              </View>
-            ))}</View>
-          ) : <Text style={st.hint}>Marée indicative (modèle) : pas d'horaires calculés pour ce spot.</Text>}
-        </View>
-
-        <WaterSun sst={sheet.sst[sel]} week={sheet.sst} sun={sunI >= 0 && sheet.sun ? { rise: sheet.sun.sunrise[sunI], set: sheet.sun.sunset[sunI] } : null} today={day === 0} />
 
         {near && (
           <Pressable onPress={() => onBuoy?.(near.b)} style={({ pressed }) => [st.card, { backgroundColor: C.sand }, pressed && { opacity: 0.85 }]}>
@@ -162,62 +155,67 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
   );
 }
 
-/** Eau et soleil : température de l'eau sur fond d'eau, et course du soleil sur un arc (lever, coucher, durée du jour). */
-function WaterSun({ sst, week, sun, today }: { sst: number | null; week: (number | null)[]; sun: { rise: string; set: string } | null; today: boolean }) {
-  const w = week.filter((x): x is number => x != null);
-  if (sst == null && !sun) return null;
-  const rise = sun ? new Date(sun.rise + ':00') : null, set = sun ? new Date(sun.set + ':00') : null;
-  const len = rise && set ? Math.round((set.getTime() - rise.getTime()) / 6e4) : 0;
-  const f = rise && set && today ? (Date.now() - rise.getTime()) / (set.getTime() - rise.getTime()) : null;
+const TIDE_H = 56;
+
+/** Fourchette de température de l'eau sur les 7 jours. */
+function waterRange(w: (number | null)[]) {
+  const v = w.filter((x): x is number => x != null);
+  return v.length > 1 ? `${fr(Math.min(...v), 0)} à ${fr(Math.max(...v), 0)}` : '';
+}
+
+/** Petit carré Soleil : arc avec la position du soleil (aujourd'hui), lever et coucher. */
+function SunTile({ sun, today }: { sun: { rise: string; set: string } | null; today: boolean }) {
+  if (!sun) return <View style={[st.tile, { backgroundColor: C.sandA }]} />;
+  const rise = new Date(sun.rise + ':00'), set = new Date(sun.set + ':00');
+  const f = today ? (Date.now() - rise.getTime()) / (set.getTime() - rise.getTime()) : null;
   const up = f != null && f >= 0 && f <= 1;
-  const R = 54, cx = 70, cy = 64, a = Math.PI * (1 - (up ? f! : 0));
+  const R = 24, cx = 30, cy = 27, a = Math.PI * (1 - (up ? f! : 0));
   const sx = cx + R * Math.cos(a), sy = cy - R * Math.sin(a);
+  const t = (d: Date) => `${d.getHours()}h${String(d.getMinutes()).padStart(2, '0')}`;
   return (
-    <View style={st.ws}>
-      {sst != null && (
-        <View style={[st.wsTile, { backgroundColor: '#dcebf3' }]}>
-          <Text style={st.tileK}>EAU</Text>
-          <Text style={[st.big, { color: '#123c55' }]}>{fr(sst, 0)}<Text style={st.bigU}> °C</Text></Text>
-          {w.length > 1 && <Text style={[st.tileS, { color: '#3d6a82' }]}>{fr(Math.min(...w), 0)} à {fr(Math.max(...w), 0)} °C sur 7 jours</Text>}
-          <Svg width="100%" height={26} viewBox="0 0 160 26" preserveAspectRatio="none" style={st.wsWave}>
-            <Path d="M0 12 C20 4 40 4 60 12 S100 20 120 12 S150 4 160 10 V26 H0Z" fill="#bcd8e8" />
-            <Path d="M0 18 C25 11 45 11 70 18 S115 25 140 18 S155 14 160 16 V26 H0Z" fill="#9cc5dc" />
-          </Svg>
-        </View>
-      )}
-      {rise && set && (
-        <View style={[st.wsTile, { backgroundColor: C.sandA }]}>
-          <Text style={[st.tileK, { color: '#7a5f33' }]}>SOLEIL</Text>
-          <Svg width="100%" height={70} viewBox="0 0 140 70">
-            <Path d={`M${cx - R} ${cy} A${R} ${R} 0 0 1 ${cx + R} ${cy}`} stroke="#c9a463" strokeWidth={1.5} strokeDasharray="3 4" fill="none" />
-            {up && <Path d={`M${cx - R} ${cy} A${R} ${R} 0 0 1 ${sx.toFixed(1)} ${sy.toFixed(1)}`} stroke="#b8892f" strokeWidth={2.5} fill="none" strokeLinecap="round" />}
-            <Path d={`M8 ${cy} H132`} stroke="#d9b779" strokeWidth={1} />
-            {up && <Circle cx={sx} cy={sy} r={7} fill="#f2b632" stroke="#fff" strokeWidth={2} />}
-          </Svg>
-          <View style={st.wsSun}>
-            <Text style={st.wsT}>{rise.getHours()} h {String(rise.getMinutes()).padStart(2, '0')}</Text>
-            <Text style={st.wsT}>{set.getHours()} h {String(set.getMinutes()).padStart(2, '0')}</Text>
-          </View>
-          <Text style={[st.tileS, { color: '#7a5f33', textAlign: 'center' }]}>{Math.floor(len / 60)} h {String(len % 60).padStart(2, '0')} de jour</Text>
-        </View>
-      )}
+    <View style={[st.tile, { backgroundColor: C.sandA }]}>
+      <Text style={[st.tileK, { color: '#7a5f33' }]}>SOLEIL</Text>
+      <Svg width="100%" height={30} viewBox="0 0 60 30" style={{ marginTop: 2 }}>
+        <Path d={`M${cx - R} ${cy} A${R} ${R} 0 0 1 ${cx + R} ${cy}`} stroke="#c9a463" strokeWidth={1.3} strokeDasharray="2 3" fill="none" />
+        {up && <Path d={`M${cx - R} ${cy} A${R} ${R} 0 0 1 ${sx.toFixed(1)} ${sy.toFixed(1)}`} stroke="#b8892f" strokeWidth={2} fill="none" strokeLinecap="round" />}
+        {up && <Circle cx={sx} cy={sy} r={4} fill="#f2b632" stroke="#fff" strokeWidth={1.5} />}
+      </Svg>
+      <Text style={[st.tileS, { color: '#7a5f33' }]} numberOfLines={1} adjustsFontSizeToFit>{t(rise)} · {t(set)}</Text>
     </View>
   );
 }
 
-/** Courbe de la hauteur d'eau sur la journée (même source que le site : calcul harmonique ou modèle). */
-function TideCurve({ sea }: { sea: (number | null)[] }) {
-  const v = sea.map(x => x ?? NaN), ok = v.filter(x => !isNaN(x));
-  if (ok.length < 4) return null;
-  const W = 320, H = 64, mn = Math.min(...ok), mx = Math.max(...ok), n = v.length - 1;
-  const pts = v.map((y, i) => [(i / n) * W, isNaN(y) ? NaN : H - 6 - ((y - mn) / Math.max(0.01, mx - mn)) * (H - 12)]).filter(p => !isNaN(p[1]));
-  const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
-  const nowX = ((new Date().getHours() + new Date().getMinutes() / 60) / 24) * W;
+/** Dernière ligne de la frise : la courbe de marée, alignée sur les colonnes, avec PM et BM posées à leur heure exacte. */
+function TideRow({ sheet, hrs, sel, t0 }: { sheet: Sheet; hrs: number[]; sel: number; t0: number }) {
+  const W = hrs.length * (COL + 4) - 4, a = hrs[0], b = hrs[hrs.length - 1];
+  const x = (f: number) => (f - a) * (COL + 4) + COL / 2;
+  const at = (f: number) => {   // hauteur d'eau à une heure fractionnaire (interpolation entre deux heures)
+    const i = Math.floor(f), u = f - i, p = sheet.sea[i], q = sheet.sea[i + 1];
+    return p == null ? null : q == null ? p : p + (q - p) * u;
+  };
+  const pts: [number, number][] = [];
+  for (let f = a - 0.5; f <= b + 0.5001; f += 0.25) { const v = at(f); if (v != null) pts.push([f, v]); }
+  if (pts.length < 4) return <View style={{ height: TIDE_H, marginTop: 4 }} />;
+  const vs = pts.map(p => p[1]), mn = Math.min(...vs), mx = Math.max(...vs);
+  const y = (v: number) => 8 + (1 - (v - mn) / Math.max(0.01, mx - mn)) * (TIDE_H - 16);
+  const d = pts.map(([f, v], k) => `${k ? 'L' : 'M'}${x(f).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const ext = (sheet.tide?.extremes || []).map(e => ({ ...e, f: (new Date(e.t + ':00').getTime() - t0) / 36e5 })).filter(e => e.f >= a - 0.5 && e.f <= b + 0.5);
   return (
-    <Svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ marginTop: 10 }}>
-      <Path d={`${d} L${W},${H} L0,${H} Z`} fill="#dfe8ef" />
-      <Path d={d} stroke={C.ink} strokeWidth={1.6} fill="none" />
-      <Circle cx={nowX} cy={H / 2} r={0} />
+    <Svg width={W} height={TIDE_H} style={{ marginTop: 4 }}>
+      <Path d={`${d} L${x(pts[pts.length - 1][0]).toFixed(1)},${TIDE_H} L${x(pts[0][0]).toFixed(1)},${TIDE_H} Z`} fill="#e3ebf1" />
+      <Path d={d} stroke={C.ink} strokeWidth={1.4} fill="none" />
+      <Line x1={x(sel)} y1={0} x2={x(sel)} y2={TIDE_H} stroke={C.ink} strokeWidth={1} strokeDasharray="2 3" />
+      {ext.map(e => {
+        const v = at(e.f) ?? e.h, cy = y(v), pm = e.type === 'PM';
+        const d2 = new Date(e.t + ':00'), lab = `${e.type} ${d2.getHours()}h${String(d2.getMinutes()).padStart(2, '0')}`;
+        const tx = Math.min(W - 30, Math.max(30, x(e.f)));
+        return (
+          <G key={e.t}>
+            <Circle cx={x(e.f)} cy={cy} r={3.2} fill={C.ink} />
+            <SvgText x={tx} y={pm ? cy + 16 : cy - 8} fontSize={11} fontFamily={F.tX} fill={C.ink} textAnchor="middle">{lab}</SvgText>
+          </G>
+        );
+      })}
     </Svg>
   );
 }
@@ -255,21 +253,15 @@ const st = StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: C.live },
   nowT: { fontFamily: F.tX, fontSize: 11.5, letterSpacing: 1, color: C.ink, marginRight: 4 },
   nowS: { fontFamily: F.tB, fontSize: 12, color: C.ink2 },
-  tiles: { flexDirection: 'row', gap: 8, marginTop: 12 },
-  tile: { flex: 1, backgroundColor: C.soft, borderRadius: 18, padding: 12 },
-  tileK: { fontFamily: F.tX, fontSize: 10.5, letterSpacing: 1.1, color: C.ink2 },
-  big: { fontFamily: F.numX, fontSize: 34, color: C.ink, letterSpacing: -1.5, marginTop: 4 },
-  bigU: { fontFamily: F.tB, fontSize: 13, letterSpacing: 0 },
-  tileRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
-  tileS: { fontFamily: F.tB, fontSize: 12.5, color: C.ink2 },
-  badge: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 24, borderRadius: 12, paddingHorizontal: 8, backgroundColor: '#e3e9ec' },
-  badgeT: { fontFamily: F.tX, fontSize: 11.5, color: C.ink },
-  gustT: { fontFamily: F.tB, fontSize: 12, color: C.ink2, marginTop: 6 },
-  ws: { flexDirection: 'row', gap: 10, marginHorizontal: 12, marginTop: 10 },
-  wsTile: { flex: 1, borderRadius: 24, padding: 14, overflow: 'hidden', minHeight: 150 },
-  wsWave: { position: 'absolute', left: 0, right: 0, bottom: 0 },
-  wsSun: { flexDirection: 'row', justifyContent: 'space-between', marginTop: -4 },
-  wsT: { fontFamily: F.num, fontSize: 12.5, color: C.sandText },
+  tiles: { flexDirection: 'row', gap: 6, marginTop: 12 },
+  tile: { flex: 1, minWidth: 0, backgroundColor: C.soft, borderRadius: 14, paddingVertical: 8, paddingHorizontal: 8 },
+  tileK: { fontFamily: F.tX, fontSize: 9.5, letterSpacing: 0.9, color: C.ink2 },
+  big: { fontFamily: F.numX, fontSize: 19, color: C.ink, letterSpacing: -0.8, marginTop: 3 },
+  bigU: { fontFamily: F.tB, fontSize: 10.5, letterSpacing: 0 },
+  tileRow: { flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 3 },
+  tileS: { fontFamily: F.tB, fontSize: 10.5, color: C.ink2 },
+  rel: { fontFamily: F.tB, fontSize: 12, color: C.ink2, marginTop: 8 },
+  port: { fontFamily: F.t, fontSize: 11.5, color: C.ink3, marginTop: 6 },
   grid: { paddingTop: 14, gap: 4, paddingRight: 4 },
   labels: { width: 30, gap: 4 },
   lab: { fontFamily: F.tB, fontSize: 10, color: C.ink3, textAlignVertical: 'center', paddingTop: 22 },

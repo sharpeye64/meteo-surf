@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import Svg, { Circle, G, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
 import Brand from './Brand';
 import { ageTxt, Buoy, country, fr, Index, loadSheet, regionName, sector, Sheet, SpotLite, windRel } from './data';
@@ -138,45 +139,87 @@ export default function Home({ index, favs, offline, refreshing, onRefresh, onOp
   );
 }
 
-/** Votre spot en grand : houle maintenant, les 12 prochaines heures, le vent et la prochaine marée. */
+const NCOL = 7, STEP = 2;   // mini-frise : 7 colonnes, toutes les 2 h, à partir de l'heure actuelle
+
+/** Votre spot en grand, avec la journée en mini-frise (comme la frise du site) : houle, vent, puis la courbe de marée
+ *  avec la pleine mer et la basse mer posées à leur heure. */
 function Hero({ s, onOpen }: { s: SpotLite; onOpen: (s: SpotLite) => void }) {
   const [sh, setSh] = useState<Sheet | null>(null);
+  const [w, setW] = useState(0);
   useEffect(() => { let on = true; loadSheet(s.slug).then(r => on && setSh(r.data)).catch(() => {}); return () => { on = false; }; }, [s.slug]);
-  const next = useMemo(() => {
+
+  const day = useMemo(() => {
     if (!sh) return null;
-    const t0 = new Date(sh.t0 + ':00').getTime(), i0 = Math.max(0, Math.floor((Date.now() - t0) / 36e5));
-    const hours = Array.from({ length: 12 }, (_, k) => ({ h: sh.hs[i0 + k] ?? null, d: new Date(t0 + (i0 + k) * 36e5) }));
-    const tide = (sh.tide?.extremes || []).find(e => new Date(e.t + ':00').getTime() > Date.now());
-    return { hours, tide };
+    // Le soir (après 19 h) ou la nuit, on montre la journée suivante (ou celle qui vient) à partir de 7 h.
+    const t0 = new Date(sh.t0 + ':00').getTime(), nowI = Math.max(1, Math.floor((Date.now() - t0) / 36e5)), hr = new Date().getHours();
+    const morning = new Date(); morning.setHours(7, 0, 0, 0); if (hr >= 19) morning.setDate(morning.getDate() + 1);
+    const later = hr >= 19 || hr < 6, i0 = later ? Math.max(1, Math.round((morning.getTime() - t0) / 36e5)) : nowI;
+    const cols = Array.from({ length: NCOL }, (_, k) => i0 + k * STEP).filter(i => i < sh.hs.length);
+    // marée : hauteur d'eau heure par heure sur toute la largeur, et les PM / BM qui tombent dedans
+    const from = i0 - STEP / 2, to = i0 + NCOL * STEP - STEP / 2;
+    const sea: [number, number][] = [];
+    for (let i = from; i <= to; i++) { const v = sh.sea[i]; if (v != null) sea.push([i, v]); }
+    const ext = (sh.tide?.extremes || []).map(e => ({ ...e, f: (new Date(e.t + ':00').getTime() - t0) / 36e5 })).filter(e => e.f >= from && e.f <= to);
+    return { t0, cols, from, to, sea, ext, later, tomorrow: hr >= 19 };
   }, [sh]);
-  const max = Math.max(1, ...(next?.hours.map(x => x.h ?? 0) || [1]));
-  const rel = windRel(s.now.wdir, s.ori);
+
+  const H = 44;
+  let tide: React.ReactNode = null;
+  if (day && w && day.sea.length > 3) {
+    const xs = (f: number) => ((f - day.from) / (day.to - day.from)) * w;
+    const vs = day.sea.map(x => x[1]), mn = Math.min(...vs), mx = Math.max(...vs);
+    const ys = (v: number) => 6 + (1 - (v - mn) / Math.max(0.01, mx - mn)) * (H - 12);
+    const d = day.sea.map(([i, v], k) => `${k ? 'L' : 'M'}${xs(i).toFixed(1)},${ys(v).toFixed(1)}`).join(' ');
+    tide = (
+      <Svg width={w} height={H} style={{ marginTop: 6 }}>
+        <Path d={`${d} L${xs(day.sea[day.sea.length - 1][0]).toFixed(1)},${H} L${xs(day.sea[0][0]).toFixed(1)},${H} Z`} fill="rgba(122,95,51,0.14)" />
+        <Path d={d} stroke="#7a5f33" strokeWidth={1.6} fill="none" />
+        {day.ext.map(e => {
+          const x = xs(e.f), y = e.type === 'PM' ? 6 : H - 6, tx = Math.min(w - 26, Math.max(26, x));
+          const tt = new Date(e.t + ':00');
+          return (
+            <G key={e.t}>
+              <Circle cx={x} cy={y} r={3} fill={C.sandText} />
+              <SvgText x={tx} y={e.type === 'PM' ? y + 15 : y - 7} fontSize={10.5} fontFamily={F.tX} fill={C.sandText} textAnchor="middle">{`${e.type} ${hh(tt)}`}</SvgText>
+            </G>
+          );
+        })}
+      </Svg>
+    );
+  }
 
   return (
     <Pressable onPress={() => onOpen(s)} style={({ pressed }) => [st.hero, pressed && { opacity: 0.9 }]}>
-      <Text style={st.heroK}>VOTRE SPOT · {regionName(s.region).toUpperCase()}</Text>
-      <Text style={st.heroName} numberOfLines={1}>{s.name}</Text>
-      <View style={st.heroRow}>
-        <Text style={st.heroH}>{fr(s.now.hs)}<Text style={st.heroU}> m</Text></Text>
-        <View style={{ gap: 4 }}>
-          <Text style={st.heroP}>{fr(s.now.tp, 0)} s</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Arrow dir={s.now.dir} size={13} color={C.sandText} /><Text style={st.heroS}>{sector(s.now.dir)}</Text></View>
+      <View style={st.heroTop}>
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={st.heroK} numberOfLines={1}>VOTRE SPOT · {day?.tomorrow ? 'DEMAIN' : regionName(s.region).toUpperCase()}</Text>
+          <Text style={st.heroName} numberOfLines={1}>{s.name}</Text>
         </View>
-      </View>
-      <View style={st.bars}>
-        {(next?.hours || Array.from({ length: 12 }, () => ({ h: null, d: new Date() }))).map((x, k) => (
-          <View key={k} style={{ flex: 1, justifyContent: 'flex-end' }}>
-            <View style={{ height: x.h == null ? 4 : 6 + (x.h / max) * 34, borderRadius: 3, backgroundColor: x.h == null ? 'rgba(42,33,18,0.15)' : sizeCell(x.h) }} />
+        <View style={{ alignItems: 'flex-end' }}>
+          <Text style={st.heroH}>{fr(s.now.hs)}<Text style={st.heroU}> m</Text></Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <Text style={st.heroS}>{fr(s.now.tp, 0)} s</Text><Arrow dir={s.now.dir} size={11} color={C.sandText} /><Text style={st.heroS}>{sector(s.now.dir)}</Text>
           </View>
-        ))}
-      </View>
-      {next && <View style={st.barsL}><Text style={st.heroSm}>maintenant</Text><Text style={st.heroSm}>{hh(next.hours[6].d)}</Text><Text style={st.heroSm}>{hh(next.hours[11].d)}</Text></View>}
-      <View style={st.heroFoot}>
-        <View style={[st.windPill, { backgroundColor: windCell(s.now.wind) }]}>
-          <Arrow dir={s.now.wdir} size={11} color={C.ink} />
-          <Text style={st.windT}>{fr(s.now.wind, 0)} km/h{rel ? ` · ${rel}` : ''}</Text>
         </View>
-        {next?.tide && <Text style={st.heroS}>{next.tide.type} {hh(new Date(next.tide.t + ':00'))}</Text>}
+      </View>
+
+      <View onLayout={e => setW(e.nativeEvent.layout.width)} style={{ marginTop: 12 }}>
+        {day ? (
+          <>
+            <View style={st.mrow}>{day.cols.map((i, k) => <Text key={i} style={[st.mh, k === 0 && { color: C.sandText }]}>{k === 0 && !day.later ? 'maint.' : hh(new Date(day.t0 + i * 36e5))}</Text>)}</View>
+            <View style={st.mrow}>{day.cols.map((i, k) => (
+              <View key={i} style={[st.mc, { backgroundColor: sizeCell(sh!.hs[i]) }, k === 0 && !day.later && st.mcOn]}>
+                <Text style={st.mcV}>{fr(sh!.hs[i])}</Text><Text style={st.mcU}>{fr(sh!.tp[i], 0)} s</Text>
+              </View>
+            ))}</View>
+            <View style={st.mrow}>{day.cols.map(i => (
+              <View key={i} style={[st.mw, { backgroundColor: windCell(sh!.wind[i]) }]}>
+                <Arrow dir={sh!.wdir[i]} size={9} color={C.ink} /><Text style={st.mwT}>{fr(sh!.wind[i], 0)}</Text>
+              </View>
+            ))}</View>
+            {tide}
+          </>
+        ) : <View style={{ height: 120 }} />}
       </View>
     </Pressable>
   );
@@ -217,18 +260,19 @@ const st = StyleSheet.create({
   hero: { marginHorizontal: 16, borderRadius: 26, padding: 18, backgroundColor: C.sand },
   heroK: { fontFamily: F.tX, fontSize: 10.5, letterSpacing: 1.3, color: '#7a5f33' },
   heroEmpty: { fontFamily: F.t, fontSize: 14.5, lineHeight: 20, color: C.sandText },
+  heroTop: { flexDirection: 'row', alignItems: 'flex-end', gap: 10 },
   heroName: { fontFamily: F.num, fontSize: 22, color: C.sandText, letterSpacing: -0.6, marginTop: 4 },
-  heroRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 6 },
-  heroH: { fontFamily: F.numX, fontSize: 52, color: C.sandText, letterSpacing: -2.5 },
-  heroU: { fontFamily: F.num, fontSize: 20, letterSpacing: 0 },
-  heroP: { fontFamily: F.num, fontSize: 17, color: C.sandText },
-  heroS: { fontFamily: F.tX, fontSize: 13, color: C.sandText },
-  heroSm: { fontFamily: F.tB, fontSize: 11, color: '#7a5f33' },
-  bars: { flexDirection: 'row', gap: 4, height: 42, alignItems: 'flex-end', marginTop: 12 },
-  barsL: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 },
-  heroFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 14 },
-  windPill: { flexDirection: 'row', alignItems: 'center', gap: 5, height: 28, paddingHorizontal: 11, borderRadius: 14 },
-  windT: { fontFamily: F.tX, fontSize: 12.5, color: C.ink },
+  heroH: { fontFamily: F.numX, fontSize: 34, color: C.sandText, letterSpacing: -1.5, lineHeight: 38 },
+  heroU: { fontFamily: F.num, fontSize: 15, letterSpacing: 0 },
+  heroS: { fontFamily: F.tX, fontSize: 12, color: C.sandText },
+  mrow: { flexDirection: 'row', gap: 3, marginTop: 3 },
+  mh: { flex: 1, textAlign: 'center', fontFamily: F.tX, fontSize: 10.5, color: '#7a5f33' },
+  mc: { flex: 1, height: 40, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  mcOn: { borderWidth: 2, borderColor: C.sandText },
+  mcV: { fontFamily: F.num, fontSize: 13, color: C.ink, letterSpacing: -0.5 },
+  mcU: { fontFamily: F.tB, fontSize: 9.5, color: 'rgba(16,32,44,0.7)' },
+  mw: { flex: 1, height: 22, borderRadius: 7, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 2 },
+  mwT: { fontFamily: F.tX, fontSize: 10.5, color: C.ink },
   mini: { width: 108, backgroundColor: C.card, borderRadius: 18, padding: 6, paddingBottom: 10, gap: 8 },
   miniC: { height: 56, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   miniV: { fontFamily: F.num, fontSize: 19, color: C.ink, letterSpacing: -0.8 },
