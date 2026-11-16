@@ -61,7 +61,7 @@ export default function App() {
   } else if (tab === 'carte') {
     body = <MapScreen index={index} onSpot={openSpot} onBuoy={openBuoy} />;
   } else if (tab === 'bouees') {
-    body = <BuoyList index={index} onOpen={openBuoy} />;
+    body = <BuoyList index={index} favs={favs} onOpen={openBuoy} />;
   } else if (tab === 'spots') {
     body = <Home index={index} favs={favs} offline={offline} refreshing={refreshing}
       onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} onOpen={openSpot} onBuoy={openBuoy} />;

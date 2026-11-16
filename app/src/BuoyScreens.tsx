@@ -1,44 +1,113 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
 import { ageH, ageTxt, Buoy, BuoySheet, fr, Index, loadBuoy, sector } from './data';
+import { Blink } from './Live';
 import { useBarSpace } from './TabBar';
 import { C, F } from './theme';
 
-/** Liste des bouées : les mesures fraîches d'abord, puis du nord au sud. */
-export function BuoyList({ index, onOpen }: { index: Index; onOpen: (b: Buoy) => void }) {
-  const pad = useBarSpace();
-  const list = useMemo(() => [...index.buoys].sort((a, b) => (Number(ageH(a.time) >= 6) - Number(ageH(b.time) >= 6)) || (b.lat - a.lat)), [index]);
-  const fresh = list.filter(b => ageH(b.time) < 2).length;
+const ZONES = ['Bretagne', 'Golfe de Gascogne', 'Espagne', 'Portugal'];
+/** Grande zone de côte d'une bouée, d'après sa position. */
+const zone = (b: Buoy) => (b.lat < 42 ? 'Portugal' : b.lat < 44.5 && b.lon < -1.8 ? 'Espagne' : b.lat > 47 ? 'Bretagne' : 'Golfe de Gascogne');
+/** En Espagne, on suit la côte : de la frontière vers l'ouest le long de la côte nord, puis la Galice vers le sud. */
+const alongSpain = (a: Buoy, b: Buoy) => {
+  const k = (x: Buoy) => (x.lat >= 43 ? -x.lon : 100 - x.lat);
+  return k(a) - k(b);
+};
+const km = (a: { lat: number; lon: number }, b: { lat: number; lon: number }) => {
+  const r = Math.PI / 180, x = (b.lon - a.lon) * r * Math.cos(((a.lat + b.lat) / 2) * r), y = (b.lat - a.lat) * r;
+  return Math.sqrt(x * x + y * y) * 6371;
+};
+
+/** Feu de fraîcheur : vert qui clignote (moins de 2 h), sable (moins de 6 h), gris (plus ancien). */
+function Lamp({ b, i = 0 }: { b: Buoy; i?: number }) {
+  const a = ageH(b.time);
+  return a < 2 ? <Blink size={9} delay={(i % 3) * 450} /> : <View style={[st.lamp, { backgroundColor: a < 6 ? C.sandB : '#c9c3b4' }]} />;
+}
+
+/** Une ligne de bouée dans une carte groupée. */
+function BuoyLine({ b, i, note, first, onOpen }: { b: Buoy; i: number; note?: string; first?: boolean; onOpen: (b: Buoy) => void }) {
   return (
-    <FlatList
-      data={list}
-      keyExtractor={b => b.id}
-      contentContainerStyle={{ paddingBottom: pad }}
-      ListHeaderComponent={
-        <View style={{ paddingHorizontal: 20, paddingTop: 14, paddingBottom: 10 }}>
-          <Text style={st.h1}>Les bouées</Text>
-          <Text style={st.lead}>Mesures réelles en mer · {fresh} en direct sur {list.length}</Text>
-        </View>
-      }
-      renderItem={({ item: b }) => {
-        const a = ageH(b.time);
-        return (
-          <Pressable onPress={() => onOpen(b)} style={({ pressed }) => [st.row, pressed && { opacity: 0.8 }]}>
-            <View style={[st.lamp, a < 2 ? null : a < 6 ? { backgroundColor: C.sandB } : { backgroundColor: '#c9c3b4' }]} />
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={st.name} numberOfLines={1}>{b.name}</Text>
-              <Text style={st.sub} numberOfLines={1}>{b.sub} · {ageTxt(b.time)}</Text>
+    <Pressable onPress={() => onOpen(b)} style={({ pressed }) => [st.line, !first && st.sep, pressed && { opacity: 0.6 }]}>
+      <Lamp b={b} i={i} />
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text style={st.name} numberOfLines={1}>{b.name}</Text>
+        <Text style={st.sub} numberOfLines={1}>{note ? `${note} · ` : ''}{ageTxt(b.time)}</Text>
+      </View>
+      {b.tp ? <Text style={st.metaT}>{Math.round(b.tp)} s</Text> : null}
+      <View style={st.val}><Text style={st.valT}>{fr(b.hs)}</Text></View>
+    </Pressable>
+  );
+}
+
+/** Onglet Bouées « autour de mon spot » : la bouée de côte la plus utile pour votre spot en grand, les autres bouées
+ *  proches avec leur distance, puis toutes les bouées rangées par zone, du nord au sud. */
+export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]; onOpen: (b: Buoy) => void }) {
+  const pad = useBarSpace();
+  const spot = favs.map(f => index.spots.find(s => s.slug === f)).find(Boolean);
+  const fresh = index.buoys.filter(b => ageH(b.time) < 2).length;
+
+  const mine = useMemo(() => {
+    if (!spot) return null;
+    const all = index.buoys.map(b => ({ b, k: km(spot, b) })).sort((x, y) => x.k - y.k);
+    const coast = all.filter(x => !x.b.large && x.k < 120);
+    // La plus proche en direct (moins de 2 h, à moins de 60 km), sinon la plus proche de moins de 6 h, sinon la plus proche.
+    const main = coast.find(x => ageH(x.b.time) < 2 && x.k < 60) || coast.find(x => ageH(x.b.time) < 6) || coast[0] || all[0];
+    const others = all.filter(x => x.b.id !== main.b.id && x.k < 200).slice(0, 4);
+    const off = all.find(x => x.b.large);
+    if (off && off.b.id !== main.b.id && !others.some(x => x.b.id === off.b.id)) others.push(off);
+    return { main, others };
+  }, [index, spot]);
+
+  const zones = useMemo(() => ZONES.map(z => ({ z, list: index.buoys.filter(b => zone(b) === z).sort(z === 'Espagne' ? alongSpain : (a, b) => b.lat - a.lat) })).filter(x => x.list.length), [index]);
+  const M = mine?.main;
+
+  return (
+    <ScrollView contentContainerStyle={{ paddingBottom: pad }}>
+      <View style={{ paddingHorizontal: 20, paddingTop: 14, paddingBottom: 6 }}>
+        <Text style={st.h1}>Bouées</Text>
+        <Text style={st.lead}>Mesures réelles en mer · {fresh} en direct sur {index.buoys.length}</Text>
+      </View>
+
+      {spot && M ? (
+        <View>
+          <Text style={st.lbl}>Pour {spot.name}</Text>
+          <Pressable onPress={() => onOpen(M.b)} style={({ pressed }) => [st.hero, pressed && { opacity: 0.9 }]}>
+            <View style={st.heroTop}>
+              <Lamp b={M.b} />
+              <Text style={st.heroK} numberOfLines={1}>{M.b.large ? 'AU LARGE' : 'À LA CÔTE'} · {M.b.name.toUpperCase()} · {Math.round(M.k)} KM</Text>
             </View>
-            <View style={{ alignItems: 'flex-end' }}>
-              <View style={st.val}><Text style={st.valT}>{fr(b.hs)}</Text></View>
-              <View style={st.meta}>{b.tp ? <Text style={st.metaT}>{Math.round(b.tp)} s</Text> : null}<Arrow dir={b.dir} size={10} color={C.ink2} /><Text style={st.metaT}>{sector(b.dir)}</Text></View>
+            <View style={st.heroRow}>
+              <Text style={st.heroH}>{fr(M.b.hs)}<Text style={st.heroU}> m</Text></Text>
+              <View style={{ gap: 4 }}>
+                {M.b.tp ? <Text style={st.heroP}>{Math.round(M.b.tp)} s</Text> : null}
+                {M.b.dir != null && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Arrow dir={M.b.dir} size={13} color={C.sandText} /><Text style={st.heroS}>{sector(M.b.dir)}</Text></View>}
+              </View>
             </View>
+            <Text style={st.heroFoot}>Mesuré {ageTxt(M.b.time)}{M.b.sst != null ? ` · eau ${fr(M.b.sst, 0)} °C` : ''}   Voir la bouée ›</Text>
           </Pressable>
-        );
-      }}
-    />
+          {!!mine!.others.length && (
+            <View style={st.group}>
+              {mine!.others.map((x, i) => <BuoyLine key={x.b.id} b={x.b} i={i + 1} first={i === 0} note={`${x.b.large ? 'au large' : 'à la côte'} · ${Math.round(x.k)} km`} onOpen={onOpen} />)}
+            </View>
+          )}
+        </View>
+      ) : (
+        <View style={[st.hero, { gap: 6 }]}>
+          <Text style={st.heroK}>VOTRE SPOT</Text>
+          <Text style={st.heroEmpty}>Ajoutez un spot en favori (étoile ☆ sur sa fiche) : ses bouées les plus proches s’afficheront ici.</Text>
+        </View>
+      )}
+
+      <Text style={[st.lbl, { marginTop: 24 }]}>Toutes les bouées</Text>
+      {zones.map(({ z, list }) => (
+        <View key={z} style={st.group}>
+          <Text style={st.zone}>{z}</Text>
+          {list.map((b, i) => <BuoyLine key={b.id} b={b} i={i} first={i === 0} note={b.large ? 'au large' : undefined} onOpen={onOpen} />)}
+        </View>
+      ))}
+    </ScrollView>
   );
 }
 
@@ -160,6 +229,21 @@ function Chart({ d }: { d: BuoySheet }) {
 }
 
 const st = StyleSheet.create({
+  lbl: { fontFamily: F.tX, fontSize: 11.5, letterSpacing: 1.3, textTransform: 'uppercase', color: C.gold, marginHorizontal: 20, marginTop: 14, marginBottom: 10 },
+  hero: { marginHorizontal: 16, borderRadius: 26, padding: 18, backgroundColor: C.sand },
+  heroTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  heroK: { flex: 1, fontFamily: F.tX, fontSize: 10.5, letterSpacing: 1.2, color: '#7a5f33' },
+  heroEmpty: { fontFamily: F.t, fontSize: 14.5, lineHeight: 20, color: C.sandText },
+  heroRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 8 },
+  heroH: { fontFamily: F.numX, fontSize: 52, color: C.sandText, letterSpacing: -2.5 },
+  heroU: { fontFamily: F.num, fontSize: 20, letterSpacing: 0 },
+  heroP: { fontFamily: F.num, fontSize: 17, color: C.sandText },
+  heroS: { fontFamily: F.tX, fontSize: 13, color: C.sandText },
+  heroFoot: { fontFamily: F.tB, fontSize: 12, color: '#6b5a33', marginTop: 8 },
+  group: { marginHorizontal: 16, marginTop: 10, paddingHorizontal: 16, borderRadius: 22, backgroundColor: C.card },
+  zone: { fontFamily: F.num, fontSize: 14, color: C.ink, paddingTop: 14, paddingBottom: 2 },
+  line: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
+  sep: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: C.line },
   h1: { fontFamily: F.numX, fontSize: 28, color: C.ink, letterSpacing: -1 },
   lead: { fontFamily: F.t, fontSize: 14, color: C.ink2, marginTop: 4 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 16, marginBottom: 8, padding: 14, borderRadius: 20, backgroundColor: C.card },
