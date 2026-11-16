@@ -5,7 +5,7 @@ import Arrow from './Arrow';
 import { ageTxt, Buoy, fr, loadSheet, regionName, sector, Sheet, SpotLite, windRel } from './data';
 import { C, F, periodCell, sizeCell, windCell } from './theme';
 
-type Props = { spot: SpotLite; buoys: Buoy[]; fav: boolean; onFav: () => void; onBack: () => void };
+type Props = { spot: SpotLite; buoys: Buoy[]; fav: boolean; onFav: () => void; onBack: () => void; onBuoy?: (b: Buoy) => void };
 const J = ['DIM', 'LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM'];
 const COL = 50;   // largeur d'une colonne de la frise horaire
 
@@ -14,7 +14,7 @@ const km = (a: { lat: number; lon: number }, b: { lat: number; lon: number }) =>
   return Math.sqrt(x * x + y * y) * 6371;
 };
 
-export default function SpotSheet({ spot, buoys, fav, onFav, onBack }: Props) {
+export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: Props) {
   const [sheet, setSheet] = useState<Sheet | null>(null);
   const [err, setErr] = useState(false);
   const [day, setDay] = useState(0);
@@ -146,14 +146,14 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack }: Props) {
         </View>
 
         {near && (
-          <View style={[st.card, { backgroundColor: C.sand }]}>
+          <Pressable onPress={() => onBuoy?.(near.b)} style={({ pressed }) => [st.card, { backgroundColor: C.sand }, pressed && { opacity: 0.85 }]}>
             <View style={st.nowRow}><View style={[st.dot, (Date.now() - new Date(near.b.time + ':00').getTime()) / 36e5 >= 2 && { backgroundColor: '#a08a5a' }]} /><Text style={[st.nowT, { color: C.sandText }]}>MESURE RÉELLE · BOUÉE {near.b.name.toUpperCase()}</Text></View>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 8 }}>
               <Text style={[st.big, { color: C.sandText }]}>{fr(near.b.hs)}<Text style={st.bigU}> m</Text></Text>
               <Text style={[st.tileS, { color: C.sandText, marginBottom: 8 }]}>{near.b.tp ? `${Math.round(near.b.tp)} s · ` : ''}{near.b.dir != null ? sector(near.b.dir) + ' · ' : ''}{Math.round(near.k)} km</Text>
             </View>
-            <Text style={[st.hint, { color: '#6b5a33' }]}>Mesuré {ageTxt(near.b.time)}, en mer : à comparer à la prévision.</Text>
-          </View>
+            <Text style={[st.hint, { color: '#6b5a33' }]}>Mesuré {ageTxt(near.b.time)}, en mer : à comparer à la prévision. Voir la bouée ›</Text>
+          </Pressable>
         )}
       </ScrollView>
     </View>

@@ -6,8 +6,16 @@ export const DATA_URL = (process.env.EXPO_PUBLIC_DATA_URL || 'https://houlalah.f
 
 export type Now = { t: string | null; hs: number | null; tp: number | null; dir: number | null; wind: number | null; wdir: number | null };
 export type SpotLite = { name: string; slug: string; region: string; commune?: string; lat: number; lon: number; ori?: number; now: Now };
-export type Buoy = { id: string; name: string; sub: string; lat: number; lon: number; large?: boolean; time: string; hs: number; tp?: number | null; dir?: number | null; sst?: number | null };
+export type Buoy = { id: string; slug: string; name: string; sub: string; lat: number; lon: number; large?: boolean; time: string; hs: number; tp?: number | null; dir?: number | null; sst?: number | null };
 export type Index = { v: number; generated: string; spots: SpotLite[]; buoys: Buoy[] };
+export type Obs = { t: string; hs: number | null; tp?: number | null; dir?: number | null; hmax?: number | null; sst?: number | null };
+export type BuoySheet = {
+  id: string; slug: string; name: string; sub: string; lat: number; lon: number;
+  latest: { time: string; hs: number; hmax?: number | null; tp?: number | null; dir?: number | null; sst?: number | null };
+  obs: Obs[]; model: { t: string; hs: number | null }[]; model_src: string;
+  stats: { since: string; days: number; hs_max: number; hs_max_t: string; hs_mean: number; sst_mean?: number | null } | null;
+  spots: { name: string; slug: string; km: number }[];
+};
 export type TideEx = { t: string; type: 'PM' | 'BM'; h: number };
 export type Sheet = {
   name: string; slug: string; region: string; commune?: string; lat: number; lon: number; ori?: number;
@@ -32,6 +40,7 @@ async function getJSON<T>(path: string, cacheKey: string): Promise<{ data: T; of
 }
 
 export const loadIndex = () => getJSON<Index>('index.json', 'cache:index');
+export const loadBuoy = (slug: string) => getJSON<BuoySheet>(`bouees/${slug}.json`, `cache:buoy:${slug}`);
 export const loadSheet = (slug: string) => getJSON<Sheet>(`spots/${slug}.json`, `cache:spot:${slug}`);
 
 export async function loadFavs(): Promise<string[]> {
@@ -56,6 +65,7 @@ export function windRel(wdir?: number | null, ori?: number) {
   const d = Math.abs((((wdir - ori) % 360) + 540) % 360 - 180);   // 0 = le vent vient du large, 180 = il vient de la terre
   return d >= 120 ? 'de terre' : d <= 60 ? 'de mer' : 'de travers';
 }
+export const ageH = (t: string) => (Date.now() - new Date(t + ':00').getTime()) / 36e5;
 export function ageTxt(t: string) {
   const h = (Date.now() - new Date(t + ':00').getTime()) / 36e5;
   return h < 1 ? "à l'instant" : h < 36 ? `il y a ${Math.round(h)} h` : `il y a ${Math.round(h / 24)} j`;

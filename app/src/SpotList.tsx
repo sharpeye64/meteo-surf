@@ -5,12 +5,12 @@ import Brand from './Brand';
 import { ageTxt, country, fr, Index, regionName, sector, SpotLite } from './data';
 import { C, F, sizeCell, windCell } from './theme';
 
-type Props = { index: Index; favs: string[]; offline: boolean; refreshing: boolean; onRefresh: () => void; onOpen: (s: SpotLite) => void };
+type Props = { index: Index; favs: string[]; offline: boolean; refreshing: boolean; onRefresh: () => void; onOpen: (s: SpotLite) => void; onBuoy?: (b: Index['buoys'][number]) => void; favOnly?: boolean };
 const FILTERS = ['Tous', 'France', 'Espagne', 'Portugal', '★ Favoris'];
 
-export default function SpotList({ index, favs, offline, refreshing, onRefresh, onOpen }: Props) {
+export default function SpotList({ index, favs, offline, refreshing, onRefresh, onOpen, onBuoy, favOnly }: Props) {
   const [q, setQ] = useState('');
-  const [f, setF] = useState(favs.length ? '★ Favoris' : 'Tous');
+  const [f, setF] = useState(favOnly ? '★ Favoris' : 'Tous');
   const top = useMemo(() => { const t: Record<string, number> = {}; index.spots.forEach(s => { t[s.region] = Math.max(t[s.region] ?? -90, s.lat); }); return t; }, [index]);
   const list = useMemo(() => {
     const t = q.trim().toLowerCase();
@@ -27,41 +27,41 @@ export default function SpotList({ index, favs, offline, refreshing, onRefresh, 
       keyExtractor={s => s.slug}
       keyboardShouldPersistTaps="handled"
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={C.ink} />}
-      contentContainerStyle={{ paddingBottom: 110 }}
+      contentContainerStyle={{ paddingBottom: 30 }}
       ListHeaderComponent={
         <View>
           <View style={st.head}>
             <View style={st.brand}><Brand h={24} /></View>
             {offline && <Text style={st.off}>hors connexion</Text>}
           </View>
-          <Text style={st.h1}>La houle{'\n'}du moment</Text>
-          <Text style={st.lead}>{index.spots.length} spots de la Bretagne au Portugal</Text>
+          <Text style={st.h1}>{favOnly ? 'Mes spots' : 'La houle\ndu moment'}</Text>
+          <Text style={st.lead}>{favOnly ? `${favs.length} favori${favs.length > 1 ? 's' : ''}` : `${index.spots.length} spots de la Bretagne au Portugal`}</Text>
 
-          {!!live.length && (
+          {!favOnly && !!live.length && (
             <View style={st.liveCard}>
               <View style={st.liveHd}><View style={st.dot} /><Text style={st.liveT}>BOUÉES EN DIRECT</Text><Text style={st.liveN}>{live.length}</Text></View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingRight: 16 }}>
                 {live.map(b => (
-                  <View key={b.id} style={st.bu}>
+                  <Pressable key={b.id} style={st.bu} onPress={() => onBuoy?.(b)}>
                     <View><Text style={st.buN}>{b.name}</Text><Text style={st.buS}>{ageTxt(b.time)}{b.tp ? ` · ${Math.round(b.tp)} s` : ''}</Text></View>
                     <View style={st.buV}><Text style={st.buVT}>{fr(b.hs)}</Text></View>
-                  </View>
+                  </Pressable>
                 ))}
               </ScrollView>
             </View>
           )}
 
-          <View style={st.search}>
+          {!favOnly && <View style={st.search}>
             <Text style={st.lens}>⌕</Text>
             <TextInput value={q} onChangeText={setQ} placeholder="Chercher un spot…" placeholderTextColor={C.ink3} style={st.input} autoCorrect={false} />
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.chips}>
+          </View>}
+          {!favOnly && <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.chips}>
             {FILTERS.map(x => (
               <Pressable key={x} onPress={() => setF(x)} style={[st.chip, f === x && st.chipOn]}>
                 <Text style={[st.chipT, f === x && st.chipTOn]}>{x}</Text>
               </Pressable>
             ))}
-          </ScrollView>
+          </ScrollView>}
           {!list.length && <Text style={st.empty}>{f === '★ Favoris' ? 'Aucun favori pour l’instant. Touche l’étoile sur la fiche d’un spot.' : 'Aucun spot ne correspond.'}</Text>}
         </View>
       }

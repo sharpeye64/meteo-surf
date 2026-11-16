@@ -5,10 +5,16 @@ import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { Index, loadFavs, loadIndex, saveFavs, SpotLite } from './src/data';
+import { BuoyList, BuoyPage } from './src/BuoyScreens';
+import { Buoy, Index, loadFavs, loadIndex, saveFavs, SpotLite } from './src/data';
+import MapScreen from './src/MapScreen';
 import SpotList from './src/SpotList';
 import SpotSheet from './src/SpotSheet';
+import TabBar, { Tab } from './src/TabBar';
 import { C, F } from './src/theme';
+
+/** Une pile d'écrans par-dessus l'onglet courant : fiche de spot ou page de bouée (on peut passer de l'une à l'autre). */
+type Screen = { kind: 'spot'; spot: SpotLite } | { kind: 'buoy'; buoy: Buoy };
 
 export default function App() {
   const [fonts] = useFonts({ Unbounded_500Medium, Unbounded_700Bold, Unbounded_800ExtraBold, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold, Manrope_800ExtraBold });
@@ -17,38 +23,55 @@ export default function App() {
   const [err, setErr] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [favs, setFavs] = useState<string[] | null>(null);
-  const [open, setOpen] = useState<SpotLite | null>(null);
+  const [tab, setTab] = useState<Tab>('spots');
+  const [stack, setStack] = useState<Screen[]>([]);
 
   const load = useCallback(async () => {
     try { const r = await loadIndex(); setIndex(r.data); setOffline(r.offline); setErr(false); } catch { setErr(true); }
   }, []);
   useEffect(() => { load(); loadFavs().then(setFavs); }, [load]);
-  useEffect(() => {   // bouton retour d'Android : revenir à la liste
-    const sub = BackHandler.addEventListener('hardwareBackPress', () => { if (open) { setOpen(null); return true; } return false; });
+  useEffect(() => {   // bouton retour d'Android : revenir à l'écran précédent
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => { if (stack.length) { setStack(s => s.slice(0, -1)); return true; } return false; });
     return () => sub.remove();
-  }, [open]);
+  }, [stack.length]);
 
   const toggleFav = (slug: string) => setFavs(f => { const n = (f || []).includes(slug) ? (f || []).filter(x => x !== slug) : [...(f || []), slug]; saveFavs(n); return n; });
+  const openSpot = (spot: SpotLite) => setStack(s => [...s, { kind: 'spot', spot }]);
+  const openBuoy = (buoy: Buoy) => setStack(s => [...s, { kind: 'buoy', buoy }]);
+  const back = () => setStack(s => s.slice(0, -1));
+  const top = stack[stack.length - 1];
+
+  let body = null;
+  if (!fonts || !index || favs == null) {
+    body = (
+      <View style={st.center}>
+        {err ? (
+          <>
+            <Text style={st.msg}>Impossible de charger les prévisions.</Text>
+            <Pressable onPress={load} style={st.retry}><Text style={st.retryT}>Réessayer</Text></Pressable>
+          </>
+        ) : <ActivityIndicator color={C.ink} />}
+      </View>
+    );
+  } else if (top?.kind === 'spot') {
+    body = <SpotSheet key={top.spot.slug} spot={top.spot} buoys={index.buoys} fav={favs.includes(top.spot.slug)} onFav={() => toggleFav(top.spot.slug)} onBack={back} onBuoy={openBuoy} />;
+  } else if (top?.kind === 'buoy') {
+    body = <BuoyPage key={top.buoy.id} buoy={top.buoy} onBack={back} onSpot={slug => { const s = index.spots.find(x => x.slug === slug); if (s) openSpot(s); }} />;
+  } else if (tab === 'carte') {
+    body = <MapScreen index={index} onSpot={openSpot} onBuoy={openBuoy} />;
+  } else if (tab === 'bouees') {
+    body = <BuoyList index={index} onOpen={openBuoy} />;
+  } else {
+    body = <SpotList key={tab} favOnly={tab === 'favoris'} index={index} favs={favs} offline={offline} refreshing={refreshing}
+      onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} onOpen={openSpot} onBuoy={openBuoy} />;
+  }
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={st.root} edges={['top', 'left', 'right']}>
         <StatusBar style="dark" />
-        {!fonts || !index || favs == null ? (
-          <View style={st.center}>
-            {err ? (
-              <>
-                <Text style={st.msg}>Impossible de charger les prévisions.</Text>
-                <Pressable onPress={load} style={st.retry}><Text style={st.retryT}>Réessayer</Text></Pressable>
-              </>
-            ) : <ActivityIndicator color={C.ink} />}
-          </View>
-        ) : open ? (
-          <SpotSheet spot={open} buoys={index.buoys} fav={favs.includes(open.slug)} onFav={() => toggleFav(open.slug)} onBack={() => setOpen(null)} />
-        ) : (
-          <SpotList index={index} favs={favs} offline={offline} refreshing={refreshing}
-            onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} onOpen={setOpen} />
-        )}
+        <View style={{ flex: 1 }}>{body}</View>
+        {fonts && index && favs != null && <TabBar tab={tab} onTab={t => { setTab(t); setStack([]); }} />}
       </SafeAreaView>
     </SafeAreaProvider>
   );
