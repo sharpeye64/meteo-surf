@@ -9,7 +9,7 @@ import Brand from './Brand';
 import { ageH, Buoy, fr, Index, SpotLite } from './data';
 import { Pulse } from './Live';
 import { FLOAT_BAR_H } from './TabBar';
-import { C, F, sizeCell } from './theme';
+import { C, F, isDark, sizeCell, themed } from './theme';
 
 type Props = { index: Index; onSpot: (s: SpotLite) => void; onBuoy: (b: Buoy) => void };
 const START: Region = { latitude: 44.6, longitude: -3.2, latitudeDelta: 9.5, longitudeDelta: 9.5 };
@@ -79,8 +79,8 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
 
   return (
     <View style={StyleSheet.absoluteFill} onLayout={e => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
-      <StatusBar style={sat ? 'light' : 'dark'} />
-      <MapView ref={map} style={StyleSheet.absoluteFill} initialRegion={START} onRegionChangeComplete={setReg} mapType={type}
+      <StatusBar style={sat || isDark() ? 'light' : 'dark'} />
+      <MapView ref={map} style={StyleSheet.absoluteFill} initialRegion={START} onRegionChangeComplete={setReg} mapType={type} userInterfaceStyle={isDark() ? 'dark' : 'light'}
         mapPadding={{ top: ins.top, bottom, left: 0, right: 0 }} onMarkerPress={e => open(e.nativeEvent.id)} onPress={e => tapMap(e.nativeEvent.coordinate)}
         rotateEnabled={false} pitchEnabled={false} showsPointsOfInterests={false} showsCompass={false} toolbarEnabled={false}>
         {index.spots.map(s => {
@@ -124,8 +124,8 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
       <Svg style={[st.fade, { height: ins.top + 70 }]} pointerEvents="none">
         <Defs>
           <LinearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor={sat ? '#0b1720' : '#eef1f2'} stopOpacity={sat ? 0.55 : 0.85} />
-            <Stop offset="1" stopColor={sat ? '#0b1720' : '#eef1f2'} stopOpacity={0} />
+            <Stop offset="0" stopColor={sat ? '#0b1720' : C.bg} stopOpacity={sat ? 0.55 : 0.85} />
+            <Stop offset="1" stopColor={sat ? '#0b1720' : C.bg} stopOpacity={0} />
           </LinearGradient>
         </Defs>
         <Rect width="100%" height="100%" fill="url(#g)" />
@@ -179,12 +179,12 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
   );
 }
 
-const glass = {
-  backgroundColor: 'rgba(255,255,255,0.93)',
+const glass = () => ({
+  backgroundColor: C.glass,
   shadowColor: '#0b1720', shadowOpacity: 0.18, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 6,
-} as const;
+}) as const;
 
-const st = StyleSheet.create({
+const st = themed(() => StyleSheet.create({
   spot: { flexDirection: 'row', alignItems: 'center', gap: 2, minWidth: 40, height: 26, paddingHorizontal: 8, borderRadius: 13, justifyContent: 'center',
     borderWidth: 2, borderColor: '#fff', shadowColor: '#0b1720', shadowOpacity: 0.25, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 3 },
   spotMini: { minWidth: 46 },
@@ -197,26 +197,26 @@ const st = StyleSheet.create({
   buHalo: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', marginBottom: -12 },
   buRing: { width: 20, height: 20, borderRadius: 10, backgroundColor: C.sand, borderWidth: 3, borderColor: '#fff', alignItems: 'center', justifyContent: 'center',
     shadowColor: '#0b1720', shadowOpacity: 0.3, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 3 },
-  buCore: { width: 7, height: 7, borderRadius: 4, backgroundColor: C.ink },
-  buLab: { marginTop: 3, paddingHorizontal: 7, height: 20, borderRadius: 7, backgroundColor: C.ink, justifyContent: 'center' },
-  buLabT: { fontFamily: F.tX, fontSize: 11, color: C.sandA },
+  buCore: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#10202c' },
+  buLab: { marginTop: 3, paddingHorizontal: 7, height: 20, borderRadius: 7, backgroundColor: '#10202c', justifyContent: 'center' },
+  buLabT: { fontFamily: F.tX, fontSize: 11, color: '#f4e2b8' },
   fade: { position: 'absolute', top: 0, left: 0, right: 0 },
-  brand: { position: 'absolute', left: 14, height: 40, borderRadius: 20, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 10, ...glass },
+  brand: { position: 'absolute', left: 14, height: 40, borderRadius: 20, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 10, ...glass() },
   sep: { width: 1, height: 16, backgroundColor: C.line },
   brandT: { fontFamily: F.tX, fontSize: 12.5, color: C.ink },
-  tools: { position: 'absolute', right: 14, borderRadius: 24, width: 48, alignItems: 'center', ...glass },
+  tools: { position: 'absolute', right: 14, borderRadius: 24, width: 48, alignItems: 'center', ...glass() },
   tool: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24 },
   toolSep: { width: 24, height: 1, backgroundColor: C.line },
   pressed: { opacity: 0.6 },
   legWrap: { position: 'absolute', left: 14, right: 76, alignItems: 'flex-start', gap: 8 },
-  pill: { height: 44, borderRadius: 22, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 9, ...glass },
+  pill: { height: 44, borderRadius: 22, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 9, ...glass() },
   dot: { width: 9, height: 9, borderRadius: 5, backgroundColor: C.live },
   pillT: { fontFamily: F.tX, fontSize: 13.5, color: C.ink },
-  legCard: { alignSelf: 'stretch', borderRadius: 22, padding: 14, gap: 8, ...glass },
+  legCard: { alignSelf: 'stretch', borderRadius: 22, padding: 14, gap: 8, ...glass() },
   legH: { fontFamily: F.num, fontSize: 13, color: C.ink },
   ramp: { flexDirection: 'row', height: 7, borderRadius: 4, overflow: 'hidden' },
   rampL: { flexDirection: 'row', justifyContent: 'space-between', marginTop: -3 },
   small: { fontFamily: F.tB, fontSize: 10.5, color: C.ink2 },
   legRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   legTxt: { flex: 1, fontFamily: F.t, fontSize: 12, color: C.ink2, lineHeight: 16 },
-});
+}));

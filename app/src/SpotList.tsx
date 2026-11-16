@@ -4,7 +4,7 @@ import Arrow from './Arrow';
 import Brand from './Brand';
 import { ageTxt, country, fr, Index, regionName, sector, SpotLite } from './data';
 import { useBarSpace } from './TabBar';
-import { C, F, sizeCell, windCell } from './theme';
+import { C, F, sizeCell, themed, windCell } from './theme';
 
 type Props = { index: Index; favs: string[]; offline: boolean; refreshing: boolean; onRefresh: () => void; onOpen: (s: SpotLite) => void; onBuoy?: (b: Index['buoys'][number]) => void; favOnly?: boolean };
 const FILTERS = ['Tous', 'France', 'Espagne', 'Portugal', '★ Favoris'];
@@ -106,7 +106,7 @@ export function SpotRow({ s, fav, onOpen, place }: { s: SpotLite; fav: boolean; 
   );
 }
 
-const st = StyleSheet.create({
+const st = themed(() => StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 8 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   off: { fontFamily: F.tB, fontSize: 12, color: C.coral },
@@ -115,12 +115,12 @@ const st = StyleSheet.create({
   liveCard: { marginTop: 18, marginLeft: 16, paddingVertical: 14, paddingLeft: 16, borderTopLeftRadius: 24, borderBottomLeftRadius: 24, backgroundColor: C.card },
   liveHd: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, paddingRight: 16 },
   dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: C.live },
-  liveT: { fontFamily: F.tX, fontSize: 11, letterSpacing: 1.3, color: '#7a6f55', flex: 1 },
-  liveN: { fontFamily: F.tX, fontSize: 11, color: '#a89c7e' },
-  bu: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 46, borderRadius: 23, paddingLeft: 16, paddingRight: 5, backgroundColor: '#f4efe3' },
+  liveT: { fontFamily: F.tX, fontSize: 11, letterSpacing: 1.3, color: C.creamText, flex: 1 },
+  liveN: { fontFamily: F.tX, fontSize: 11, color: C.creamText2 },
+  bu: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 46, borderRadius: 23, paddingLeft: 16, paddingRight: 5, backgroundColor: C.cream },
   buN: { fontFamily: F.tB, fontSize: 13.5, color: C.ink },
-  buS: { fontFamily: F.t, fontSize: 11.5, color: '#7a6f55' },
-  buV: { height: 36, minWidth: 50, borderRadius: 18, paddingHorizontal: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: C.sandB },
+  buS: { fontFamily: F.t, fontSize: 11.5, color: C.creamText },
+  buV: { height: 36, minWidth: 50, borderRadius: 18, paddingHorizontal: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: C.pill },
   buVT: { fontFamily: F.num, fontSize: 15, color: C.sandText, letterSpacing: -0.5 },
   search: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 18, backgroundColor: C.card, borderRadius: 999, paddingHorizontal: 18, height: 52, shadowColor: '#10202c', shadowOpacity: 0.08, shadowRadius: 14, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
   lens: { fontSize: 20, color: C.ink2, marginRight: 8 },
@@ -129,14 +129,14 @@ const st = StyleSheet.create({
   chip: { paddingHorizontal: 16, height: 38, borderRadius: 19, backgroundColor: C.card, justifyContent: 'center' },
   chipOn: { backgroundColor: C.ink },
   chipT: { fontFamily: F.tB, fontSize: 13.5, color: C.ink },
-  chipTOn: { color: '#fff' },
+  chipTOn: { color: C.onInk },
   grp: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 20, marginTop: 18, marginBottom: 8 },
   grpT: { fontFamily: F.tX, fontSize: 11.5, letterSpacing: 1.4, textTransform: 'uppercase', color: C.gold },
   grpN: { fontFamily: F.tB, fontSize: 11.5, color: C.ink3 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 14, marginHorizontal: 16, padding: 8, paddingRight: 16, backgroundColor: C.card, borderRadius: 20, marginBottom: 8 },
   cell: { width: 62, height: 58, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   cellV: { fontFamily: F.num, fontSize: 19, color: C.ink, letterSpacing: -0.8 },
-  cellU: { fontFamily: F.tB, fontSize: 11, color: 'rgba(16,32,44,0.7)', marginTop: -1 },
+  cellU: { fontFamily: F.tB, fontSize: 11, color: C.cellU, marginTop: -1 },
   name: { fontFamily: F.tX, fontSize: 16, color: C.ink },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 5 },
   meta: { fontFamily: F.tB, fontSize: 12.5, color: C.ink2, marginRight: 6 },
@@ -146,4 +146,4 @@ const st = StyleSheet.create({
   place: { fontFamily: F.t, fontSize: 13, color: C.ink3 },
   empty: { marginHorizontal: 20, color: C.ink2, marginTop: 10, fontFamily: F.t },
   foot: { textAlign: 'center', color: C.ink3, marginTop: 20, fontSize: 12, fontFamily: F.t, paddingHorizontal: 24 },
-});
+}));

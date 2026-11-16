@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { C, F } from './theme';
+import { C, F, themed } from './theme';
 
 export type Tab = 'spots' | 'carte' | 'bouees' | 'favoris';
 const TABS: { k: Tab; label: string }[] = [
@@ -48,10 +48,10 @@ export default function TabBar({ tab, onTab }: { tab: Tab; onTab: (t: Tab) => vo
   );
 }
 
-const st = StyleSheet.create({
+const st = themed(() => StyleSheet.create({
   t: { fontFamily: F.tB, fontSize: 11 },
   float: { position: 'absolute', left: 14, right: 14, height: FLOAT_BAR_H, borderRadius: FLOAT_BAR_H / 2, padding: 5, flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.94)', shadowColor: '#0b1720', shadowOpacity: 0.2, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
+    backgroundColor: C.glass, borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, shadowColor: '#0b1720', shadowOpacity: 0.2, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
   fItem: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2, borderRadius: (FLOAT_BAR_H - 10) / 2 },
   fOn: { backgroundColor: 'rgba(233,198,148,0.45)' },
-});
+}));

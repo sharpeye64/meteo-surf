@@ -4,7 +4,7 @@ import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
 import { ageH, ageTxt, Buoy, buoyFits, fr, loadSheet, regionName, sector, Sheet, SpotLite, windRel } from './data';
 import { useBarSpace } from './TabBar';
-import { C, F, periodCell, sizeCell, windCell } from './theme';
+import { C, F, isDark, periodCell, sizeCell, themed, windCell } from './theme';
 
 type Props = { spot: SpotLite; buoys: Buoy[]; fav: boolean; onFav: () => void; onBack: () => void; onBuoy?: (b: Buoy) => void };
 const J = ['DIM', 'LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM'];
@@ -61,7 +61,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
       <View style={st.bar}>
         <Pressable onPress={onBack} hitSlop={10} style={st.round} accessibilityLabel="Retour à la liste"><Text style={st.roundT}>‹</Text></Pressable>
         <View style={st.spotPill}><Text style={st.spotPillT} numberOfLines={1}>{sheet.name}</Text></View>
-        <Pressable onPress={onFav} hitSlop={10} style={[st.round, fav && { backgroundColor: C.ink }]} accessibilityLabel={fav ? 'Retirer des favoris' : 'Ajouter aux favoris'}>
+        <Pressable onPress={onFav} hitSlop={10} style={[st.round, fav && { backgroundColor: isDark() ? C.sandCard : C.ink }]} accessibilityLabel={fav ? 'Retirer des favoris' : 'Ajouter aux favoris'}>
           <Text style={[st.roundT, { fontSize: 17 }, fav && { color: C.sand }]}>{fav ? '★' : '☆'}</Text>
         </Pressable>
       </View>
@@ -72,9 +72,9 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
             const dd = at(x.idx[0]), mx = Math.max(...x.idx.map(j => sheet.hs[j] ?? 0)), on = i === day;
             return (
               <Pressable key={x.date} onPress={() => { setDay(i); setHour(null); strip.current?.scrollTo({ x: 0, animated: false }); }} style={[st.day, on && st.dayOn]}>
-                <Text style={[st.dayJ, on && { color: 'rgba(255,255,255,0.7)' }]}>{i === 0 ? 'AUJ.' : J[dd.getDay()]}</Text>
-                <Text style={[st.dayN, on && { color: '#fff' }]}>{dd.getDate()}</Text>
-                <Text style={[st.dayH, on && { color: '#fff' }]}>{fr(mx)}<Text style={st.dayU}> m</Text></Text>
+                <Text style={[st.dayJ, on && { color: C.onInk2 }]}>{i === 0 ? 'AUJ.' : J[dd.getDay()]}</Text>
+                <Text style={[st.dayN, on && { color: C.onInk }]}>{dd.getDate()}</Text>
+                <Text style={[st.dayH, on && { color: C.onInk }]}>{fr(mx)}<Text style={st.dayU}> m</Text></Text>
               </Pressable>
             );
           })}
@@ -96,10 +96,10 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
               <Text style={st.big}>{fr(sheet.wind[sel], 0)}<Text style={st.bigU}> km/h</Text></Text>
               <View style={st.tileRow}><Arrow dir={sheet.wdir[sel]} size={9} color={C.ink2} /><Text style={st.tileS}>{sheet.gust[sel] != null ? `raf. ${fr(sheet.gust[sel], 0)}` : sector(sheet.wdir[sel])}</Text></View>
             </View>
-            <View style={[st.tile, { backgroundColor: '#dcebf3' }]}>
-              <Text style={[st.tileK, { color: '#3d6a82' }]}>EAU</Text>
-              <Text style={[st.big, { color: '#123c55' }]}>{fr(sheet.sst[sel], 0)}<Text style={st.bigU}> °C</Text></Text>
-              <Text style={[st.tileS, { color: '#3d6a82' }]}>{waterRange(sheet.sst)}</Text>
+            <View style={[st.tile, { backgroundColor: C.water }]}>
+              <Text style={[st.tileK, { color: C.waterK }]}>EAU</Text>
+              <Text style={[st.big, { color: C.waterT }]}>{fr(sheet.sst[sel], 0)}<Text style={st.bigU}> °C</Text></Text>
+              <Text style={[st.tileS, { color: C.waterK }]}>{waterRange(sheet.sst)}</Text>
             </View>
             <SunTile sun={sunI >= 0 && sheet.sun ? { rise: sheet.sun.sunrise[sunI], set: sheet.sun.sunset[sunI] } : null} today={day === 0} />
           </View>
@@ -141,13 +141,13 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
         </View>
 
         {near && (
-          <Pressable onPress={() => onBuoy?.(near.b)} style={({ pressed }) => [st.card, { backgroundColor: C.sand }, pressed && { opacity: 0.85 }]}>
-            <View style={st.nowRow}><View style={[st.dot, (Date.now() - new Date(near.b.time + ':00').getTime()) / 36e5 >= 2 && { backgroundColor: '#a08a5a' }]} /><Text style={[st.nowT, { color: C.sandText }]}>MESURE RÉELLE · BOUÉE {near.b.name.toUpperCase()}</Text></View>
+          <Pressable onPress={() => onBuoy?.(near.b)} style={({ pressed }) => [st.card, { backgroundColor: C.sandCard }, pressed && { opacity: 0.85 }]}>
+            <View style={st.nowRow}><View style={[st.dot, (Date.now() - new Date(near.b.time + ':00').getTime()) / 36e5 >= 2 && { backgroundColor: C.sandMuted }]} /><Text style={[st.nowT, { color: C.sandText }]}>MESURE RÉELLE · BOUÉE {near.b.name.toUpperCase()}</Text></View>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 8 }}>
               <Text style={[st.big, { color: C.sandText }]}>{fr(near.b.hs)}<Text style={st.bigU}> m</Text></Text>
               <Text style={[st.tileS, { color: C.sandText, marginBottom: 8 }]}>{near.b.tp ? `${Math.round(near.b.tp)} s · ` : ''}{near.b.dir != null ? sector(near.b.dir) + ' · ' : ''}{Math.round(near.k)} km</Text>
             </View>
-            <Text style={[st.hint, { color: '#6b5a33' }]}>Mesuré {ageTxt(near.b.time)}, en mer : à comparer à la prévision. Voir la bouée ›</Text>
+            <Text style={[st.hint, { color: C.sandMuted2 }]}>Mesuré {ageTxt(near.b.time)}, en mer : à comparer à la prévision. Voir la bouée ›</Text>
           </Pressable>
         )}
       </ScrollView>
@@ -165,7 +165,7 @@ function waterRange(w: (number | null)[]) {
 
 /** Petit carré Soleil : arc avec la position du soleil (aujourd'hui), lever et coucher. */
 function SunTile({ sun, today }: { sun: { rise: string; set: string } | null; today: boolean }) {
-  if (!sun) return <View style={[st.tile, { backgroundColor: C.sandA }]} />;
+  if (!sun) return <View style={[st.tile, { backgroundColor: C.sunTile }]} />;
   const rise = new Date(sun.rise + ':00'), set = new Date(sun.set + ':00');
   const f = today ? (Date.now() - rise.getTime()) / (set.getTime() - rise.getTime()) : null;
   const up = f != null && f >= 0 && f <= 1;
@@ -173,14 +173,14 @@ function SunTile({ sun, today }: { sun: { rise: string; set: string } | null; to
   const sx = cx + R * Math.cos(a), sy = cy - R * Math.sin(a);
   const t = (d: Date) => `${d.getHours()}h${String(d.getMinutes()).padStart(2, '0')}`;
   return (
-    <View style={[st.tile, { backgroundColor: C.sandA }]}>
-      <Text style={[st.tileK, { color: '#7a5f33' }]}>SOLEIL</Text>
+    <View style={[st.tile, { backgroundColor: C.sunTile }]}>
+      <Text style={[st.tileK, { color: C.sandMuted }]}>SOLEIL</Text>
       <Svg width="100%" height={30} viewBox="0 0 60 30" style={{ marginTop: 2 }}>
         <Path d={`M${cx - R} ${cy} A${R} ${R} 0 0 1 ${cx + R} ${cy}`} stroke="#c9a463" strokeWidth={1.3} strokeDasharray="2 3" fill="none" />
         {up && <Path d={`M${cx - R} ${cy} A${R} ${R} 0 0 1 ${sx.toFixed(1)} ${sy.toFixed(1)}`} stroke="#b8892f" strokeWidth={2} fill="none" strokeLinecap="round" />}
         {up && <Circle cx={sx} cy={sy} r={4} fill="#f2b632" stroke="#fff" strokeWidth={1.5} />}
       </Svg>
-      <Text style={[st.tileS, { color: '#7a5f33' }]} numberOfLines={1} adjustsFontSizeToFit>{t(rise)} · {t(set)}</Text>
+      <Text style={[st.tileS, { color: C.sandMuted }]} numberOfLines={1} adjustsFontSizeToFit>{t(rise)} · {t(set)}</Text>
     </View>
   );
 }
@@ -202,7 +202,7 @@ function TideRow({ sheet, hrs, sel, t0 }: { sheet: Sheet; hrs: number[]; sel: nu
   const ext = (sheet.tide?.extremes || []).map(e => ({ ...e, f: (new Date(e.t + ':00').getTime() - t0) / 36e5 })).filter(e => e.f >= a - 0.5 && e.f <= b + 0.5);
   return (
     <Svg width={W} height={TIDE_H} style={{ marginTop: 4 }}>
-      <Path d={`${d} L${x(pts[pts.length - 1][0]).toFixed(1)},${TIDE_H} L${x(pts[0][0]).toFixed(1)},${TIDE_H} Z`} fill="#e3ebf1" />
+      <Path d={`${d} L${x(pts[pts.length - 1][0]).toFixed(1)},${TIDE_H} L${x(pts[0][0]).toFixed(1)},${TIDE_H} Z`} fill={C.tideFill} />
       <Path d={d} stroke={C.ink} strokeWidth={1.4} fill="none" />
       <Line x1={x(sel)} y1={0} x2={x(sel)} y2={TIDE_H} stroke={C.ink} strokeWidth={1} strokeDasharray="2 3" />
       {ext.map(e => {
@@ -235,7 +235,7 @@ function Center({ onBack, name, loading, text }: { onBack: () => void; name: str
   );
 }
 
-const st = StyleSheet.create({
+const st = themed(() => StyleSheet.create({
   bar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 8 },
   round: { width: 40, height: 40, borderRadius: 20, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center' },
   roundT: { fontFamily: F.tX, fontSize: 24, color: C.ink, marginTop: -2 },
@@ -271,7 +271,7 @@ const st = StyleSheet.create({
   cellOn: { borderWidth: 2, borderColor: C.ink },
   cellBig: { fontFamily: F.num, fontSize: 16, color: C.ink, letterSpacing: -0.8 },
   cellMid: { fontFamily: F.tX, fontSize: 12.5, color: C.ink },
-  cellSm: { fontFamily: F.tB, fontSize: 9, color: 'rgba(16,32,44,0.75)' },
+  cellSm: { fontFamily: F.tB, fontSize: 9, color: C.cellU },
   cardT: { fontFamily: F.num, fontSize: 16, color: C.ink, letterSpacing: -0.3 },
   cardS: { fontFamily: F.tB, fontSize: 13, color: C.ink2, letterSpacing: 0 },
   tides: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
@@ -280,4 +280,4 @@ const st = StyleSheet.create({
   tideV: { fontFamily: F.num, fontSize: 15, color: C.ink, letterSpacing: -0.5 },
   tideS: { fontFamily: F.tB, fontSize: 11.5, color: C.ink2 },
   hint: { fontFamily: F.t, fontSize: 12.5, color: C.ink2, marginTop: 8 },
-});
+}));

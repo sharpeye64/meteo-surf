@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Buoy, Index, SpotLite } from './data';
-import { C, F } from './theme';
+import { C, F, themed } from './theme';
 
 /** La carte native n'existe que sur téléphone : la version web (aperçu de développement) affiche un simple message. */
 export default function MapScreen(_: { index: Index; onSpot: (s: SpotLite) => void; onBuoy: (b: Buoy) => void }) {
@@ -11,8 +11,8 @@ export default function MapScreen(_: { index: Index; onSpot: (s: SpotLite) => vo
     </View>
   );
 }
-const st = StyleSheet.create({
+const st = themed(() => StyleSheet.create({
   c: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 30, gap: 8 },
   t: { fontFamily: F.num, fontSize: 20, color: C.ink },
   s: { fontFamily: F.t, fontSize: 14, color: C.ink2, textAlign: 'center' },
-});
+}));

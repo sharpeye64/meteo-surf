@@ -7,7 +7,7 @@ import { ageTxt, Buoy, country, fr, Index, loadSheet, regionName, sector, Sheet,
 import { Blink } from './Live';
 import { SpotRow } from './SpotList';
 import { useBarSpace } from './TabBar';
-import { C, F, sizeCell, windCell } from './theme';
+import { C, F, sizeCell, themed, windCell } from './theme';
 
 type Props = {
   index: Index; favs: string[]; offline: boolean; refreshing: boolean; onRefresh: () => void;
@@ -172,8 +172,8 @@ function Hero({ s, onOpen }: { s: SpotLite; onOpen: (s: SpotLite) => void }) {
     const d = day.sea.map(([i, v], k) => `${k ? 'L' : 'M'}${xs(i).toFixed(1)},${ys(v).toFixed(1)}`).join(' ');
     tide = (
       <Svg width={w} height={H} style={{ marginTop: 6 }}>
-        <Path d={`${d} L${xs(day.sea[day.sea.length - 1][0]).toFixed(1)},${H} L${xs(day.sea[0][0]).toFixed(1)},${H} Z`} fill="rgba(122,95,51,0.14)" />
-        <Path d={d} stroke="#7a5f33" strokeWidth={1.6} fill="none" />
+        <Path d={`${d} L${xs(day.sea[day.sea.length - 1][0]).toFixed(1)},${H} L${xs(day.sea[0][0]).toFixed(1)},${H} Z`} fill={C.sandMuted} fillOpacity={0.16} />
+        <Path d={d} stroke={C.sandMuted} strokeWidth={1.6} fill="none" />
         {day.ext.map(e => {
           const x = xs(e.f), y = e.type === 'PM' ? 6 : H - 6, tx = Math.min(w - 26, Math.max(26, x));
           const tt = new Date(e.t + ':00');
@@ -246,7 +246,7 @@ function Strip({ title, list, onOpen }: { title: string; list: SpotLite[]; onOpe
   );
 }
 
-const st = StyleSheet.create({
+const st = themed(() => StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 8, paddingBottom: 4 },
   off: { fontFamily: F.tB, fontSize: 12, color: C.coral },
   sticky: { backgroundColor: C.bg, paddingTop: 8, paddingBottom: 6 },
@@ -257,8 +257,8 @@ const st = StyleSheet.create({
   clear: { fontSize: 14, color: C.ink3, paddingLeft: 8 },
   h1: { fontFamily: F.numX, fontSize: 28, color: C.ink, letterSpacing: -1, marginTop: 14, marginHorizontal: 20, marginBottom: 12 },
   lbl: { fontFamily: F.tX, fontSize: 11.5, letterSpacing: 1.3, textTransform: 'uppercase', color: C.gold, marginHorizontal: 20, marginBottom: 10 },
-  hero: { marginHorizontal: 16, borderRadius: 26, padding: 18, backgroundColor: C.sand },
-  heroK: { fontFamily: F.tX, fontSize: 10.5, letterSpacing: 1.3, color: '#7a5f33' },
+  hero: { marginHorizontal: 16, borderRadius: 26, padding: 18, backgroundColor: C.sandCard },
+  heroK: { fontFamily: F.tX, fontSize: 10.5, letterSpacing: 1.3, color: C.sandMuted },
   heroEmpty: { fontFamily: F.t, fontSize: 14.5, lineHeight: 20, color: C.sandText },
   heroTop: { flexDirection: 'row', alignItems: 'flex-end', gap: 10 },
   heroName: { fontFamily: F.num, fontSize: 22, color: C.sandText, letterSpacing: -0.6, marginTop: 4 },
@@ -266,27 +266,27 @@ const st = StyleSheet.create({
   heroU: { fontFamily: F.num, fontSize: 15, letterSpacing: 0 },
   heroS: { fontFamily: F.tX, fontSize: 12, color: C.sandText },
   mrow: { flexDirection: 'row', gap: 3, marginTop: 3 },
-  mh: { flex: 1, textAlign: 'center', fontFamily: F.tX, fontSize: 10.5, color: '#7a5f33' },
+  mh: { flex: 1, textAlign: 'center', fontFamily: F.tX, fontSize: 10.5, color: C.sandMuted },
   mc: { flex: 1, height: 40, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   mcOn: { borderWidth: 2, borderColor: C.sandText },
   mcV: { fontFamily: F.num, fontSize: 13, color: C.ink, letterSpacing: -0.5 },
-  mcU: { fontFamily: F.tB, fontSize: 9.5, color: 'rgba(16,32,44,0.7)' },
+  mcU: { fontFamily: F.tB, fontSize: 9.5, color: C.cellU },
   mw: { flex: 1, height: 22, borderRadius: 7, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 2 },
   mwT: { fontFamily: F.tX, fontSize: 10.5, color: C.ink },
   mini: { width: 108, backgroundColor: C.card, borderRadius: 18, padding: 6, paddingBottom: 10, gap: 8 },
   miniC: { height: 56, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   miniV: { fontFamily: F.num, fontSize: 19, color: C.ink, letterSpacing: -0.8 },
-  miniU: { fontFamily: F.tB, fontSize: 11, color: 'rgba(16,32,44,0.7)' },
+  miniU: { fontFamily: F.tB, fontSize: 11, color: C.cellU },
   miniN: { fontFamily: F.tX, fontSize: 13, color: C.ink, paddingHorizontal: 4 },
   liveCard: { marginTop: 24, marginLeft: 16, paddingVertical: 14, paddingLeft: 16, borderTopLeftRadius: 24, borderBottomLeftRadius: 24, backgroundColor: C.card },
   liveHd: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, paddingRight: 16 },
   dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: C.live },
-  liveT: { fontFamily: F.tX, fontSize: 11, letterSpacing: 1.3, color: '#7a6f55', flex: 1 },
-  liveN: { fontFamily: F.tX, fontSize: 11, color: '#a89c7e' },
-  bu: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 46, borderRadius: 23, paddingLeft: 16, paddingRight: 5, backgroundColor: '#f4efe3' },
+  liveT: { fontFamily: F.tX, fontSize: 11, letterSpacing: 1.3, color: C.creamText, flex: 1 },
+  liveN: { fontFamily: F.tX, fontSize: 11, color: C.creamText2 },
+  bu: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 46, borderRadius: 23, paddingLeft: 16, paddingRight: 5, backgroundColor: C.cream },
   buN: { fontFamily: F.tB, fontSize: 13.5, color: C.ink },
-  buS: { fontFamily: F.t, fontSize: 11.5, color: '#7a6f55' },
-  buV: { height: 36, minWidth: 50, borderRadius: 18, paddingHorizontal: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: C.sandB },
+  buS: { fontFamily: F.t, fontSize: 11.5, color: C.creamText },
+  buV: { height: 36, minWidth: 50, borderRadius: 18, paddingHorizontal: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: C.pill },
   buVT: { fontFamily: F.num, fontSize: 15, color: C.sandText, letterSpacing: -0.5 },
   group: { marginHorizontal: 16, marginBottom: 12, paddingHorizontal: 16, paddingBottom: 4, borderRadius: 22, backgroundColor: C.card },
   cty: { fontFamily: F.num, fontSize: 14, color: C.ink, paddingTop: 14, paddingBottom: 4 },
@@ -301,4 +301,4 @@ const st = StyleSheet.create({
   subH: { minWidth: 44, height: 26, borderRadius: 13, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center' },
   subHT: { fontFamily: F.num, fontSize: 12, color: C.ink },
   foot: { textAlign: 'center', color: C.ink3, marginTop: 20, fontSize: 12, fontFamily: F.t, paddingHorizontal: 24 },
-});
+}));

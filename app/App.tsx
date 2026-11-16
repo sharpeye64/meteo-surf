@@ -3,7 +3,7 @@ import { Unbounded_500Medium, Unbounded_700Bold, Unbounded_800ExtraBold } from '
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, BackHandler, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { BuoyList, BuoyPage } from './src/BuoyScreens';
 import { Buoy, Index, loadFavs, loadIndex, saveFavs, SpotLite } from './src/data';
@@ -12,12 +12,14 @@ import MapScreen from './src/MapScreen';
 import SpotList from './src/SpotList';
 import SpotSheet from './src/SpotSheet';
 import TabBar, { Tab } from './src/TabBar';
-import { C, F } from './src/theme';
+import { C, F, isDark, setMode, themed } from './src/theme';
 
 /** Une pile d'écrans par-dessus l'onglet courant : fiche de spot ou page de bouée (on peut passer de l'une à l'autre). */
 type Screen = { kind: 'spot'; spot: SpotLite } | { kind: 'buoy'; buoy: Buoy };
 
 export default function App() {
+  // clair ou sombre selon le réglage du téléphone ; tout l'arbre se redessine quand il change
+  setMode(useColorScheme() === 'dark' ? 'dark' : 'light');
   const [fonts] = useFonts({ Unbounded_500Medium, Unbounded_700Bold, Unbounded_800ExtraBold, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold, Manrope_800ExtraBold });
   const [index, setIndex] = useState<Index | null>(null);
   const [offline, setOffline] = useState(false);
@@ -77,7 +79,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={st.root} edges={fullMap ? [] : ['top', 'left', 'right']}>
-        <StatusBar style="dark" />
+        <StatusBar style={isDark() ? 'light' : 'dark'} />
         <View style={{ flex: 1 }}>{body}</View>
         {ready && <TabBar tab={tab} onTab={onTab} />}
       </SafeAreaView>
@@ -85,10 +87,10 @@ export default function App() {
   );
 }
 
-const st = StyleSheet.create({
+const st = themed(() => StyleSheet.create({
   root: { flex: 1, backgroundColor: C.bg },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 30 },
   msg: { color: C.ink2, fontSize: 16, textAlign: 'center', fontFamily: F.t },
   retry: { marginTop: 16, backgroundColor: C.ink, paddingHorizontal: 22, height: 44, borderRadius: 22, justifyContent: 'center' },
-  retryT: { color: '#fff', fontWeight: '700' },
-});
+  retryT: { color: C.onInk, fontWeight: '700' },
+}));

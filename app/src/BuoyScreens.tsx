@@ -5,7 +5,7 @@ import Arrow from './Arrow';
 import { ageH, ageTxt, Buoy, buoyFits, BuoySheet, fr, Index, loadBuoy, sector } from './data';
 import { Blink } from './Live';
 import { useBarSpace } from './TabBar';
-import { C, F } from './theme';
+import { C, F, themed } from './theme';
 
 const ZONES = ['Bretagne', 'Golfe de Gascogne', 'Espagne', 'Portugal'];
 /** Grande zone de côte d'une bouée, d'après sa position. */
@@ -23,7 +23,7 @@ const km = (a: { lat: number; lon: number }, b: { lat: number; lon: number }) =>
 /** Feu de fraîcheur : vert qui clignote (moins de 2 h), sable (moins de 6 h), gris (plus ancien). */
 function Lamp({ b, i = 0 }: { b: Buoy; i?: number }) {
   const a = ageH(b.time);
-  return a < 2 ? <Blink size={9} delay={(i % 3) * 450} /> : <View style={[st.lamp, { backgroundColor: a < 6 ? C.sandB : '#c9c3b4' }]} />;
+  return a < 2 ? <Blink size={9} delay={(i % 3) * 450} /> : <View style={[st.lamp, { backgroundColor: a < 6 ? C.sandB : C.lampOld }]} />;
 }
 
 /** Une ligne de bouée dans une carte groupée. */
@@ -131,9 +131,9 @@ export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => v
         </View>
       ) : (
         <ScrollView contentContainerStyle={{ paddingBottom: pad + 10 }}>
-          <View style={[st.card, { backgroundColor: C.sand }]}>
+          <View style={[st.card, { backgroundColor: C.sandCard }]}>
             <View style={st.nowRow}>
-              <View style={[st.lamp, a >= 2 && { backgroundColor: '#a08a5a' }]} />
+              <View style={[st.lamp, a >= 2 && { backgroundColor: C.sandMuted }]} />
               <Text style={st.nowT}>{a < 2 ? 'EN DIRECT' : 'DERNIÈRE MESURE'} · {ageTxt(L!.time).toUpperCase()}</Text>
             </View>
             <Text style={st.big}>{fr(L!.hs)}<Text style={st.bigU}> m</Text></Text>
@@ -217,29 +217,29 @@ function Chart({ d }: { d: BuoySheet }) {
   return (
     <Svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} style={{ marginTop: 10 }}>
       {ticks.map(v => <Line key={v} x1={P.l} x2={W - P.r} y1={Y(v)} y2={Y(v)} stroke={C.line} strokeWidth={1} />)}
-      {ticks.map(v => <SvgText key={'t' + v} x={2} y={Y(v) + 4} fontSize={10} fill={C.ink3}>{fr(v)}</SvgText>)}
+      {ticks.map(v => <SvgText key={'t' + v} x={2} y={Y(v) + 4} fontSize={10} fontFamily={F.tB} fill={C.ink3}>{fr(v)}</SvgText>)}
       {now > P.l && now < W - P.r && <Line x1={now} x2={now} y1={P.t} y2={H - P.b} stroke={C.ink3} strokeDasharray="2,4" />}
       {mod.length > 1 && <Path d={line(mod)} stroke={C.gold} strokeWidth={2} strokeDasharray="5,4" fill="none" />}
       <Path d={line(obs)} stroke={C.ink} strokeWidth={2.4} fill="none" strokeLinejoin="round" />
       <Circle cx={X(ts(obs[obs.length - 1].t))} cy={Y(obs[obs.length - 1].hs!)} r={4} fill={C.ink} />
-      <SvgText x={P.l} y={H - 4} fontSize={10} fill={C.ink3}>{obs[0].t.slice(8, 10)}/{obs[0].t.slice(5, 7)} {obs[0].t.slice(11, 13)}h</SvgText>
-      <SvgText x={Math.min(now, W - 40)} y={H - 4} fontSize={10} fill={C.ink3}>maintenant</SvgText>
+      <SvgText x={P.l} y={H - 4} fontSize={10} fontFamily={F.tB} fill={C.ink3}>{obs[0].t.slice(8, 10)}/{obs[0].t.slice(5, 7)} {obs[0].t.slice(11, 13)}h</SvgText>
+      <SvgText x={Math.min(now, W - 40)} y={H - 4} fontSize={10} fontFamily={F.tB} fill={C.ink3}>maintenant</SvgText>
     </Svg>
   );
 }
 
-const st = StyleSheet.create({
+const st = themed(() => StyleSheet.create({
   lbl: { fontFamily: F.tX, fontSize: 11.5, letterSpacing: 1.3, textTransform: 'uppercase', color: C.gold, marginHorizontal: 20, marginTop: 14, marginBottom: 10 },
-  hero: { marginHorizontal: 16, borderRadius: 26, padding: 18, backgroundColor: C.sand },
+  hero: { marginHorizontal: 16, borderRadius: 26, padding: 18, backgroundColor: C.sandCard },
   heroTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  heroK: { flex: 1, fontFamily: F.tX, fontSize: 10.5, letterSpacing: 1.2, color: '#7a5f33' },
+  heroK: { flex: 1, fontFamily: F.tX, fontSize: 10.5, letterSpacing: 1.2, color: C.sandMuted },
   heroEmpty: { fontFamily: F.t, fontSize: 14.5, lineHeight: 20, color: C.sandText },
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 8 },
   heroH: { fontFamily: F.numX, fontSize: 52, color: C.sandText, letterSpacing: -2.5 },
   heroU: { fontFamily: F.num, fontSize: 20, letterSpacing: 0 },
   heroP: { fontFamily: F.num, fontSize: 17, color: C.sandText },
   heroS: { fontFamily: F.tX, fontSize: 13, color: C.sandText },
-  heroFoot: { fontFamily: F.tB, fontSize: 12, color: '#6b5a33', marginTop: 8 },
+  heroFoot: { fontFamily: F.tB, fontSize: 12, color: C.sandMuted2, marginTop: 8 },
   group: { marginHorizontal: 16, marginTop: 10, paddingHorizontal: 16, borderRadius: 22, backgroundColor: C.card },
   zone: { fontFamily: F.num, fontSize: 14, color: C.ink, paddingTop: 14, paddingBottom: 2 },
   line: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
@@ -250,7 +250,7 @@ const st = StyleSheet.create({
   lamp: { width: 9, height: 9, borderRadius: 5, backgroundColor: C.live },
   name: { fontFamily: F.tX, fontSize: 16, color: C.ink },
   sub: { fontFamily: F.t, fontSize: 12.5, color: C.ink2, marginTop: 2 },
-  val: { height: 36, minWidth: 54, paddingHorizontal: 12, borderRadius: 18, backgroundColor: C.sandB, alignItems: 'center', justifyContent: 'center' },
+  val: { height: 36, minWidth: 54, paddingHorizontal: 12, borderRadius: 18, backgroundColor: C.pill, alignItems: 'center', justifyContent: 'center' },
   valT: { fontFamily: F.num, fontSize: 16, color: C.sandText, letterSpacing: -0.5 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
   metaT: { fontFamily: F.tB, fontSize: 11.5, color: C.ink2 },
@@ -264,13 +264,13 @@ const st = StyleSheet.create({
   nowT: { fontFamily: F.tX, fontSize: 11.5, letterSpacing: 1, color: C.sandText },
   big: { fontFamily: F.numX, fontSize: 56, color: C.sandText, letterSpacing: -2, marginTop: 6 },
   bigU: { fontFamily: F.tB, fontSize: 18, letterSpacing: 0 },
-  bigS: { fontFamily: F.tB, fontSize: 12.5, color: '#6b5a33' },
+  bigS: { fontFamily: F.tB, fontSize: 12.5, color: C.sandMuted2 },
   tiles: { flexDirection: 'row', gap: 8, marginTop: 12 },
-  tile: { flex: 1, backgroundColor: 'rgba(255,255,255,0.55)', borderRadius: 16, padding: 10 },
+  tile: { flex: 1, backgroundColor: C.glass, borderRadius: 16, padding: 10 },
   tileK: { fontFamily: F.tX, fontSize: 9.5, letterSpacing: 0.9, color: C.ink2 },
   tileV: { fontFamily: F.num, fontSize: 15, color: C.ink, letterSpacing: -0.4 },
   tileS: { fontFamily: F.tB, fontSize: 11, color: C.ink2, marginTop: 2 },
-  note: { fontFamily: F.t, fontSize: 12, color: '#6b5a33', marginTop: 10 },
+  note: { fontFamily: F.t, fontSize: 12, color: C.sandMuted2, marginTop: 10 },
   cardT: { fontFamily: F.num, fontSize: 16, color: C.ink, letterSpacing: -0.3 },
   legRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, marginTop: 6 },
   legI: { flexDirection: 'row', alignItems: 'center', gap: 6 },
@@ -284,4 +284,4 @@ const st = StyleSheet.create({
   spot: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 36, paddingHorizontal: 14, borderRadius: 18, backgroundColor: C.soft },
   spotT: { fontFamily: F.tB, fontSize: 13, color: C.ink },
   spotS: { fontFamily: F.tB, fontSize: 11.5, color: C.ink3 },
-});
+}));

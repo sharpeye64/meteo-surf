@@ -1,7 +1,8 @@
 import Svg, { Path } from 'react-native-svg';
+import { C } from './theme';
 
 /** Flèche dans le sens où va la houle ou le vent (la donnée est la direction d'où ils viennent). */
-export default function Arrow({ dir, size = 16, color = '#10202c' }: { dir?: number | null; size?: number; color?: string }) {
+export default function Arrow({ dir, size = 16, color = C.ink }: { dir?: number | null; size?: number; color?: string }) {
   if (dir == null) return null;
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" style={{ transform: [{ rotate: `${(dir + 180) % 360}deg` }] }}>
