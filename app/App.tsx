@@ -7,6 +7,7 @@ import { ActivityIndicator, BackHandler, Pressable, StyleSheet, Text, View } fro
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { BuoyList, BuoyPage } from './src/BuoyScreens';
 import { Buoy, Index, loadFavs, loadIndex, saveFavs, SpotLite } from './src/data';
+import Home from './src/Home';
 import MapScreen from './src/MapScreen';
 import SpotList from './src/SpotList';
 import SpotSheet from './src/SpotSheet';
@@ -61,6 +62,9 @@ export default function App() {
     body = <MapScreen index={index} onSpot={openSpot} onBuoy={openBuoy} />;
   } else if (tab === 'bouees') {
     body = <BuoyList index={index} onOpen={openBuoy} />;
+  } else if (tab === 'spots') {
+    body = <Home index={index} favs={favs} offline={offline} refreshing={refreshing}
+      onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} onOpen={openSpot} onBuoy={openBuoy} />;
   } else {
     body = <SpotList key={tab} favOnly={tab === 'favoris'} index={index} favs={favs} offline={offline} refreshing={refreshing}
       onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} onOpen={openSpot} onBuoy={openBuoy} />;

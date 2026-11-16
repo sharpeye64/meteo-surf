@@ -73,29 +73,36 @@ export default function SpotList({ index, favs, offline, refreshing, onRefresh, 
         return (
           <View>
             {head && <View style={st.grp}><Text style={st.grpT}>{regionName(s.region)}</Text><Text style={st.grpN}>{n}</Text></View>}
-            <Pressable onPress={() => onOpen(s)} style={({ pressed }) => [st.row, pressed && { transform: [{ scale: 0.985 }], opacity: 0.85 }]}>
-              <View style={[st.cell, { backgroundColor: sizeCell(s.now.hs) }]}>
-                <Text style={st.cellV}>{fr(s.now.hs)}</Text>
-                <Text style={st.cellU}>{fr(s.now.tp, 0)} s</Text>
-              </View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={st.name} numberOfLines={1}>{s.name}</Text>
-                <View style={st.metaRow}>
-                  <Arrow dir={s.now.dir} size={12} color={C.ink2} />
-                  <Text style={st.meta}>{sector(s.now.dir)}</Text>
-                  <View style={[st.wind, { backgroundColor: windCell(s.now.wind) }]}>
-                    <Arrow dir={s.now.wdir} size={10} color={C.ink} />
-                    <Text style={st.windT}>{fr(s.now.wind, 0)}</Text>
-                  </View>
-                </View>
-              </View>
-              {favs.includes(s.slug) && <Text style={st.fav}>★</Text>}
-            </Pressable>
+            <SpotRow s={s} fav={favs.includes(s.slug)} onOpen={onOpen} />
           </View>
         );
       }}
       ListFooterComponent={<Text style={st.foot}>Mis à jour {ageTxt(index.generated)} · prévisions indicatives, à confirmer sur place</Text>}
     />
+  );
+}
+
+/** Une ligne de spot : case colorée (hauteur, période), nom, direction de la houle, vent. */
+export function SpotRow({ s, fav, onOpen, place }: { s: SpotLite; fav: boolean; onOpen: (s: SpotLite) => void; place?: boolean }) {
+  return (
+      <Pressable onPress={() => onOpen(s)} style={({ pressed }) => [st.row, pressed && { transform: [{ scale: 0.985 }], opacity: 0.85 }]}>
+        <View style={[st.cell, { backgroundColor: sizeCell(s.now.hs) }]}>
+          <Text style={st.cellV}>{fr(s.now.hs)}</Text>
+          <Text style={st.cellU}>{fr(s.now.tp, 0)} s</Text>
+        </View>
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={st.name} numberOfLines={1}>{s.name}{place && <Text style={st.place}>  {s.commune || regionName(s.region)}</Text>}</Text>
+          <View style={st.metaRow}>
+            <Arrow dir={s.now.dir} size={12} color={C.ink2} />
+            <Text style={st.meta}>{sector(s.now.dir)}</Text>
+            <View style={[st.wind, { backgroundColor: windCell(s.now.wind) }]}>
+              <Arrow dir={s.now.wdir} size={10} color={C.ink} />
+              <Text style={st.windT}>{fr(s.now.wind, 0)}</Text>
+            </View>
+          </View>
+        </View>
+        {fav && <Text style={st.fav}>★</Text>}
+      </Pressable>
   );
 }
 
@@ -136,6 +143,7 @@ const st = StyleSheet.create({
   wind: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 22, paddingHorizontal: 8, borderRadius: 11 },
   windT: { fontFamily: F.tX, fontSize: 12, color: C.ink },
   fav: { fontSize: 16, color: C.gold },
+  place: { fontFamily: F.t, fontSize: 13, color: C.ink3 },
   empty: { marginHorizontal: 20, color: C.ink2, marginTop: 10, fontFamily: F.t },
   foot: { textAlign: 'center', color: C.ink3, marginTop: 20, fontSize: 12, fontFamily: F.t, paddingHorizontal: 24 },
 });
