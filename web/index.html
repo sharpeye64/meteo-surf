@@ -1642,20 +1642,18 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
   .hmb-tick .hmb-row button small{flex:none;margin-left:8px}
   .hmb-tick .hmb-row button b{height:36px;border-radius:18px}
   .hmb-tick .hmb-row button:hover{background:#efe6d2}
-  /* les pastilles flottent comme des bouées : léger tangage, décalé d'une pastille à l'autre */
-  .hmb-tick{padding:7px 0}
-  .hmb-tick .hmb-row button{animation:hmbBob 3.6s ease-in-out infinite;transform-origin:50% 100%}
-  .hmb-tick .hmb-row button:nth-child(3n+2){animation-duration:4.3s;animation-delay:-1.2s}
-  .hmb-tick .hmb-row button:nth-child(3n){animation-duration:3.1s;animation-delay:-2.1s}
-  .hmb-tick .hmb-row button:hover{animation-play-state:paused;box-shadow:0 6px 16px rgba(120,96,40,.22)}
+  /* chaque pastille porte un petit feu qui clignote, comme la lanterne d'une bouée (vert : mesure de moins de 2 h ; éteint au-delà) */
+  .hmb-tick .hmb-row button:hover{box-shadow:0 6px 16px rgba(120,96,40,.22)}
   .hmb-tick .hmb-row button b{transition:transform .2s cubic-bezier(.22,1,.36,1)}
   .hmb-tick .hmb-row button:hover b{transform:scale(1.08)}
   .hmb-tick .hmb-row button:active{scale:.97}
-  .hmb-row .lv{display:inline-block;width:6px;height:6px;border-radius:50%;background:#2fb47c;margin-right:7px;vertical-align:2px;animation:hmbLive 2.4s ease-out infinite}
+  .hmb-tick .hmb-row .lv{display:inline-block;width:7px;height:7px;border-radius:50%;background:#2fb47c;margin-right:8px;vertical-align:1px;animation:hmbBlink 2.8s ease-in-out infinite}
+  .hmb-tick .hmb-row button:nth-child(3n+2) .lv{animation-delay:-.9s}
+  .hmb-tick .hmb-row button:nth-child(3n) .lv{animation-delay:-1.8s}
+  .hmb-tick .hmb-row .lv.old{background:#c9bfa6;animation:none}
 }
 .hmb-row .lv{display:none}
-@media (min-width:760px){ .hmb-tick .hmb-row .lv{display:inline-block} }
-@keyframes hmbBob{0%,100%{transform:translateY(1.5px) rotate(-.7deg)}50%{transform:translateY(-2.5px) rotate(.7deg)}}
+@keyframes hmbBlink{0%,58%,100%{opacity:.28;box-shadow:0 0 0 0 rgba(47,180,124,0)}66%{opacity:1;box-shadow:0 0 0 4px rgba(47,180,124,.28)}78%{opacity:1;box-shadow:0 0 0 7px rgba(47,180,124,0)}}
 @keyframes hmbLive{0%{box-shadow:0 0 0 0 rgba(47,180,124,.55)}70%,100%{box-shadow:0 0 0 7px rgba(47,180,124,0)}}
 @keyframes hmbMq{to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){ .hmb-cap i{animation:none} .hmb-tick .hmb-row{animation:none} .hmb-tick .hmb-row button,.hmb-row .lv{animation:none!important} .hmb-tick{overflow-x:auto!important;-webkit-mask-image:none;mask-image:none} .hmb-tick .hmb-row button.cl{display:none} }
@@ -3301,7 +3299,7 @@ function homeHomePanelM(){
   const order=['Cap Ferret','Anglet','Saint-Jean-de-Luz','Donostia','Bilbao-Vizcaya','Gascogne'];
   const bu0=[...HOME.bu].sort((a,b)=>{ const x=order.indexOf(a.n), y=order.indexOf(b.n); return (x<0?99:x)-(y<0?99:y); });
   const bu=[...bu0.slice(0,4),...bu0.slice(4).sort((a,b)=>b.lat-a.lat)];   /* Sud-Ouest d'abord, puis la côte du nord au sud */
-  const buRow=(b,cl)=>`<button type="button" data-b="${b.id}"${cl?' class="cl" tabindex="-1" aria-hidden="true"':''}><span>${(new Date()-new Date(b.L.time+':00'))/36e5<1?'<i class="lv"></i>':''}${b.n}<small>${b.large?'au large · ':''}${ageTxt((new Date()-new Date(b.L.time+':00'))/36e5)}${b.L.tp?' · '+Math.round(b.L.tp)+' s':''}</small></span><b>${hmF(b.L.hs)}</b></button>`;
+  const buRow=(b,cl)=>`<button type="button" data-b="${b.id}"${cl?' class="cl" tabindex="-1" aria-hidden="true"':''}><span><i class="lv${(new Date()-new Date(b.L.time+':00'))/36e5<2?'':' old'}"></i>${b.n}<small>${b.large?'au large · ':''}${ageTxt((new Date()-new Date(b.L.time+':00'))/36e5)}${b.L.tp?' · '+Math.round(b.L.tp)+' s':''}</small></span><b>${hmF(b.L.hs)}</b></button>`;
   document.getElementById('home').classList.remove('hm-sel'); HOME.popAt=null;
   P.innerHTML=`<div class="hmb-col"><div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<input id="hmQ" placeholder="Chercher un spot…" autocomplete="off" aria-label="Chercher un spot" value="${HOME.q.replace(/"/g,'')}"><button type="button" class="hmb-x" id="hmQx">Annuler</button></div>
     <div class="hmb-chips">${homeChipsHtml(D)}</div></div>
