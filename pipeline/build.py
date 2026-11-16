@@ -10,7 +10,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from . import buoy, candhis, config, ibi_buoys, seo, history, marc, openmeteo, tides
+from . import appdata, buoy, candhis, config, ibi_buoys, seo, history, marc, openmeteo, tides
 
 
 def log(msg):
@@ -194,6 +194,11 @@ def main():
     payload = {"meta": meta, "gascogne": gascogne, "coast": coast, "offshore": offshore, "tide_coef": tide_coef, "reliability": reliability, "buoy_stats": history.buoy_stats(), "spots": out_spots}
     config.OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     config.OUTPUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+    try:  # données allégées pour l'application mobile : jamais bloquant
+        log(f"Appli mobile : {appdata.generate(spots, payload)} fiches de spots (web/data/app/)")
+    except Exception as e:
+        meta["errors"]["appdata"] = str(e)[:300]
+        log(f"  données de l'appli non générées : {e}")
     try:
         n = seo.generate(payload)
         log(f"SEO : {n} pages de spots + sitemap.xml + robots.txt ({config.SITE_URL})")

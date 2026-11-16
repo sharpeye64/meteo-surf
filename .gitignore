@@ -11,3 +11,5 @@ web/robots.txt
 web/bouees/
 web/og/
 web/meteo-surf-*/
+web/data/app/
+web/data/app.tmp/
