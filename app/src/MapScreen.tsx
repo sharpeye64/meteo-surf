@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import Brand from './Brand';
 import { ageH, Buoy, fr, Index, SpotLite } from './data';
+import { Pulse } from './Live';
 import { FLOAT_BAR_H } from './TabBar';
 import { C, F, sizeCell } from './theme';
 
@@ -48,6 +49,25 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
 
   // Toucher d'un repère : on passe par la carte (onMarkerPress, plus fiable sur iPhone) et par le repère lui-même,
   // en ignorant le second appel s'ils arrivent tous les deux.
+  // Secours : si l'iPhone ne signale pas le toucher du repère, on prend le toucher de la carte et on cherche le repère
+  // le plus proche à l'écran (projection Mercator de la zone visible). Les bouées passent devant les spots.
+  const [size, setSize] = useState({ w: 1, h: 1 });
+  const tapMap = (c: { latitude: number; longitude: number }) => {
+    const merc = (la: number) => Math.log(Math.tan(Math.PI / 4 + (la * Math.PI) / 360));
+    const top = merc(reg.latitude + reg.latitudeDelta / 2), bot = merc(reg.latitude - reg.latitudeDelta / 2);
+    const west = reg.longitude - reg.longitudeDelta / 2;
+    const px = (la: number, lo: number) => [((lo - west) / reg.longitudeDelta) * size.w, ((top - merc(la)) / (top - bot)) * size.h];
+    const [tx, ty] = px(c.latitude, c.longitude);
+    let best: { id: string; d: number } | null = null;
+    const look = (id: string, la: number, lo: number, r: number, dy = 0, bonus = 0) => {
+      const [x, y] = px(la, lo), d = Math.hypot(x - tx, y + dy - ty) - bonus;
+      if (d < r && (!best || d < best.d)) best = { id, d };
+    };
+    index.buoys.forEach(b => { look(`b:${b.id}`, b.lat, b.lon, 34, 0, 8); if (buoyLab.has(b.id)) look(`b:${b.id}`, b.lat, b.lon, 30, 22, 8); });
+    index.spots.forEach(s => look(`s:${s.slug}`, s.lat, s.lon, labeled.has(s.slug) ? 28 : 16));
+    if (best) open((best as { id: string }).id);
+  };
+
   const last = useRef(0);
   const open = (id: string) => {
     const now = Date.now(); if (now - last.current < 600) return; last.current = now;
@@ -58,10 +78,10 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
   const hour = useMemo(() => { const d = new Date(); return `${d.getHours()} h`; }, [index]);
 
   return (
-    <View style={StyleSheet.absoluteFill}>
+    <View style={StyleSheet.absoluteFill} onLayout={e => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
       <StatusBar style={sat ? 'light' : 'dark'} />
       <MapView ref={map} style={StyleSheet.absoluteFill} initialRegion={START} onRegionChangeComplete={setReg} mapType={type}
-        mapPadding={{ top: ins.top, bottom, left: 0, right: 0 }} onMarkerPress={e => open(e.nativeEvent.id)}
+        mapPadding={{ top: ins.top, bottom, left: 0, right: 0 }} onMarkerPress={e => open(e.nativeEvent.id)} onPress={e => tapMap(e.nativeEvent.coordinate)}
         rotateEnabled={false} pitchEnabled={false} showsPointsOfInterests={false} showsCompass={false} toolbarEnabled={false}>
         {index.spots.map(s => {
           const big = labeled.has(s.slug);
@@ -79,13 +99,16 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
             </Marker>
           );
         })}
-        {index.buoys.map(b => {
+        {index.buoys.map((b, i) => {
           const old = ageH(b.time) >= 6, fresh = ageH(b.time) < 2, lab = buoyLab.has(b.id);
           return (
             <Marker key={`${b.id}:${lab}`} identifier={`b:${b.id}`} coordinate={{ latitude: b.lat, longitude: b.lon }} onPress={() => open(`b:${b.id}`)}
-              tracksViewChanges={false} anchor={{ x: 0.5, y: lab ? 0.25 : 0.5 }} zIndex={10}>
+              tracksViewChanges={!old} anchor={{ x: 0.5, y: lab ? 0.3 : 0.5 }} zIndex={10}>
               <View style={[st.buWrap, old && { opacity: 0.55 }]}>
-                <View style={[st.buRing, fresh && { borderColor: C.live }]}><View style={st.buCore} /></View>
+                <View style={st.buHalo}>
+                  {!old && <Pulse size={20} color={fresh ? C.live : C.sandB} delay={(i % 4) * 450} />}
+                  <View style={[st.buRing, fresh && { borderColor: C.live }]}><View style={st.buCore} /></View>
+                </View>
                 {lab && (
                   <View style={st.buLab}>
                     <Text style={st.buLabT}>{fr(b.hs)} m{b.tp ? ` · ${Math.round(b.tp)} s` : ''}</Text>
@@ -170,7 +193,8 @@ const st = StyleSheet.create({
   hit: { width: 26, height: 26, alignItems: 'center', justifyContent: 'center' },
   dotSpot: { width: 12, height: 12, borderRadius: 6, borderWidth: 2, borderColor: '#fff',
     shadowColor: '#0b1720', shadowOpacity: 0.3, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
-  buWrap: { alignItems: 'center', padding: 4 },
+  buWrap: { alignItems: 'center' },
+  buHalo: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', marginBottom: -12 },
   buRing: { width: 20, height: 20, borderRadius: 10, backgroundColor: C.sand, borderWidth: 3, borderColor: '#fff', alignItems: 'center', justifyContent: 'center',
     shadowColor: '#0b1720', shadowOpacity: 0.3, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 3 },
   buCore: { width: 7, height: 7, borderRadius: 4, backgroundColor: C.ink },

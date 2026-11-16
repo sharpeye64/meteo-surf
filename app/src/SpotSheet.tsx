@@ -82,8 +82,6 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
           <View style={st.nowRow}>
             <View style={[st.dot, !isNow && { backgroundColor: C.ink3 }]} />
             <Text style={st.nowT}>{isNow ? 'MAINTENANT' : day === 0 ? "AUJOURD'HUI" : J[at(sel).getDay()]} · {at(sel).getHours()} H</Text>
-            {sheet.sst[sel] != null && <Text style={st.nowS}>eau {fr(sheet.sst[sel], 0)} °C</Text>}
-            {sunI >= 0 && sheet.sun && <Text style={st.nowS}>☀ {sheet.sun.sunrise[sunI].slice(11, 16)} – {sheet.sun.sunset[sunI].slice(11, 16)}</Text>}
           </View>
           <View style={st.tiles}>
             <View style={st.tile}>
@@ -101,9 +99,9 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
                 <View style={[st.badge, { backgroundColor: windCell(sheet.wind[sel]) }]}><Arrow dir={sheet.wdir[sel]} size={11} /><Text style={st.badgeT}>{sector(sheet.wdir[sel])}</Text></View>
                 {rel && <Text style={st.tileS}>{rel}</Text>}
               </View>
+              {sheet.gust[sel] != null && <Text style={st.gustT}>rafales <Text style={{ fontFamily: F.tX, color: C.ink }}>{fr(sheet.gust[sel], 0)}</Text> km/h</Text>}
             </View>
           </View>
-          {sheet.gust[sel] != null && <Text style={st.gust}>Rafales {fr(sheet.gust[sel], 0)} km/h · hauteur prévue au large, pas la taille au bord</Text>}
 
           <ScrollView ref={strip as never} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.grid}
             onContentSizeChange={() => { const k = hrs.indexOf(sel); if (k > 2) strip.current?.scrollTo({ x: (k - 2) * (COL + 4), animated: false }); }}>
@@ -147,6 +145,8 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
           ) : <Text style={st.hint}>Marée indicative (modèle) : pas d'horaires calculés pour ce spot.</Text>}
         </View>
 
+        <WaterSun sst={sheet.sst[sel]} week={sheet.sst} sun={sunI >= 0 && sheet.sun ? { rise: sheet.sun.sunrise[sunI], set: sheet.sun.sunset[sunI] } : null} today={day === 0} />
+
         {near && (
           <Pressable onPress={() => onBuoy?.(near.b)} style={({ pressed }) => [st.card, { backgroundColor: C.sand }, pressed && { opacity: 0.85 }]}>
             <View style={st.nowRow}><View style={[st.dot, (Date.now() - new Date(near.b.time + ':00').getTime()) / 36e5 >= 2 && { backgroundColor: '#a08a5a' }]} /><Text style={[st.nowT, { color: C.sandText }]}>MESURE RÉELLE · BOUÉE {near.b.name.toUpperCase()}</Text></View>
@@ -158,6 +158,49 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
           </Pressable>
         )}
       </ScrollView>
+    </View>
+  );
+}
+
+/** Eau et soleil : température de l'eau sur fond d'eau, et course du soleil sur un arc (lever, coucher, durée du jour). */
+function WaterSun({ sst, week, sun, today }: { sst: number | null; week: (number | null)[]; sun: { rise: string; set: string } | null; today: boolean }) {
+  const w = week.filter((x): x is number => x != null);
+  if (sst == null && !sun) return null;
+  const rise = sun ? new Date(sun.rise + ':00') : null, set = sun ? new Date(sun.set + ':00') : null;
+  const len = rise && set ? Math.round((set.getTime() - rise.getTime()) / 6e4) : 0;
+  const f = rise && set && today ? (Date.now() - rise.getTime()) / (set.getTime() - rise.getTime()) : null;
+  const up = f != null && f >= 0 && f <= 1;
+  const R = 54, cx = 70, cy = 64, a = Math.PI * (1 - (up ? f! : 0));
+  const sx = cx + R * Math.cos(a), sy = cy - R * Math.sin(a);
+  return (
+    <View style={st.ws}>
+      {sst != null && (
+        <View style={[st.wsTile, { backgroundColor: '#dcebf3' }]}>
+          <Text style={st.tileK}>EAU</Text>
+          <Text style={[st.big, { color: '#123c55' }]}>{fr(sst, 0)}<Text style={st.bigU}> °C</Text></Text>
+          {w.length > 1 && <Text style={[st.tileS, { color: '#3d6a82' }]}>{fr(Math.min(...w), 0)} à {fr(Math.max(...w), 0)} °C sur 7 jours</Text>}
+          <Svg width="100%" height={26} viewBox="0 0 160 26" preserveAspectRatio="none" style={st.wsWave}>
+            <Path d="M0 12 C20 4 40 4 60 12 S100 20 120 12 S150 4 160 10 V26 H0Z" fill="#bcd8e8" />
+            <Path d="M0 18 C25 11 45 11 70 18 S115 25 140 18 S155 14 160 16 V26 H0Z" fill="#9cc5dc" />
+          </Svg>
+        </View>
+      )}
+      {rise && set && (
+        <View style={[st.wsTile, { backgroundColor: C.sandA }]}>
+          <Text style={[st.tileK, { color: '#7a5f33' }]}>SOLEIL</Text>
+          <Svg width="100%" height={70} viewBox="0 0 140 70">
+            <Path d={`M${cx - R} ${cy} A${R} ${R} 0 0 1 ${cx + R} ${cy}`} stroke="#c9a463" strokeWidth={1.5} strokeDasharray="3 4" fill="none" />
+            {up && <Path d={`M${cx - R} ${cy} A${R} ${R} 0 0 1 ${sx.toFixed(1)} ${sy.toFixed(1)}`} stroke="#b8892f" strokeWidth={2.5} fill="none" strokeLinecap="round" />}
+            <Path d={`M8 ${cy} H132`} stroke="#d9b779" strokeWidth={1} />
+            {up && <Circle cx={sx} cy={sy} r={7} fill="#f2b632" stroke="#fff" strokeWidth={2} />}
+          </Svg>
+          <View style={st.wsSun}>
+            <Text style={st.wsT}>{rise.getHours()} h {String(rise.getMinutes()).padStart(2, '0')}</Text>
+            <Text style={st.wsT}>{set.getHours()} h {String(set.getMinutes()).padStart(2, '0')}</Text>
+          </View>
+          <Text style={[st.tileS, { color: '#7a5f33', textAlign: 'center' }]}>{Math.floor(len / 60)} h {String(len % 60).padStart(2, '0')} de jour</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -221,7 +264,12 @@ const st = StyleSheet.create({
   tileS: { fontFamily: F.tB, fontSize: 12.5, color: C.ink2 },
   badge: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 24, borderRadius: 12, paddingHorizontal: 8, backgroundColor: '#e3e9ec' },
   badgeT: { fontFamily: F.tX, fontSize: 11.5, color: C.ink },
-  gust: { fontFamily: F.t, fontSize: 12, color: C.ink2, marginTop: 10 },
+  gustT: { fontFamily: F.tB, fontSize: 12, color: C.ink2, marginTop: 6 },
+  ws: { flexDirection: 'row', gap: 10, marginHorizontal: 12, marginTop: 10 },
+  wsTile: { flex: 1, borderRadius: 24, padding: 14, overflow: 'hidden', minHeight: 150 },
+  wsWave: { position: 'absolute', left: 0, right: 0, bottom: 0 },
+  wsSun: { flexDirection: 'row', justifyContent: 'space-between', marginTop: -4 },
+  wsT: { fontFamily: F.num, fontSize: 12.5, color: C.sandText },
   grid: { paddingTop: 14, gap: 4, paddingRight: 4 },
   labels: { width: 30, gap: 4 },
   lab: { fontFamily: F.tB, fontSize: 10, color: C.ink3, textAlignVertical: 'center', paddingTop: 22 },

@@ -3,6 +3,7 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, Vie
 import Arrow from './Arrow';
 import Brand from './Brand';
 import { ageTxt, Buoy, country, fr, Index, loadSheet, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { Blink } from './Live';
 import { SpotRow } from './SpotList';
 import { useBarSpace } from './TabBar';
 import { C, F, sizeCell, windCell } from './theme';
@@ -41,17 +42,13 @@ export default function Home({ index, favs, offline, refreshing, onRefresh, onOp
   }, [index, q]);
 
   const near = useMemo(() => (hero ? index.spots.filter(s => s.slug !== hero.slug).map(s => ({ s, d: km(hero, s) })).sort((a, b) => a.d - b.d).slice(0, 8).map(x => x.s) : []), [index, hero]);
-  const biggest = useMemo(() => [...index.spots].sort((a, b) => (b.now.hs ?? 0) - (a.now.hs ?? 0)).slice(0, 8), [index]);
   const live = index.buoys.filter(b => (Date.now() - new Date(b.time + ':00').getTime()) / 36e5 < 2);
 
   // Régions du nord au sud, rangées par pays.
   const regions = useMemo(() => {
     const m = new Map<string, SpotLite[]>();
     index.spots.forEach(s => { if (!m.has(s.region)) m.set(s.region, []); m.get(s.region)!.push(s); });
-    return [...m.entries()].map(([r, ss]) => {
-      const hs = ss.map(s => s.now.hs).filter((v): v is number => v != null);
-      return { r, c: country(r), ss: ss.sort((a, b) => b.lat - a.lat), top: Math.max(...ss.map(s => s.lat)), lo: Math.min(...hs), hi: Math.max(...hs) };
-    }).sort((a, b) => CTY.indexOf(a.c) - CTY.indexOf(b.c) || b.top - a.top);
+    return [...m.entries()].map(([r, ss]) => ({ r, c: country(r), ss: ss.sort((a, b) => b.lat - a.lat), top: Math.max(...ss.map(s => s.lat)) })).sort((a, b) => CTY.indexOf(a.c) - CTY.indexOf(b.c) || b.top - a.top);
   }, [index]);
 
   const hour = new Date().getHours();
@@ -92,14 +89,14 @@ export default function Home({ index, favs, offline, refreshing, onRefresh, onOp
 
           {mine.length > 1 && <Strip title="Mes autres spots" list={mine.slice(1)} onOpen={onOpen} />}
           {hero && <Strip title={`Autour de ${hero.name}`} list={near} onOpen={onOpen} />}
-          {!hero && <Strip title="Houle la plus grosse maintenant" list={biggest} onOpen={onOpen} />}
 
           {!!live.length && (
             <View style={st.liveCard}>
-              <View style={st.liveHd}><View style={st.dot} /><Text style={st.liveT}>BOUÉES EN DIRECT</Text><Text style={st.liveN}>{live.length}</Text></View>
+              <View style={st.liveHd}><Blink size={7} /><Text style={st.liveT}>BOUÉES EN DIRECT</Text><Text style={st.liveN}>{live.length}</Text></View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingRight: 16 }}>
-                {live.map(b => (
+                {live.map((b, i) => (
                   <Pressable key={b.id} style={st.bu} onPress={() => onBuoy(b)}>
+                    <Blink size={7} delay={(i % 3) * 450} />
                     <View><Text style={st.buN}>{b.name}</Text><Text style={st.buS}>{ageTxt(b.time)}{b.tp ? ` · ${Math.round(b.tp)} s` : ''}</Text></View>
                     <View style={st.buV}><Text style={st.buVT}>{fr(b.hs)}</Text></View>
                   </Pressable>
@@ -108,23 +105,32 @@ export default function Home({ index, favs, offline, refreshing, onRefresh, onOp
             </View>
           )}
 
-          <Text style={[st.lbl, { marginTop: 26 }]}>Toute la côte</Text>
-          {regions.map((g, i) => (
-            <View key={g.r}>
-              {(i === 0 || regions[i - 1].c !== g.c) && <Text style={st.cty}>{g.c}</Text>}
-              <Pressable onPress={() => setOpen(o => (o === g.r ? null : g.r))} style={({ pressed }) => [st.reg, open === g.r && st.regOn, pressed && { opacity: 0.8 }]}>
-                <View style={{ flex: 1 }}>
-                  <Text style={st.regN}>{regionName(g.r)}</Text>
-                  <View style={st.strip}>{g.ss.map(s => <View key={s.slug} style={{ flex: 1, backgroundColor: sizeCell(s.now.hs) }} />)}</View>
-                </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={st.regV}>{fr(g.lo)}–{fr(g.hi)} m</Text>
-                  <Text style={st.regC}>{g.ss.length} spots {open === g.r ? '▴' : '▾'}</Text>
-                </View>
-              </Pressable>
-              {open === g.r && <View style={{ marginTop: 8 }}>{g.ss.map(s => <SpotRow key={s.slug} s={s} fav={favs.includes(s.slug)} onOpen={onOpen} />)}</View>}
-            </View>
-          ))}
+          <Text style={[st.lbl, { marginTop: 26 }]}>Parcourir la côte</Text>
+          {CTY.map(c => {
+            const rs = regions.filter(g => g.c === c);
+            if (!rs.length) return null;
+            return (
+              <View key={c} style={st.group}>
+                <Text style={st.cty}>{c}</Text>
+                {rs.map((g, i) => (
+                  <View key={g.r} style={i > 0 && st.sep}>
+                    <Pressable onPress={() => setOpen(o => (o === g.r ? null : g.r))} style={({ pressed }) => [st.reg, pressed && { opacity: 0.6 }]}>
+                      <Text style={st.regN}>{regionName(g.r)}</Text>
+                      <Text style={st.regC}>{g.ss.length}</Text>
+                      <Text style={[st.chev, open === g.r && { transform: [{ rotate: '90deg' }] }]}>›</Text>
+                    </Pressable>
+                    {open === g.r && g.ss.map(s => (
+                      <Pressable key={s.slug} onPress={() => onOpen(s)} style={({ pressed }) => [st.sub, pressed && { opacity: 0.6 }]}>
+                        <Text style={st.subN} numberOfLines={1}>{favs.includes(s.slug) ? '★ ' : ''}{s.name}</Text>
+                        <Text style={st.subT}>{fr(s.now.tp, 0)} s</Text>
+                        <View style={[st.subH, { backgroundColor: sizeCell(s.now.hs) }]}><Text style={st.subHT}>{fr(s.now.hs)}</Text></View>
+                      </Pressable>
+                    ))}
+                  </View>
+                ))}
+              </View>
+            );
+          })}
           <Text style={st.foot}>Mis à jour {ageTxt(index.generated)} · prévisions indicatives, à confirmer sur place</Text>
         </View>
       )}
@@ -238,12 +244,17 @@ const st = StyleSheet.create({
   buS: { fontFamily: F.t, fontSize: 11.5, color: '#7a6f55' },
   buV: { height: 36, minWidth: 50, borderRadius: 18, paddingHorizontal: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: C.sandB },
   buVT: { fontFamily: F.num, fontSize: 15, color: C.sandText, letterSpacing: -0.5 },
-  cty: { fontFamily: F.num, fontSize: 15, color: C.ink, marginHorizontal: 20, marginTop: 12, marginBottom: 8 },
-  reg: { flexDirection: 'row', alignItems: 'center', gap: 14, marginHorizontal: 16, marginBottom: 8, paddingVertical: 13, paddingHorizontal: 16, borderRadius: 20, backgroundColor: C.card },
-  regOn: { borderWidth: 1.5, borderColor: C.sandB },
-  regN: { fontFamily: F.tX, fontSize: 15, color: C.ink },
-  strip: { flexDirection: 'row', height: 5, borderRadius: 3, overflow: 'hidden', marginTop: 8, gap: 1 },
-  regV: { fontFamily: F.num, fontSize: 14, color: C.ink },
-  regC: { fontFamily: F.tB, fontSize: 11.5, color: C.ink3, marginTop: 3 },
+  group: { marginHorizontal: 16, marginBottom: 12, paddingHorizontal: 16, paddingBottom: 4, borderRadius: 22, backgroundColor: C.card },
+  cty: { fontFamily: F.num, fontSize: 14, color: C.ink, paddingTop: 14, paddingBottom: 4 },
+  sep: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: C.line },
+  reg: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 14 },
+  regN: { flex: 1, fontFamily: F.tB, fontSize: 15, color: C.ink },
+  regC: { fontFamily: F.tB, fontSize: 13, color: C.ink3 },
+  chev: { fontFamily: F.tX, fontSize: 20, color: C.ink3, width: 14, textAlign: 'center', marginTop: -2 },
+  sub: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, paddingLeft: 12 },
+  subN: { flex: 1, fontFamily: F.t, fontSize: 14, color: C.ink },
+  subT: { fontFamily: F.tB, fontSize: 12, color: C.ink3 },
+  subH: { minWidth: 44, height: 26, borderRadius: 13, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center' },
+  subHT: { fontFamily: F.num, fontSize: 12, color: C.ink },
   foot: { textAlign: 'center', color: C.ink3, marginTop: 20, fontSize: 12, fontFamily: F.t, paddingHorizontal: 24 },
 });
