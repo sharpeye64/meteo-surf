@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Arrow from './Arrow';
-import { ageTxt, country, fr, Index, regionName, sizeCol, SpotLite } from './data';
-import { C, R } from './theme';
+import Brand from './Brand';
+import { ageTxt, country, fr, Index, regionName, sector, SpotLite } from './data';
+import { C, F, sizeCell, windCell } from './theme';
 
 type Props = { index: Index; favs: string[]; offline: boolean; refreshing: boolean; onRefresh: () => void; onOpen: (s: SpotLite) => void };
 const FILTERS = ['Tous', 'France', 'Espagne', 'Portugal', '★ Favoris'];
@@ -18,7 +19,7 @@ export default function SpotList({ index, favs, offline, refreshing, onRefresh, 
       .filter(s => !t || s.name.toLowerCase().includes(t) || (s.commune || '').toLowerCase().includes(t) || s.region.toLowerCase().includes(t))
       .sort((a, b) => (top[b.region] - top[a.region]) || (b.lat - a.lat));   // régions du nord au sud, puis spots du nord au sud
   }, [index, q, f, favs, top]);
-  const fresh = index.buoys.filter(b => (Date.now() - new Date(b.time + ':00').getTime()) / 36e5 < 2).length;
+  const live = index.buoys.filter(b => (Date.now() - new Date(b.time + ':00').getTime()) / 36e5 < 2);
 
   return (
     <FlatList
@@ -26,15 +27,33 @@ export default function SpotList({ index, favs, offline, refreshing, onRefresh, 
       keyExtractor={s => s.slug}
       keyboardShouldPersistTaps="handled"
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={C.ink} />}
-      contentContainerStyle={{ paddingBottom: 40 }}
+      contentContainerStyle={{ paddingBottom: 110 }}
       ListHeaderComponent={
         <View>
           <View style={st.head}>
-            <Text style={st.logo}>houlalah</Text>
-            <Text style={st.sub}>{index.spots.length} spots · {fresh} bouées en direct{offline ? ' · hors connexion' : ''}</Text>
+            <View style={st.brand}><Brand h={24} /></View>
+            {offline && <Text style={st.off}>hors connexion</Text>}
           </View>
+          <Text style={st.h1}>La houle{'\n'}du moment</Text>
+          <Text style={st.lead}>{index.spots.length} spots de la Bretagne au Portugal</Text>
+
+          {!!live.length && (
+            <View style={st.liveCard}>
+              <View style={st.liveHd}><View style={st.dot} /><Text style={st.liveT}>BOUÉES EN DIRECT</Text><Text style={st.liveN}>{live.length}</Text></View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingRight: 16 }}>
+                {live.map(b => (
+                  <View key={b.id} style={st.bu}>
+                    <View><Text style={st.buN}>{b.name}</Text><Text style={st.buS}>{ageTxt(b.time)}{b.tp ? ` · ${Math.round(b.tp)} s` : ''}</Text></View>
+                    <View style={st.buV}><Text style={st.buVT}>{fr(b.hs)}</Text></View>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
           <View style={st.search}>
-            <TextInput value={q} onChangeText={setQ} placeholder="Chercher un spot ou une ville" placeholderTextColor={C.ink3} style={st.input} autoCorrect={false} />
+            <Text style={st.lens}>⌕</Text>
+            <TextInput value={q} onChangeText={setQ} placeholder="Chercher un spot…" placeholderTextColor={C.ink3} style={st.input} autoCorrect={false} />
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.chips}>
             {FILTERS.map(x => (
@@ -48,44 +67,73 @@ export default function SpotList({ index, favs, offline, refreshing, onRefresh, 
       }
       renderItem={({ item: s, index: i }) => {
         const head = i === 0 || list[i - 1].region !== s.region;
+        const n = head ? list.filter(x => x.region === s.region).length : 0;
         return (
           <View>
-            {head && <Text style={st.grp}>{regionName(s.region)}</Text>}
-            <Pressable onPress={() => onOpen(s)} style={({ pressed }) => [st.row, pressed && { opacity: 0.6 }]}>
-              <View style={{ flex: 1 }}>
-                <Text style={st.name}>{favs.includes(s.slug) ? '★ ' : ''}{s.name}</Text>
-                <Text style={st.meta}>{s.commune && s.commune !== s.name ? s.commune + ' · ' : ''}{fr(s.now.tp, 0)} s · vent {fr(s.now.wind, 0)} km/h</Text>
+            {head && <View style={st.grp}><Text style={st.grpT}>{regionName(s.region)}</Text><Text style={st.grpN}>{n}</Text></View>}
+            <Pressable onPress={() => onOpen(s)} style={({ pressed }) => [st.row, pressed && { transform: [{ scale: 0.985 }], opacity: 0.85 }]}>
+              <View style={[st.cell, { backgroundColor: sizeCell(s.now.hs) }]}>
+                <Text style={st.cellV}>{fr(s.now.hs)}</Text>
+                <Text style={st.cellU}>{fr(s.now.tp, 0)} s</Text>
               </View>
-              <Arrow dir={s.now.dir} size={15} color={C.ink2} />
-              <View style={[st.pill, { backgroundColor: sizeCol(s.now.hs) }]}>
-                <Text style={st.pillT}>{fr(s.now.hs)}</Text>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={st.name} numberOfLines={1}>{s.name}</Text>
+                <View style={st.metaRow}>
+                  <Arrow dir={s.now.dir} size={12} color={C.ink2} />
+                  <Text style={st.meta}>{sector(s.now.dir)}</Text>
+                  <View style={[st.wind, { backgroundColor: windCell(s.now.wind) }]}>
+                    <Arrow dir={s.now.wdir} size={10} color={C.ink} />
+                    <Text style={st.windT}>{fr(s.now.wind, 0)}</Text>
+                  </View>
+                </View>
               </View>
+              {favs.includes(s.slug) && <Text style={st.fav}>★</Text>}
             </Pressable>
           </View>
         );
       }}
-      ListFooterComponent={<Text style={st.foot}>Mis à jour {ageTxt(index.generated)} · prévisions indicatives</Text>}
+      ListFooterComponent={<Text style={st.foot}>Mis à jour {ageTxt(index.generated)} · prévisions indicatives, à confirmer sur place</Text>}
     />
   );
 }
 
 const st = StyleSheet.create({
-  head: { paddingHorizontal: 20, paddingTop: 12 },
-  logo: { fontSize: 30, fontWeight: '800', color: C.ink, letterSpacing: -1 },
-  sub: { color: C.ink2, fontWeight: '600', marginTop: 2 },
-  search: { marginHorizontal: 16, marginTop: 16, backgroundColor: C.card, borderRadius: R.pill, paddingHorizontal: 18, borderWidth: 1, borderColor: C.line },
-  input: { height: 48, fontSize: 16, color: C.ink },
+  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 8 },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  off: { fontFamily: F.tB, fontSize: 12, color: C.coral },
+  h1: { fontFamily: F.numX, fontSize: 30, lineHeight: 34, color: C.ink, letterSpacing: -1, marginTop: 22, marginHorizontal: 20 },
+  lead: { fontFamily: F.t, fontSize: 14, color: C.ink2, marginTop: 6, marginHorizontal: 20 },
+  liveCard: { marginTop: 18, marginLeft: 16, paddingVertical: 14, paddingLeft: 16, borderTopLeftRadius: 24, borderBottomLeftRadius: 24, backgroundColor: C.card },
+  liveHd: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, paddingRight: 16 },
+  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: C.live },
+  liveT: { fontFamily: F.tX, fontSize: 11, letterSpacing: 1.3, color: '#7a6f55', flex: 1 },
+  liveN: { fontFamily: F.tX, fontSize: 11, color: '#a89c7e' },
+  bu: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 46, borderRadius: 23, paddingLeft: 16, paddingRight: 5, backgroundColor: '#f4efe3' },
+  buN: { fontFamily: F.tB, fontSize: 13.5, color: C.ink },
+  buS: { fontFamily: F.t, fontSize: 11.5, color: '#7a6f55' },
+  buV: { height: 36, minWidth: 50, borderRadius: 18, paddingHorizontal: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: C.sandB },
+  buVT: { fontFamily: F.num, fontSize: 15, color: C.sandText, letterSpacing: -0.5 },
+  search: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 18, backgroundColor: C.card, borderRadius: 999, paddingHorizontal: 18, height: 52, shadowColor: '#10202c', shadowOpacity: 0.08, shadowRadius: 14, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
+  lens: { fontSize: 20, color: C.ink2, marginRight: 8 },
+  input: { flex: 1, height: 52, fontSize: 16, color: C.ink, fontFamily: F.t },
   chips: { paddingHorizontal: 16, paddingVertical: 14, gap: 8 },
-  chip: { paddingHorizontal: 16, height: 38, borderRadius: R.pill, backgroundColor: C.card, justifyContent: 'center', borderWidth: 1, borderColor: C.line },
-  chipOn: { backgroundColor: C.ink, borderColor: C.ink },
-  chipT: { fontWeight: '700', color: C.ink },
+  chip: { paddingHorizontal: 16, height: 38, borderRadius: 19, backgroundColor: C.card, justifyContent: 'center' },
+  chipOn: { backgroundColor: C.ink },
+  chipT: { fontFamily: F.tB, fontSize: 13.5, color: C.ink },
   chipTOn: { color: '#fff' },
-  grp: { marginHorizontal: 20, marginTop: 18, marginBottom: 6, fontSize: 12, fontWeight: '800', letterSpacing: 1.2, textTransform: 'uppercase', color: C.sandDeep },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 16, paddingHorizontal: 16, paddingVertical: 12, backgroundColor: C.card, borderRadius: 18, marginBottom: 6 },
-  name: { fontSize: 16, fontWeight: '700', color: C.ink },
-  meta: { fontSize: 13, color: C.ink2, marginTop: 2 },
-  pill: { minWidth: 54, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
-  pillT: { fontSize: 16, fontWeight: '800', color: '#0c1519' },
-  empty: { marginHorizontal: 20, color: C.ink2, marginTop: 10 },
-  foot: { textAlign: 'center', color: C.ink3, marginTop: 20, fontSize: 12 },
+  grp: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 20, marginTop: 18, marginBottom: 8 },
+  grpT: { fontFamily: F.tX, fontSize: 11.5, letterSpacing: 1.4, textTransform: 'uppercase', color: C.gold },
+  grpN: { fontFamily: F.tB, fontSize: 11.5, color: C.ink3 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 14, marginHorizontal: 16, padding: 8, paddingRight: 16, backgroundColor: C.card, borderRadius: 20, marginBottom: 8 },
+  cell: { width: 62, height: 58, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  cellV: { fontFamily: F.num, fontSize: 19, color: C.ink, letterSpacing: -0.8 },
+  cellU: { fontFamily: F.tB, fontSize: 11, color: 'rgba(16,32,44,0.7)', marginTop: -1 },
+  name: { fontFamily: F.tX, fontSize: 16, color: C.ink },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 5 },
+  meta: { fontFamily: F.tB, fontSize: 12.5, color: C.ink2, marginRight: 6 },
+  wind: { flexDirection: 'row', alignItems: 'center', gap: 4, height: 22, paddingHorizontal: 8, borderRadius: 11 },
+  windT: { fontFamily: F.tX, fontSize: 12, color: C.ink },
+  fav: { fontSize: 16, color: C.gold },
+  empty: { marginHorizontal: 20, color: C.ink2, marginTop: 10, fontFamily: F.t },
+  foot: { textAlign: 'center', color: C.ink3, marginTop: 20, fontSize: 12, fontFamily: F.t, paddingHorizontal: 24 },
 });

@@ -1,3 +1,6 @@
+import { Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold, Manrope_800ExtraBold } from '@expo-google-fonts/manrope';
+import { Unbounded_500Medium, Unbounded_700Bold, Unbounded_800ExtraBold } from '@expo-google-fonts/unbounded';
+import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -5,9 +8,10 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Index, loadFavs, loadIndex, saveFavs, SpotLite } from './src/data';
 import SpotList from './src/SpotList';
 import SpotSheet from './src/SpotSheet';
-import { C } from './src/theme';
+import { C, F } from './src/theme';
 
 export default function App() {
+  const [fonts] = useFonts({ Unbounded_500Medium, Unbounded_700Bold, Unbounded_800ExtraBold, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold, Manrope_800ExtraBold });
   const [index, setIndex] = useState<Index | null>(null);
   const [offline, setOffline] = useState(false);
   const [err, setErr] = useState(false);
@@ -30,7 +34,7 @@ export default function App() {
     <SafeAreaProvider>
       <SafeAreaView style={st.root} edges={['top', 'left', 'right']}>
         <StatusBar style="dark" />
-        {!index || favs == null ? (
+        {!fonts || !index || favs == null ? (
           <View style={st.center}>
             {err ? (
               <>
@@ -53,7 +57,7 @@ export default function App() {
 const st = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.bg },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 30 },
-  msg: { color: C.ink2, fontSize: 16, textAlign: 'center' },
+  msg: { color: C.ink2, fontSize: 16, textAlign: 'center', fontFamily: F.t },
   retry: { marginTop: 16, backgroundColor: C.ink, paddingHorizontal: 22, height: 44, borderRadius: 22, justifyContent: 'center' },
   retryT: { color: '#fff', fontWeight: '700' },
 });
