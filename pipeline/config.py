@@ -12,6 +12,11 @@ HISTORY_DIR = ROOT / "history"  # archive prévision/réalité (branche git « h
 # variable METEO_SITE_URL dans .github/workflows/update.yml.
 SITE_URL = os.environ.get("METEO_SITE_URL", "https://houlalah.fr").rstrip("/")
 
+# Bouées abritées : elles ne représentent que les spots listés (la bouée de Saint-Jean-de-Luz est dans la baie,
+# protégée par les digues : sa mesure ne vaut que pour Sainte-Barbe, pas pour les spots ouverts autour).
+# Même règle dans l'appli (app/src/data.ts : BUOY_ONLY) et sur le site (web/index.html : BUOY_ONLY).
+BUOY_ONLY = {"Saint-Jean-de-Luz": ["Sainte Barbe"]}
+
 TIMEZONE = "Europe/Paris"
 FORECAST_DAYS = 7
 

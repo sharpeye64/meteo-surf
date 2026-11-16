@@ -1103,8 +1103,8 @@
   "name": "Sainte Barbe",
   "region": "Pays Basque",
   "commune": "Saint-Jean-de-Luz",
-  "lat": 43.394,
-  "lon": -1.665,
+  "lat": 43.3982,
+  "lon": -1.6618,
   "ori": 330,
   "swell": "NO",
   "tide": "Mi-marée",
@@ -1116,8 +1116,8 @@
   "notes": "Ne marche que sur grosse houle",
   "tide_port": "socoa",
   "tide_offset_min": 0,
-  "mlat": 43.3938,
-  "mlon": -1.6623
+  "mlat": 43.398,
+  "mlon": -1.6614
  },
  {
   "name": "Belharra",

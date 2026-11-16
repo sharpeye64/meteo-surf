@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import Arrow from './Arrow';
-import { ageTxt, Buoy, fr, loadSheet, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { ageTxt, Buoy, buoyFits, fr, loadSheet, regionName, sector, Sheet, SpotLite, windRel } from './data';
 import { useBarSpace } from './TabBar';
 import { C, F, periodCell, sizeCell, windCell } from './theme';
 
@@ -51,7 +51,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
   const rel = windRel(sheet.wdir[sel], sheet.ori);
   const tides = (sheet.tide?.extremes || []).filter(e => new Date(e.t + ':00').toDateString() === d.date);
   const sunI = sheet.sun ? sheet.sun.time.findIndex(x => new Date(x + 'T12:00').toDateString() === d.date) : -1;
-  const near = [...buoys].map(b => ({ b, k: km(spot, b) })).filter(x => x.k < 130).sort((a, b) => a.k - b.k)[0];
+  const near = buoys.filter(b => buoyFits(b, spot.name)).map(b => ({ b, k: km(spot, b) })).filter(x => x.k < 130).sort((a, b) => a.k - b.k)[0];
   const sea = d.idx.map(i => sheet.sea[i]);
 
   return (

@@ -65,7 +65,11 @@ export function windRel(wdir?: number | null, ori?: number) {
   const d = Math.abs((((wdir - ori) % 360) + 540) % 360 - 180);   // 0 = le vent vient du large, 180 = il vient de la terre
   return d >= 120 ? 'de terre' : d <= 60 ? 'de mer' : 'de travers';
 }
-export const ageH = (t: string) => (Date.now() - new Date(t + ':00').getTime()) / 36e5;
+/** Bouées abritées : elles ne valent que pour les spots listés (même règle que pipeline/config.py : BUOY_ONLY). */
+const BUOY_ONLY: Record<string, string[]> = { 'Saint-Jean-de-Luz': ['Sainte Barbe'] };
+export const buoyFits = (b: { name: string }, spotName: string) => !BUOY_ONLY[b.name] || BUOY_ONLY[b.name].includes(spotName);
+
+export const ageH =(t: string) => (Date.now() - new Date(t + ':00').getTime()) / 36e5;
 export function ageTxt(t: string) {
   const h = (Date.now() - new Date(t + ':00').getTime()) / 36e5;
   return h < 1 ? "à l'instant" : h < 36 ? `il y a ${Math.round(h)} h` : `il y a ${Math.round(h / 24)} j`;

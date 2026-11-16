@@ -238,6 +238,9 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
     name = b["name"]
     # prévision de comparaison : modèle au point de la bouée (large) sinon spot le plus proche (à moins de 40 km)
     fc, label = [], ""
+    only = config.BUOY_ONLY.get(name)                  # bouée abritée : seulement ses spots
+    if only:
+        spots = [s for s in spots if s["name"] in only]
     if b["model"]:
         by = {m["t"][:13]: m["hs"] for m in b["model"] if m.get("hs") is not None}
         fc = [by.get(o["t"][:13]) for o in obs]
