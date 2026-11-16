@@ -1625,6 +1625,22 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
 #home .hmb-res .hmb-reg small{font:600 12.5px Manrope,system-ui,sans-serif;color:#6b7b85}
 #home .hmb-res .hmb-reg svg{width:20px;height:20px;fill:none;stroke:#9aa7ae;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 #home .hmb-res .hmb-reg:hover{background:#f4f6f7}
+/* encadré de l'accueil : les bouées défilent */
+.hmb-cap{display:none}
+.hmb-tick{display:contents}
+@media (min-width:760px){
+  .hmb-cap{display:flex;align-items:center;justify-content:space-between;margin-top:18px;font:800 11px Manrope,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#7a6f55}
+  .hmb-cap span{display:flex;align-items:center;gap:8px}
+  .hmb-cap i{width:7px;height:7px;border-radius:50%;background:#2fb47c;box-shadow:0 0 0 0 rgba(47,180,124,.55);animation:hmbLive 2.4s ease-out infinite}
+  .hmb-cap b{font-weight:800;color:#a89c7e}
+  .hmb-tick{display:block;height:254px;overflow:hidden;margin-top:10px;-webkit-mask-image:linear-gradient(#000 0,#000 87%,transparent 100%);mask-image:linear-gradient(#000 0,#000 87%,transparent 100%)}
+  .hmb-tick .hmb-row{margin-top:0;will-change:transform}
+  .hmb-tick .hmb-row button:nth-child(n+5){display:flex}
+  .hmb-tick .hmb-row button{transition:background .15s}
+  .hmb-tick .hmb-row button:hover{background:#efe6d2}
+}
+@keyframes hmbLive{0%{box-shadow:0 0 0 0 rgba(47,180,124,.55)}70%,100%{box-shadow:0 0 0 7px rgba(47,180,124,0)}}
+@media (prefers-reduced-motion:reduce){ .hmb-cap i{animation:none} .hmb-tick{overflow-y:auto!important;-webkit-mask-image:none;mask-image:none} }
 #home .hmb-res .hmb-reg{padding:10px 12px 10px 22px}
 #home .hmb-res .hmb-reg b{font-size:15.5px}
 #home .hmb-res .hmb-cty{display:flex;align-items:baseline;justify-content:space-between;width:100%;padding:14px 12px 6px;margin-top:4px;background:none;border:0;border-top:1px solid #e3e8ea;cursor:pointer;font-family:inherit;color:#10202c;text-align:left}
@@ -3227,6 +3243,21 @@ function homeFrameStart(){
   };
   HOME.raf=requestAnimationFrame(frame);
 }
+/* Les bouées défilent dans l'encadré (grand écran) : une ligne monte toutes les 3 s, pause au survol ou au clavier. */
+function homeTick(){
+  clearInterval(HOME.tick); HOME.tick=0;
+  const box=document.getElementById('hmTick'), row=box&&box.querySelector('.hmb-row'); if(!row||row.children.length<=4) return;
+  let hold=false, busy=false;
+  box.onmouseenter=()=>hold=true; box.onmouseleave=()=>hold=false; box.onfocusin=()=>hold=true; box.onfocusout=()=>hold=false;
+  if(REDUCED) return;
+  HOME.tick=setInterval(()=>{
+    if(!document.body.contains(row)){ clearInterval(HOME.tick); HOME.tick=0; return; }
+    if(hold||busy||!HOME.on||document.hidden||innerWidth<760||getComputedStyle(box).overflowY!=='hidden') return;
+    const first=row.firstElementChild, step=first.getBoundingClientRect().height+8; busy=true;
+    row.style.transition='transform .7s cubic-bezier(.22,1,.36,1)'; row.style.transform=`translateY(${-step}px)`; first.style.transition='opacity .45s'; first.style.opacity='0';
+    setTimeout(()=>{ row.style.transition='none'; row.appendChild(first); first.style.transition='none'; first.style.opacity=''; row.style.transform='translateY(0)'; HOME.tickAt=(HOME.tickAt||0)+1; busy=false; },720);
+  },3000);
+}
 function homeTopBtn(){ const b=document.getElementById('hmClose'); if(!b||!state.data) return;
   if(HOME.from!=null&&state.data[HOME.from]){ b.style.display=''; b.textContent='← Retour à '+state.data[HOME.from].spot.name; } else b.style.display='none'; }
 function homeClear(){ HOME.sel=null; HOME.ref=null; document.querySelectorAll('#home .hm-pt,#home .hm-bu').forEach(e=>e.classList.remove('on')); }
@@ -3265,16 +3296,20 @@ function homeChipsHtml(D){
 function homeHomePanelM(){
   const P=document.getElementById('hmPanel'), D=HOME.data, n=new Date().getHours();
   const order=['Cap Ferret','Anglet','Saint-Jean-de-Luz','Donostia','Bilbao-Vizcaya','Gascogne'];
-  const bu=[...HOME.bu].sort((a,b)=>{ const x=order.indexOf(a.n), y=order.indexOf(b.n); return (x<0?99:x)-(y<0?99:y); });
+  const bu0=[...HOME.bu].sort((a,b)=>{ const x=order.indexOf(a.n), y=order.indexOf(b.n); return (x<0?99:x)-(y<0?99:y); });
+  /* le défilement repart de là où il en était (les 4 premières restent celles du Sud-Ouest à l'ouverture, puis on suit la côte) */
+  const rest=bu0.slice(4).sort((a,b)=>b.lat-a.lat), all=[...bu0.slice(0,4),...rest], k=(HOME.tickAt||0)%Math.max(1,all.length), bu=[...all.slice(k),...all.slice(0,k)];
   document.getElementById('home').classList.remove('hm-sel'); HOME.popAt=null;
   P.innerHTML=`<div class="hmb-col"><div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<input id="hmQ" placeholder="Chercher un spot…" autocomplete="off" aria-label="Chercher un spot" value="${HOME.q.replace(/"/g,'')}"><button type="button" class="hmb-x" id="hmQx">Annuler</button></div>
     <div class="hmb-chips">${homeChipsHtml(D)}</div></div>
     <div class="hmb-res" id="hmRes" hidden></div>
     <div class="hmb-card"><div class="hd"><div><h3>La houle du moment</h3><div class="sub">Prévision de ${n} h · ${D.length} spots</div></div><div class="hmb-leg"><i></i><span><span>0 m</span><span>3 m +</span></span></div></div>
-      <div class="hmb-row">${bu.map(b=>`<button type="button" data-b="${b.id}"><span>${b.n}<small>${b.large?'au large · ':''}${ageTxt((new Date()-new Date(b.L.time+':00'))/36e5)}${b.L.tp?' · '+Math.round(b.L.tp)+' s':''}</small></span><b>${hmF(b.L.hs)}</b></button>`).join('')}</div></div></div>`;
+      <div class="hmb-cap"><span><i></i>Bouées en direct</span><b>${bu.length}</b></div>
+      <div class="hmb-tick" id="hmTick"><div class="hmb-row">${bu.map(b=>`<button type="button" data-b="${b.id}"><span>${b.n}<small>${b.large?'au large · ':''}${ageTxt((new Date()-new Date(b.L.time+':00'))/36e5)}${b.L.tp?' · '+Math.round(b.L.tp)+' s':''}</small></span><b>${hmF(b.L.hs)}</b></button>`).join('')}</div></div></div></div>`;
   P.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>homeBuoy(HOME.bu.find(x=>x.id===b.dataset.b)));
   P.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ HOME.reg=b.dataset.g; homeFit(); homeHomePanelM(); homeDeclutter(); });
   document.getElementById('hmGeo').onclick=e=>homeGeo(e.currentTarget);
+  homeTick();
   homeBindSearch(); homeRes(); homeTopBtn();
   requestAnimationFrame(()=>{ const c=document.querySelector('#home .hmb-col'); if(c&&innerWidth>=1200&&!document.getElementById('home').classList.contains('hm-sel')){ const t=Math.round(c.getBoundingClientRect().top); if(t>0) HOME.colTop=t; } });
 }
