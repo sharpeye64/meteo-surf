@@ -16,6 +16,18 @@ SITE_URL = os.environ.get("METEO_SITE_URL", "https://houlalah.fr").rstrip("/")
 # protégée par les digues : sa mesure ne vaut que pour Sainte-Barbe, pas pour les spots ouverts autour).
 # Même règle dans l'appli (app/src/data.ts : BUOY_ONLY) et sur le site (web/index.html : BUOY_ONLY).
 BUOY_ONLY = {"Saint-Jean-de-Luz": ["Sainte Barbe"]}
+# Bouées de référence par région (demande de l'utilisateur) : les spots des Landes se comparent à la Gascogne (au large)
+# ou à Cap Ferret (côte), jamais à Anglet ni aux bouées espagnoles. Même règle dans l'appli (REGION_BUOYS) et sur le site.
+REGION_BUOYS = {"Landes": ["Cap Ferret", "Gascogne"]}
+
+
+def buoy_fits(buoy_name, spot):
+    """Vrai si la bouée peut servir de référence pour ce spot (bouée abritée, puis bouées imposées par région)."""
+    only = BUOY_ONLY.get(buoy_name)
+    if only and spot.get("name") not in only:
+        return False
+    allowed = REGION_BUOYS.get(spot.get("region"))
+    return not allowed or buoy_name in allowed
 
 TIMEZONE = "Europe/Paris"
 FORECAST_DAYS = 7

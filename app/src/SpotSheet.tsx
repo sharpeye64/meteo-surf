@@ -52,7 +52,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
   const tides = (sheet.tide?.extremes || []).filter(e => new Date(e.t + ':00').toDateString() === d.date);
   const sunI = sheet.sun ? sheet.sun.time.findIndex(x => new Date(x + 'T12:00').toDateString() === d.date) : -1;
   // Bouée de comparaison : la plus proche en direct (moins de 2 h, à moins de 60 km), sinon de moins de 6 h, sinon la plus proche.
-  const cands = buoys.filter(b => buoyFits(b, spot.name)).map(b => ({ b, k: km(spot, b) })).filter(x => x.k < 130).sort((a, b) => a.k - b.k);
+  const cands = buoys.filter(b => buoyFits(b, spot)).map(b => ({ b, k: km(spot, b) })).filter(x => x.k < 130).sort((a, b) => a.k - b.k);
   const near = cands.find(x => ageH(x.b.time) < 2 && x.k < 60) || cands.find(x => ageH(x.b.time) < 6) || cands[0];
   const sea = d.idx.map(i => sheet.sea[i]);
 

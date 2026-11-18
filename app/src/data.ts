@@ -69,7 +69,10 @@ export function windRel(wdir?: number | null, ori?: number) {
 }
 /** Bouées abritées : elles ne valent que pour les spots listés (même règle que pipeline/config.py : BUOY_ONLY). */
 const BUOY_ONLY: Record<string, string[]> = { 'Saint-Jean-de-Luz': ['Sainte Barbe'] };
-export const buoyFits = (b: { name: string }, spotName: string) => !BUOY_ONLY[b.name] || BUOY_ONLY[b.name].includes(spotName);
+/** Bouées de référence par région : les Landes se comparent à la Gascogne ou à Cap Ferret seulement (pipeline/config.py : REGION_BUOYS). */
+const REGION_BUOYS: Record<string, string[]> = { Landes: ['Cap Ferret', 'Gascogne'] };
+export const buoyFits = (b: { name: string }, spot: { name: string; region?: string }) =>
+  (!BUOY_ONLY[b.name] || BUOY_ONLY[b.name].includes(spot.name)) && (!spot.region || !REGION_BUOYS[spot.region] || REGION_BUOYS[spot.region].includes(b.name));
 
 export const ageH =(t: string) => (Date.now() - new Date(t + ':00').getTime()) / 36e5;
 export function ageTxt(t: string) {
