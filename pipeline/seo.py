@@ -209,8 +209,7 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
             f"{', coefficient de marée ' + str(t['coef']) if t['coef'] else ''}.") if t else ""
     buoy_line = ""
     try:
-        cb = [b for b in (payload.get("coast") or []) + (payload.get("offshore") or []) if (b.get("latest") or {}).get("hs") is not None
-              and config.buoy_fits(b["name"], sp)]
+        cb = [b for b in (payload.get("coast") or []) + (payload.get("offshore") or []) if (b.get("latest") or {}).get("hs") is not None]
         if cb:
             b = min(cb, key=lambda x: hav(sp, {"lat": float(x["lat"]), "lon": float(x["lon"])}))
             km = hav(sp, {"lat": float(b["lat"]), "lon": float(b["lon"])})

@@ -2496,11 +2496,8 @@ function relUpdate(h,ag){
 }
 /* Bouées abritées : elles ne valent que pour les spots listés (même règle que pipeline/config.py : BUOY_ONLY). */
 const BUOY_ONLY={'Saint-Jean-de-Luz':['Sainte Barbe']};
-/* Bouées de référence par région : les Landes se comparent à la Gascogne ou à Cap Ferret seulement (pipeline/config.py : REGION_BUOYS). */
-const REGION_BUOYS={'Landes':['Cap Ferret','Gascogne']};
-const buoyFits=(name,s)=>(!BUOY_ONLY[name]||BUOY_ONLY[name].includes(s.name))&&(!REGION_BUOYS[s.region]||REGION_BUOYS[s.region].includes(name));
 function nearestCoast(s){
-  const c=(state.coast||[]).filter(b=>b.latest&&b.latest.hs!=null&&buoyFits(b.name,s)); if(!c.length) return null;
+  const c=(state.coast||[]).filter(b=>b.latest&&b.latest.hs!=null&&(!BUOY_ONLY[b.name]||BUOY_ONLY[b.name].includes(s.name))); if(!c.length) return null;
   /* Une bouée côtière à plus de 130 km n'a plus de lien avec le spot : on ne la propose pas. */
   const best=c.map(b=>({b,km:hav(s,b)})).sort((x,y)=>x.km-y.km)[0];
   return best.km>130?null:best;
@@ -2540,8 +2537,8 @@ function whyText(view,T){
 }
 function buoyChoices(s){
   const out=[], g=state.gascogne;
-  if(g&&g.latest&&g.latest.hs!=null&&hav(s,g)<450&&buoyFits('Gascogne',s)) out.push({key:'gascogne',name:'Gascogne',sub:`au large, à ${Math.round(hav(s,g))} km du spot`,kind:'large',L:g.latest,obs:g.obs||[],model:g.model||[],km:hav(s,g),Tm:g.period_used||null});
-  (state.offshore||[]).forEach(o=>{ if(o.latest&&o.latest.hs!=null&&buoyFits(o.name,s)){ const km=hav(s,o);
+  if(g&&g.latest&&g.latest.hs!=null&&hav(s,g)<450) out.push({key:'gascogne',name:'Gascogne',sub:`au large, à ${Math.round(hav(s,g))} km du spot`,kind:'large',L:g.latest,obs:g.obs||[],model:g.model||[],km:hav(s,g),Tm:g.period_used||null});
+  (state.offshore||[]).forEach(o=>{ if(o.latest&&o.latest.hs!=null){ const km=hav(s,o);
     if(o.id==='donostia'&&km>80) return;
     if(km>300||(/côte/.test(o.sub||'')&&km>130)) return;
     out.push({key:o.id,name:o.name,sub:`${o.sub}, à ${Math.round(km)} km du spot`,kind:'large',L:o.latest,obs:o.obs||[],model:o.model||[],km,Tm:null}); } });

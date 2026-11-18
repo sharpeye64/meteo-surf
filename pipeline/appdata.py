@@ -80,7 +80,8 @@ def _buoy_sheets(spots, payload, out_dir):
         if L.get("hs") is None:
             continue
         pos = (float(b["lat"]), float(b["lon"]))
-        around = sorted(((_km(pos, (s["lat"], s["lon"])), s) for s in spots if config.buoy_fits(name, s)), key=lambda x: x[0])
+        only = config.BUOY_ONLY.get(name)                      # bouée abritée : seulement ses spots
+        around = sorted(((_km(pos, (s["lat"], s["lon"])), s) for s in spots if not only or s["name"] in only), key=lambda x: x[0])
         model = [{"t": m["t"], "hs": _r(m["hs"], 2)} for m in (b.get("model") or []) if m.get("hs") is not None]
         src = "modèle au point de la bouée"
         if not model and around and around[0][0] < 60:          # bouée côtière : prévision du spot le plus proche

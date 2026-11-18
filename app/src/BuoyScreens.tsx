@@ -50,7 +50,7 @@ export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]
 
   const mine = useMemo(() => {
     if (!spot) return null;
-    const all = index.buoys.filter(b => buoyFits(b, spot)).map(b => ({ b, k: km(spot, b) })).sort((x, y) => x.k - y.k);
+    const all = index.buoys.filter(b => buoyFits(b, spot.name)).map(b => ({ b, k: km(spot, b) })).sort((x, y) => x.k - y.k);
     const coast = all.filter(x => !x.b.large && x.k < 120);
     // La plus proche en direct (moins de 2 h, à moins de 60 km), sinon la plus proche de moins de 6 h, sinon la plus proche.
     const main = coast.find(x => ageH(x.b.time) < 2 && x.k < 60) || coast.find(x => ageH(x.b.time) < 6) || coast[0] || all[0];
