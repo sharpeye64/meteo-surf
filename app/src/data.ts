@@ -6,12 +6,14 @@ export const DATA_URL = (process.env.EXPO_PUBLIC_DATA_URL || 'https://houlalah.f
 
 export type Now = { t: string | null; hs: number | null; tp: number | null; dir: number | null; wind: number | null; wdir: number | null };
 export type SpotLite = { name: string; slug: string; region: string; commune?: string; lat: number; lon: number; ori?: number; now: Now };
-export type Buoy = { id: string; slug: string; name: string; sub: string; lat: number; lon: number; large?: boolean; time: string; hs: number; tp?: number | null; dir?: number | null; sst?: number | null };
+export type Buoy = { id: string; slug: string; name: string; sub: string; lat: number; lon: number; large?: boolean; time: string; hs: number; tp?: number | null; tm?: number | null; dir?: number | null; sst?: number | null };
+/** Période d'une bouée : la période pic si elle est mesurée, sinon la période MOYENNE (Gascogne, Météo-France), dite comme telle. */
+export const perTxt = (b: { tp?: number | null; tm?: number | null }) => (b.tp ? `${Math.round(b.tp)} s` : b.tm ? `${Math.round(b.tm)} s moy.` : '');
 export type Index = { v: number; generated: string; spots: SpotLite[]; buoys: Buoy[] };
 export type Obs = { t: string; hs: number | null; tp?: number | null; dir?: number | null; hmax?: number | null; sst?: number | null };
 export type BuoySheet = {
   id: string; slug: string; name: string; sub: string; lat: number; lon: number;
-  latest: { time: string; hs: number; hmax?: number | null; tp?: number | null; dir?: number | null; sst?: number | null };
+  latest: { time: string; hs: number; hmax?: number | null; tp?: number | null; tm?: number | null; dir?: number | null; sst?: number | null };
   obs: Obs[]; model: { t: string; hs: number | null }[]; model_src: string;
   stats: { since: string; days: number; hs_max: number; hs_max_t: string; hs_mean: number; sst_mean?: number | null } | null;
   spots: { name: string; slug: string; km: number }[];

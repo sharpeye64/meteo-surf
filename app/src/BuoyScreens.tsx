@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
-import { ageH, ageTxt, Buoy, buoyFits, BuoySheet, fr, Index, loadBuoy, sector } from './data';
+import { ageH, ageTxt, Buoy, buoyFits, BuoySheet, fr, Index, loadBuoy, perTxt, sector } from './data';
 import { Blink } from './Live';
 import { useBarSpace } from './TabBar';
 import { C, F, themed } from './theme';
@@ -35,7 +35,7 @@ function BuoyLine({ b, i, note, first, onOpen }: { b: Buoy; i: number; note?: st
         <Text style={st.name} numberOfLines={1}>{b.name}</Text>
         <Text style={st.sub} numberOfLines={1}>{note ? `${note} · ` : ''}{ageTxt(b.time)}</Text>
       </View>
-      {b.tp ? <Text style={st.metaT}>{Math.round(b.tp)} s</Text> : null}
+      {perTxt(b) ? <Text style={st.metaT}>{perTxt(b)}</Text> : null}
       <View style={st.val}><Text style={st.valT}>{fr(b.hs)}</Text></View>
     </Pressable>
   );
@@ -81,7 +81,7 @@ export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]
             <View style={st.heroRow}>
               <Text style={st.heroH}>{fr(M.b.hs)}<Text style={st.heroU}> m</Text></Text>
               <View style={{ gap: 4 }}>
-                {M.b.tp ? <Text style={st.heroP}>{Math.round(M.b.tp)} s</Text> : null}
+                {perTxt(M.b) ? <Text style={st.heroP}>{perTxt(M.b)}</Text> : null}
                 {M.b.dir != null && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Arrow dir={M.b.dir} size={13} color={C.sandText} /><Text style={st.heroS}>{sector(M.b.dir)}</Text></View>}
               </View>
             </View>
@@ -139,7 +139,7 @@ export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => v
             <Text style={st.big}>{fr(L!.hs)}<Text style={st.bigU}> m</Text></Text>
             <Text style={st.bigS}>Hauteur significative mesurée{L!.hmax ? ` · vague max ${fr(L!.hmax)} m` : ''}</Text>
             <View style={st.tiles}>
-              <Tile k="Période" v={L!.tp ? `${Math.round(L!.tp)} s` : '—'} />
+              <Tile k={!L!.tp && L!.tm ? 'Période moy.' : 'Période'} v={L!.tp ? `${Math.round(L!.tp)} s` : L!.tm ? `${Math.round(L!.tm)} s` : '—'} />
               <Tile k="Direction" v={sector(L!.dir)} dir={L!.dir} />
               <Tile k="Eau" v={L!.sst != null ? `${fr(L!.sst, 1)} °C` : '—'} />
             </View>

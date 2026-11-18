@@ -6,7 +6,7 @@ import MapView, { MapType, Marker, Region } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import Brand from './Brand';
-import { ageH, Buoy, fr, Index, SpotLite } from './data';
+import { ageH, Buoy, fr, Index, perTxt, SpotLite } from './data';
 import { Pulse } from './Live';
 import { FLOAT_BAR_H } from './TabBar';
 import { C, F, isDark, sizeCell, themed } from './theme';
@@ -111,7 +111,7 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
                 </View>
                 {lab && (
                   <View style={st.buLab}>
-                    <Text style={st.buLabT}>{fr(b.hs)} m{b.tp ? ` · ${Math.round(b.tp)} s` : ''}</Text>
+                    <Text style={st.buLabT}>{fr(b.hs)} m{perTxt(b) ? ` · ${perTxt(b)}` : ''}</Text>
                   </View>
                 )}
               </View>

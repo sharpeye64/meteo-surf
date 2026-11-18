@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
-import { ageH, ageTxt, Buoy, buoyFits, fr, loadSheet, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { ageH, ageTxt, Buoy, buoyFits, fr, loadSheet, perTxt, regionName, sector, Sheet, SpotLite, windRel } from './data';
 import { useBarSpace } from './TabBar';
 import { C, F, isDark, periodCell, sizeCell, themed, windCell } from './theme';
 
@@ -145,7 +145,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
             <View style={st.nowRow}><View style={[st.dot, (Date.now() - new Date(near.b.time + ':00').getTime()) / 36e5 >= 2 && { backgroundColor: C.sandMuted }]} /><Text style={[st.nowT, { color: C.sandText }]}>MESURE RÉELLE · BOUÉE {near.b.name.toUpperCase()}</Text></View>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 8 }}>
               <Text style={[st.big, { color: C.sandText }]}>{fr(near.b.hs)}<Text style={st.bigU}> m</Text></Text>
-              <Text style={[st.tileS, { color: C.sandText, marginBottom: 8 }]}>{near.b.tp ? `${Math.round(near.b.tp)} s · ` : ''}{near.b.dir != null ? sector(near.b.dir) + ' · ' : ''}{Math.round(near.k)} km</Text>
+              <Text style={[st.tileS, { color: C.sandText, marginBottom: 8 }]}>{perTxt(near.b) ? `${perTxt(near.b)} · ` : ''}{near.b.dir != null ? sector(near.b.dir) + ' · ' : ''}{Math.round(near.k)} km</Text>
             </View>
             <Text style={[st.hint, { color: C.sandMuted2 }]}>Mesuré {ageTxt(near.b.time)}, en mer : à comparer à la prévision. Voir la bouée ›</Text>
           </Pressable>

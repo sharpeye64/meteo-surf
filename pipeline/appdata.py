@@ -43,7 +43,7 @@ def _buoys(payload):
     g = payload.get("gascogne")
     if g and (g.get("latest") or {}).get("hs") is not None:
         out.append({"id": "gascogne", "name": "Gascogne", "sub": "au large, Météo-France 62001", "lat": g["lat"], "lon": g["lon"],
-                    "large": True, **{k: g["latest"].get(k) for k in ("time", "hs", "tp", "dir", "sst")}})
+                    "large": True, **{k: g["latest"].get(k) for k in ("time", "hs", "tp", "tm", "dir", "sst")}})
     for kind in ("coast", "offshore"):
         for b in payload.get(kind) or []:
             L = b.get("latest") or {}
@@ -94,7 +94,7 @@ def _buoy_sheets(spots, payload, out_dir):
         model = [m for m in model if t_first and m["t"] >= t_first][:72]
         st = stats.get(bid) or {}
         sheet = {"v": VERSION, "id": bid, "slug": slugify(name), "name": name, "sub": sub, "lat": pos[0], "lon": pos[1],
-                 "latest": {k: L.get(k) for k in ("time", "hs", "hmax", "tp", "dir", "sst")}, "obs": obs, "model": model, "model_src": src,
+                 "latest": {k: L.get(k) for k in ("time", "hs", "hmax", "tp", "tm", "dir", "sst")}, "obs": obs, "model": model, "model_src": src,
                  "stats": {k: st.get(k) for k in ("since", "days", "hs_max", "hs_max_t", "hs_mean", "sst_mean")} if st else None,
                  "spots": [{"name": s["name"], "slug": slugify(s["name"]), "km": round(k)} for k, s in around[:6] if k < 60]}
         (out_dir / f"{slugify(name)}.json").write_text(json.dumps(sheet, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

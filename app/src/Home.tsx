@@ -3,7 +3,7 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, Vie
 import Svg, { Circle, G, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
 import Brand from './Brand';
-import { ageTxt, Buoy, country, fr, Index, loadSheet, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { ageTxt, Buoy, country, fr, Index, loadSheet, perTxt, regionName, sector, Sheet, SpotLite, windRel } from './data';
 import { Blink } from './Live';
 import { SpotRow } from './SpotList';
 import { useBarSpace } from './TabBar';
@@ -98,7 +98,7 @@ export default function Home({ index, favs, offline, refreshing, onRefresh, onOp
                 {live.map((b, i) => (
                   <Pressable key={b.id} style={st.bu} onPress={() => onBuoy(b)}>
                     <Blink size={7} delay={(i % 3) * 450} />
-                    <View><Text style={st.buN}>{b.name}</Text><Text style={st.buS}>{ageTxt(b.time)}{b.tp ? ` · ${Math.round(b.tp)} s` : ''}</Text></View>
+                    <View><Text style={st.buN}>{b.name}</Text><Text style={st.buS}>{ageTxt(b.time)}{perTxt(b) ? ` · ${perTxt(b)}` : ''}</Text></View>
                     <View style={st.buV}><Text style={st.buVT}>{fr(b.hs)}</Text></View>
                   </Pressable>
                 ))}

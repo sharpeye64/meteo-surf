@@ -194,6 +194,8 @@ def fetch(spots):
         "latest": None if last is None else {
             "time": fmt(last["local"]), "hs": round(float(last["WVHT"]), 2),
             "tp": None if not np.isfinite(last.get("DPD", np.nan)) else round(float(last["DPD"]), 1),
+            # période MOYENNE mesurée (Météo-France ne donne pas la période pic) : à afficher comme telle, jamais comme « tp »
+            "tm": None if not np.isfinite(last.get("APD", np.nan)) else round(float(last["APD"]), 1),
             "dir": None if not np.isfinite(last.get("MWD", np.nan)) else round(float(last["MWD"])),
             "sst": None if not np.isfinite(last.get("WTMP", np.nan)) else round(float(last["WTMP"]), 1)},
         "obs": [{"t": fmt(r.hour), "hs": round(float(r.hs), 2)} for r in hourly.itertuples()],
