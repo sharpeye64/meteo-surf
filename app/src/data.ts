@@ -71,6 +71,20 @@ export function windRel(wdir?: number | null, ori?: number) {
 const BUOY_ONLY: Record<string, string[]> = { 'Saint-Jean-de-Luz': ['Sainte Barbe'] };
 export const buoyFits = (b: { name: string }, spotName: string) => !BUOY_ONLY[b.name] || BUOY_ONLY[b.name].includes(spotName);
 
+/** Bouée de référence des Landes (demande de l'utilisateur) : Cap Ferret pour le nord, jusqu'à 70 km (Biscarrosse à Cap de l'Homy),
+ *  la Gascogne pour les autres ; prise si sa mesure a moins de 6 h. Même règle sur le site (web/index.html : prefRank). */
+const LANDES_CF_KM = 70;
+const kmTo = (a: { lat: number; lon: number }, b: { lat: number; lon: number }) => {
+  const r = Math.PI / 180, x = (b.lon - a.lon) * r * Math.cos(((a.lat + b.lat) / 2) * r), y = (b.lat - a.lat) * r;
+  return Math.sqrt(x * x + y * y) * 6371;
+};
+export function prefBuoy(buoys: Buoy[], spot: { region?: string; lat: number; lon: number }): Buoy | null {
+  if (spot.region !== 'Landes') return null;
+  const cf = buoys.find(b => b.name === 'Cap Ferret'), g = buoys.find(b => b.id === 'gascogne');
+  const order = [cf && kmTo(spot, cf) <= LANDES_CF_KM ? cf : null, g].filter((b): b is Buoy => !!b);
+  return order.find(b => ageH(b.time) < 6) || null;
+}
+
 export const ageH =(t: string) => (Date.now() - new Date(t + ':00').getTime()) / 36e5;
 export function ageTxt(t: string) {
   const h = (Date.now() - new Date(t + ':00').getTime()) / 36e5;

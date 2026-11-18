@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
-import { ageH, ageTxt, Buoy, buoyFits, BuoySheet, fr, Index, loadBuoy, perTxt, sector } from './data';
+import { ageH, ageTxt, Buoy, buoyFits, BuoySheet, fr, Index, loadBuoy, perTxt, prefBuoy, sector } from './data';
 import { Blink } from './Live';
 import { useBarSpace } from './TabBar';
 import { C, F, themed } from './theme';
@@ -53,7 +53,8 @@ export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]
     const all = index.buoys.filter(b => buoyFits(b, spot.name)).map(b => ({ b, k: km(spot, b) })).sort((x, y) => x.k - y.k);
     const coast = all.filter(x => !x.b.large && x.k < 120);
     // La plus proche en direct (moins de 2 h, à moins de 60 km), sinon la plus proche de moins de 6 h, sinon la plus proche.
-    const main = coast.find(x => ageH(x.b.time) < 2 && x.k < 60) || coast.find(x => ageH(x.b.time) < 6) || coast[0] || all[0];
+    const pb = prefBuoy(index.buoys, spot);   // Landes : Cap Ferret au nord, Gascogne ailleurs
+    const main = (pb && all.find(x => x.b.id === pb.id)) || coast.find(x => ageH(x.b.time) < 2 && x.k < 60) || coast.find(x => ageH(x.b.time) < 6) || coast[0] || all[0];
     const others = all.filter(x => x.b.id !== main.b.id && x.k < 200).slice(0, 4);
     const off = all.find(x => x.b.large);
     if (off && off.b.id !== main.b.id && !others.some(x => x.b.id === off.b.id)) others.push(off);

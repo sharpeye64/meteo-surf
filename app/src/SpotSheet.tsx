@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
-import { ageH, ageTxt, Buoy, buoyFits, fr, loadSheet, perTxt, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { ageH, ageTxt, Buoy, buoyFits, fr, loadSheet, perTxt, prefBuoy, regionName, sector, Sheet, SpotLite, windRel } from './data';
 import { useBarSpace } from './TabBar';
 import { C, F, isDark, periodCell, sizeCell, themed, windCell } from './theme';
 
@@ -53,7 +53,8 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
   const sunI = sheet.sun ? sheet.sun.time.findIndex(x => new Date(x + 'T12:00').toDateString() === d.date) : -1;
   // Bouée de comparaison : la plus proche en direct (moins de 2 h, à moins de 60 km), sinon de moins de 6 h, sinon la plus proche.
   const cands = buoys.filter(b => buoyFits(b, spot.name)).map(b => ({ b, k: km(spot, b) })).filter(x => x.k < 130).sort((a, b) => a.k - b.k);
-  const near = cands.find(x => ageH(x.b.time) < 2 && x.k < 60) || cands.find(x => ageH(x.b.time) < 6) || cands[0];
+  const pb = prefBuoy(buoys, spot);   // Landes : Cap Ferret au nord, Gascogne ailleurs
+  const near = (pb && { b: pb, k: km(spot, pb) }) || cands.find(x => ageH(x.b.time) < 2 && x.k < 60) || cands.find(x => ageH(x.b.time) < 6) || cands[0];
   const sea = d.idx.map(i => sheet.sea[i]);
 
   return (

@@ -1748,8 +1748,9 @@ const DAYS_LONG = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','sam
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const state = { radarView:loadRadarView(), data:null, spot:0, day:0, hour:10, filter:'geo', q:'', fav:loadFav(), weight:loadWeight() };
 
-function loadRadarView(){ try{ return localStorage.getItem('radarView')||null; }catch(e){ return null; } }
-function saveRadarView(v){ try{ localStorage.setItem('radarView',v); }catch(e){} }
+/* Bouée choisie à la main : retenue PAR SPOT (une bouée choisie à Anglet ne doit pas s'imposer aux spots des Landes). */
+function loadRadarView(){ try{ localStorage.removeItem('radarView'); return JSON.parse(localStorage.getItem('radarViews')||'{}')||{}; }catch(e){ return {}; } }
+function saveRadarView(v){ try{ localStorage.setItem('radarViews',JSON.stringify(v)); }catch(e){} }
 function loadWeight(){ try{ const w=+localStorage.getItem('weight'); return w>=50&&w<=110?w:75; }catch(e){ return 75; } }
 function saveWeight(w){ try{ localStorage.setItem('weight',String(w)); }catch(e){} }
 function loadFav(){ try{ return JSON.parse(localStorage.getItem('fav')||'[]'); }catch(e){ return []; } }
@@ -2392,7 +2393,7 @@ document.addEventListener('click',e=>{ if(!e.target.closest('.tipbtn,#tipLayer')
 document.addEventListener('click',e=>{ if(e.target.closest('#stkSpot')){ const o=document.getElementById('openPicker'); if(o) o.click(); } });
 window.addEventListener('scroll',()=>{ const el=document.getElementById('stk'); if(el) el.classList.toggle('on',scrollY>430); },{passive:true});
 document.addEventListener('click',e=>{ const b=e.target.closest('.rtog button'); if(!b||!state.data) return;
-  state.radarView=b.dataset.rv; saveRadarView(state.radarView);
+  state.radarView[state.data[state.spot].spot.name]=b.dataset.rv; saveRadarView(state.radarView);
   const sec=b.closest('.radar'); if(sec){ const t=document.createElement('div'); t.innerHTML=radarHtml(state.data[state.spot].spot); sec.replaceWith(t.firstElementChild); } });
 /* Barre du bas (téléphone) et sections repliables */
 document.addEventListener('click',e=>{ const m=e.target.closest('a.mcard'); if(!m) return; const f=document.getElementById('f-radar'); if(f&&!f.open){ e.preventDefault(); f.open=true; setTimeout(()=>f.scrollIntoView({behavior:REDUCED?'auto':'smooth',block:'start'}),60); } });
@@ -2543,15 +2544,30 @@ function buoyChoices(s){
     if(km>300||(/côte/.test(o.sub||'')&&km>130)) return;
     out.push({key:o.id,name:o.name,sub:`${o.sub}, à ${Math.round(km)} km du spot`,kind:'large',L:o.latest,obs:o.obs||[],model:o.model||[],km,Tm:null}); } });
   const c=nearestCoast(s); if(c) out.push({key:c.b.id,name:c.b.name,sub:`à ${Math.round(c.km)} km du spot`,kind:'coast',L:c.b.latest,obs:c.b.obs||[],model:null,km:c.km,Tm:null});
-  out.sort((x,y)=>x.km-y.km); if(out.length>5) out.length=5;   /* les 5 bouées les plus proches suffisent */
+  if(s.region==='Landes'){ const cf=(state.coast||[]).find(x=>x.name==='Cap Ferret'&&x.latest&&x.latest.hs!=null), k=cf&&hav(s,cf);   /* nord des Landes : Cap Ferret toujours proposée */
+    if(cf&&k<=LANDES_CF_KM&&!out.some(o=>o.key===cf.id)) out.push({key:cf.id,name:cf.name,sub:`à ${Math.round(k)} km du spot`,kind:'coast',L:cf.latest,obs:cf.obs||[],model:null,km:k,Tm:null}); }
+  out.forEach(o=>{ o.pref=prefRank(s,o); });
+  out.sort((x,y)=>x.km-y.km);
+  if(out.length>5){ const keep=out.filter((o,i)=>i<5||o.pref!=null); while(keep.length>5){ const j=keep.map(o=>o.pref==null).lastIndexOf(true); if(j<0) break; keep.splice(j,1); } out.length=0; out.push(...keep); }   /* les 5 bouées les plus proches suffisent (en gardant la bouée de référence) */
   out.forEach(o=>{ o.ageH=(new Date()-new Date(o.L.time+':00'))/36e5; });
+  out.spot=s.name;
   return out;
 }
 /* Bouée affichée par défaut : la plus proche parmi celles dont la mesure a moins de 6 h ; sinon la plus fraîche. Le choix de l'utilisateur prime. */
+/* Bouée de référence des Landes (demande de l'utilisateur) : Cap Ferret pour le nord, jusqu'à 70 km (Biscarrosse à Cap de l'Homy),
+   la Gascogne pour les autres. Prise par défaut si sa mesure a moins de 6 h. Même règle dans l'appli (app/src/data.ts : prefBuoy). */
+const LANDES_CF_KM=70;
+function prefRank(s,o){
+  if(s.region!=='Landes') return null;
+  if(o.name==='Cap Ferret'&&o.km<=LANDES_CF_KM) return 0;
+  if(o.key==='gascogne') return 1;
+  return null;
+}
 function pickBuoy(list){
   if(!list.length) return null;
-  let want=state.radarView; if(want==='large') want='gascogne'; else if(want==='cote'){ const c=list.find(o=>o.kind==='coast'); want=c&&c.key; }
+  let want=state.radarView[list.spot]; if(want==='large') want='gascogne'; else if(want==='cote'){ const c=list.find(o=>o.kind==='coast'); want=c&&c.key; }
   const mine=list.find(o=>o.key===want); if(mine) return mine;
+  const pf=list.filter(o=>o.pref!=null&&o.ageH<6).sort((x,y)=>x.pref-y.pref)[0]; if(pf) return pf;
   const fresh=list.filter(o=>o.ageH<6);
   return fresh.length?fresh.sort((x,y)=>x.km-y.km)[0]:list.slice().sort((x,y)=>x.ageH-y.ageH)[0];
 }
