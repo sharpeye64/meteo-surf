@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const DATA_URL = (process.env.EXPO_PUBLIC_DATA_URL || 'https://houlalah.fr/data/app').replace(/\/$/, '');
 
 export type Now = { t: string | null; hs: number | null; tp: number | null; dir: number | null; wind: number | null; wdir: number | null };
-export type SpotLite = { name: string; slug: string; region: string; commune?: string; lat: number; lon: number; ori?: number; now: Now };
+export type SpotLite = { name: string; slug: string; region: string; commune?: string; ref?: string | null; lat: number; lon: number; ori?: number; now: Now };
 export type Buoy = { id: string; slug: string; name: string; sub: string; lat: number; lon: number; large?: boolean; time: string; hs: number; tp?: number | null; tm?: number | null; dir?: number | null; sst?: number | null };
 /** Période d'une bouée : la période pic si elle est mesurée, sinon la période MOYENNE (Gascogne, Météo-France), dite comme telle. */
 export const perTxt = (b: { tp?: number | null; tm?: number | null }) => (b.tp ? `${Math.round(b.tp)} s` : b.tm ? `${Math.round(b.tm)} s moy.` : '');
@@ -71,18 +71,18 @@ export function windRel(wdir?: number | null, ori?: number) {
 const BUOY_ONLY: Record<string, string[]> = { 'Saint-Jean-de-Luz': ['Sainte Barbe'] };
 export const buoyFits = (b: { name: string }, spotName: string) => !BUOY_ONLY[b.name] || BUOY_ONLY[b.name].includes(spotName);
 
-/** Bouée de référence des Landes (demande de l'utilisateur) : Cap Ferret pour le nord, jusqu'à 70 km (Biscarrosse à Cap de l'Homy),
- *  la Gascogne pour les autres ; prise si sa mesure a moins de 6 h. Même règle sur le site (web/index.html : prefRank). */
-const LANDES_CF_KM = 70;
-const kmTo = (a: { lat: number; lon: number }, b: { lat: number; lon: number }) => {
+/** Distance en km entre deux points (assez précis à l'échelle de la côte). */
+export const km = (a: { lat: number; lon: number }, b: { lat: number; lon: number }) => {
   const r = Math.PI / 180, x = (b.lon - a.lon) * r * Math.cos(((a.lat + b.lat) / 2) * r), y = (b.lat - a.lat) * r;
   return Math.sqrt(x * x + y * y) * 6371;
 };
-export function prefBuoy(buoys: Buoy[], spot: { region?: string; lat: number; lon: number }): Buoy | null {
-  if (spot.region !== 'Landes') return null;
-  const cf = buoys.find(b => b.name === 'Cap Ferret'), g = buoys.find(b => b.id === 'gascogne');
-  const order = [cf && kmTo(spot, cf) <= LANDES_CF_KM ? cf : null, g].filter((b): b is Buoy => !!b);
-  return order.find(b => ageH(b.time) < 6) || null;
+
+/** Bouée de référence par défaut, calculée par le robot (champ « ref » : Landes, Cap Ferret au nord, Gascogne ailleurs,
+ *  pipeline/config.py : ref_buoy). Prise si sa mesure a moins de 6 h ; Cap Ferret trop ancienne → la Gascogne. */
+export function prefBuoy(buoys: Buoy[], spot: { ref?: string | null }): Buoy | null {
+  if (!spot.ref) return null;
+  const ids = spot.ref === 'gascogne' ? ['gascogne'] : [spot.ref, 'gascogne'];
+  return ids.map(id => buoys.find(b => b.id === id)).find((b): b is Buoy => !!b && ageH(b.time) < 6) || null;
 }
 
 export const ageH =(t: string) => (Date.now() - new Date(t + ':00').getTime()) / 36e5;

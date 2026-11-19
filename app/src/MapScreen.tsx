@@ -86,7 +86,7 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
         {index.spots.map(s => {
           const big = labeled.has(s.slug);
           return (
-            <Marker key={`${s.slug}:${big}`} identifier={`s:${s.slug}`} coordinate={{ latitude: s.lat, longitude: s.lon }} onPress={() => open(`s:${s.slug}`)}
+            <Marker key={`${s.slug}:${big}:${isDark() ? 'd' : 'l'}`} identifier={`s:${s.slug}`} coordinate={{ latitude: s.lat, longitude: s.lon }} onPress={() => open(`s:${s.slug}`)}
               tracksViewChanges={false} anchor={{ x: 0.5, y: 0.5 }} zIndex={big ? 5 : 1}>
               {big ? (
                 <View style={[st.spot, { backgroundColor: sizeCell(s.now.hs) }]}>
@@ -102,7 +102,7 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
         {index.buoys.map((b, i) => {
           const old = ageH(b.time) >= 6, fresh = ageH(b.time) < 2, lab = buoyLab.has(b.id);
           return (
-            <Marker key={`${b.id}:${lab}`} identifier={`b:${b.id}`} coordinate={{ latitude: b.lat, longitude: b.lon }} onPress={() => open(`b:${b.id}`)}
+            <Marker key={`${b.id}:${lab}:${isDark() ? 'd' : 'l'}`} identifier={`b:${b.id}`} coordinate={{ latitude: b.lat, longitude: b.lon }} onPress={() => open(`b:${b.id}`)}
               tracksViewChanges={!old} anchor={{ x: 0.5, y: lab ? 0.3 : 0.5 }} zIndex={10}>
               <View style={[st.buWrap, old && { opacity: 0.55 }]}>
                 <View style={st.buHalo}>

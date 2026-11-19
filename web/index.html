@@ -1749,7 +1749,7 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const state = { radarView:loadRadarView(), data:null, spot:0, day:0, hour:10, filter:'geo', q:'', fav:loadFav(), weight:loadWeight() };
 
 /* Bouée choisie à la main : retenue PAR SPOT (une bouée choisie à Anglet ne doit pas s'imposer aux spots des Landes). */
-function loadRadarView(){ try{ localStorage.removeItem('radarView'); return JSON.parse(localStorage.getItem('radarViews')||'{}')||{}; }catch(e){ return {}; } }
+function loadRadarView(){ try{ localStorage.removeItem('radarView'); const v=JSON.parse(localStorage.getItem('radarViews')||'{}'); return v&&typeof v==='object'&&!Array.isArray(v)?v:{}; }catch(e){ return {}; } }
 function saveRadarView(v){ try{ localStorage.setItem('radarViews',JSON.stringify(v)); }catch(e){} }
 function loadWeight(){ try{ const w=+localStorage.getItem('weight'); return w>=50&&w<=110?w:75; }catch(e){ return 75; } }
 function saveWeight(w){ try{ localStorage.setItem('weight',String(w)); }catch(e){} }
@@ -2543,9 +2543,10 @@ function buoyChoices(s){
     if(o.id==='donostia'&&km>80) return;
     if(km>300||(/côte/.test(o.sub||'')&&km>130)) return;
     out.push({key:o.id,name:o.name,sub:`${o.sub}, à ${Math.round(km)} km du spot`,kind:'large',L:o.latest,obs:o.obs||[],model:o.model||[],km,Tm:null}); } });
-  const c=nearestCoast(s); if(c) out.push({key:c.b.id,name:c.b.name,sub:`à ${Math.round(c.km)} km du spot`,kind:'coast',L:c.b.latest,obs:c.b.obs||[],model:null,km:c.km,Tm:null});
+  const coastEntry=(b,km)=>({key:b.id,name:b.name,sub:`à ${Math.round(km)} km du spot`,kind:'coast',L:b.latest,obs:b.obs||[],model:null,km,Tm:null});
+  const c=nearestCoast(s); if(c) out.push(coastEntry(c.b,c.km));
   if(s.region==='Landes'){ const cf=(state.coast||[]).find(x=>x.name==='Cap Ferret'&&x.latest&&x.latest.hs!=null), k=cf&&hav(s,cf);   /* nord des Landes : Cap Ferret toujours proposée */
-    if(cf&&k<=LANDES_CF_KM&&!out.some(o=>o.key===cf.id)) out.push({key:cf.id,name:cf.name,sub:`à ${Math.round(k)} km du spot`,kind:'coast',L:cf.latest,obs:cf.obs||[],model:null,km:k,Tm:null}); }
+    if(cf&&k<=LANDES_CF_KM&&!out.some(o=>o.key===cf.id)) out.push(coastEntry(cf,k)); }
   out.forEach(o=>{ o.pref=prefRank(s,o); });
   out.sort((x,y)=>x.km-y.km);
   if(out.length>5){ const keep=out.filter((o,i)=>i<5||o.pref!=null); while(keep.length>5){ const j=keep.map(o=>o.pref==null).lastIndexOf(true); if(j<0) break; keep.splice(j,1); } out.length=0; out.push(...keep); }   /* les 5 bouées les plus proches suffisent (en gardant la bouée de référence) */
@@ -2555,7 +2556,8 @@ function buoyChoices(s){
 }
 /* Bouée affichée par défaut : la plus proche parmi celles dont la mesure a moins de 6 h ; sinon la plus fraîche. Le choix de l'utilisateur prime. */
 /* Bouée de référence des Landes (demande de l'utilisateur) : Cap Ferret pour le nord, jusqu'à 70 km (Biscarrosse à Cap de l'Homy),
-   la Gascogne pour les autres. Prise par défaut si sa mesure a moins de 6 h. Même règle dans l'appli (app/src/data.ts : prefBuoy). */
+   la Gascogne pour les autres. Prise par défaut si sa mesure a moins de 6 h. Même règle dans le robot (pipeline/config.py : ref_buoy,
+   utilisé par l'appli et les pages de spots) : changer LANDES_CF_KM aux deux endroits. */
 const LANDES_CF_KM=70;
 function prefRank(s,o){
   if(s.region!=='Landes') return null;

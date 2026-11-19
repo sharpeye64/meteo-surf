@@ -3,7 +3,7 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, Vie
 import Svg, { Circle, G, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
 import Brand from './Brand';
-import { ageTxt, Buoy, country, fr, Index, loadSheet, perTxt, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { ageTxt, Buoy, country, fr, Index, km, loadSheet, perTxt, regionName, sector, Sheet, SpotLite, windRel } from './data';
 import { Blink } from './Live';
 import { SpotRow } from './SpotList';
 import { useBarSpace } from './TabBar';
@@ -16,10 +16,6 @@ type Props = {
 
 const CTY = ['France', 'Espagne', 'Portugal'];
 const norm =(t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-const km = (a: SpotLite, b: SpotLite) => {
-  const x = (b.lon - a.lon) * Math.cos(((a.lat + b.lat) / 2) * Math.PI / 180), y = b.lat - a.lat;
-  return Math.sqrt(x * x + y * y) * 111.2;
-};
 const hh = (d: Date) => `${d.getHours()} h${d.getMinutes() ? ' ' + String(d.getMinutes()).padStart(2, '0') : ''}`;
 
 /** Onglet Spots « Mon tableau » : la recherche toujours en haut, votre spot en grand, ceux d'à côté, puis toute la côte par région. */

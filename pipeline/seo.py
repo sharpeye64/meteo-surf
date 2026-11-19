@@ -209,13 +209,26 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
             f"{', coefficient de marée ' + str(t['coef']) if t['coef'] else ''}.") if t else ""
     buoy_line = ""
     try:
-        cb = [b for b in (payload.get("coast") or []) + (payload.get("offshore") or []) if (b.get("latest") or {}).get("hs") is not None]
-        if cb:
-            b = min(cb, key=lambda x: hav(sp, {"lat": float(x["lat"]), "lon": float(x["lon"])}))
-            km = hav(sp, {"lat": float(b["lat"]), "lon": float(b["lon"])})
-            if km <= 80:
-                buoy_line = (f'<p class="muted">Bouée la plus proche : <a href="../../bouees/{slugify(b["name"])}/">{esc(b["name"])}</a>, '
-                             f'à {round(km)} km, mesure actuelle {fr(b["latest"]["hs"])} m.</p>')
+        g = payload.get("gascogne") or {}
+        pool = (payload.get("coast") or []) + (payload.get("offshore") or []) + ([dict(g, id="gascogne", name="Gascogne")] if g.get("lat") is not None else [])
+        # même choix que le site et l'appli : bouée abritée réservée à ses spots, bouée de référence des Landes
+        cb = [b for b in pool if (b.get("latest") or {}).get("hs") is not None
+              and (not config.BUOY_ONLY.get(b["name"]) or name in config.BUOY_ONLY[b["name"]])]
+        dist = lambda x: hav(sp, {"lat": float(x["lat"]), "lon": float(x["lon"])})
+        ref = config.ref_buoy(sp)
+        b = next((x for x in cb if x["id"] == ref), None)
+        if b is None and ref == "03302":
+            b = next((x for x in cb if x["id"] == "gascogne"), None)
+        label = "Bouée de référence"
+        if b is None:
+            near_b = [x for x in cb if x["id"] != "gascogne"]
+            b = min(near_b, key=dist) if near_b else None
+            label = "Bouée la plus proche"
+            if b is not None and dist(b) > 80:
+                b = None
+        if b is not None:
+            buoy_line = (f'<p class="muted">{label} : <a href="../../bouees/{slugify(b["name"])}/">{esc(b["name"])}</a>, '
+                         f'à {round(dist(b))} km, mesure actuelle {fr(b["latest"]["hs"])} m.</p>')
     except Exception:
         buoy_line = ""
     from . import zones as _z

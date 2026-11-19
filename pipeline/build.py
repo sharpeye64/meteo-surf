@@ -23,7 +23,8 @@ def r2(values, nd=2):
 
 def main():
     spots = json.loads(config.SPOTS_FILE.read_text())
-    meta = {"generated": datetime.now().strftime("%Y-%m-%dT%H:%M"), "sources": {}, "errors": {}}
+    # heure de Paris (le robot GitHub tourne en UTC) : le site et l'appli affichent « mis à jour à… » sans conversion
+    meta = {"generated": pd.Timestamp.now(tz=config.TIMEZONE).strftime("%Y-%m-%dT%H:%M"), "sources": {}, "errors": {}}
 
     log("Open-Meteo : vagues, vent, eau, soleil")
     om, wave_labels = openmeteo.fetch(spots)
@@ -193,12 +194,12 @@ def main():
     meta["buoy_correction"] = ratio
     payload = {"meta": meta, "gascogne": gascogne, "coast": coast, "offshore": offshore, "tide_coef": tide_coef, "reliability": reliability, "buoy_stats": history.buoy_stats(), "spots": out_spots}
     config.OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-    config.OUTPUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
-    try:  # données allégées pour l'application mobile : jamais bloquant
+    try:  # données allégées pour l'application mobile : jamais bloquant, et AVANT forecast.json pour que l'erreur y figure
         log(f"Appli mobile : {appdata.generate(spots, payload)} fiches de spots (web/data/app/)")
     except Exception as e:
         meta["errors"]["appdata"] = str(e)[:300]
         log(f"  données de l'appli non générées : {e}")
+    config.OUTPUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
     try:
         n = seo.generate(payload)
         log(f"SEO : {n} pages de spots + sitemap.xml + robots.txt ({config.SITE_URL})")

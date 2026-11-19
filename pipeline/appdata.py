@@ -12,7 +12,7 @@ import json
 import re
 import shutil
 import unicodedata
-from datetime import datetime
+import pandas as pd
 
 from . import config
 
@@ -31,7 +31,8 @@ def _r(v, nd=1):
 
 
 def _now_index(times):
-    key = datetime.now().strftime("%Y-%m-%dT%H")
+    # les prévisions sont à l'heure de Paris ; le robot GitHub, lui, tourne en UTC
+    key = pd.Timestamp.now(tz=config.TIMEZONE).strftime("%Y-%m-%dT%H")
     for i, t in enumerate(times):
         if t[:13] >= key:
             return i
@@ -134,7 +135,7 @@ def generate(spots, payload):
         }
         (tmp / "spots" / f"{slug}.json").write_text(json.dumps(sheet, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         i = _now_index(times)
-        index.append({"name": s["name"], "slug": slug, "region": s["region"], "commune": s.get("commune"),
+        index.append({"name": s["name"], "slug": slug, "region": s["region"], "commune": s.get("commune"), "ref": config.ref_buoy(s),
                       "lat": s.get("mlat", s["lat"]), "lon": s.get("mlon", s["lon"]), "ori": s.get("ori"),
                       "now": {"t": times[i] if times else None, "hs": sheet["hs"][i] if n else None, "tp": sheet["tp"][i] if n else None,
                               "dir": sheet["dir"][i] if n else None, "wind": sheet["wind"][i] if n else None, "wdir": sheet["wdir"][i] if n else None}})

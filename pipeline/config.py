@@ -17,6 +17,23 @@ SITE_URL = os.environ.get("METEO_SITE_URL", "https://houlalah.fr").rstrip("/")
 # Même règle dans l'appli (app/src/data.ts : BUOY_ONLY) et sur le site (web/index.html : BUOY_ONLY).
 BUOY_ONLY = {"Saint-Jean-de-Luz": ["Sainte Barbe"]}
 
+# Bouée de référence PAR DÉFAUT des Landes (demande de l'utilisateur) : Cap Ferret pour le nord, jusqu'à 70 km
+# (Biscarrosse à Cap de l'Homy), la Gascogne pour les autres. Calculée ici une seule fois (champ « ref » des données de
+# l'appli, pages de spots) ; le site (web/index.html : prefRank, LANDES_CF_KM) applique la même règle.
+LANDES_CF_KM = 70
+CAP_FERRET = (44.6525, -1.4467)   # bouée CANDHIS 03302
+
+
+def ref_buoy(spot):
+    """Identifiant de la bouée de référence par défaut d'un spot (« 03302 » ou « gascogne »), ou None hors des Landes."""
+    if spot.get("region") != "Landes":
+        return None
+    import math
+    r = math.pi / 180
+    x = (spot["lon"] - CAP_FERRET[1]) * r * math.cos((spot["lat"] + CAP_FERRET[0]) / 2 * r)
+    y = (spot["lat"] - CAP_FERRET[0]) * r
+    return "03302" if math.hypot(x, y) * 6371 <= LANDES_CF_KM else "gascogne"
+
 TIMEZONE = "Europe/Paris"
 FORECAST_DAYS = 7
 

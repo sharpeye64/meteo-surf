@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
-import { ageH, ageTxt, Buoy, buoyFits, BuoySheet, fr, Index, loadBuoy, perTxt, prefBuoy, sector } from './data';
+import { ageH, ageTxt, Buoy, buoyFits, BuoySheet, fr, Index, km, loadBuoy, perTxt, prefBuoy, sector } from './data';
 import { Blink } from './Live';
 import { useBarSpace } from './TabBar';
 import { C, F, themed } from './theme';
@@ -14,10 +14,6 @@ const zone = (b: Buoy) => (b.lat < 42 ? 'Portugal' : b.lat < 44.5 && b.lon < -1.
 const alongSpain = (a: Buoy, b: Buoy) => {
   const k = (x: Buoy) => (x.lat >= 43 ? -x.lon : 100 - x.lat);
   return k(a) - k(b);
-};
-const km = (a: { lat: number; lon: number }, b: { lat: number; lon: number }) => {
-  const r = Math.PI / 180, x = (b.lon - a.lon) * r * Math.cos(((a.lat + b.lat) / 2) * r), y = (b.lat - a.lat) * r;
-  return Math.sqrt(x * x + y * y) * 6371;
 };
 
 /** Feu de fraîcheur : vert qui clignote (moins de 2 h), sable (moins de 6 h), gris (plus ancien). */

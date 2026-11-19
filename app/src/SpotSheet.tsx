@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
-import { ageH, ageTxt, Buoy, buoyFits, fr, loadSheet, perTxt, prefBuoy, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { ageH, ageTxt, Buoy, buoyFits, fr, km, loadSheet, perTxt, prefBuoy, regionName, sector, Sheet, SpotLite, windRel } from './data';
 import { useBarSpace } from './TabBar';
 import { C, F, isDark, periodCell, sizeCell, themed, windCell } from './theme';
 
@@ -10,10 +10,6 @@ type Props = { spot: SpotLite; buoys: Buoy[]; fav: boolean; onFav: () => void; o
 const J = ['DIM', 'LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM'];
 const COL = 50;   // largeur d'une colonne de la frise horaire
 
-const km = (a: { lat: number; lon: number }, b: { lat: number; lon: number }) => {
-  const r = Math.PI / 180, x = (b.lon - a.lon) * r * Math.cos(((a.lat + b.lat) / 2) * r), y = (b.lat - a.lat) * r;
-  return Math.sqrt(x * x + y * y) * 6371;
-};
 
 export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: Props) {
   const pad = useBarSpace();
