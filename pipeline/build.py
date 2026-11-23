@@ -21,6 +21,29 @@ def r2(values, nd=2):
     return [None if v is None else round(float(v), nd) for v in values]
 
 
+def keep_silent(coast, offshore, meta, d=None):
+    """Bouées muettes (demande de l'utilisateur, 23/11/2026 : Anglet n'envoie plus rien depuis le 18/11) : au lieu de les faire
+    disparaître, on les garde avec leur dernière mesure archivée et « silent » ; le site et l'appli les montrent grisées,
+    sans jamais les choisir par défaut (mesure trop ancienne). Au-delà de 30 jours sans mesure, elles disparaissent."""
+    try:
+        last = history.last_coast([s["id"] for s in candhis.STATIONS + ibi_buoys.STATIONS], d)
+        limit = pd.Timestamp.now(tz=config.TIMEZONE).tz_localize(None) - pd.Timedelta(days=30)
+        for lst, stations, large in ((coast, candhis.STATIONS, False), (offshore, ibi_buoys.STATIONS, True)):
+            have = {b["id"] for b in lst}
+            for st in stations:
+                if st["id"] in have or st["id"] not in last or pd.Timestamp(last[st["id"]][0]) < limit:
+                    continue
+                t, row = last[st["id"]]
+                b = {"id": st["id"], "name": st["name"], "lat": st["lat"], "lon": st["lon"], "silent": True,
+                     "latest": {"time": t, **{k: row.get(k) for k in ("hs", "hmax", "tp", "dir", "sst")}}, "obs": []}
+                if large:
+                    b.update(sub=st["sub"], kind="large", model=[])
+                lst.append(b)
+                log(f"  bouée muette gardée : {st['name']} (dernière mesure {t})")
+    except Exception as e:
+        meta["errors"]["silent_buoys"] = str(e)[:300]
+
+
 def main():
     spots = json.loads(config.SPOTS_FILE.read_text())
     # heure de Paris (le robot GitHub tourne en UTC) : le site et l'appli affichent « mis à jour à… » sans conversion
@@ -84,6 +107,8 @@ def main():
     except Exception as e:
         meta["errors"]["ibi"] = str(e)[:300]
         log(f"  bouées du large indisponibles : {e}")
+
+    keep_silent(coast, offshore, meta)
 
     # Archive prévision/réalité : fiabilité mesurée sur les 30 derniers jours, puis ajout du passage en cours.
     now_local = pd.Timestamp.now(tz=config.TIMEZONE).tz_localize(None).floor("h")

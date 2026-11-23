@@ -255,3 +255,13 @@ for _z in ("gironde", "landes", "pays-basque"):
     assert "<h1>Météo surf" in _h and "Les conditions du jour" in _h and "La semaine" in _h and "/spots/" in _h, _z
 assert "Météo surf Landes : 25 spots" in (_root / "meteo-surf-landes" / "index.html").read_text(encoding="utf-8")
 print("pages par zone OK")
+
+# Bouée muette (Anglet, 18/11/2026) : gardée avec sa dernière mesure archivée, marquée « silent », sans historique
+from pipeline import build as _build
+_coast = [b for b in _cd.fetch_all()[0] if b["id"] != "06402"]
+_meta = {"errors": {}}
+_build.keep_silent(_coast, [], _meta, _hist)
+_a = next((b for b in _coast if b["id"] == "06402"), None)
+assert _a and _a["silent"] and _a["obs"] == [] and _a["latest"]["hs"] > 0 and not _meta["errors"], (_a, _meta)
+assert sum(1 for b in _coast if b["id"] == "06402") == 1
+print("bouée muette OK :", _a["name"], _a["latest"]["time"])

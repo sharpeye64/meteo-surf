@@ -165,6 +165,25 @@ def record_coast(issued, forecasts, buoys, d=None):
         f.write_text(json.dumps(cur, separators=(",", ":")), encoding="utf-8")
 
 
+def last_coast(ids, d=None):
+    """Dernière mesure archivée (coast_obs) de chaque bouée demandée : {id: ("AAAA-MM-JJTHH:00", {hs, hmax, tp, dir, sst})}.
+    Sert à garder visible une bouée qui n'envoie plus rien (en panne, abîmée) au lieu de la faire disparaître."""
+    d = Path(d) if d else history_dir()
+    folder = d / "coast_obs"
+    out = {}
+    for f in sorted(folder.glob("*.json"), reverse=True)[:3] if folder.exists() else []:   # les 3 derniers mois suffisent
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+        except ValueError:
+            continue
+        for bid in ids:
+            rows = {t: r for t, r in (data.get(bid) or {}).items() if (r or {}).get("hs") is not None}
+            if rows and bid not in out:
+                t = max(rows)
+                out[bid] = (t, rows[t])
+    return out
+
+
 def coast_summary(d=None):
     """Combien de mesures côtières sont archivées (par bouée), et depuis quand."""
     d = Path(d) if d else history_dir()

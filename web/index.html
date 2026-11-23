@@ -2508,6 +2508,8 @@ function stampTxt(t){
   const hh=d.getHours()+'h'+(d.getMinutes()?String(d.getMinutes()).padStart(2,'0'):'');
   return dd<=0?`aujourd’hui ${hh}`:dd===1?`hier ${hh}`:`${DAYS_LONG[d.getDay()]} ${hh}`;
 }
+/* « 18/11 » : pour une bouée muette depuis plusieurs jours */
+function dmy(t){ return t.slice(8,10)+'/'+t.slice(5,7); }
 function ageTxt(ageH){ return ageH<1?'à l’instant':ageH<36?`il y a ${Math.round(ageH)} h`:`il y a ${Math.round(ageH/24)} j`; }
 const BI={
   wave:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 3-3 5-2"/><path d="M2 18c2.5-4 5-4 7.5 0s5 4 7.5 0 3-2.5 5-1.6" opacity=".5"/></svg>',
@@ -2597,7 +2599,7 @@ function radarHtml(s){
     <div class="hhead"><h2 class="h2s" id="sRadar">Mesure en mer</h2>${tip('radar','Comment fonctionnent les bouées ?')}${tog}</div>
     <div class="bgrid">
       <div class="bcard">
-        <div class="bhead"><span class="bname">Bouée ${cur.name}</span><span class="bsub">${cur.sub}</span><span class="bfresh ${fresh}${ageH<2?' lv':''}" title="Mesure en temps réel, non validée."><i></i>${ageH<2?(ageH<1?'En direct':'En direct · '+ageTxt(ageH)):(ageH<6?ageTxt(ageH):stampTxt(L.time))}</span></div>
+        <div class="bhead"><span class="bname">Bouée ${cur.name}</span><span class="bsub">${cur.sub}</span><span class="bfresh ${fresh}${ageH<2?' lv':''}" title="Mesure en temps réel, non validée."><i></i>${ageH<2?(ageH<1?'En direct':'En direct · '+ageTxt(ageH)):(ageH<6?ageTxt(ageH):ageH>=48?`Pas de mesure depuis le ${dmy(L.time)}`:stampTxt(L.time))}</span></div>
         <div class="bk2">${view==='large'?'Hauteur de la houle au large':'Hauteur de la houle à la bouée'}</div>
         <div class="bbrow"><div class="bbig">${fmt(L.hs)}<small>m</small></div>${(()=>{ const sk=buoySpark(cur); return sk?`<div class="bsk">${sk}<div class="cap2">24 dernières heures</div></div>`:''; })()}</div>
         <div class="bstats">${stats}</div>

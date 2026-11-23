@@ -6,7 +6,7 @@ export const DATA_URL = (process.env.EXPO_PUBLIC_DATA_URL || 'https://houlalah.f
 
 export type Now = { t: string | null; hs: number | null; tp: number | null; dir: number | null; wind: number | null; wdir: number | null };
 export type SpotLite = { name: string; slug: string; region: string; commune?: string; ref?: string | null; lat: number; lon: number; ori?: number; now: Now };
-export type Buoy = { id: string; slug: string; name: string; sub: string; lat: number; lon: number; large?: boolean; time: string; hs: number; tp?: number | null; tm?: number | null; dir?: number | null; sst?: number | null };
+export type Buoy = { id: string; slug: string; name: string; sub: string; lat: number; lon: number; large?: boolean; silent?: boolean; time: string; hs: number; tp?: number | null; tm?: number | null; dir?: number | null; sst?: number | null };
 /** Période d'une bouée : la période pic si elle est mesurée, sinon la période MOYENNE (Gascogne, Météo-France), dite comme telle. */
 export const perTxt = (b: { tp?: number | null; tm?: number | null }) => (b.tp ? `${Math.round(b.tp)} s` : b.tm ? `${Math.round(b.tm)} s moy.` : '');
 export type Index = { v: number; generated: string; spots: SpotLite[]; buoys: Buoy[] };
@@ -86,8 +86,11 @@ export function prefBuoy(buoys: Buoy[], spot: { ref?: string | null }): Buoy | n
 }
 
 export const ageH =(t: string) => (Date.now() - new Date(t + ':00').getTime()) / 36e5;
+/** « le 18/11 » : date d'une mesure (bouée muette). */
+export const dayTxt = (t: string) => `le ${t.slice(8, 10)}/${t.slice(5, 7)}`;
 export function ageTxt(t: string) {
   const h = (Date.now() - new Date(t + ':00').getTime()) / 36e5;
-  return h < 1 ? "à l'instant" : h < 36 ? `il y a ${Math.round(h)} h` : `il y a ${Math.round(h / 24)} j`;
+  // au-delà de 2 jours (bouée muette, en panne) : la date de la dernière mesure, plus parlante que « il y a 5 j »
+  return h < 1 ? "à l'instant" : h < 48 ? `il y a ${Math.round(h)} h` : dayTxt(t);
 }
 export const JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];

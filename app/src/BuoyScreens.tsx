@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
-import { ageH, ageTxt, Buoy, buoyFits, BuoySheet, fr, Index, km, loadBuoy, perTxt, prefBuoy, sector } from './data';
+import { ageH, ageTxt, Buoy, buoyFits, dayTxt, BuoySheet, fr, Index, km, loadBuoy, perTxt, prefBuoy, sector } from './data';
 import { Blink } from './Live';
 import { useBarSpace } from './TabBar';
 import { C, F, themed } from './theme';
@@ -29,10 +29,10 @@ function BuoyLine({ b, i, note, first, onOpen }: { b: Buoy; i: number; note?: st
       <Lamp b={b} i={i} />
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text style={st.name} numberOfLines={1}>{b.name}</Text>
-        <Text style={st.sub} numberOfLines={1}>{note ? `${note} · ` : ''}{ageTxt(b.time)}</Text>
+        <Text style={st.sub} numberOfLines={1}>{note ? `${note} · ` : ''}{b.silent ? `pas de mesure depuis ${dayTxt(b.time)}` : ageTxt(b.time)}</Text>
       </View>
-      {perTxt(b) ? <Text style={st.metaT}>{perTxt(b)}</Text> : null}
-      <View style={st.val}><Text style={st.valT}>{fr(b.hs)}</Text></View>
+      {perTxt(b) ? <Text style={[st.metaT, b.silent && { opacity: 0.5 }]}>{perTxt(b)}</Text> : null}
+      <View style={[st.val, b.silent && { opacity: 0.45 }]}><Text style={st.valT}>{fr(b.hs)}</Text></View>
     </Pressable>
   );
 }

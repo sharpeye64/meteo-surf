@@ -212,7 +212,7 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
         g = payload.get("gascogne") or {}
         pool = (payload.get("coast") or []) + (payload.get("offshore") or []) + ([dict(g, id="gascogne", name="Gascogne")] if g.get("lat") is not None else [])
         # même choix que le site et l'appli : bouée abritée réservée à ses spots, bouée de référence des Landes
-        cb = [b for b in pool if (b.get("latest") or {}).get("hs") is not None
+        cb = [b for b in pool if (b.get("latest") or {}).get("hs") is not None and not b.get("silent")
               and (not config.BUOY_ONLY.get(b["name"]) or name in config.BUOY_ONLY[b["name"]])]
         dist = lambda x: hav(sp, {"lat": float(x["lat"]), "lon": float(x["lon"])})
         ref = config.ref_buoy(sp)

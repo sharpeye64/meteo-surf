@@ -51,7 +51,7 @@ def _buoys(payload):
             if L.get("hs") is None:
                 continue
             out.append({"id": b["id"], "name": b["name"], "sub": b.get("sub") or "sur la côte", "lat": float(b["lat"]), "lon": float(b["lon"]),
-                        **{k: L.get(k) for k in ("time", "hs", "tp", "dir", "sst")}})
+                        **({"silent": True} if b.get("silent") else {}), **{k: L.get(k) for k in ("time", "hs", "tp", "dir", "sst")}})
     return out
 
 
