@@ -165,23 +165,22 @@ def record_coast(issued, forecasts, buoys, d=None):
         f.write_text(json.dumps(cur, separators=(",", ":")), encoding="utf-8")
 
 
-def last_coast(ids, d=None):
-    """Dernière mesure archivée (coast_obs) de chaque bouée demandée : {id: ("AAAA-MM-JJTHH:00", {hs, hmax, tp, dir, sst})}.
-    Sert à garder visible une bouée qui n'envoie plus rien (en panne, abîmée) au lieu de la faire disparaître."""
+def coast_rows(ids, d=None):
+    """Mesures archivées (coast_obs, 2 derniers mois) de chaque bouée demandée : {id: {"AAAA-MM-JJTHH:00": {hs, hmax, tp, dir, sst}}},
+    seulement les heures avec une hauteur. Sert quand une source ne répond pas, ou quand une bouée n'envoie plus rien."""
     d = Path(d) if d else history_dir()
     folder = d / "coast_obs"
     out = {}
-    for f in sorted(folder.glob("*.json"), reverse=True)[:3] if folder.exists() else []:   # les 3 derniers mois suffisent
+    for f in sorted(folder.glob("*.json"))[-2:] if folder.exists() else []:
         try:
             data = json.loads(f.read_text(encoding="utf-8"))
         except ValueError:
             continue
         for bid in ids:
             rows = {t: r for t, r in (data.get(bid) or {}).items() if (r or {}).get("hs") is not None}
-            if rows and bid not in out:
-                t = max(rows)
-                out[bid] = (t, rows[t])
-    return out
+            if rows:
+                out.setdefault(bid, {}).update(rows)
+    return {k: dict(sorted(v.items())) for k, v in out.items()}
 
 
 def coast_summary(d=None):

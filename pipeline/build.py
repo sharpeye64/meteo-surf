@@ -22,24 +22,35 @@ def r2(values, nd=2):
 
 
 def keep_silent(coast, offshore, meta, d=None):
-    """Bouées muettes (demande de l'utilisateur, 23/11/2026 : Anglet n'envoie plus rien depuis le 18/11) : au lieu de les faire
-    disparaître, on les garde avec leur dernière mesure archivée et « silent » ; le site et l'appli les montrent grisées,
-    sans jamais les choisir par défaut (mesure trop ancienne). Au-delà de 30 jours sans mesure, elles disparaissent."""
+    """Bouée absente du passage (source en panne, ou bouée qui n'envoie plus rien) : on la reprend dans l'archive au lieu de la
+    faire disparaître (demande de l'utilisateur, 23/11/2026).
+    - Dernière mesure de moins de 48 h (souvent : le site CANDHIS ne répond pas) : bouée normale, avec ses 48 dernières heures
+      archivées. Son âge réel s'affiche comme d'habitude.
+    - Plus ancienne (Anglet, muette depuis le 18/11) : « silent », sans historique ; le site et l'appli la montrent grisée
+      (« pas de mesure depuis le 18/11 ») et ne la choisissent jamais par défaut. Au-delà de 30 jours, elle disparaît."""
     try:
-        last = history.last_coast([s["id"] for s in candhis.STATIONS + ibi_buoys.STATIONS], d)
-        limit = pd.Timestamp.now(tz=config.TIMEZONE).tz_localize(None) - pd.Timedelta(days=30)
+        arch = history.coast_rows([s["id"] for s in candhis.STATIONS + ibi_buoys.STATIONS], d)
+        now = pd.Timestamp.now(tz=config.TIMEZONE).tz_localize(None)
         for lst, stations, large in ((coast, candhis.STATIONS, False), (offshore, ibi_buoys.STATIONS, True)):
             have = {b["id"] for b in lst}
             for st in stations:
-                if st["id"] in have or st["id"] not in last or pd.Timestamp(last[st["id"]][0]) < limit:
+                rows = arch.get(st["id"])
+                if st["id"] in have or not rows:
                     continue
-                t, row = last[st["id"]]
-                b = {"id": st["id"], "name": st["name"], "lat": st["lat"], "lon": st["lon"], "silent": True,
-                     "latest": {"time": t, **{k: row.get(k) for k in ("hs", "hmax", "tp", "dir", "sst")}}, "obs": []}
+                t = max(rows)
+                if pd.Timestamp(t) < now - pd.Timedelta(days=30):
+                    continue
+                silent = pd.Timestamp(t) < now - pd.Timedelta(hours=48)
+                pick = lambda r: {k: r.get(k) for k in ("hs", "hmax", "tp", "dir", "sst")}
+                since = (pd.Timestamp(t) - pd.Timedelta(hours=48)).strftime("%Y-%m-%dT%H:%M")
+                b = {"id": st["id"], "name": st["name"], "lat": st["lat"], "lon": st["lon"], "latest": {"time": t, **pick(rows[t])},
+                     "obs": [] if silent else [{"t": k, **pick(r)} for k, r in rows.items() if k >= since]}
+                if silent:
+                    b["silent"] = True
                 if large:
                     b.update(sub=st["sub"], kind="large", model=[])
                 lst.append(b)
-                log(f"  bouée muette gardée : {st['name']} (dernière mesure {t})")
+                log(f"  bouée {'muette' if silent else 'reprise de l’archive'} : {st['name']} (dernière mesure {t})")
     except Exception as e:
         meta["errors"]["silent_buoys"] = str(e)[:300]
 

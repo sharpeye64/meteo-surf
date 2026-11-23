@@ -256,12 +256,20 @@ for _z in ("gironde", "landes", "pays-basque"):
 assert "Météo surf Landes : 25 spots" in (_root / "meteo-surf-landes" / "index.html").read_text(encoding="utf-8")
 print("pages par zone OK")
 
-# Bouée muette (Anglet, 18/11/2026) : gardée avec sa dernière mesure archivée, marquée « silent », sans historique
+# Bouée absente du passage : reprise de l'archive (source en panne, mesure récente) ou « muette » (plus de 48 h sans mesure)
 from pipeline import build as _build
 _coast = [b for b in _cd.fetch_all()[0] if b["id"] != "06402"]
 _meta = {"errors": {}}
 _build.keep_silent(_coast, [], _meta, _hist)
 _a = next((b for b in _coast if b["id"] == "06402"), None)
-assert _a and _a["silent"] and _a["obs"] == [] and _a["latest"]["hs"] > 0 and not _meta["errors"], (_a, _meta)
+assert _a and not _a.get("silent") and len(_a["obs"]) >= 10 and _a["latest"]["hs"] > 0 and not _meta["errors"], (_a, _meta)
 assert sum(1 for b in _coast if b["id"] == "06402") == 1
+print("bouée reprise de l'archive OK :", _a["name"], _a["latest"]["time"], len(_a["obs"]), "mesures")
+_old = tempfile.mkdtemp(); os.makedirs(os.path.join(_old, "coast_obs"))
+_t = (pd.Timestamp.now(tz=config.TIMEZONE).tz_localize(None) - pd.Timedelta(days=5)).strftime("%Y-%m-%dT%H:00")
+open(os.path.join(_old, "coast_obs", _t[:7] + ".json"), "w").write(json.dumps({"06402": {_t: {"hs": 1.8, "tp": 8.1}}}))
+_coast = [b for b in _coast if b["id"] != "06402"]
+_build.keep_silent(_coast, [], _meta, _old)
+_a = next(b for b in _coast if b["id"] == "06402")
+assert _a["silent"] and _a["obs"] == [] and _a["latest"]["time"] == _t, _a
 print("bouée muette OK :", _a["name"], _a["latest"]["time"])
