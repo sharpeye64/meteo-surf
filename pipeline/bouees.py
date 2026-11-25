@@ -10,6 +10,7 @@ import math
 from datetime import datetime
 
 from . import config
+from .seotext import fit, fit_desc
 from .seo import BRAND, fr, hav, page, sector, slugify
 
 esc = html.escape
@@ -263,10 +264,11 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
             kept.append((k, s))
     near = kept
     others = sorted(((hav(b, o), o) for o in allb if o["slug"] != slug), key=lambda x: x[0])
-    title = f"Bouée {name} : houle mesurée en direct | {BRAND}"
+    title = fit(f"Bouée {name} : houle mesurée en direct | {BRAND}", f"Bouée {name} : houle en direct | {BRAND}", f"Bouée {name} | {BRAND}")
     desc = (f"Houle mesurée par la bouée {name} : {fr(L['hs'])} m"
             + (f", période {fr(L['tp'], 0)} s" if L.get("tp") else "") + (f", direction {sector(L['dir'])}" if L.get("dir") is not None else "")
             + (f", eau {fr(L['sst'])} °C" if L.get("sst") is not None else "") + ". Relevés des dernières heures et prévisions des spots voisins.")
+    desc = fit_desc(desc)
     canonical = f"{site}/bouees/{slug}/"
     base = "../../"
     chips = "".join(f'<li><a href="{base}?spot={s["slug"]}"><i class="dot" style="background:{spot_color(s["h"])}"></i><span><b>{esc(s["name"])}</b> <small>{round(k)} km</small></span><span class="v">{fr(s["h"])} m</span></a></li>' for k, s in near)
@@ -333,9 +335,9 @@ def index_page(site, allb, now):
     nav = "".join(f'<a href="#{k}">{esc(n)} <small>{len(l)}</small></a>' for k, n, l in groups)
     items = "".join(f'<h2 id="{k}" class="bz">{esc(n)} <small>{len(l)} bouée{"s" if len(l) > 1 else ""}</small></h2>'
                     f'<ul class="bidx">{"".join(item(b) for b in l)}</ul>' for k, n, l in groups)
-    title = f"Bouées de houle en direct, de la Bretagne au Portugal | {BRAND}"
-    desc = (f"Mesures réelles de {len(allb)} bouées de la Bretagne au Portugal (France, Espagne, Portugal) : hauteur des vagues, "
-            f"période, direction et température de l'eau, mises à jour toutes les heures.")
+    title = fit(f"Bouées de houle en direct, de la Bretagne au Portugal | {BRAND}", f"Toutes les bouées de houle en direct | {BRAND}")
+    desc = fit_desc(f"Mesures réelles de {len(allb)} bouées, de la Bretagne au Portugal : hauteur des vagues, période, direction et "
+                    f"température de l'eau, mises à jour toutes les heures.")
     body = (f'<h1>Les bouées, mesures réelles en mer</h1><p class="lead">{len(allb)} bouées dont les mesures servent de référence aux prévisions des spots. '
             f'Choisis une bouée pour voir son relevé actuel et les dernières heures.</p><nav class="bznav" aria-label="Zones">{nav}</nav>{items}')
     ld = [{"@context": "https://schema.org", "@type": "CollectionPage", "name": title, "description": desc, "url": f"{site}/bouees/", "inLanguage": "fr"},

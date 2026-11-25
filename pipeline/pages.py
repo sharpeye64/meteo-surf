@@ -8,7 +8,7 @@ CONTACT = "contact@houlalah.fr"
 
 HOW = {
     "slug": "comment-ca-marche",
-    "title": f"Comment {BRAND} calcule ses prévisions de surf : modèles, bouées, marées",
+    "title": f"Comment {BRAND} calcule ses prévisions de surf",
     "desc": "D'où viennent les prévisions de houle, de vent et de marée de Houlalah, comment elles sont corrigées avec les bouées et comment leur fiabilité est mesurée.",
     "h1": "Comment ça marche",
     "body": """
@@ -61,7 +61,7 @@ LEGAL = {
 PRIVACY = {
     "slug": "confidentialite",
     "title": f"Politique de confidentialité | {BRAND}",
-    "desc": f"Données personnelles sur {BRAND} : aucun compte, aucun cookie, des statistiques de visite anonymes. Ce qui est stocké sur ton appareil et les services tiers utilisés.",
+    "desc": f"Données personnelles sur {BRAND} : aucun compte, aucun cookie, des statistiques de visite anonymes. Ce qui reste sur ton appareil, et les services tiers.",
     "h1": "Politique de confidentialité",
     "body": f"""
 <p class="lead">Houlalah ne te demande aucune donnée personnelle : pas de compte, pas de formulaire, pas de cookie, pas de publicité, pas de suivi individuel. Seules des statistiques de visite anonymes sont comptées, sans cookie (voir plus bas).</p>

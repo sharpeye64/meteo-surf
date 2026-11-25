@@ -9,6 +9,7 @@ import statistics
 from datetime import datetime
 
 from .seo import BRAND, fr, hav, page, sector, slugify
+from .seotext import fit, fit_desc
 
 ZONES = [
     {"key": "Gironde", "slug": "meteo-surf-gironde", "name": "Gironde", "in": "en Gironde"},
@@ -127,9 +128,12 @@ def _zone_pages(zone, spots, payload, now, site):
                 "et si le vent est de terre ou de mer selon l'orientation de la plage.")
     others = [z for z in ZONES if z["slug"] != zone["slug"]]
     ol = "".join(f'<li><a href="../{z["slug"]}/">Météo surf {z["name"]}<small>{sum(1 for s in spots if s["region"] == z["key"])} spots</small></a></li>' for z in others)
-    title = f"Météo surf {name} : {n} spots, houle, vent et marée | {BRAND}"
-    desc = (f"Météo surf {where} : houle, vent et marée de {communes[0]} à {communes[-1]}. {n} spots, prévisions sur 7 jours "
-            f"et mesures des bouées, mises à jour toutes les heures.")
+    title = fit(f"Météo surf {name} : {n} spots, houle, vent et marée | {BRAND}", f"Météo surf {name} : {n} spots, houle et marée | {BRAND}",
+                f"Météo surf {name} : houle et marée | {BRAND}", f"Météo surf {name} | {BRAND}")
+    head = f"Météo surf {where} : houle, vent et marée de {communes[0]} à {communes[-1]}."
+    desc = fit_desc(f"{head} {n} spots, prévisions sur 7 jours et mesures des bouées, mises à jour toutes les heures.",
+                    f"{head} {n} spots, prévisions 7 jours et bouées, mises à jour toutes les heures.",
+                    f"{head} {n} spots, prévisions 7 jours et bouées.")
     canonical = f"{site}/{zone['slug']}/"
     body = f"""<p class="crumb"><a href="{base}">{BRAND}</a> › <b>Météo surf {esc(name)}</b></p>
 <h1>Météo surf {esc(name)}</h1>

@@ -13,6 +13,7 @@ import unicodedata
 from datetime import datetime
 
 from . import config
+from .seotext import fit, fit_desc
 
 SECTORS = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSO", "SO", "OSO", "O", "ONO", "NO", "NNO"]
 DAYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
@@ -191,13 +192,18 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
     esc = html.escape
     where = sp["commune"] if sp["commune"] != name else sp["region"]
     # la commune dans le titre et le h1 : on cherche « météo surf Hossegor » plus souvent que « La Gravière »
-    full = f"{name} ({sp['commune']})" if sp["commune"] and sp["commune"].lower() not in name.lower() else name
-    title = f"Météo surf {full} : houle, vent et marée | {BRAND}"
+    same = lambda a, b: slugify(a).replace("-", "") in slugify(b).replace("-", "")   # « Vieux-Boucau » est déjà dans « Vieux Boucau »
+    full = f"{name} ({sp['commune']})" if sp["commune"] and not same(sp["commune"], name) else name
+    # « Météo surf » et le nom du spot passent avant la marque : sans place, on retire d'abord « | Houlalah »
+    title = fit(f"Météo surf {full} : houle, vent et marée | {BRAND}", f"Météo surf {full} : houle et marée | {BRAND}",
+                f"Météo surf {full} : houle et marée", f"Météo surf {full} | {BRAND}", f"Météo surf {full}", f"Surf {full}")
     if t:
-        desc = (f"Houle de {fr(t['hs'])} m à {name} ({where}) aujourd'hui, période {fr(t['tp'], 0)} s, vent {fr(t['wind'], 0)} km/h"
-                f"{' (' + sector(t['wdir']) + ')' if t['wdir'] is not None else ''}. Prévisions 7 jours, marées et coefficients, mises à jour toutes les heures.")
+        today = (f"Houle de {fr(t['hs'])} m à {name} ({where}) aujourd'hui, période {fr(t['tp'], 0)} s, vent {fr(t['wind'], 0)} km/h"
+                 f"{' (' + sector(t['wdir']) + ')' if t['wdir'] is not None else ''}.")
+        desc = fit_desc(today + " Prévisions 7 jours, marées et coefficients, mises à jour toutes les heures.",
+                        today + " Prévisions 7 jours, marées et coefficients.", today + " Prévisions 7 jours et marées.", today)
     else:
-        desc = f"Prévisions surf à {name} ({where}) : houle, vent, marée et coefficient sur 7 jours."
+        desc = fit_desc(f"Prévisions surf à {name} ({where}) : houle, vent, marée et coefficient sur 7 jours.")
     canonical = f"{site}/spots/{slug}/"
     app = f"../../?spot={slug}"
     trs = "".join(
@@ -277,8 +283,10 @@ def index_page(site, spots_meta, now):
         f'<div class="grp"><h2>{esc(r)}</h2>{_zl(r)}<ul class="near">' + "".join(
             f'<li><a href="{s["slug"]}/">{esc(s["name"])}<small>{esc(s["commune"])}</small></a></li>' for s in groups[r]) + "</ul></div>"
         for r in order)
-    title = f"Spots de surf de {order[0]} à {order[-1]} : prévisions houle, vent, marée | {BRAND}"
-    desc = f"Prévisions surf pour {len(spots_meta)} spots de la côte Atlantique, de {order[0]} au {order[-1]} : houle, vent, marées et coefficients, mises à jour toutes les heures."
+    title = fit(f"Spots de surf de {order[0]} à {order[-1]} : houle, vent, marée | {BRAND}",
+                f"Spots de surf, de la Bretagne au Portugal | {BRAND}", f"Tous les spots de surf | {BRAND}")
+    desc = fit_desc(f"Prévisions surf pour {len(spots_meta)} spots de la côte Atlantique, de {order[0]} au {order[-1]} : houle, vent, marées et coefficients, mises à jour toutes les heures.",
+                    f"Prévisions surf pour {len(spots_meta)} spots, de la Bretagne au Portugal : houle, vent, marées et coefficients, mises à jour toutes les heures.")
     body = f'<h1>Spots de surf, de la Bretagne au Portugal</h1><p class="lead">{len(spots_meta)} spots, de la Bretagne au Portugal. Choisis ton spot pour voir la houle, le vent, la marée et le coefficient.</p>{sec}'
     ld = [{"@context": "https://schema.org", "@type": "CollectionPage", "name": title, "description": desc, "url": f"{site}/spots/", "inLanguage": "fr"},
           {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [

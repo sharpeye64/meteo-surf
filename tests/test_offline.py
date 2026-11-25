@@ -277,3 +277,15 @@ _stale = [{"id": "x", "name": "Vieille", "lat": 43.5, "lon": -1.6, "obs": [], "l
 _build.keep_silent(_stale, [], _meta, _old)
 assert _stale[0].get("silent"), _stale[0]
 print("vieille mesure renvoyée par la source → muette OK")
+
+# Titres et descriptions dans les limites de Google (sinon il les coupe) sur toutes les pages générées
+import html as _html, re as _re
+_long = []
+for _f in _root.rglob("index.html"):
+    _t = _f.read_text(encoding="utf-8")
+    _ti = _re.search(r"<title>(.*?)</title>", _t, _re.S)
+    _de = _re.search(r'<meta name="description" content="(.*?)"', _t)
+    if _ti and len(_html.unescape(_ti.group(1))) > 60: _long.append(("titre", _f.parent.name, _html.unescape(_ti.group(1))))
+    if _de and len(_html.unescape(_de.group(1))) > 160: _long.append(("desc", _f.parent.name, len(_html.unescape(_de.group(1)))))
+assert not _long, _long[:5]
+print("titres ≤ 60 et descriptions ≤ 160 OK :", len(list(_root.rglob("index.html"))), "pages")
