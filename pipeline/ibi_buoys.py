@@ -32,7 +32,7 @@ STATIONS = [
     {"id": "faro", "file": "IR_TS_MO_Faro-coast-buoy", "name": "Faro", "lat": 36.905, "lon": -7.898, "sub": "sur la côte, Algarve"},
 ]
 VARS = {"hs": ("VHM0", "VAVH", "VGHS"), "tp": ("VTPK",), "dir": ("VMDR", "VPED", "VDIR"), "sst": ("TEMP",), "hmax": ("VZMX", "VEMH")}
-UA = {"User-Agent": "meteo-surf-prototype (prévisions surf, 1 requête par bouée toutes les 3 h)"}
+UA = {"User-Agent": "meteo-surf-prototype (prévisions surf, 1 requête par bouée et par passage)"}
 
 
 def _load_day(st, day):

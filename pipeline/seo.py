@@ -190,10 +190,12 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
     t = rows[0] if rows else None
     esc = html.escape
     where = sp["commune"] if sp["commune"] != name else sp["region"]
-    title = f"Météo surf {name} : houle, vent et marée | {BRAND}"
+    # la commune dans le titre et le h1 : on cherche « météo surf Hossegor » plus souvent que « La Gravière »
+    full = f"{name} ({sp['commune']})" if sp["commune"] and sp["commune"].lower() not in name.lower() else name
+    title = f"Météo surf {full} : houle, vent et marée | {BRAND}"
     if t:
         desc = (f"Houle de {fr(t['hs'])} m à {name} ({where}) aujourd'hui, période {fr(t['tp'], 0)} s, vent {fr(t['wind'], 0)} km/h"
-                f"{' (' + sector(t['wdir']) + ')' if t['wdir'] is not None else ''}. Prévisions 7 jours, marées et coefficients, mises à jour toutes les 3 heures.")
+                f"{' (' + sector(t['wdir']) + ')' if t['wdir'] is not None else ''}. Prévisions 7 jours, marées et coefficients, mises à jour toutes les heures.")
     else:
         desc = f"Prévisions surf à {name} ({where}) : houle, vent, marée et coefficient sur 7 jours."
     canonical = f"{site}/spots/{slug}/"
@@ -234,7 +236,7 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
     from . import zones as _z
     zn = next((z for z in _z.ZONES if z["key"] == sp["region"]), None)
     zone_link = f'<p class="muted" style="margin-top:18px"><a href="../../{zn["slug"]}/">Météo surf {esc(zn["name"])} : tous les spots {zn["in"]}</a></p>' if zn else ""
-    body = f"""<h1>Prévisions surf à {esc(name)}</h1>
+    body = f"""<h1>Prévisions surf à {esc(full)}</h1>
 <p class="lead">{lead}</p>
 <p><a class="cta" href="{app}">Voir les prévisions heure par heure</a></p>
 <p class="muted">{(esc(sp['type']) + ' · fond de ' + esc(sp['bottom'].lower()) + ' · ') if sp.get('type') and sp.get('bottom') else ''}{esc(sp['commune'])}, {esc(sp['region'])}. Mis à jour le {now:%d/%m/%Y à %Hh%M}.</p>
@@ -276,7 +278,7 @@ def index_page(site, spots_meta, now):
             f'<li><a href="{s["slug"]}/">{esc(s["name"])}<small>{esc(s["commune"])}</small></a></li>' for s in groups[r]) + "</ul></div>"
         for r in order)
     title = f"Spots de surf de {order[0]} à {order[-1]} : prévisions houle, vent, marée | {BRAND}"
-    desc = f"Prévisions surf pour {len(spots_meta)} spots de la côte Atlantique, de {order[0]} au {order[-1]} : houle, vent, marées et coefficients, mises à jour toutes les 3 heures."
+    desc = f"Prévisions surf pour {len(spots_meta)} spots de la côte Atlantique, de {order[0]} au {order[-1]} : houle, vent, marées et coefficients, mises à jour toutes les heures."
     body = f'<h1>Spots de surf, de la Bretagne au Portugal</h1><p class="lead">{len(spots_meta)} spots, de la Bretagne au Portugal. Choisis ton spot pour voir la houle, le vent, la marée et le coefficient.</p>{sec}'
     ld = [{"@context": "https://schema.org", "@type": "CollectionPage", "name": title, "description": desc, "url": f"{site}/spots/", "inLanguage": "fr"},
           {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [

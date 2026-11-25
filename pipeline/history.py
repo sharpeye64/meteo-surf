@@ -1,6 +1,6 @@
 """Archive « prévision contre réalité » de la houle au large, pour afficher une fiabilité mesurée.
 
-À chaque passage du robot (toutes les 3 h) on garde :
+À chaque passage du robot qui archive (heures UTC multiples de 3) on garde :
 - la hauteur de vagues prévue par chaque modèle au point de la bouée Gascogne, pour les 96 prochaines heures ;
 - les mesures horaires de la bouée.
 On compare ensuite, pour chaque modèle et pour leur mélange, la prévision faite 24, 48, 72 et 96 h plus tôt

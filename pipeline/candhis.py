@@ -23,7 +23,7 @@ STATIONS = [
     {"id": "05602", "name": "Belle-Île", "lat": 47.285, "lon": -3.285, "page": "Y2FtcD0wNTYwMg=="},
 ]
 URL = "https://candhis.cerema.fr/_public_/campagne.php?{page}"
-UA = {"User-Agent": "meteo-surf-prototype (prévisions surf, 1 requête/bouée toutes les 3 h)"}
+UA = {"User-Agent": "meteo-surf-prototype (prévisions surf, 1 requête par bouée et par passage)"}
 
 
 def parse_html(html):

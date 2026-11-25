@@ -33,7 +33,7 @@ HOW = {
 <p>À chaque mise à jour, les prévisions sont archivées. Elles sont ensuite comparées à la mesure réelle de la bouée à 24, 48, 72 et 96 heures d'avance, sur les 30 derniers jours. Le résultat apparaît en bas de la page d'accueil dès qu'il y a assez de mesures. Houlalah ne dit jamais si les conditions sont « bonnes » : c'est à toi de juger, avec des données dont on connaît la précision.</p>
 
 <h2>Mises à jour et limites</h2>
-<p>Les prévisions sont recalculées toutes les 3 heures. Ce sont des estimations : un modèle ne voit ni un banc de sable qui a bougé ni une rafale locale. Elles ne remplacent ni un coup d'œil sur place ni les consignes de sécurité des plages surveillées.</p>
+<p>Les prévisions sont recalculées toutes les heures environ. Ce sont des estimations : un modèle ne voit ni un banc de sable qui a bougé ni une rafale locale. Elles ne remplacent ni un coup d'œil sur place ni les consignes de sécurité des plages surveillées.</p>
 """,
 }
 
