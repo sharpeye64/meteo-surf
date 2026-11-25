@@ -1784,32 +1784,38 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
   #home .hmb-col .hmb-row2 button{background:#f6efe1}
   #home .hmb-col .hmb-row2 button:hover{background:#efe4cd}
 }
-/* ----- téléphone : tiroir des bouées (proposition A, 25/11/2026) ----- */
+/* ----- téléphone : interrupteur Carte / Bouées (proposition D, 25/11/2026) -----
+   la carte reste nue ; les bouées ont leur propre écran, en liste par zone qu'on fait défiler au doigt */
 .hmb-v2 .shh,.hmb-v2 .sht{display:none}
+.hmb-seg,.hmb-bulist{display:none}
 @media (max-width:759px){
   .hmb-intro{display:none!important}
-  #home .hmb-card.hmb-v2.fl{left:0;right:0;bottom:0;pointer-events:auto;border-radius:24px 24px 0 0;
-    background:linear-gradient(180deg,#fbf4e6 0%,#ffffff 46%);box-shadow:0 -10px 30px rgba(16,32,44,.22),inset 0 1px 0 rgba(233,198,148,.5);
-    padding:6px 14px calc(10px + env(safe-area-inset-bottom,0px))!important}
-  .hmb-v2 .shh{display:block;width:100%;height:20px;border:0;background:none;cursor:pointer;position:relative;margin:0 0 2px}
-  .hmb-v2 .shh:before{content:"";position:absolute;left:50%;top:7px;width:38px;height:5px;margin-left:-19px;border-radius:3px;background:#d6dcdf}
-  .hmb-v2 .sht{display:block;margin:0 0 8px;font:800 15px/1.25 Manrope,system-ui,sans-serif;color:#10202c}
-  .hmb-v2 .sht em{font-style:normal;background:linear-gradient(180deg,transparent 60%,rgba(233,198,148,.7) 60%)}
-  #home .hmb-v2.fl .bcap{display:flex;width:auto;margin:0;padding:0;height:auto;background:none;color:#10202c;box-shadow:none;gap:8px}
-  #home .hmb-v2.fl .bcap b{color:#1a6b3d;margin-left:auto}#home .hmb-v2.fl .bcap b small{color:#8a98a0}
-  #home .hmb-v2.fl .bcap .ball{background:#e9c694;color:#2a2112}
-  #home .hmb-v2.fl .hmb-tick2{height:96px;margin:8px -2px 0;padding:0 2px;overflow:hidden;transition:height .25s cubic-bezier(.22,1,.36,1);
-    -webkit-mask-image:linear-gradient(180deg,#000 0,#000 80%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 80%,transparent 100%)}
-  #home .hmb-v2.fl .hmb-row2{flex-direction:column;width:auto;padding:2px 0;gap:6px;animation-name:hmbMqV}
-  #home .hmb-v2.fl .hmb-row2 button{width:100%;height:40px;background:#f6efe1;box-shadow:none}
-  #home .hmb-v2.fl .hmb-row2 button b{margin-left:auto}
-  /* ouvert : toute la liste, qu'on fait défiler au doigt ; réduit : juste la poignée et le compteur */
-  #home .hmb-v2.fl.sh-open .hmb-tick2{height:min(56vh,460px);overflow-y:auto;-webkit-mask-image:none;mask-image:none}
-  #home .hmb-v2.fl.sh-open .hmb-row2{animation:none;transform:none}
-  #home .hmb-v2.fl.sh-open .hmb-row2 .cl{display:none}
-  #home .hmb-v2.fl.sh-min .hmb-tick2{height:0;margin-top:0}
-  #home .hmb-v2.fl.sh-min .sht{display:none}
-  #home .maplibregl-ctrl-bottom-right{bottom:calc(var(--shH,190px) + 6px)}
+  #home .hmb-card.hmb-v2.fl{display:none}
+  .hmb-seg{display:flex;position:absolute;z-index:16;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));
+    padding:4px;gap:2px;border-radius:999px;background:#fff;box-shadow:0 8px 24px rgba(16,32,44,.22)}
+  .hmb-seg button{border:0;background:none;border-radius:999px;height:42px;padding:0 20px;font:800 14px Manrope,system-ui,sans-serif;color:#5b6b75;cursor:pointer;display:flex;align-items:center;gap:7px}
+  .hmb-seg button.on{background:#10202c;color:#fff}
+  .hmb-seg button b{font:700 13px Unbounded,system-ui,sans-serif;color:#1a6b3d}
+  .hmb-seg button.on b{color:#7fe0b0}
+  .hmb-seg button .lv{width:7px;height:7px;border-radius:50%;background:#2fb47c}
+  #home.hm-buv .hmb-bulist{display:block;position:absolute;z-index:15;left:0;right:0;top:calc(118px + env(safe-area-inset-top,0px));bottom:0;
+    overflow-y:auto;-webkit-overflow-scrolling:touch;background:#eef1f2;padding:6px 14px calc(96px + env(safe-area-inset-bottom,0px))}
+  #home.hm-buv .hmb-chips,#home.hm-buv .hmb-res{display:none!important}
+  .hmb-bulist h3{margin:18px 4px 8px;font:800 11.5px Manrope,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#8a6a1f;display:flex;justify-content:space-between}
+  .hmb-bulist h3 small{font:600 12px Manrope,system-ui,sans-serif;letter-spacing:0;text-transform:none;color:#8a98a0}
+  .hmb-bulist .blg{background:#fff;border-radius:20px;padding:4px 0;box-shadow:0 6px 18px rgba(16,32,44,.06)}
+  .hmb-bulist .bl{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;padding:10px 12px 10px 16px;text-align:left;cursor:pointer;font-family:inherit;color:#10202c}
+  .hmb-bulist .bl+.bl{border-top:1px solid #f0f2f3}
+  .hmb-bulist .bl .lv{width:8px;height:8px;border-radius:50%;background:#2fb47c;flex:none}
+  .hmb-bulist .bl .lv.old{background:#c9c3b4}
+  .hmb-bulist .bl span{flex:1;min-width:0}
+  .hmb-bulist .bl span b{display:block;font:800 15px Manrope,system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hmb-bulist .bl span small{display:block;font:600 12px Manrope,system-ui,sans-serif;color:#6b7b85;margin-top:1px}
+  .hmb-bulist .bl em{font:600 16px Unbounded,system-ui,sans-serif;font-style:normal;letter-spacing:-.04em;background:linear-gradient(135deg,#f4e2b8,#e3c283);color:#2a2112;border-radius:16px;padding:7px 11px;display:flex;align-items:baseline;gap:2px}
+  .hmb-bulist .bl em u{text-decoration:none;font:700 10px Manrope,system-ui,sans-serif;color:#7a5f33}
+  .hmb-bulist .bl[data-old]{opacity:.55}
+  .hmb-bulist .all{display:block;text-align:center;margin:18px 0 0;font:700 14px Manrope,system-ui,sans-serif;color:#8a6a1f}
+  #home .maplibregl-ctrl-bottom-right{bottom:calc(66px + env(safe-area-inset-bottom,0px))}
 }
 @media (prefers-reduced-motion:reduce){ .hmb-row2{animation:none} .hmb-row2 .lv,.hmb-v2 .bcap i{animation:none} .hmb-tick2{overflow-x:auto;-webkit-mask-image:none;mask-image:none;scrollbar-width:none} .hmb-row2 .cl{display:none} }
 @media (prefers-reduced-motion:reduce){ .hmb-cap i{animation:none} .hmb-tick .hmb-row{animation:none} .hmb-tick .hmb-row button,.hmb-row .lv{animation:none!important} .hmb-tick{overflow-x:auto!important;-webkit-mask-image:none;mask-image:none} .hmb-tick .hmb-row button.cl{display:none} }
@@ -3494,6 +3500,11 @@ function homeHomePanelM(){
   /* pastille d'une bouée : feu (vert = mesure de moins de 2 h), nom, période mesurée, hauteur avec son unité */
   const buRow=(b,cl)=>`<button type="button" data-b="${b.id}"${cl?' class="cl" tabindex="-1" aria-hidden="true"':''}${ageH(b)>=6?' data-old="1"':''} title="${b.n} · ${ageTxt(ageH(b))}"><i class="lv${ageH(b)<2?'':' old'}"></i><span class="nm">${b.n}</span>${per(b.L)?`<small>${per(b.L)}</small>`:''}<b>${hmF(b.L.hs)}<u>m</u></b></button>`;
   const seq=[...live,...rest];
+  /* téléphone : liste des bouées classée par zone, du nord au sud (même découpage que la page des bouées) */
+  const zoneOf=b=>b.lat<42?'Portugal':(b.lat<44.5&&b.lon<-1.8)?'Espagne':b.lat>47?'Bretagne':'Golfe de Gascogne';
+  const along=b=>zoneOf(b)==='Espagne'?(b.lat>=43?-b.lon:100-b.lat):-b.lat;
+  const blRow=b=>`<button type="button" class="bl" data-b="${b.id}"${ageH(b)>=6?' data-old="1"':''}><i class="lv${ageH(b)<2?'':' old'}"></i><span><b>${b.n}</b><small>${b.large?'au large · ':''}${ageTxt(ageH(b))}${per(b.L)?' · '+per(b.L):''}</small></span><em>${hmF(b.L.hs)}<u>m</u></em></button>`;
+  const buList=['Bretagne','Golfe de Gascogne','Espagne','Portugal'].map(z=>{ const l=bu.filter(b=>zoneOf(b)===z).sort((a,b)=>along(a)-along(b)); return l.length?`<h3>${z}<small>${l.length} bouée${l.length>1?'s':''}</small></h3><div class="blg">${l.map(blRow).join('')}</div>`:''; }).join('')+'<a class="all" href="bouees/">Pages détaillées des bouées →</a>';
   document.getElementById('home').classList.remove('hm-sel'); HOME.popAt=null;
   /* texte d'accueil : toujours dans la carte du grand écran ; ailleurs, petit bandeau refermable montré tant qu'on ne l'a pas fermé */
   let introSeen=false; try{ introSeen=localStorage.getItem('introSeen')==='1'; }catch(e){}
@@ -3501,10 +3512,16 @@ function homeHomePanelM(){
   P.innerHTML=`<div class="hmb-col hmb-home">${intro}<div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<input id="hmQ" placeholder="Chercher un spot…" autocomplete="off" aria-label="Chercher un spot" value="${HOME.q.replace(/"/g,'')}"><button type="button" class="hmb-x" id="hmQx">Annuler</button></div>
     <div class="hmb-chips">${homeChipsHtml(D)}</div></div>
     <div class="hmb-res" id="hmRes" hidden></div>
+    <div class="hmb-bulist" id="hmBuList">${buList}</div>
+    <div class="hmb-seg" id="hmSeg" role="tablist"><button type="button" role="tab" data-v="map" class="${HOME.buv?'':'on'}">Carte</button><button type="button" role="tab" data-v="bu" class="${HOME.buv?'on':''}"><i class="lv"></i>Bouées <b>${live.length}</b></button></div>
     <div class="hmb-card hmb-v2 fl" id="hmSheet"><button type="button" class="shh" aria-label="Agrandir ou réduire la liste des bouées"></button><p class="sht">La houle prévue, <em>vérifiée par les bouées</em></p><div class="bcap"><span><i></i>Bouées en direct</span><b>${live.length}<small> / ${bu.length}</small></b><a class="ball" href="bouees/">Toutes les bouées →</a></div>
       <div class="hmb-tick2" id="hmTick"><div class="hmb-row2" style="--mq:${Math.max(30,Math.round(seq.length*5))}s">${seq.map(b=>buRow(b)).join('')}${seq.map(b=>buRow(b,true)).join('')}</div></div></div>
     </div>`;
   P.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>homeBuoy(HOME.bu.find(x=>x.id===b.dataset.b)));
+  { const hm=document.getElementById('home'), sg=document.getElementById('hmSeg');
+    const view=v=>{ HOME.buv=v==='bu'; hm.classList.toggle('hm-buv',HOME.buv); sg&&sg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',(b.dataset.v==='bu')===HOME.buv)); };
+    if(sg){ sg.querySelectorAll('button').forEach(b=>b.onclick=()=>view(b.dataset.v)); view(HOME.buv?'bu':'map'); }
+    document.querySelectorAll('#hmBuList [data-b]').forEach(e=>e.addEventListener('click',()=>view('map'))); }
   { const x=document.getElementById('hmIntroX'); if(x) x.onclick=()=>{ try{ localStorage.setItem('introSeen','1'); }catch(e){} const n=document.getElementById('hmIntro'); if(n) n.remove(); }; }
   /* téléphone : la carte des bouées devient un tiroir à 3 positions (réduit, normal, ouvert), qu'on tire du doigt ou qu'on ouvre
      en touchant la poignée ; le bouton ⓘ des crédits de la carte se cale juste au-dessus */
