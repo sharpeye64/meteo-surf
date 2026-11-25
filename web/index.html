@@ -1718,6 +1718,9 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
 @keyframes hmbBlink3{0%,58%,100%{opacity:.3}66%,78%{opacity:1}}
 .hmb-tick2{contain:layout paint}
 .hmb-v2.fl .hmb-tick2{-webkit-mask-image:none;mask-image:none}
+/* bouton ⓘ des crédits de la carte : au-dessus des bouées qui défilent */
+#home .maplibregl-ctrl-bottom-right{bottom:calc(122px + env(safe-area-inset-bottom,0px))}
+@media (min-width:760px){ #home .maplibregl-ctrl-bottom-right{bottom:84px;right:18px} }
 @media (prefers-reduced-motion:reduce){ .hmb-row2{animation:none} .hmb-row2 .lv,.hmb-v2 .bcap i{animation:none} .hmb-tick2{overflow-x:auto;-webkit-mask-image:none;mask-image:none;scrollbar-width:none} .hmb-row2 .cl{display:none} }
 @media (prefers-reduced-motion:reduce){ .hmb-cap i{animation:none} .hmb-tick .hmb-row{animation:none} .hmb-tick .hmb-row button,.hmb-row .lv{animation:none!important} .hmb-tick{overflow-x:auto!important;-webkit-mask-image:none;mask-image:none} .hmb-tick .hmb-row button.cl{display:none} }
 #home .hmb-res .hmb-reg{padding:10px 12px 10px 22px}
@@ -2828,6 +2831,7 @@ async function initMap(){
   const k=state.day, sel=state.spot, nearSet=new Set(nearOf(sel,7).map(o=>o.i));
   const map=lmap=new maplibregl.Map({container:box,style:'https://tiles.openfreemap.org/styles/positron',center:spotPos(sel),zoom:10,attributionControl:{compact:true},dragRotate:false,pitchWithRotate:false,cooperativeGestures:true,
     locale:{'CooperativeGesturesHandler.WindowsHelpText':'Ctrl + molette pour zoomer','CooperativeGesturesHandler.MacHelpText':'⌘ + molette pour zoomer','CooperativeGesturesHandler.MobileHelpText':'Deux doigts pour déplacer la carte'}});
+  attribFold(map);
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
   state.data.forEach((x,i)=>{
     const dd=x.days[k], isSel=i===sel, big=isSel||nearSet.has(i), m=dayMed(dd), w=document.createElement('div');
@@ -3255,6 +3259,12 @@ function homeData(){
   const n=new Date(), p=v=>String(v).padStart(2,'0'), key=`${n.getFullYear()}-${p(n.getMonth()+1)}-${p(n.getDate())}T${p(n.getHours())}`;
   return state.data.map((d,i)=>{ const hs=d.hours, h=hs.find(x=>x.time.slice(0,13)===key)||hs.find(x=>x.time>=key)||hs[0]; return {i,n:d.spot.name,r:d.spot.region,lat:d.spot.mlat??d.spot.lat,lon:d.spot.mlon??d.spot.lon,h:h&&h.H,p:h&&h.T?Math.round(h.T):null,d:h&&h.D}; }).filter(x=>x.h!=null).sort((a,b)=>b.lat-a.lat);
 }
+/* Crédits de la carte (OpenFreeMap, OpenStreetMap) repliés derrière le bouton ⓘ dès l'ouverture : MapLibre les déplie
+   au chargement, ce qui masquait le bas de la carte. Un clic sur ⓘ les affiche. */
+function attribFold(map){
+  const fold=()=>map.getContainer().querySelectorAll('.maplibregl-ctrl-attrib').forEach(a=>{ a.classList.remove('maplibregl-compact-show'); a.removeAttribute('open'); });
+  map.once('load',fold); map.once('idle',fold);
+}
 function homeBuoys(){
   const o=[]; (state.coast||[]).forEach(b=>{ if(b.latest&&b.latest.hs!=null) o.push({id:b.id,n:b.name,sub:b.sub||'sur la côte',lat:+b.lat,lon:+b.lon,L:b.latest,coast:true}); });
   (state.offshore||[]).forEach(b=>{ if(b.latest&&b.latest.hs!=null) o.push({id:b.id,n:b.name,sub:b.sub||'sur la côte',lat:+b.lat,lon:+b.lon,L:b.latest}); });
@@ -3291,6 +3301,7 @@ function homeClose(){
 function homeInitMap(){
   const mob=innerWidth<760, D=HOME.data;
   const map=HOME.map=new maplibregl.Map({container:'hmMap',style:'https://tiles.openfreemap.org/styles/positron',center:[-1.5,44.2],zoom:6.5,pitch:0,bearing:0,attributionControl:{compact:true},dragRotate:false,pitchWithRotate:false});
+  attribFold(map);
   D.forEach((s,i)=>{ const w=document.createElement('div'), e=document.createElement('div'); e.className='hm-pt'; e.style.setProperty('--c',hmCol(s.h)); e.style.setProperty('--d',(i%9)*.35+'s');
     e.innerHTML=`<span class="hm-n">${hmF(s.h)}</span><div class="hm-tip"><b>${s.n}</b><small class="hm-rg">${s.r}</small><span class="hm-tv">${hmF(s.h)} m${s.p?` · ${s.p} s`:''}${s.d!=null?` · ${sector(s.d)}`:''}</span><span class="hm-tn">houle prévue</span></div>`; w.appendChild(e); w.onclick=()=>homeSpot(s,true);
     HOME.pts[s.n]=new maplibregl.Marker({element:w}).setLngLat([s.lon,s.lat]).addTo(map); });
