@@ -1723,7 +1723,7 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
 @media (min-width:760px){ .hmb-card.hmb-v2.fl{bottom:38px} }
 /* grand écran (≥ 1200 px) : les bouées passent en tête de la colonne de gauche, au-dessus de la recherche,
    et défilent de bas en haut comme un tableau des départs (la colonne est centrée sur l'océan) */
-@media (min-width:1200px){
+@media (min-width:760px){
   #home .hmb-col .hmb-card.hmb-v2.fl{order:-1;position:static;display:block;height:auto;width:auto;left:auto;right:auto;bottom:auto;margin:0 0 4px}
   #home .hmb-col .hmb-v2.fl .bcap{display:flex;width:100%;box-sizing:border-box;justify-content:flex-start;height:44px;padding:0 6px 0 18px}
   #home .hmb-col .hmb-v2.fl .bcap b{margin-left:auto}
@@ -1732,6 +1732,7 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
   #home .hmb-col .hmb-row2 button{width:100%;justify-content:flex-start}
   #home .hmb-col .hmb-row2 button b{margin-left:auto}
 }
+@media (min-width:760px) and (max-height:760px){ #home .hmb-col .hmb-v2.fl .hmb-tick2{height:118px} #home .hmb-col.hmb-home .hmb-intro .lg{display:none} }   /* écrans bas : la carte tient en hauteur */
 @keyframes hmbMqV{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,-50%,0)}}
 /* ----- texte d'accueil (25/11/2026) -----
    téléphone et écran moyen : petit bandeau blanc refermable sous les filtres ;
@@ -1744,7 +1745,7 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
 #home.hm-search .hmb-intro{display:none}
 #home:has(.hmb-sub:not([style*="none"])) .hmb-intro{display:none}   /* une 2e rangée de filtres (régions) prend sa place */
 @media (min-width:760px){ .hmb-intro{left:28px;right:auto;width:400px;top:206px} }
-@media (min-width:1200px){
+@media (min-width:760px){
   #home .hmb-col.hmb-home{background:#fff;border-radius:30px;padding:24px 22px 18px;gap:14px;box-shadow:0 18px 50px rgba(16,32,44,.24)}
   #home .hmb-col.hmb-home .hmb-intro{position:static;order:-3;width:auto;box-shadow:none;padding:0;border-radius:0;background:none}
   .hmb-col .hmb-intro h2{font:700 24px/1.15 Unbounded,system-ui,sans-serif;letter-spacing:-.03em}
@@ -1765,7 +1766,7 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
 /* ----- carte d'accueil, version claire travaillée (25/11/2026) : même univers que le reste du site et que l'appli
    (fond clair, encre marine, accents sable du logo) ; une vague sable en tête de carte, le logo en filigrane ----- */
 .hmb-intro .k{display:none}
-@media (min-width:1200px){
+@media (min-width:760px){
   #home .hmb-col.hmb-home{background:linear-gradient(180deg,#fbf4e6 0%,#ffffff 46%);overflow:hidden;isolation:isolate;padding:28px 22px 18px;
     box-shadow:0 22px 60px rgba(16,32,44,.22),inset 0 0 0 1px rgba(233,198,148,.35)}
   #home .hmb-col.hmb-home:before{content:"";position:absolute;z-index:-1;right:-40px;top:-26px;width:220px;height:154px;opacity:.16;
@@ -1833,9 +1834,9 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
 .lp .bfresh.lv i{background:#1f9d55!important;animation:lpdot 2s infinite}
 @media (prefers-reduced-motion:reduce){.lp .bfresh.lv i{animation:none}}
 
-/* grand écran (≥ 1200 px) : colonne groupée vers le quart gauche, centrée en hauteur ; la fiche se pose à côté du marqueur */
+/* ordinateur et tablette (≥ 760 px ; avant : ≥ 1200 px) : colonne groupée vers le quart gauche, centrée en hauteur ; la fiche se pose à côté du marqueur */
 .hmb-col{display:contents}
-@media (min-width:1200px){
+@media (min-width:760px){
   #home .hmb-col{display:flex;flex-direction:column;gap:16px;position:absolute;z-index:14;width:400px;left:max(28px,calc(25vw - 200px));top:50%;transform:translateY(-50%);max-height:calc(100% - 140px)}
   #home .hmb-col .hmb-top,#home .hmb-col .hmb-card,#home .hmb-col .hmb-res{position:static;width:auto;left:auto;right:auto;top:auto;bottom:auto}
   #home .hmb-col .hmb-chips{margin-top:14px}
@@ -3469,7 +3470,7 @@ function homeHomePanelM(){
   document.getElementById('home').classList.remove('hm-sel'); HOME.popAt=null;
   /* texte d'accueil : toujours dans la carte du grand écran ; ailleurs, petit bandeau refermable montré tant qu'on ne l'a pas fermé */
   let introSeen=false; try{ introSeen=localStorage.getItem('introSeen')==='1'; }catch(e){}
-  const intro=(innerWidth>=1200||!introSeen)?`<div class="hmb-intro" id="hmIntro"><p class="k">Prévisions surf · ${D.length} spots</p><h2>La houle prévue, <em>vérifiée par les bouées</em></h2><p class="lg">Prévisions surf pour ${D.length} spots, de la Bretagne au Portugal, comparées en direct aux mesures des bouées en mer. Mis à jour toutes les heures.</p><p class="sm">${D.length} spots · Bretagne → Portugal · mis à jour toutes les heures</p><button type="button" class="x" id="hmIntroX" aria-label="Fermer">×</button></div>`:'';
+  const intro=(innerWidth>=760||!introSeen)?`<div class="hmb-intro" id="hmIntro"><p class="k">Prévisions surf · ${D.length} spots</p><h2>La houle prévue, <em>vérifiée par les bouées</em></h2><p class="lg">Prévisions surf pour ${D.length} spots, de la Bretagne au Portugal, comparées en direct aux mesures des bouées en mer. Mis à jour toutes les heures.</p><p class="sm">${D.length} spots · Bretagne → Portugal · mis à jour toutes les heures</p><button type="button" class="x" id="hmIntroX" aria-label="Fermer">×</button></div>`:'';
   P.innerHTML=`<div class="hmb-col hmb-home">${intro}<div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<input id="hmQ" placeholder="Chercher un spot…" autocomplete="off" aria-label="Chercher un spot" value="${HOME.q.replace(/"/g,'')}"><button type="button" class="hmb-x" id="hmQx">Annuler</button></div>
     <div class="hmb-chips">${homeChipsHtml(D)}</div></div>
     <div class="hmb-res" id="hmRes" hidden></div>
@@ -3482,7 +3483,7 @@ function homeHomePanelM(){
   P.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ HOME.reg=b.dataset.g; homeFit(); homeHomePanelM(); homeDeclutter(); });
   document.getElementById('hmGeo').onclick=e=>homeGeo(e.currentTarget);
   homeBindSearch(); homeRes(); homeTopBtn();
-  requestAnimationFrame(()=>{ const c=document.querySelector('#home .hmb-col'); if(c&&innerWidth>=1200&&!document.getElementById('home').classList.contains('hm-sel')){ const t=Math.round(c.getBoundingClientRect().top); if(t>0) HOME.colTop=t; } });
+  requestAnimationFrame(()=>{ const c=document.querySelector('#home .hmb-col'); if(c&&innerWidth>=760&&!document.getElementById('home').classList.contains('hm-sel')){ const t=Math.round(c.getBoundingClientRect().top); if(t>0) HOME.colTop=t; } });
 }
 function homeHomePanel(){ homeHomePanelM(); }
 function homeRes(){
