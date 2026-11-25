@@ -218,7 +218,7 @@ print("CANDHIS OK :", [b["name"] for b in data["coast"]], c0["latest"])
 import re as _re
 sm = (config.ROOT / "web" / "sitemap.xml").read_text(encoding="utf-8")
 _nb = len(data["coast"]) + len(data["offshore"]) + (1 if (data.get("gascogne") or {}).get("latest") else 0)   # pages des bouées (Gascogne comprise) + leur page liste
-assert sm.count("<url>") == len(data["spots"]) + 5 + _nb + 1 + 12, sm.count("<url>")
+assert sm.count("<url>") == len(data["spots"]) + 6 + _nb + 1 + 12, sm.count("<url>")   # +1 : page « À propos »
 assert "Sitemap:" in (config.ROOT / "web" / "robots.txt").read_text()
 pg = (config.ROOT / "web" / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
 assert "<h1>Prévisions surf à Lacanau</h1>" in pg and "application/ld+json" in pg and 'rel="canonical"' in pg and "<table>" in pg
@@ -289,3 +289,16 @@ for _f in _root.rglob("index.html"):
     if _de and len(_html.unescape(_de.group(1))) > 160: _long.append(("desc", _f.parent.name, len(_html.unescape(_de.group(1)))))
 assert not _long, _long[:5]
 print("titres ≤ 60 et descriptions ≤ 160 OK :", len(list(_root.rglob("index.html"))), "pages")
+
+# Éditeur, page « À propos », pays des spots, robots des IA et llms.txt
+_ap = (_root / "a-propos" / "index.html").read_text(encoding="utf-8")
+assert '"@type": "AboutPage"' in _ap and '"@type": "Organization"' in _ap and "contact@houlalah.fr" in _ap
+_lk = (_root / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
+assert '"publisher": {"@id": "https://houlalah.fr/#org"}' in _lk and '"addressCountry": "FR"' in _lk and "a-propos/" in _lk
+_es = next(_f for _f in (_root / "spots").glob("*/index.html") if "Espagne" in _f.read_text(encoding="utf-8")[:6000])
+assert '"addressCountry": "ES"' in _es.read_text(encoding="utf-8"), _es
+_rb = (_root / "robots.txt").read_text(encoding="utf-8")
+assert "OAI-SearchBot" in _rb and "Claude-SearchBot" in _rb and "Sitemap:" in _rb
+_ll = (_root / "llms.txt").read_text(encoding="utf-8")
+assert _ll.startswith("# Houlalah") and "/bouees/" in _ll and "/meteo-surf-landes/" in _ll
+print("éditeur, à propos, pays, robots IA et llms.txt OK")

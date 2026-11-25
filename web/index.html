@@ -12,7 +12,7 @@
 <meta property="og:description" content="Houle, vent, marée et coefficient pour 214 spots, croisés entre plusieurs modèles et vérifiés avec les bouées.">
 <meta property="og:url" content="https://houlalah.fr/"><meta property="og:image" content="https://houlalah.fr/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Houlalah : prévisions surf de la Bretagne au Portugal">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Météo surf Landes, Gironde, Pays basque | Houlalah"><meta name="twitter:image" content="https://houlalah.fr/og.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Houlalah","description":"Prévisions surf sur la côte atlantique, de la Bretagne au Portugal : houle, vent, marée et coefficient.","inLanguage":"fr"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://houlalah.fr/#org","name":"Houlalah","url":"https://houlalah.fr/","logo":"https://houlalah.fr/brand/icon-512.png","email":"contact@houlalah.fr","description":"Prévisions surf de la Bretagne au Portugal, vérifiées avec les mesures des bouées en mer."}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Houlalah","url":"https://houlalah.fr/","description":"Prévisions surf sur la côte atlantique, de la Bretagne au Portugal : houle, vent, marée et coefficient.","inLanguage":"fr","publisher":{"@id":"https://houlalah.fr/#org"}}</script>
 <link rel="icon" href="brand/favicon.svg" type="image/svg+xml"><link rel="icon" href="brand/icon-192.png" sizes="192x192" type="image/png"><link rel="shortcut icon" href="favicon.ico">
 <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
 <script data-goatcounter="https://houlalah.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
@@ -3145,7 +3145,7 @@ function render(){
       </div>
       <details class="allspots"><summary>Tous les spots <span class="cnt">(${state.data.length})</span></summary>
       <nav class="spotlinks" aria-label="Tous les spots">${(()=>{ const g={}; state.data.forEach(x=>{ (g[x.spot.region]=g[x.spot.region]||[]).push(x.spot); }); return Object.entries(g).map(([r,l])=>`<div><h3>${r}</h3>${l.map(sp=>`<a href="spots/${slugOf(sp.name)}/">${sp.name}</a>`).join('')}</div>`).join(''); })()}</nav></details>
-      <p class="flinks"><a href="comment-ca-marche/">Comment ça marche</a> · <a href="mentions-legales/">Mentions légales</a> · <a href="confidentialite/">Confidentialité</a></p>
+      <p class="flinks"><a href="comment-ca-marche/">Comment ça marche</a> · <a href="a-propos/">À propos</a> · <a href="mentions-legales/">Mentions légales</a> · <a href="confidentialite/">Confidentialité</a></p>
       ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}.</p>`:''}
     </footer>
   </div>`;

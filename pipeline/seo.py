@@ -96,9 +96,25 @@ ul.near a{display:block;background:var(--card);border-radius:14px;padding:12px 1
 .prose p,.prose li{max-width:68ch}.prose ul{padding-left:20px}"""
 
 
+def country_of(region):
+    """Pays d'un spot d'après sa région (données structurées : FR, ES ou PT)."""
+    return "ES" if region in ("Espagne Nord", "Galice") else "PT" if region.startswith("Portugal") else "FR"
+
+
+def org(site):
+    """L'éditeur du site, déclaré sur toutes les pages (données structurées) : Houlalah, sans nom de personne."""
+    return {"@context": "https://schema.org", "@type": "Organization", "@id": f"{site}/#org", "name": BRAND, "url": f"{site}/",
+            "logo": f"{site}/brand/icon-512.png", "email": "contact@houlalah.fr",
+            "description": "Prévisions surf de la Bretagne au Portugal, vérifiées avec les mesures des bouées en mer."}
+
+
 def page(site, title, desc, canonical, body, jsonld, base="../../", extra_css="", top=None, og_image=None):
     og = f"{site}/{og_image}" if og_image else f"{site}/og.png"
     top = top or ("Tous les spots", "spots/")
+    for j in jsonld:   # chaque page se rattache à l'éditeur
+        if j.get("@type") in ("WebPage", "CollectionPage", "AboutPage"):
+            j.setdefault("publisher", {"@id": f"{site}/#org"})
+    jsonld = [org(site)] + list(jsonld)
     ld = "".join(f'<script type="application/ld+json">{json.dumps(j, ensure_ascii=False)}</script>' for j in jsonld)
     esc = html.escape
     return f"""<!doctype html>
@@ -114,7 +130,7 @@ def page(site, title, desc, canonical, body, jsonld, base="../../", extra_css=""
 <style>{CSS}{extra_css}</style>{ld}</head><body><main>
 <header><a class="brand" href="{base}"><img class="mk" src="{base}brand/symbol.svg" alt="" height="26"><img class="bw" src="{base}brand/wordmark.svg" alt="{BRAND}" height="15"></a><a class="muted" href="{base}{top[1]}">{top[0]}</a></header>
 <div class="prose">{body}</div>
-<footer><nav aria-label="Informations"><a href="{base}comment-ca-marche/">Comment ça marche</a> · <a href="{base}mentions-legales/">Mentions légales</a> · <a href="{base}confidentialite/">Confidentialité</a></nav><br>Prévisions calculées à partir de plusieurs modèles (Météo-France, DWD, ECMWF, NOAA, Ifremer) via Open-Meteo, corrigées avec les bouées. Estimations : à confirmer sur place. {BRAND} est un prototype non commercial.</footer>
+<footer><nav aria-label="Informations"><a href="{base}comment-ca-marche/">Comment ça marche</a> · <a href="{base}a-propos/">À propos</a> · <a href="{base}mentions-legales/">Mentions légales</a> · <a href="{base}confidentialite/">Confidentialité</a></nav><br>Prévisions calculées à partir de plusieurs modèles (Météo-France, DWD, ECMWF, NOAA, Ifremer) via Open-Meteo, corrigées avec les bouées. Estimations : à confirmer sur place. {BRAND} est un prototype non commercial.</footer>
 </main></body></html>"""
 
 
@@ -255,7 +271,7 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
         {"@context": "https://schema.org", "@type": "WebPage", "name": title, "description": desc, "url": canonical, "inLanguage": "fr",
          "isPartOf": {"@type": "WebSite", "name": BRAND, "url": site + "/"},
          "about": {"@type": "Place", "name": f"{name} (spot de surf)", "geo": {"@type": "GeoCoordinates", "latitude": sp["lat"], "longitude": sp["lon"]},
-                   "address": {"@type": "PostalAddress", "addressLocality": sp["commune"], "addressRegion": sp["region"], "addressCountry": "FR"}},
+                   "address": {"@type": "PostalAddress", "addressLocality": sp["commune"], "addressRegion": sp["region"], "addressCountry": country_of(sp["region"])}},
          "dateModified": now.strftime("%Y-%m-%dT%H:%M:00")},
         {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
             {"@type": "ListItem", "position": 1, "name": BRAND, "item": site + "/"},
@@ -345,5 +361,52 @@ def generate(payload, out_dir=None, site=None):
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join(
         f"<url><loc>{u}</loc><lastmod>{day}</lastmod><changefreq>{f}</changefreq><priority>{p}</priority></url>\n" for u, f, p in urls) + "</urlset>\n"
     (root / "sitemap.xml").write_text(sm, encoding="utf-8")
-    (root / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {site}/sitemap.xml\n", encoding="utf-8")
+    (root / "robots.txt").write_text(ROBOTS.format(site=site), encoding="utf-8")
+    (root / "llms.txt").write_text(llms_txt(site, spots), encoding="utf-8")
     return len(spots) + 1 + len(pages.ALL) + len(burls) + len(zurls)
+
+
+# Robots : tout le monde est autorisé. Les moteurs de recherche des IA sont nommés explicitement (pour être cités dans
+# leurs réponses) ; les robots qui collectent pour entraîner les IA restent autorisés par la règle générale (choix à revoir
+# avec l'utilisateur : il suffit d'ajouter un groupe « Disallow: / » pour GPTBot, ClaudeBot, Google-Extended, CCBot).
+ROBOTS = """User-agent: *
+Allow: /
+
+# Moteurs de recherche des IA (réponses avec citations)
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+Allow: /
+
+Sitemap: {site}/sitemap.xml
+"""
+
+
+def llms_txt(site, spots):
+    """llms.txt : un résumé du site et ses pages principales, pour les assistants IA (format llmstxt.org)."""
+    from . import zones as _z
+    regions = "\n".join(f"- [Météo surf {z['name']}]({site}/{z['slug']}/)" for z in _z.ZONES)
+    return f"""# {BRAND}
+
+> Prévisions surf gratuites pour {len(spots)} spots de la côte atlantique, de la Bretagne au Portugal : houle (hauteur, période,
+> direction), vent, marée et coefficient, croisées entre plusieurs modèles et comparées en direct aux mesures des bouées en mer.
+> Mises à jour toutes les heures. La hauteur affichée est celle de la houle au large, pas la taille des vagues au bord.
+
+## Pages principales
+- [Carte de la côte et prévisions]({site}/)
+- [Tous les spots, par région]({site}/spots/)
+- [Bouées de houle en direct]({site}/bouees/)
+- [Comment {BRAND} calcule ses prévisions]({site}/comment-ca-marche/)
+- [À propos]({site}/a-propos/)
+
+## Régions
+{regions}
+
+## Données
+- Prévisions : Open-Meteo (Météo-France, DWD, ECMWF, NOAA), modèle côtier Ifremer MARC
+- Mesures : bouées Météo-France, Cerema (CANDHIS), Puertos del Estado, Euskalmet (via Copernicus Marine)
+- Les prévisions sont des estimations : à confirmer sur place.
+"""

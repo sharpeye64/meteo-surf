@@ -85,13 +85,44 @@ PRIVACY = {
 """,
 }
 
-ALL = [HOW, LEGAL, PRIVACY]
+ABOUT = {
+    "slug": "a-propos",
+    "title": f"À propos de {BRAND}",
+    "desc": f"{BRAND} : des prévisions surf gratuites de la Bretagne au Portugal, vérifiées avec les mesures réelles des bouées en mer. Qui, quoi, comment, contact.",
+    "h1": f"À propos de {BRAND}",
+    "type": "AboutPage",
+    "body": f"""
+<p class="lead">{BRAND} donne des prévisions surf gratuites pour plus de 200 spots de la côte atlantique, de la Bretagne au Portugal, et les compare en direct aux mesures des bouées en mer.</p>
+
+<h2>Pourquoi {BRAND}</h2>
+<p>Une prévision de houle reste une estimation. Pour savoir si elle tient la route, le plus simple est de la confronter à ce que mesurent réellement les bouées. {BRAND} affiche donc, à côté de chaque prévision, la dernière mesure de la bouée la plus pertinente, son âge, et l'écart observé entre prévu et mesuré. À chacun ensuite de se faire sa propre idée : le site ne donne pas d'avis sur les conditions.</p>
+
+<h2>Ce que vous trouvez sur le site</h2>
+<ul>
+<li>La houle (hauteur, période, direction), le vent, la marée et le coefficient, heure par heure sur 7 jours, pour chaque spot.</li>
+<li>Les mesures des bouées en direct, de la Bretagne au Portugal, avec leur historique récent.</li>
+<li>Des prévisions croisées entre plusieurs modèles, mises à jour toutes les heures.</li>
+</ul>
+<p>Le détail des sources et des calculs est sur la page <a href="../comment-ca-marche/">Comment ça marche</a>.</p>
+
+<h2>Qui fait {BRAND}</h2>
+<p>{BRAND} est un projet indépendant et non commercial, sans publicité ni compte utilisateur. Il est développé de façon indépendante, pour les surfeurs qui veulent des données claires et vérifiables.</p>
+
+<h2>À savoir</h2>
+<p>La hauteur affichée est celle de la houle au large ou à la bouée, pas la taille des vagues au bord, qui dépend du spot, de la période et de la marée. Les prévisions ne remplacent ni un coup d'œil sur place ni les consignes de sécurité locales.</p>
+
+<h2>Contact</h2>
+<p>Une remarque, une erreur sur un spot, une idée : <a href="mailto:{CONTACT}">{CONTACT}</a>.</p>
+""",
+}
+
+ALL = [HOW, ABOUT, LEGAL, PRIVACY]
 
 
 def render(site, spec):
     canonical = f"{site}/{spec['slug']}/"
     body = f"<h1>{spec['h1']}</h1>{spec['body']}"
-    ld = [{"@context": "https://schema.org", "@type": "WebPage", "name": spec["title"], "description": spec["desc"], "url": canonical, "inLanguage": "fr",
+    ld = [{"@context": "https://schema.org", "@type": spec.get("type", "WebPage"), "name": spec["title"], "description": spec["desc"], "url": canonical, "inLanguage": "fr",
            "isPartOf": {"@type": "WebSite", "name": BRAND, "url": site + "/"}},
           {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
               {"@type": "ListItem", "position": 1, "name": BRAND, "item": site + "/"},
