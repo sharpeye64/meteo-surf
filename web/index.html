@@ -3376,7 +3376,6 @@ function homeHomePanelM(){
     <div class="hmb-chips">${homeChipsHtml(D)}</div></div>
     <div class="hmb-res" id="hmRes" hidden></div>
     </div>
-    <div class="hmb-scale" aria-label="Échelle des couleurs de la houle"><div class="k">Houle à ${n} h · ${D.length} spots</div><div class="st">${[['#9ed8f0','0'],['#43b8c9','0,6'],['#6bc46d','1,2'],['#e8d54a','1,8'],['#f39a2b','2,4'],['#e24a3b','3,2']].map(([c,l])=>`<span><i style="background:${c}"></i>${l}</span>`).join('')}<em>m</em></div></div>
     <div class="hmb-card hmb-v2"><div class="bcap"><span><i></i>Bouées en direct</span><b>${live.length}<small> / ${bu.length}</small></b><a class="ball" href="bouees/">Toutes les bouées →</a></div>
       <div class="hmb-tick2" id="hmTick"><div class="hmb-row2" style="--mq:${Math.max(30,Math.round(seq.length*5))}s">${seq.map(b=>buRow(b)).join('')}${seq.map(b=>buRow(b,true)).join('')}</div></div></div>`;
   P.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>homeBuoy(HOME.bu.find(x=>x.id===b.dataset.b)));
