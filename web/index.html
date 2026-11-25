@@ -1657,6 +1657,43 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
 @keyframes hmbBlink{0%,58%,100%{opacity:.28;box-shadow:0 0 0 0 rgba(47,180,124,0)}66%{opacity:1;box-shadow:0 0 0 4px rgba(47,180,124,.28)}78%{opacity:1;box-shadow:0 0 0 7px rgba(47,180,124,0)}}
 @keyframes hmbLive{0%{box-shadow:0 0 0 0 rgba(47,180,124,.55)}70%,100%{box-shadow:0 0 0 7px rgba(47,180,124,0)}}
 @keyframes hmbMq{to{transform:translateX(-50%)}}
+/* ----- accueil, version « C » (25/11/2026) : échelle de la houle dans un petit encadré, bouées qui défilent
+   (téléphone : dans la carte du bas ; ordinateur : bandeau sur toute la largeur). Pause au survol ou au toucher. ----- */
+.hmb-scale{position:absolute;z-index:14;right:14px;bottom:calc(132px + env(safe-area-inset-bottom,0px));background:#fff;border-radius:14px;box-shadow:0 8px 24px rgba(16,32,44,.2);padding:8px 10px 7px;color:#10202c}
+.hmb-scale .k{font:700 11px Manrope,system-ui,sans-serif;color:#5b6b75;white-space:nowrap}
+.hmb-scale .st{display:flex;align-items:flex-end;gap:2px;margin-top:5px}
+.hmb-scale .st span{display:flex;flex-direction:column;gap:3px;font:700 10.5px Manrope,system-ui,sans-serif;color:#5b6b75;width:24px}
+.hmb-scale .st i{display:block;height:8px;border-radius:3px}
+.hmb-scale .st em{font:700 10.5px Manrope,system-ui,sans-serif;font-style:normal;color:#8a98a0;margin-left:1px}
+.hmb-v2{padding:12px 0 12px!important}
+.hmb-v2 .bcap{display:flex;align-items:center;justify-content:space-between;padding:0 16px;font:800 13px Manrope,system-ui,sans-serif;color:#10202c}
+.hmb-v2 .bcap span{display:flex;align-items:center;gap:8px}
+.hmb-v2 .bcap i{width:8px;height:8px;border-radius:50%;background:#2fb47c;animation:hmbLive 2.4s ease-out infinite}
+.hmb-v2 .bcap b{font:700 17px Unbounded,system-ui,sans-serif;color:#1a6b3d;letter-spacing:-.03em}
+.hmb-v2 .bcap b small{font:700 12px Manrope,system-ui,sans-serif;color:#8a98a0;letter-spacing:0}
+.hmb-tick2{overflow:hidden;margin-top:10px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 6%,#000 94%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 6%,#000 94%,transparent 100%)}
+.hmb-row2{display:flex;gap:8px;width:max-content;padding:0 8px;animation:hmbMq var(--mq,60s) linear infinite;will-change:transform}
+.hmb-tick2:hover .hmb-row2,.hmb-tick2:focus-within .hmb-row2,.hmb-tick2.hold .hmb-row2{animation-play-state:paused}
+.hmb-row2 button{flex:none;display:flex;align-items:center;gap:7px;height:40px;border-radius:20px;background:#f4efe3;border:0;padding:0 4px 0 12px;font:700 13px Manrope,system-ui,sans-serif;color:#10202c;cursor:pointer;transition:background .15s}
+.hmb-row2 button:hover{background:#efe6d2}
+.hmb-row2 button[data-old]{opacity:.55}
+.hmb-row2 .lv{display:block;width:7px;height:7px;border-radius:50%;background:#2fb47c;flex:none;animation:hmbBlink 2.8s ease-in-out infinite}
+.hmb-row2 button:nth-child(3n+2) .lv{animation-delay:-.9s}.hmb-row2 button:nth-child(3n) .lv{animation-delay:-1.8s}
+.hmb-row2 .lv.old{background:#c9bfa6;animation:none}
+.hmb-row2 small{font:600 11.5px Manrope,system-ui,sans-serif;color:#7a6f55}
+.hmb-row2 b{display:flex;align-items:baseline;gap:2px;height:32px;padding:0 10px;border-radius:16px;background:linear-gradient(135deg,#f4e2b8,#e3c283);color:#2a2112;font:600 14px Unbounded,system-ui,sans-serif;letter-spacing:-.04em;line-height:32px}
+.hmb-row2 b u{text-decoration:none;font:700 10px Manrope,system-ui,sans-serif;letter-spacing:0;color:#7a5f33}
+@media (min-width:760px){
+  .hmb-card.hmb-v2{left:28px;right:28px;width:auto;bottom:26px;height:60px;padding:0!important;border-radius:30px;display:flex;align-items:center}
+  .hmb-v2 .bcap{flex:none;gap:12px;padding:0 18px 0 22px;height:36px;border-right:1px solid #e3e8ea}
+  .hmb-v2 .bcap span{font-size:13px}
+  .hmb-tick2{flex:1;min-width:0;margin:0;align-self:stretch;display:flex;align-items:center}
+  .hmb-row2 button{height:42px;border-radius:21px;font-size:13.5px}
+  .hmb-scale{right:28px;bottom:100px;padding:10px 12px 9px}
+  .hmb-scale .st span{width:30px}
+  .hmb-res{max-height:calc(100vh - 330px)!important}
+}
+@media (prefers-reduced-motion:reduce){ .hmb-row2{animation:none} .hmb-row2 .lv,.hmb-v2 .bcap i{animation:none} .hmb-tick2{overflow-x:auto;-webkit-mask-image:none;mask-image:none;scrollbar-width:none} .hmb-row2 .cl{display:none} }
 @media (prefers-reduced-motion:reduce){ .hmb-cap i{animation:none} .hmb-tick .hmb-row{animation:none} .hmb-tick .hmb-row button,.hmb-row .lv{animation:none!important} .hmb-tick{overflow-x:auto!important;-webkit-mask-image:none;mask-image:none} .hmb-tick .hmb-row button.cl{display:none} }
 #home .hmb-res .hmb-reg{padding:10px 12px 10px 22px}
 #home .hmb-res .hmb-reg b{font-size:15.5px}
@@ -3325,15 +3362,22 @@ function homeHomePanelM(){
   const order=['Cap Ferret','Anglet','Saint-Jean-de-Luz','Donostia','Bilbao-Vizcaya','Gascogne'];
   const bu0=[...HOME.bu].sort((a,b)=>{ const x=order.indexOf(a.n), y=order.indexOf(b.n); return (x<0?99:x)-(y<0?99:y); });
   const bu=[...bu0.slice(0,4),...bu0.slice(4).sort((a,b)=>b.lat-a.lat)];   /* Sud-Ouest d'abord, puis la côte du nord au sud */
-  const buRow=(b,cl)=>`<button type="button" data-b="${b.id}"${cl?' class="cl" tabindex="-1" aria-hidden="true"':''}><span><i class="lv${(new Date()-new Date(b.L.time+':00'))/36e5<2?'':' old'}"></i>${b.n}<small>${b.large?'au large · ':''}${ageTxt((new Date()-new Date(b.L.time+':00'))/36e5)}${b.L.tp?' · '+Math.round(b.L.tp)+' s':''}</small></span><b>${hmF(b.L.hs)}</b></button>`;
+  const ageH=b=>(new Date()-new Date(b.L.time+':00'))/36e5;
+  const live=bu.filter(b=>ageH(b)<2), rest=[...bu.filter(b=>ageH(b)>=2&&ageH(b)<6),...bu.filter(b=>ageH(b)>=6)];   /* en direct d'abord, les anciennes et les muettes à la fin */
+  const per=L=>L.tp?`${Math.round(L.tp)} s`:L.tm?`${Math.round(L.tm)} s moy.`:'';
+  /* pastille d'une bouée : feu (vert = mesure de moins de 2 h), nom, période mesurée, hauteur avec son unité */
+  const buRow=(b,cl)=>`<button type="button" data-b="${b.id}"${cl?' class="cl" tabindex="-1" aria-hidden="true"':''}${ageH(b)>=6?' data-old="1"':''} title="${b.n} · ${ageTxt(ageH(b))}"><i class="lv${ageH(b)<2?'':' old'}"></i><span class="nm">${b.n}</span>${per(b.L)?`<small>${per(b.L)}</small>`:''}<b>${hmF(b.L.hs)}<u>m</u></b></button>`;
+  const seq=[...live,...rest];
   document.getElementById('home').classList.remove('hm-sel'); HOME.popAt=null;
   P.innerHTML=`<div class="hmb-col"><div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<input id="hmQ" placeholder="Chercher un spot…" autocomplete="off" aria-label="Chercher un spot" value="${HOME.q.replace(/"/g,'')}"><button type="button" class="hmb-x" id="hmQx">Annuler</button></div>
     <div class="hmb-chips">${homeChipsHtml(D)}</div></div>
     <div class="hmb-res" id="hmRes" hidden></div>
-    <div class="hmb-card"><div class="hd"><div><h3>La houle du moment</h3><div class="sub">Prévision de ${n} h · ${D.length} spots</div></div><div class="hmb-leg"><i></i><span><span>0 m</span><span>3 m +</span></span></div></div>
-      <div class="hmb-cap"><span><i></i>Bouées en direct</span><b>${bu.length}</b></div>
-      <div class="hmb-tick" id="hmTick"><div class="hmb-row" style="--mq:${Math.round(bu.length*6.5)}s">${bu.map(b=>buRow(b)).join('')}${bu.map(b=>buRow(b,true)).join('')}</div></div></div></div>`;
+    </div>
+    <div class="hmb-scale" aria-label="Échelle des couleurs de la houle"><div class="k">Houle à ${n} h · ${D.length} spots</div><div class="st">${[['#9ed8f0','0'],['#43b8c9','0,6'],['#6bc46d','1,2'],['#e8d54a','1,8'],['#f39a2b','2,4'],['#e24a3b','3,2']].map(([c,l])=>`<span><i style="background:${c}"></i>${l}</span>`).join('')}<em>m</em></div></div>
+    <div class="hmb-card hmb-v2"><div class="bcap"><span><i></i>Bouées en direct</span><b>${live.length}<small> / ${bu.length}</small></b></div>
+      <div class="hmb-tick2" id="hmTick"><div class="hmb-row2" style="--mq:${Math.max(30,Math.round(seq.length*5))}s">${seq.map(b=>buRow(b)).join('')}${seq.map(b=>buRow(b,true)).join('')}</div></div></div>`;
   P.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>homeBuoy(HOME.bu.find(x=>x.id===b.dataset.b)));
+  { const t=document.getElementById('hmTick'); if(t){ let k; t.addEventListener('touchstart',()=>{ clearTimeout(k); t.classList.add('hold'); },{passive:true}); t.addEventListener('touchend',()=>{ k=setTimeout(()=>t.classList.remove('hold'),2500); },{passive:true}); } }   /* au toucher, le bandeau s'arrête le temps de choisir */
   P.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ HOME.reg=b.dataset.g; homeFit(); homeHomePanelM(); homeDeclutter(); });
   document.getElementById('hmGeo').onclick=e=>homeGeo(e.currentTarget);
   homeBindSearch(); homeRes(); homeTopBtn();
