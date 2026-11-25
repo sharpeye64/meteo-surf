@@ -48,6 +48,10 @@ details.more summary::-webkit-details-marker{display:none}details.more[open] sum
 .bu{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f6e6bf,#e0bd7a);color:#2a2112;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 4px 14px rgba(16,32,44,.35)}
 .lbl{font:700 12px system-ui;background:#fff;color:#10202c;border:1px solid var(--edge);box-shadow:0 2px 8px rgba(16,32,44,.2);border-radius:10px;padding:3px 8px;white-space:nowrap;margin-top:46px}
 .maplibregl-popup-content{background:#fff;color:#10202c;border:1px solid var(--edge);box-shadow:0 6px 20px rgba(16,32,44,.2);border-radius:14px;padding:10px 14px;font:600 13px system-ui}.maplibregl-popup-tip{display:none}
+.bznav{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 8px}.bznav a{background:var(--card);border-radius:999px;padding:7px 14px;text-decoration:none;color:var(--text);font-weight:700;font-size:14px}.bznav small{color:var(--muted);font-weight:600;margin-left:3px}
+.bz{margin:30px 0 12px;scroll-margin-top:16px}.bz small{font-size:14px;font-weight:600;color:var(--muted);margin-left:6px}
+.bidx a.mute{opacity:.55}
+ul.bidx{padding:0;margin:0}
 .bidx{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;list-style:none;padding:0;margin:0}
 .bidx a{display:block;background:var(--card);border-radius:18px;padding:16px 18px;text-decoration:none;color:var(--text)}
 .bidx b{font-size:18px}.bidx small{display:block;color:var(--muted)}.bidx .v{font-size:28px;font-weight:800;margin-top:6px}
@@ -297,14 +301,43 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
     return page(site, title, desc, canonical, body, ld, base=base, extra_css=EXTRA_CSS, og_image=og_image)
 
 
+# Grandes zones de côte, du nord au sud (même découpage que l'onglet Bouées de l'appli, app/src/BuoyScreens.tsx)
+ZONES = [("bretagne", "Bretagne"), ("gascogne", "Golfe de Gascogne"), ("espagne", "Espagne"), ("portugal", "Portugal")]
+
+
+def zone_of(b):
+    lat, lon = float(b["lat"]), float(b["lon"])
+    return "portugal" if lat < 42 else "espagne" if lat < 44.5 and lon < -1.8 else "bretagne" if lat > 47 else "gascogne"
+
+
+def zone_order(key, b):
+    lat, lon = float(b["lat"]), float(b["lon"])
+    if key == "espagne":   # on suit la côte : de la frontière vers l'ouest, puis la Galice vers le sud
+        return -lon if lat >= 43 else 100 - lat
+    return -lat
+
+
+def per_txt(L):
+    """Période : pic si mesurée, sinon moyenne (Gascogne, Météo-France) dite comme telle."""
+    return f"{fr(L.get('tp'), 0)} s" if L.get("tp") else f"{fr(L.get('tm'), 0)} s moy." if L.get("tm") else ""
+
+
 def index_page(site, allb, now):
-    items = "".join(f'<li><a href="{b["slug"]}/"><b>Bouée {esc(b["name"])}</b><small>{esc(b["sub"])} · {("pas de mesure depuis le " + b["L"]["time"][8:10] + "/" + b["L"]["time"][5:7]) if b.get("silent") else "relevé de " + hour_label(b["L"]["time"])}</small>'
-                    f'<div class="v">{fr(b["L"]["hs"])} m<small style="display:inline;font-size:14px;font-weight:500"> · {fr(b["L"].get("tp"), 0)} s {sector(b["L"].get("dir")) or ""}</small></div></a></li>' for b in allb)
+    item = lambda b: (f'<li><a href="{b["slug"]}/"{' class="mute"' if b.get("silent") else ''}><b>Bouée {esc(b["name"])}</b><small>{esc(b["sub"])} · {("pas de mesure depuis le " + b["L"]["time"][8:10] + "/" + b["L"]["time"][5:7]) if b.get("silent") else "relevé de " + hour_label(b["L"]["time"])}</small>'
+                    f'<div class="v">{fr(b["L"]["hs"])} m<small style="display:inline;font-size:14px;font-weight:500"> · {per_txt(b["L"])} {sector(b["L"].get("dir")) or ""}</small></div></a></li>')
+    groups = []
+    for key, name in ZONES:
+        lst = sorted((b for b in allb if zone_of(b) == key), key=lambda b: zone_order(key, b))
+        if lst:
+            groups.append((key, name, lst))
+    nav = "".join(f'<a href="#{k}">{esc(n)} <small>{len(l)}</small></a>' for k, n, l in groups)
+    items = "".join(f'<h2 id="{k}" class="bz">{esc(n)} <small>{len(l)} bouée{"s" if len(l) > 1 else ""}</small></h2>'
+                    f'<ul class="bidx">{"".join(item(b) for b in l)}</ul>' for k, n, l in groups)
     title = f"Bouées de houle en direct, de la Bretagne au Portugal | {BRAND}"
     desc = (f"Mesures réelles de {len(allb)} bouées de la Bretagne au Portugal (France, Espagne, Portugal) : hauteur des vagues, "
             f"période, direction et température de l'eau, mises à jour toutes les heures.")
     body = (f'<h1>Les bouées, mesures réelles en mer</h1><p class="lead">{len(allb)} bouées dont les mesures servent de référence aux prévisions des spots. '
-            f'Choisis une bouée pour voir son relevé actuel et les dernières heures.</p><ul class="bidx">{items}</ul>')
+            f'Choisis une bouée pour voir son relevé actuel et les dernières heures.</p><nav class="bznav" aria-label="Zones">{nav}</nav>{items}')
     ld = [{"@context": "https://schema.org", "@type": "CollectionPage", "name": title, "description": desc, "url": f"{site}/bouees/", "inLanguage": "fr"},
           {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
               {"@type": "ListItem", "position": 1, "name": BRAND, "item": site + "/"},
