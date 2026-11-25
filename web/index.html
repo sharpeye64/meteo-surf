@@ -1762,38 +1762,26 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
   #home .hmb-col .hmb-row2 button:hover{background:#efe6d2;box-shadow:none}
   #home.hm-search .hmb-col .hmb-card.hmb-v2.fl{display:none}
 }
-/* ----- version « nuit » de l'accueil (25/11/2026) : couleurs de l'icône, sable sur fond nuit ----- */
+/* ----- carte d'accueil, version claire travaillée (25/11/2026) : même univers que le reste du site et que l'appli
+   (fond clair, encre marine, accents sable du logo) ; une vague sable en tête de carte, le logo en filigrane ----- */
 .hmb-intro .k{display:none}
-.hmb-intro{background:#0a1114;color:#f1e6d2;box-shadow:0 10px 28px rgba(10,17,20,.35)}
-.hmb-intro h2{color:#e9c694}
-.hmb-intro .sm{color:#9fb0b8}
-.hmb-intro .x{background:#1b2a31;color:#9fb0b8}
 @media (min-width:1200px){
-  #home .hmb-col.hmb-home{background:radial-gradient(120% 70% at 100% 0%,#1d3540 0%,rgba(29,53,64,0) 60%),linear-gradient(180deg,#0f1c22 0%,#0a1114 100%);
-    box-shadow:0 22px 60px rgba(10,17,20,.45),inset 0 1px 0 rgba(255,255,255,.06);padding:26px 22px 18px;overflow:hidden;isolation:isolate}
-  #home .hmb-col.hmb-home:before{content:"";position:absolute;z-index:-1;right:-46px;top:-30px;width:230px;height:160px;opacity:.07;
+  #home .hmb-col.hmb-home{background:linear-gradient(180deg,#fbf4e6 0%,#ffffff 46%);overflow:hidden;isolation:isolate;padding:28px 22px 18px;
+    box-shadow:0 22px 60px rgba(16,32,44,.22),inset 0 0 0 1px rgba(233,198,148,.35)}
+  #home .hmb-col.hmb-home:before{content:"";position:absolute;z-index:-1;right:-40px;top:-26px;width:220px;height:154px;opacity:.16;
     background:url(brand/symbol.svg) no-repeat center/contain}
-  .hmb-col .hmb-intro .k{display:flex;align-items:center;gap:8px;margin:0 0 10px;font:800 11px Manrope,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#c9a463}
+  #home .hmb-col.hmb-home:after{content:"";position:absolute;z-index:-1;left:0;right:0;top:0;height:6px;
+    background:linear-gradient(90deg,#e9c694,#e3c283 50%,#c9a463)}
+  .hmb-col .hmb-intro .k{display:flex;align-items:center;gap:8px;margin:0 0 10px;font:800 11px Manrope,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8a6a1f}
   .hmb-col .hmb-intro .k:before{content:"";width:18px;height:2px;border-radius:2px;background:#c9a463}
-  .hmb-col .hmb-intro h2{color:#f4e2b8}
-  .hmb-col .hmb-intro .lg{color:#b8c6cc}
-  #home .hmb-col.hmb-home .hmb-srch{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#9fb0b8}
-  #home .hmb-col.hmb-home .hmb-srch input{color:#f1e6d2}
-  #home .hmb-col.hmb-home .hmb-srch input::placeholder{color:#8a9aa2}
-  #home .hmb-col.hmb-home .hmb-srch .hmb-x{color:#e9c694}
-  #home .hmb-col.hmb-home .hmb-chips button{background:rgba(255,255,255,.07);color:#d9e2e6}
-  #home .hmb-col.hmb-home .hmb-chips button:hover{background:rgba(255,255,255,.13)}
-  #home .hmb-col.hmb-home .hmb-chips button.on{background:#e9c694;color:#1a1205}
-  #home .hmb-col .hmb-card.hmb-v2.fl{border-top-color:rgba(255,255,255,.08)}
-  #home .hmb-col .hmb-v2.fl .bcap{color:#f1e6d2}
-  #home .hmb-col .hmb-v2.fl .bcap b{color:#7fe0b0}#home .hmb-col .hmb-v2.fl .bcap b small{color:#7c8d95}
-  #home .hmb-col .hmb-v2.fl .bcap .ball{background:none;color:#e9c694;padding:5px 0}
-  #home .hmb-col .hmb-row2 button{background:rgba(255,255,255,.06);color:#e8eef1;border:1px solid rgba(255,255,255,.06)}
-  #home .hmb-col .hmb-row2 button:hover{background:rgba(255,255,255,.12)}
-  #home .hmb-col .hmb-row2 small{color:#8fa1a9}
-  #home .hmb-col .hmb-row2 b{background:linear-gradient(135deg,#f4e2b8,#e3c283);color:#2a2112}
-  #home .hmb-col .hmb-row2 b u{color:#7a5f33}
-  #home .hmb-col.hmb-home .hmb-res{background:#fff;border-radius:22px}
+  .hmb-col .hmb-intro h2{color:#10202c}
+  .hmb-col .hmb-intro h2 em{font-style:normal;background:linear-gradient(180deg,transparent 62%,rgba(233,198,148,.7) 62%);padding:0 2px}
+  .hmb-col .hmb-intro .lg{color:#4a5a63}
+  #home .hmb-col.hmb-home .hmb-srch{background:#fff;box-shadow:0 0 0 1px #e6eaec,0 4px 14px rgba(16,32,44,.06)}
+  #home .hmb-col.hmb-home .hmb-chips button{background:#f4f6f7}
+  #home .hmb-col.hmb-home .hmb-chips button.on{background:#10202c;color:#fff}
+  #home .hmb-col .hmb-row2 button{background:#f6efe1}
+  #home .hmb-col .hmb-row2 button:hover{background:#efe4cd}
 }
 @media (prefers-reduced-motion:reduce){ .hmb-row2{animation:none} .hmb-row2 .lv,.hmb-v2 .bcap i{animation:none} .hmb-tick2{overflow-x:auto;-webkit-mask-image:none;mask-image:none;scrollbar-width:none} .hmb-row2 .cl{display:none} }
 @media (prefers-reduced-motion:reduce){ .hmb-cap i{animation:none} .hmb-tick .hmb-row{animation:none} .hmb-tick .hmb-row button,.hmb-row .lv{animation:none!important} .hmb-tick{overflow-x:auto!important;-webkit-mask-image:none;mask-image:none} .hmb-tick .hmb-row button.cl{display:none} }
@@ -3481,7 +3469,7 @@ function homeHomePanelM(){
   document.getElementById('home').classList.remove('hm-sel'); HOME.popAt=null;
   /* texte d'accueil : toujours dans la carte du grand écran ; ailleurs, petit bandeau refermable montré tant qu'on ne l'a pas fermé */
   let introSeen=false; try{ introSeen=localStorage.getItem('introSeen')==='1'; }catch(e){}
-  const intro=(innerWidth>=1200||!introSeen)?`<div class="hmb-intro" id="hmIntro"><p class="k">Prévisions surf · ${D.length} spots</p><h2>La houle prévue, vérifiée par les bouées</h2><p class="lg">Prévisions surf pour ${D.length} spots, de la Bretagne au Portugal, comparées en direct aux mesures des bouées en mer. Mis à jour toutes les heures.</p><p class="sm">${D.length} spots · Bretagne → Portugal · mis à jour toutes les heures</p><button type="button" class="x" id="hmIntroX" aria-label="Fermer">×</button></div>`:'';
+  const intro=(innerWidth>=1200||!introSeen)?`<div class="hmb-intro" id="hmIntro"><p class="k">Prévisions surf · ${D.length} spots</p><h2>La houle prévue, <em>vérifiée par les bouées</em></h2><p class="lg">Prévisions surf pour ${D.length} spots, de la Bretagne au Portugal, comparées en direct aux mesures des bouées en mer. Mis à jour toutes les heures.</p><p class="sm">${D.length} spots · Bretagne → Portugal · mis à jour toutes les heures</p><button type="button" class="x" id="hmIntroX" aria-label="Fermer">×</button></div>`:'';
   P.innerHTML=`<div class="hmb-col hmb-home">${intro}<div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<input id="hmQ" placeholder="Chercher un spot…" autocomplete="off" aria-label="Chercher un spot" value="${HOME.q.replace(/"/g,'')}"><button type="button" class="hmb-x" id="hmQx">Annuler</button></div>
     <div class="hmb-chips">${homeChipsHtml(D)}</div></div>
     <div class="hmb-res" id="hmRes" hidden></div>
