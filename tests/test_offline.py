@@ -273,3 +273,7 @@ _build.keep_silent(_coast, [], _meta, _old)
 _a = next(b for b in _coast if b["id"] == "06402")
 assert _a["silent"] and _a["obs"] == [] and _a["latest"]["time"] == _t, _a
 print("bouée muette OK :", _a["name"], _a["latest"]["time"])
+_stale = [{"id": "x", "name": "Vieille", "lat": 43.5, "lon": -1.6, "obs": [], "latest": {"time": _t, "hs": 1.8}}]
+_build.keep_silent(_stale, [], _meta, _old)
+assert _stale[0].get("silent"), _stale[0]
+print("vieille mesure renvoyée par la source → muette OK")

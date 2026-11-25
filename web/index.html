@@ -1670,6 +1670,9 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
 .hmb-v2 .bcap span{display:flex;align-items:center;gap:8px}
 .hmb-v2 .bcap i{width:8px;height:8px;border-radius:50%;background:#2fb47c;animation:hmbLive 2.4s ease-out infinite}
 .hmb-v2 .bcap b{font:700 17px Unbounded,system-ui,sans-serif;color:#1a6b3d;letter-spacing:-.03em}
+.hmb-v2 .bcap .ball{font:700 12px Manrope,system-ui,sans-serif;color:#8a6a1f;text-decoration:none;white-space:nowrap}
+.hmb-v2 .bcap .ball:hover{text-decoration:underline}
+.hmb-v2 .bcap b{margin-left:auto;margin-right:12px}
 .hmb-v2 .bcap b small{font:700 12px Manrope,system-ui,sans-serif;color:#8a98a0;letter-spacing:0}
 .hmb-tick2{overflow:hidden;margin-top:10px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 6%,#000 94%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 6%,#000 94%,transparent 100%)}
 .hmb-row2{display:flex;gap:8px;width:max-content;padding:0 8px;animation:hmbMq var(--mq,60s) linear infinite;will-change:transform}
@@ -3021,7 +3024,7 @@ function render(){
       <div class="fgrid">
         <div><h3>Prévisions</h3><p>Données via <a href="https://open-meteo.com/">Open-Meteo</a> (CC BY 4.0). Vagues : Météo-France MFWAM (Copernicus Marine), DWD EWAM, ECMWF WAM, NOAA GFS-Wave. Vent : Météo-France AROME, DWD ICON, NOAA GFS, ECMWF IFS. Modèle côtier Ifremer MARC (Licence Ouverte).</p></div>
         <div><h3>Mesures et marées</h3><p>Bouée Gascogne : Météo-France (Licence Ouverte). Bouées côtières : Cerema, réseau CANDHIS (Licence Ouverte). Bouées du large Bilbao-Vizcaya et Donostia : Puertos del Estado et Euskalmet, via Copernicus Marine. Mesures temps réel non validées. Marées : calcul harmonique indépendant à partir des mesures REFMAR (© Shom, Licence Ouverte). Coefficient : calcul indépendant à partir de Brest. Marée indicative.</p></div>
-        <div><h3>Météo surf par région</h3><p class="zlinks">${ZONE_LINKS.map(([s,n])=>`<a href="meteo-surf-${s}/">${n}</a>`).join(' · ')}</p></div>
+        <div><h3>Météo surf par région</h3><p class="zlinks">${ZONE_LINKS.map(([s,n])=>`<a href="meteo-surf-${s}/">${n}</a>`).join(' · ')}</p><p><a href="bouees/">Toutes les bouées en direct</a></p></div>
         <div><h3>À savoir</h3><p><a href="spots/">Tous les spots, de la Bretagne au Portugal</a></p><p>Prototype non commercial. Les prévisions sont des estimations : elles ne remplacent ni un coup d’œil sur place ni les consignes de sécurité locales.</p></div>
       </div>
       <details class="allspots"><summary>Tous les spots <span class="cnt">(${state.data.length})</span></summary>
@@ -3374,7 +3377,7 @@ function homeHomePanelM(){
     <div class="hmb-res" id="hmRes" hidden></div>
     </div>
     <div class="hmb-scale" aria-label="Échelle des couleurs de la houle"><div class="k">Houle à ${n} h · ${D.length} spots</div><div class="st">${[['#9ed8f0','0'],['#43b8c9','0,6'],['#6bc46d','1,2'],['#e8d54a','1,8'],['#f39a2b','2,4'],['#e24a3b','3,2']].map(([c,l])=>`<span><i style="background:${c}"></i>${l}</span>`).join('')}<em>m</em></div></div>
-    <div class="hmb-card hmb-v2"><div class="bcap"><span><i></i>Bouées en direct</span><b>${live.length}<small> / ${bu.length}</small></b></div>
+    <div class="hmb-card hmb-v2"><div class="bcap"><span><i></i>Bouées en direct</span><b>${live.length}<small> / ${bu.length}</small></b><a class="ball" href="bouees/">Toutes les bouées →</a></div>
       <div class="hmb-tick2" id="hmTick"><div class="hmb-row2" style="--mq:${Math.max(30,Math.round(seq.length*5))}s">${seq.map(b=>buRow(b)).join('')}${seq.map(b=>buRow(b,true)).join('')}</div></div></div>`;
   P.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>homeBuoy(HOME.bu.find(x=>x.id===b.dataset.b)));
   { const t=document.getElementById('hmTick'); if(t){ let k; t.addEventListener('touchstart',()=>{ clearTimeout(k); t.classList.add('hold'); },{passive:true}); t.addEventListener('touchend',()=>{ k=setTimeout(()=>t.classList.remove('hold'),2500); },{passive:true}); } }   /* au toucher, le bandeau s'arrête le temps de choisir */

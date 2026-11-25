@@ -31,6 +31,12 @@ def keep_silent(coast, offshore, meta, d=None):
     try:
         arch = history.coast_rows([s["id"] for s in candhis.STATIONS + ibi_buoys.STATIONS], d)
         now = pd.Timestamp.now(tz=config.TIMEZONE).tz_localize(None)
+        # une source peut aussi renvoyer une vieille mesure comme si elle était fraîche (CANDHIS, Anglet, 25/11/2026) :
+        # toute bouée dont la dernière mesure a plus de 48 h est marquée muette, d'où qu'elle vienne
+        for b in list(coast) + list(offshore):
+            t = (b.get("latest") or {}).get("time")
+            if t and pd.Timestamp(t) < now - pd.Timedelta(hours=48):
+                b["silent"] = True
         for lst, stations, large in ((coast, candhis.STATIONS, False), (offshore, ibi_buoys.STATIONS, True)):
             have = {b["id"] for b in lst}
             for st in stations:

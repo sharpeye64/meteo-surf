@@ -164,7 +164,7 @@ def collect(payload):
             continue
         out.append({"id": b["id"], "name": b["name"], "slug": slugify(b["name"]), "sub": b.get("sub") or "sur la côte", "lat": float(b["lat"]),
                     "lon": float(b["lon"]), "L": L, "obs": b.get("obs") or [], "model": b.get("model") or [],
-                    "st": (payload.get("buoy_stats") or {}).get(b["id"])})
+                    "st": (payload.get("buoy_stats") or {}).get(b["id"]), "silent": bool(b.get("silent"))})
     g = payload.get("gascogne") or {}
     L = g.get("latest") or {}
     if L.get("hs") is not None:   # bouée du large (Météo-France 62001) : même page que les autres
@@ -298,10 +298,11 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
 
 
 def index_page(site, allb, now):
-    items = "".join(f'<li><a href="{b["slug"]}/"><b>Bouée {esc(b["name"])}</b><small>{esc(b["sub"])} · relevé de {hour_label(b["L"]["time"])}</small>'
+    items = "".join(f'<li><a href="{b["slug"]}/"><b>Bouée {esc(b["name"])}</b><small>{esc(b["sub"])} · {("pas de mesure depuis le " + b["L"]["time"][8:10] + "/" + b["L"]["time"][5:7]) if b.get("silent") else "relevé de " + hour_label(b["L"]["time"])}</small>'
                     f'<div class="v">{fr(b["L"]["hs"])} m<small style="display:inline;font-size:14px;font-weight:500"> · {fr(b["L"].get("tp"), 0)} s {sector(b["L"].get("dir")) or ""}</small></div></a></li>' for b in allb)
-    title = f"Bouées de la côte basque et landaise : houle mesurée en direct | {BRAND}"
-    desc = f"Mesures réelles de {len(allb)} bouées entre la Gironde et le Pays basque : hauteur des vagues, période, direction, température de l'eau."
+    title = f"Bouées de houle en direct, de la Bretagne au Portugal | {BRAND}"
+    desc = (f"Mesures réelles de {len(allb)} bouées de la Bretagne au Portugal (France, Espagne, Portugal) : hauteur des vagues, "
+            f"période, direction et température de l'eau, mises à jour toutes les heures.")
     body = (f'<h1>Les bouées, mesures réelles en mer</h1><p class="lead">{len(allb)} bouées dont les mesures servent de référence aux prévisions des spots. '
             f'Choisis une bouée pour voir son relevé actuel et les dernières heures.</p><ul class="bidx">{items}</ul>')
     ld = [{"@context": "https://schema.org", "@type": "CollectionPage", "name": title, "description": desc, "url": f"{site}/bouees/", "inLanguage": "fr"},
