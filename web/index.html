@@ -1696,6 +1696,28 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
   .hmb-scale .st span{width:30px}
   .hmb-res{max-height:calc(100vh - 330px)!important}
 }
+/* style « pastilles flottantes » (essai du 25/11/2026) : plus de bande, les pastilles glissent sur la carte */
+.hmb-card.hmb-v2.fl{background:none;box-shadow:none;padding:0!important;pointer-events:none}
+.hmb-v2.fl .bcap,.hmb-v2.fl .hmb-tick2{pointer-events:auto}
+.hmb-v2.fl .bcap{display:inline-flex;gap:10px;width:auto;margin:0 0 0 2px;padding:0 6px 0 14px;height:38px;border-radius:19px;background:#10202c;color:#fff;box-shadow:0 6px 18px rgba(16,32,44,.3)}
+.hmb-v2.fl .bcap b{color:#7fe0b0;margin:0}.hmb-v2.fl .bcap b small{color:#9fb0b8}
+.hmb-v2.fl .bcap .ball{color:#10202c;background:#e9c694;border-radius:14px;padding:5px 10px;margin-left:4px}
+.hmb-v2.fl .hmb-tick2{margin-top:6px;padding:8px 0 12px}
+.hmb-v2.fl .hmb-row2 button{background:#fff;box-shadow:0 5px 16px rgba(16,32,44,.22)}
+.hmb-v2.fl .hmb-row2 button:hover{background:#fff;box-shadow:0 8px 22px rgba(16,32,44,.3)}
+@media (min-width:760px){
+  .hmb-card.hmb-v2.fl{height:auto;bottom:18px;border-radius:0;align-items:center;gap:12px}
+  .hmb-v2.fl .bcap{height:44px;border-radius:22px;border-right:0;padding:0 6px 0 18px}
+  .hmb-v2.fl .hmb-tick2{margin:0;padding:10px 0 14px}
+}
+/* défilement fluide : la rangée glisse sur sa propre couche (rien à redessiner pendant le mouvement) ;
+   les feux ne clignotent qu'en opacité, sans ombre animée qui forçait à redessiner toute la rangée à chaque image */
+.hmb-row2{animation-name:hmbMq3;backface-visibility:hidden;transform:translate3d(0,0,0)}
+@keyframes hmbMq3{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+.hmb-row2 .lv{animation:hmbBlink3 2.8s ease-in-out infinite;will-change:opacity}
+@keyframes hmbBlink3{0%,58%,100%{opacity:.3}66%,78%{opacity:1}}
+.hmb-tick2{contain:layout paint}
+.hmb-v2.fl .hmb-tick2{-webkit-mask-image:none;mask-image:none}
 @media (prefers-reduced-motion:reduce){ .hmb-row2{animation:none} .hmb-row2 .lv,.hmb-v2 .bcap i{animation:none} .hmb-tick2{overflow-x:auto;-webkit-mask-image:none;mask-image:none;scrollbar-width:none} .hmb-row2 .cl{display:none} }
 @media (prefers-reduced-motion:reduce){ .hmb-cap i{animation:none} .hmb-tick .hmb-row{animation:none} .hmb-tick .hmb-row button,.hmb-row .lv{animation:none!important} .hmb-tick{overflow-x:auto!important;-webkit-mask-image:none;mask-image:none} .hmb-tick .hmb-row button.cl{display:none} }
 #home .hmb-res .hmb-reg{padding:10px 12px 10px 22px}
@@ -3376,7 +3398,7 @@ function homeHomePanelM(){
     <div class="hmb-chips">${homeChipsHtml(D)}</div></div>
     <div class="hmb-res" id="hmRes" hidden></div>
     </div>
-    <div class="hmb-card hmb-v2"><div class="bcap"><span><i></i>Bouées en direct</span><b>${live.length}<small> / ${bu.length}</small></b><a class="ball" href="bouees/">Toutes les bouées →</a></div>
+    <div class="hmb-card hmb-v2 fl"><div class="bcap"><span><i></i>Bouées en direct</span><b>${live.length}<small> / ${bu.length}</small></b><a class="ball" href="bouees/">Toutes les bouées →</a></div>
       <div class="hmb-tick2" id="hmTick"><div class="hmb-row2" style="--mq:${Math.max(30,Math.round(seq.length*5))}s">${seq.map(b=>buRow(b)).join('')}${seq.map(b=>buRow(b,true)).join('')}</div></div></div>`;
   P.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>homeBuoy(HOME.bu.find(x=>x.id===b.dataset.b)));
   { const t=document.getElementById('hmTick'); if(t){ let k; t.addEventListener('touchstart',()=>{ clearTimeout(k); t.classList.add('hold'); },{passive:true}); t.addEventListener('touchend',()=>{ k=setTimeout(()=>t.classList.remove('hold'),2500); },{passive:true}); } }   /* au toucher, le bandeau s'arrête le temps de choisir */
