@@ -145,6 +145,8 @@ def generate(spots, payload):
     for bu in buoys:
         bu["slug"] = slugify(bu["name"])
     meta = {"v": VERSION, "generated": payload["meta"]["generated"], "spots": index, "buoys": buoys}
+    if config.TEST_RUN:
+        meta["_test"] = True   # refusé par le contrôle de publication (tools/check_site.py)
     (tmp / "index.json").write_text(json.dumps(meta, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     if APP_DIR.exists():
         shutil.rmtree(APP_DIR)

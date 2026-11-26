@@ -4,6 +4,7 @@
 
 ## 26/11/2026
 
+- **Sécurisation de la publication, issue #3** (branche `securiser-publication`, PR en revue, non publié) : tests isolés hors de `web/`, marques de test, contrôle avant publication (`tools/check_site.py`), génération dans `_site/`, déploiement depuis `main` seulement, `health.json`. Voir [securisation-publication.md](securisation-publication.md).
 - **SEO, premier lot** (publié, commit `afb3185` ; tag `avant-seo-corrections`) :
   - accueil sans la page d'un spot derrière la carte ;
   - fraîcheur des bouées selon la cadence de chaque station ;

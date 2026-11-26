@@ -11,7 +11,8 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
 - `web/index.html` : site statique autonome (WebGL, Leaflet via jsDelivr, trait de côte embarqué). Il lit
   `web/data/forecast.json` et, à défaut, appelle Open-Meteo en direct (`loadLive`).
 - `.github/workflows/update.yml` : génération environ toutes les 1 h 30 (deux séries de passages décalées, car GitHub saute des passages : 9 h de trou constaté le 11/11/2026) et publication sur GitHub Pages ; l'archive n'est écrite qu'aux heures UTC multiples de 3.
-- `tests/test_offline.py` : tout le pipeline avec des sources simulées. À garder vert.
+- `tests/test_offline.py` : tout le pipeline avec des sources simulées, dans un dossier temporaire (jamais `web/`), avec marques de test. À garder vert.
+- `tools/check_site.py` : contrôle avant publication (issue #3, `docs/securisation-publication.md`) ; le workflow génère dans `_site/` et ne publie que si le contrôle passe, depuis `main` seulement.
 
 ## Points à vérifier au premier vrai lancement (non testés en conditions réelles)
 1. Noms des modèles de vagues Open-Meteo (`config.WAVE_MODELS`) : le code essaie plusieurs noms et ignore ceux refusés.
@@ -189,7 +190,7 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
 
 ## Appli mobile (dossier `app/`, publiée sur main le 18/11/2026, pas encore sur les stores)
 - Expo SDK 58, React Native, TypeScript ; lire `app/AGENTS.md` (docs Expo versionnées, `npx expo install`). Polices Unbounded et Manrope (`F` dans `app/src/theme.ts`). Vérifier avec `npx tsc --noEmit` dans `app/`.
-- Données : `EXPO_PUBLIC_DATA_URL`, par défaut `https://houlalah.fr/data/app` (fichiers écrits par `pipeline/appdata.py` : `index.json`, `spots/<slug>.json`, `bouees/<slug>.json`). Les tests (`python -m tests.test_offline`) écrasent `web/data/forecast.json` et `web/data/app/` : les remettre ensuite depuis houlalah.fr (`appdata.generate` sur le `forecast.json` du site).
+- Données : `EXPO_PUBLIC_DATA_URL`, par défaut `https://houlalah.fr/data/app` (fichiers écrits par `pipeline/appdata.py` : `index.json`, `spots/<slug>.json`, `bouees/<slug>.json`). Les tests (`python -m tests.test_offline`) écrivent dans un dossier temporaire (`METEO_OUT_DIR`, issue #3) et ne touchent plus `web/`.
 - Tester sur l'iPhone avec Expo Go : `& .\app\tester-sur-telephone.ps1` dans un onglet du panneau Terminal. Il lance le serveur de données du PC (`tools/serveur_local.py web 8766`, avec CORS) puis Metro (port 8082, réseau local), et arrête tout quand on ferme l'onglet. Le PC et le téléphone doivent être sur le même Wi-Fi. Aperçu web : configuration `appli-web` (port 8081) de `.claude/launch.json` (la carte n'existe pas en web).
 - Onglets : Spots (`Home.tsx`, « Mon tableau » : recherche toujours visible, votre spot en grand avec une mini-frise, spots autour, bouées en direct, côte par pays et région), Carte (`MapScreen.tsx`, plein écran, satellite ou plan, tous les spots, bouées qui pulsent), Bouées (`BuoyScreens.tsx`, « Autour de mon spot » puis par zone), Favoris. Barre d'onglets flottante partout (`TabBar.tsx`, `useBarSpace()`). Fiche spot : `SpotSheet.tsx` (4 petits carrés houle / vent / eau / soleil, frise horaire avec la courbe de marée alignée, PM/BM à leur heure).
 - Mode sombre automatique (suit le téléphone, `userInterfaceStyle: automatic`) : deux palettes de mêmes clés dans `theme.ts`, feuilles de styles via `themed(() => StyleSheet.create(...))`. Toute nouvelle couleur passe par `C` (jamais de couleur en dur), sinon elle casse en sombre. Repère : tag `avant-mode-sombre`.

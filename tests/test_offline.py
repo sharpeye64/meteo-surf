@@ -1,4 +1,17 @@
-"""Test hors ligne du pipeline : toutes les sources sont simulées.  python -m tests.test_offline"""
+"""Test hors ligne du pipeline : toutes les sources sont simulées.  python -m tests.test_offline
+
+Tout ce que le test génère va dans un dossier TEMPORAIRE (METEO_OUT_DIR), jamais dans web/ : des données simulées ne
+peuvent plus se retrouver dans le site publié (issue #3). Elles portent en plus une marque de test refusée par tools/check_site.py."""
+import os as _os
+import tempfile as _tempfile
+from pathlib import Path as _Path
+
+_OUT = _tempfile.mkdtemp(prefix="houlalah-test-")
+_os.environ["METEO_OUT_DIR"] = _OUT      # avant tout import de pipeline : config.OUT_DIR est lu à l'import
+_os.environ["METEO_TEST"] = "1"
+_WEB = _Path(__file__).resolve().parent.parent / "web"
+_watch = {f: f.stat().st_mtime for f in (_WEB / "data" / "forecast.json", _WEB / "data" / "app" / "index.json", _WEB / "sitemap.xml") if f.exists()}
+
 import json
 import math
 from datetime import datetime, timedelta
@@ -8,6 +21,8 @@ import pandas as pd
 import xarray as xr
 
 from pipeline import build, buoy, config, history, marc, openmeteo
+
+assert config.OUT_DIR == _Path(_OUT) and config.TEST_RUN, "le test doit écrire dans un dossier temporaire"
 
 start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 TIMES = [(start + timedelta(hours=h)).strftime("%Y-%m-%dT%H:%M") for h in range(24 * config.FORECAST_DAYS)]
@@ -216,21 +231,21 @@ print("bouées du large OK :", [(b["name"], b["latest"]["hs"], b["latest"]["tp"]
 print("CANDHIS OK :", [b["name"] for b in data["coast"]], c0["latest"])
 
 import re as _re
-sm = (config.ROOT / "web" / "sitemap.xml").read_text(encoding="utf-8")
+sm = (config.OUT_DIR / "sitemap.xml").read_text(encoding="utf-8")
 _nb = len(data["coast"]) + len(data["offshore"]) + (1 if (data.get("gascogne") or {}).get("latest") else 0)   # pages des bouées (Gascogne comprise) + leur page liste
 assert sm.count("<url>") == len(data["spots"]) + 6 + _nb + 1 + 12, sm.count("<url>")   # +1 : page « À propos »
-assert "Sitemap:" in (config.ROOT / "web" / "robots.txt").read_text()
-pg = (config.ROOT / "web" / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
+assert "Sitemap:" in (config.OUT_DIR / "robots.txt").read_text()
+pg = (config.OUT_DIR / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
 assert "<h1>Prévisions surf à Lacanau</h1>" in pg and "application/ld+json" in pg and 'rel="canonical"' in pg and "<table>" in pg
-assert "Houlalah" in (config.ROOT / "web" / "spots" / "index.html").read_text(encoding="utf-8")
+assert "Houlalah" in (config.OUT_DIR / "spots" / "index.html").read_text(encoding="utf-8")
 for _slug in ("comment-ca-marche", "mentions-legales", "confidentialite"):
-    assert "<h1>" in (config.ROOT / "web" / _slug / "index.html").read_text(encoding="utf-8"), _slug
-bp = (config.ROOT / "web" / "bouees" / "cap-ferret" / "index.html").read_text(encoding="utf-8")
+    assert "<h1>" in (config.OUT_DIR / _slug / "index.html").read_text(encoding="utf-8"), _slug
+bp = (config.OUT_DIR / "bouees" / "cap-ferret" / "index.html").read_text(encoding="utf-8")
 # houlographe CANDHIS : vrai nom de l'appareil, numéro de station, source, Dataset ; liens vers les pages de spots (pas l'application)
 assert "<h1>Bouée houlographe du Cap Ferret</h1>" in bp and "CANDHIS 03302" in bp and "Historique des mesures" in bp and "Source des mesures" in bp, "page bouée"
 assert '"@type": "Dataset"' in bp and "../../spots/" in bp and "?spot=" not in bp.split("Spots autour")[1].split("Bouées voisines")[0]
 assert "Heure par heure" in pg and "Marées à Lacanau" in pg, "page spot : heure par heure et marées"
-assert "Les bouées" in (config.ROOT / "web" / "bouees" / "index.html").read_text(encoding="utf-8")
+assert "Les bouées" in (config.OUT_DIR / "bouees" / "index.html").read_text(encoding="utf-8")
 print("SEO OK :", len(data["spots"]), "pages de spots + index + sitemap ;", _nb, "pages de bouées")
 
 # Secours : Copernicus indisponible → NOAA NDBC.
@@ -245,7 +260,7 @@ assert _bs["06402"]["n"] >= 40 and _bs["06402"]["hs_max"] >= _bs["06402"]["hs_me
 print("records bouées OK :", {k: (v["days"], v["hs_max"]) for k, v in _bs.items()})
 
 # Images de partage : une par spot et par bouée, annoncées dans les balises og:image
-_root = __import__("pathlib").Path(__file__).resolve().parent.parent / "web"
+_root = config.OUT_DIR
 assert (_root / "og" / "spots" / "lacanau.png").stat().st_size > 20000, "image de partage du spot absente"
 assert (_root / "og" / "bouees" / "cap-ferret.png").stat().st_size > 20000, "image de partage de la bouée absente"
 assert "/og/spots/lacanau.png" in (_root / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
@@ -305,3 +320,16 @@ assert "OAI-SearchBot" in _rb and "Claude-SearchBot" in _rb and "Sitemap:" in _r
 _ll = (_root / "llms.txt").read_text(encoding="utf-8")
 assert _ll.startswith("# Houlalah") and "/bouees/" in _ll and "/meteo-surf-landes/" in _ll
 print("éditeur, à propos, pays, robots IA et llms.txt OK")
+
+# Isolation (issue #3) : le test n'a rien écrit dans web/, et tout ce qu'il a produit porte la marque de test.
+for _f, _m in _watch.items():
+    assert _f.stat().st_mtime == _m, f"le test a modifié {_f} : il ne doit écrire que dans le dossier temporaire"
+assert json.loads((config.OUT_DIR / "data" / "forecast.json").read_text())["meta"].get("_test") is True
+assert json.loads((config.OUT_DIR / "data" / "app" / "index.json").read_text(encoding="utf-8")).get("_test") is True
+assert 'name="houlalah-test"' in (config.OUT_DIR / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
+assert json.loads((config.OUT_DIR / "health.json").read_text(encoding="utf-8")).get("_test") is True
+# le contrôle de publication refuse ce site de test (marques de test, données simulées)
+from tools import check_site as _cs
+_ok, _rep = _cs.check(config.OUT_DIR, max_age_h=None)
+assert not _ok and any("test" in x for x in _rep["errors"]), "le contrôle de publication doit refuser un site de test"
+print("isolation OK : rien écrit dans web/, site de test refusé par le contrôle (", len(_rep["errors"]), "motifs )")

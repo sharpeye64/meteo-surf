@@ -5,7 +5,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SPOTS_FILE = ROOT / "pipeline" / "spots.json"
 TIDE_CONSTANTS_DIR = ROOT / "tides" / "constants"
-OUTPUT_FILE = ROOT / "web" / "data" / "forecast.json"
+# Sources du site (web/) et dossier où le robot ÉCRIT ce qu'il génère. Par défaut le même ; METEO_OUT_DIR permet de générer
+# ailleurs : les tests écrivent dans un dossier temporaire (jamais dans web/), le robot GitHub dans _site/ contrôlé avant publication.
+WEB_DIR = ROOT / "web"
+OUT_DIR = Path(os.environ.get("METEO_OUT_DIR") or WEB_DIR)
+OUTPUT_FILE = OUT_DIR / "data" / "forecast.json"
+# Exécution de test (sources simulées) : tout ce qui est généré porte une marque refusée par le contrôle de publication.
+TEST_RUN = os.environ.get("METEO_TEST") == "1"
 HISTORY_DIR = ROOT / "history"  # archive prévision/réalité (branche git « history » dans GitHub Actions)
 
 # Adresse publique du site (pages de référencement, sitemap). À remplacer par le nom de domaine une fois branché :

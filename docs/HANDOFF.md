@@ -16,10 +16,9 @@ _Dernière mise à jour : 26/11/2026, par Claude Code._
 
 ## En cours
 
-- **Branche `docs-onboarding`** (non publiée, non poussée) : documentation commune complète. Elle comprend :
-  - `AGENTS.md` ;
-  - dans `docs/` : PROJECT_CONTEXT, ARCHITECTURE, DATA_SOURCES, PRODUCT, DESIGN_SYSTEM, MOBILE_APP, SEO, DECISIONS, ROADMAP, CHANGELOG, COLLABORATION, ONBOARDING_CHATGPT et ce HANDOFF.
-- **Pour que ChatGPT y accède** : pousser cette branche sur GitHub (sans toucher `main`), puis la fusionner dans `main` quand le porteur valide. La documentation ne change pas le site, mais un push sur `main` relance le robot et le déploiement.
+- **Issue #3, branche `securiser-publication`** (poussée, pull request ouverte pour revue, **non fusionnée**, repère `avant-securiser-publication`) : tests isolés dans un dossier temporaire, marques de test, contrôle avant publication `tools/check_site.py`, génération dans `_site/`, déploiement et archive depuis `main` seulement, `health.json`. Rapport et preuves : [securisation-publication.md](securisation-publication.md). Attend la revue de ChatGPT puis le « Oui, publie ».
+- **Branche `docs-onboarding`** (poussée, non fusionnée) : documentation commune. `securiser-publication` part de cette branche : la fusionner inclut aussi la documentation.
+- **Ordre retenu ensuite (non commencé)** : #7 quotas et cache → #2 heures et Portugal → #1 archives → #4, #6, #8 → #5, #9 après la collecte → #10 après les licences.
 
 ## Problèmes ouverts
 
@@ -38,7 +37,9 @@ _Dernière mise à jour : 26/11/2026, par Claude Code._
 - **Archive** : fiabilité par bouée à partir de l'archive (`docs/archives-bouees-potentiel.md`).
 - **Application** : compte Apple développeur, puis une vraie version sur iPhone, puis les stores.
 
-## Remettre les vraies données après les tests
+## Remettre les vraies données
+
+Depuis ce lot, les tests n'écrivent plus dans `web/`. Pour avoir les vraies données en local (aperçu) :
 
 ```
 curl -s -o web/data/forecast.json https://houlalah.fr/data/forecast.json

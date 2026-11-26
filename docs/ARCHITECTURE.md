@@ -57,6 +57,7 @@ Il n'y a **aucun serveur** à maintenir : tout est généré par le robot puis s
 | `spots.json` | Les 214 spots et leurs caractéristiques (orientation, type, fond, marée, port de marée…) |
 
 **Règles du robot**
+- **Publication contrôlée** (issue #3, [securisation-publication.md](securisation-publication.md)) : sur GitHub, le robot génère dans `_site/` (`METEO_OUT_DIR`), puis `python -m tools.check_site _site` vérifie spots, bouées, fiches de l'appli, sitemap, canoniques, JSON et absence de données de test. Refus = pas d'envoi, la version en ligne reste. Seule `main` déploie.
 - **Résilience** : toute source sauf Open-Meteo peut échouer sans bloquer la génération. Les erreurs sont listées dans `meta.errors`. Une bouée absente est reprise depuis l'archive (`build.keep_silent`), puis marquée muette au-delà de 48 h.
 - **Heures** : toutes les heures sont converties en **heure de Paris** (`config.TIMEZONE`). Le robot GitHub tourne en UTC : la génération des pages utilise `seo.paris_now()`.
 - **Pas de données inventées** : une donnée absente n'est pas affichée, ou est signalée comme absente.
@@ -92,7 +93,7 @@ Voir [MOBILE_APP.md](MOBILE_APP.md). Elle lit `https://houlalah.fr/data/app/` (`
 |---|---|---|
 | **Production** | branche `main` → GitHub Pages → houlalah.fr | tout push sur `main` déclenche le robot et le déploiement. **Jamais sans le « Oui, publie » du porteur** |
 | **Test** | une branche locale par chantier (ex. `seo-corrections`), aperçu local `http://localhost:8000` | serveur « site » de `.claude/launch.json`, ou `cd web && python -m http.server 8000` |
-| **Données de test** | `python -m tests.test_offline` | **écrase** `web/data/forecast.json` et `web/data/app/`. Les remettre ensuite depuis houlalah.fr (voir [HANDOFF.md](HANDOFF.md)) |
+| **Données de test** | `python -m tests.test_offline` | écrit dans un **dossier temporaire** (jamais dans `web/`) ; tout porte une marque de test refusée par `tools/check_site.py` |
 | **Application** | Expo Go sur iPhone : `& .\app\tester-sur-telephone.ps1` ; aperçu web : configuration `appli-web` (port 8081) | |
 
 **Repères git** : avant chaque gros chantier, une branche et un tag `avant-…` (par exemple `avant-accueil-ocean`, `avant-seo-corrections`). La branche `history` est réservée à l'archive du robot.

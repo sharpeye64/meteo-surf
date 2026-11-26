@@ -17,7 +17,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  # par branche : un essai lancé à la main sur une branche de test n'annule jamais un passage de production (main)
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -32,7 +33,11 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - name: Test hors ligne
+        # sources simulées, écrites dans un dossier temporaire (jamais dans web/ ni _site/) et marquées « test » (issue #3)
         run: python -m tests.test_offline
+      - name: Préparer le dossier de publication
+        # le robot génère dans _site/ (copie des sources du site) ; seul _site/ contrôlé est envoyé
+        run: rm -rf _site && cp -r web _site
       - name: Récupérer l'archive prévision/réalité (branche history)
         run: |
           git fetch --depth=1 origin history:history 2>/dev/null || true
@@ -47,9 +52,11 @@ jobs:
         env:
           METEO_SITE_URL: "https://houlalah.fr"
           METEOFRANCE_APIKEY: ${{ secrets.METEOFRANCE_APIKEY }}
+          METEO_OUT_DIR: _site
         run: |
           # L'archive prévision/réalité reste à un passage toutes les 3 h (UTC) : sinon elle grossirait 3 fois plus vite pour rien.
-          if [ $(( 10#$(date -u +%H) % 3 )) -eq 0 ]; then export METEO_ARCHIVE=1; fi
+          # Jamais d'archive depuis une branche de test.
+          if [ "$GITHUB_REF" = "refs/heads/main" ] && [ $(( 10#$(date -u +%H) % 3 )) -eq 0 ]; then export METEO_ARCHIVE=1; fi
           # Une panne passagère d'Open-Meteo ne doit pas bloquer la mise en ligne : 3 tentatives espacées de 2 min.
           for n in 1 2 3; do
             python -m pipeline.build && exit 0
@@ -57,7 +64,13 @@ jobs:
             [ $n -lt 3 ] && sleep 120
           done
           exit 1
+      - name: Contrôler le site avant publication
+        # refuse un site incomplet, incohérent ou contenant des données de test : la publication n'a pas lieu
+        # et GitHub Pages garde la dernière version valide (tools/check_site.py, issue #3)
+        run: python -m tools.check_site _site --max-age-h 3
       - name: Enregistrer l'archive
+        id: archive
+        if: github.ref == 'refs/heads/main'
         continue-on-error: true   # un échec d'archivage ne doit jamais empêcher la publication du site
         run: |
           cd history
@@ -65,11 +78,19 @@ jobs:
           if git diff --cached --quiet; then echo "Rien de nouveau à archiver"; exit 0; fi
           git -c user.name="meteo-surf-bot" -c user.email="actions@users.noreply.github.com" commit -q -m "Archive $(date -u +%FT%TZ)"
           git push origin HEAD:history
+      - name: Signaler un échec d'archivage
+        # l'archive ne bloque pas la publication, mais son échec doit se voir (annotation + résumé du passage)
+        if: steps.archive.outcome == 'failure'
+        run: |
+          echo "::warning::Archive non enregistrée sur la branche history (voir l'étape « Enregistrer l'archive »)"
+          echo "### ⚠️ Archive non enregistrée sur la branche history" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: web
+          path: _site
   deploy:
     needs: build
+    # seule la branche main publie houlalah.fr ; un essai sur une autre branche s'arrête au contrôle
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
