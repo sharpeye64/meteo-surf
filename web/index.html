@@ -21,7 +21,7 @@
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Houlalah"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700;800;900&family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --abyss:#0A1114; --deep:#142128; --glass:rgba(255,255,255,.07); --glass-2:rgba(255,255,255,.12); --edge:rgba(255,255,255,.14);
@@ -2269,6 +2269,374 @@ html.v2 .pv-foot .allspots summary{color:var(--pv-ink)}
   html.v2 .pv-main{padding-bottom:84px}
 }
 @media (prefers-reduced-motion:reduce){ .pv-day,.pv-tabs button,.pv-tbtn,.pv-nmap .mkp,.pv-more summary:after{transition:none} }
+/* =====================================================================================================
+   DIRECTIONS ARTISTIQUES (essai) — html[data-da="a|b|c"] ; « v3 » = rien de tout ceci.
+   ===================================================================================================== */
+.pv-band{position:relative;isolation:isolate}
+.pv-deco{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none;display:none}
+.pv-deco svg{position:absolute;top:0;left:-8%;width:116%;height:100%}
+.pv-deco path{fill:none;stroke-width:1;vector-effect:non-scaling-stroke}
+.pv-no,.pv-eq{display:none}
+@keyframes pvTick{from{opacity:.15;transform:translateY(8px)}to{opacity:1;transform:none}}
+.pv-tick{animation:pvTick .42s cubic-bezier(.2,.8,.2,1)}
+@keyframes pvRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+html[data-da]:not([data-da="v3"]) .pv-grid,html[data-da]:not([data-da="v3"]) .pv-chart{animation:pvRise .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes pvDrift{from{transform:translateX(0)}to{transform:translateX(-6%)}}
+@keyframes pvPulse{0%{box-shadow:0 0 0 0 rgba(217,164,65,.55)}70%{box-shadow:0 0 0 9px rgba(217,164,65,0)}100%{box-shadow:0 0 0 0 rgba(217,164,65,0)}}
+html[data-da]:not([data-da="v3"]) .pv-live{animation:pvPulse 2.4s ease-out infinite}
+html[data-da]:not([data-da="v3"]) .pv-day{transition:background .2s,color .2s,transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+html[data-da]:not([data-da="v3"]) .pv-day:hover{transform:translateY(-3px)}
+html[data-da]:not([data-da="v3"]) .pv-cl{transition:transform .18s cubic-bezier(.2,.8,.2,1),filter .18s}
+html[data-da]:not([data-da="v3"]) .pv-cl:hover{transform:translateY(-2px)}
+:is(html[data-da="a"],html[data-da="b"],html[data-da="c"]) .pv-wv,:is(html[data-da="a"],html[data-da="b"],html[data-da="c"]) .pv-pe,:is(html[data-da="a"],html[data-da="b"],html[data-da="c"]) .pv-wi,:is(html[data-da="a"],html[data-da="b"],html[data-da="c"]) .pv-cmpc{background:var(--c);color:var(--t)}
+:is(html[data-da="a"],html[data-da="b"],html[data-da="c"]) .pv-pe span{opacity:.85}
+/* sélecteur de direction (outil de test, à retirer avant publication) */
+.pv-daswitch{position:fixed;left:16px;bottom:16px;z-index:70;display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:5px;border-radius:999px;background:#0B1B26;box-shadow:0 10px 30px -10px rgba(0,0,0,.5);font:700 12px Manrope,system-ui,sans-serif}
+.pv-daswitch span{padding:0 8px 0 10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.1em;font-size:10px}
+.pv-daswitch button{border:0;background:none;border-radius:999px;padding:7px 12px;font:inherit;color:rgba(255,255,255,.75);cursor:pointer}
+.pv-daswitch button:hover{color:#fff}
+.pv-daswitch button[aria-pressed="true"]{background:#F3EFE6;color:#0B1B26}
+@media (max-width:640px){ .pv-daswitch{left:8px;right:8px;bottom:calc(70px + env(safe-area-inset-bottom,0px));justify-content:center} .pv-daswitch span{display:none} .pv-daswitch button{padding:7px 10px} }
+
+/* =====================================================================================================
+   A · PREMIUM OCEAN — bleu nuit profond, doré solaire, blanc cassé. Le haut de page est une nuit marine,
+   la carte des prévisions en émerge ; le doré ne marque que les mesures réelles.
+   ===================================================================================================== */
+html.v2[data-da="a"]:not([data-theme="dark"]){--pv-bg:#F3EFE6;--pv-card:#FFFDF8;--pv-soft:#F0EBE0;--pv-ink:#0B1B26;--pv-ink2:#3E4E58;--pv-ink3:#7F898C;--pv-line:rgba(11,27,38,.09);--pv-gold:#D9A441;--pv-gold-ink:#A87A1E;--pv-tide:#6F86B8}
+html[data-da="a"] .pv-band{background:radial-gradient(1000px 460px at 88% -10%,rgba(48,118,160,.55),transparent 62%),radial-gradient(800px 380px at -10% 110%,rgba(217,164,65,.12),transparent 60%),#0B1B26;color:#F3EFE6;padding-bottom:168px}
+html[data-da="a"] .pv-deco{display:block}
+html[data-da="a"] .pv-deco svg{animation:pvDrift 30s ease-in-out infinite alternate}
+html[data-da="a"] .pv-deco path{stroke:rgba(243,239,230,.075)}
+html[data-da="a"] .pv-pick{background:rgba(243,239,230,.07);color:#F3EFE6;box-shadow:inset 0 0 0 1px rgba(243,239,230,.14)}
+html[data-da="a"] .pv-pick small,html[data-da="a"] .pv-pick>svg{color:rgba(243,239,230,.5)}
+html[data-da="a"] .pv-ib{background:rgba(243,239,230,.07);color:#F3EFE6;box-shadow:inset 0 0 0 1px rgba(243,239,230,.14)}
+html[data-da="a"] .pv-fav[aria-pressed="true"]{background:#F3EFE6;color:#0B1B26}
+html[data-da="a"] .pv-hero{padding-top:46px;padding-bottom:34px;align-items:flex-end}
+html[data-da="a"] .pv-hero h1{color:#F3EFE6;font-weight:800;font-size:clamp(46px,7.4vw,112px);letter-spacing:-.06em;line-height:.92}
+html[data-da="a"] .pv-meta{color:rgba(243,239,230,.6);margin-top:18px}
+html[data-da="a"] .pv-meta>*+*:before{color:rgba(243,239,230,.35)}
+html[data-da="a"] .pv-day{background:rgba(243,239,230,.055);color:#F3EFE6;box-shadow:inset 0 0 0 1px rgba(243,239,230,.1);width:86px;height:104px;border-radius:20px}
+html[data-da="a"] .pv-day:hover{background:rgba(243,239,230,.12)}
+html[data-da="a"] .pv-day[aria-pressed="true"]{background:#F3EFE6;color:#0B1B26;box-shadow:0 16px 40px -14px rgba(0,0,0,.6)}
+html[data-da="a"] .pv-dd{font-size:30px;font-weight:800}
+html[data-da="a"] .pv-main{position:relative;margin-top:-168px}
+html[data-da="a"] .pv-hours{padding:0 0 24px;overflow:hidden;border-radius:34px;box-shadow:0 50px 90px -50px rgba(11,27,38,.55)}
+html[data-da="a"] .pv-head2{padding:26px 34px 34px;background:linear-gradient(180deg,#15304A 0%,#0F2536 100%);color:#F3EFE6;position:relative;overflow:hidden}
+html[data-da="a"] .pv-head2:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:22px;background:var(--pv-card);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 22' preserveAspectRatio='none'%3E%3Cpath d='M0 22V12C100 2 200 2 300 12S500 22 600 12 800 2 900 12 1100 22 1200 12V22Z'/%3E%3C/svg%3E") center/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 22' preserveAspectRatio='none'%3E%3Cpath d='M0 22V12C100 2 200 2 300 12S500 22 600 12 800 2 900 12 1100 22 1200 12V22Z'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+html[data-da="a"] .pv-hours>.pv-bar,html[data-da="a"] .pv-hours>.pv-comp,html[data-da="a"] .pv-hours>.pv-body,html[data-da="a"] .pv-hours>.pv-wn{margin-left:30px;margin-right:30px}
+html[data-da="a"] .pv-scroll{margin:0 -30px;padding:4px 30px}
+html[data-da="a"] .pv-lab{box-shadow:-30px 0 0 var(--pv-card)}
+html[data-da="a"] .pv-wt{color:rgba(243,239,230,.75)}
+html[data-da="a"] .pv-nowb{color:rgba(243,239,230,.7)}
+html[data-da="a"] .pv-sum{grid-template-columns:1fr 1fr 1.15fr;gap:0;margin-top:20px}
+html[data-da="a"] .pv-b{padding:4px 30px 6px 0;border-radius:0}
+html[data-da="a"] .pv-b+.pv-b{padding-left:30px;border-left:1px solid rgba(243,239,230,.12)}
+html[data-da="a"] .pv-k{color:rgba(243,239,230,.55)}
+html[data-da="a"] .pv-v{color:#F3EFE6;font-weight:800;font-size:clamp(52px,5.6vw,84px);margin-top:10px}
+html[data-da="a"] .pv-v small{color:rgba(243,239,230,.5);font-size:17px}
+html[data-da="a"] .pv-s{color:rgba(243,239,230,.82);font-size:15px}
+html[data-da="a"] .pv-gold{background:none;border-radius:0}
+html[data-da="a"] .pv-gold:hover{filter:none;background:rgba(240,197,106,.05)}
+html[data-da="a"] .pv-gold .pv-k,html[data-da="a"] .pv-gold .pv-s{color:#E6B95E}
+html[data-da="a"] .pv-gold .pv-v{color:#F2C66B}
+html[data-da="a"] .pv-gold .pv-v small{color:#C99A45}
+html[data-da="a"] .pv-gsp .l{stroke:#F2C66B;opacity:1}
+html[data-da="a"] .pv-gsp circle{fill:#F2C66B}
+html[data-da="a"] .pv-bar{margin-top:20px}
+html[data-da="a"] .pv-cl{border-radius:11px}
+html[data-da="a"] .pv-wv b{font-size:22px;font-weight:800}
+html[data-da="a"] .pv-hh i{color:#B98A2E}
+html[data-da="a"] .pv-sec{margin-top:64px}
+html[data-da="a"] .pv-sh h2{font-size:32px;font-weight:800;letter-spacing:-.05em}
+html[data-da="a"] .pv-sh h2:after{content:"";display:block;width:34px;height:3px;margin-top:12px;border-radius:2px;background:#0B1B26}
+html[data-da="a"] .pv-goldc{position:relative;overflow:hidden;isolation:isolate;border-radius:34px;padding:38px 40px;background:radial-gradient(700px 320px at 100% 0%,rgba(217,164,65,.24),transparent 68%),#0B1B26;color:#F3EFE6}
+html[data-da="a"] .pv-goldc:before{content:"";position:absolute;inset:0;z-index:-1;opacity:.6;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='60' viewBox='0 0 240 60'%3E%3Cpath d='M0 30Q30 18 60 30T120 30T180 30T240 30' fill='none' stroke='rgba(243,239,230,0.05)'/%3E%3C/svg%3E") repeat}
+html[data-da="a"] .pv-gk{color:#E6B95E}
+html[data-da="a"] .pv-gv{color:#F2C66B;font-weight:800;font-size:clamp(72px,8vw,112px)}
+html[data-da="a"] .pv-gv small{color:#C99A45}
+html[data-da="a"] .pv-gs{color:#F3EFE6}
+html[data-da="a"] .pv-dot{background:#E6B95E}
+html[data-da="a"] .pv-gn{color:rgba(243,239,230,.55)}
+html[data-da="a"] .pv-ga{color:#F2C66B}
+html[data-da="a"] .pv-bys,html[data-da="a"] .pv-bx{color:rgba(243,239,230,.55)}
+html[data-da="a"] .pv-b-o{stroke:#F2C66B}
+html[data-da="a"] .pv-b-a{fill:rgba(242,198,107,.15)}
+html[data-da="a"] .pv-b-f{stroke:#F3EFE6;opacity:.45}
+html[data-da="a"] .pv-b-g{stroke:rgba(243,239,230,.1)}
+html[data-da="a"] .pv-bdot{background:#0B1B26;border-color:#F2C66B}
+html[data-da="a"] .pv-bx i.o{background:#F2C66B}
+html[data-da="a"] .pv-bx i.f{background:repeating-linear-gradient(90deg,#F3EFE6 0 4px,transparent 4px 7px)}
+html[data-da="a"] .pv-tabs.pv-bsel button[aria-pressed="true"]{border-bottom-color:#0B1B26}
+html[data-da="a"] .pv-near,html[data-da="a"] .pv-rel,html[data-da="a"] .pv-morein,html[data-da="a"] .pv-cmp{border-radius:34px;box-shadow:0 30px 60px -45px rgba(11,27,38,.4)}
+html[data-da="a"] .pv-nmap .mkp.sel{background:#0B1B26}
+html[data-da="a"] .pv-rv{font-size:56px;font-weight:800}
+@media (max-width:900px){
+  html[data-da="a"] .pv-sum{grid-template-columns:1fr 1fr}
+  html[data-da="a"] .pv-gold{grid-column:1/-1;border-left:0!important;padding-left:0!important;margin-top:18px;padding-top:18px;border-top:1px solid rgba(243,239,230,.12)}
+}
+@media (max-width:640px){
+  html[data-da="a"] .pv-band{padding-bottom:112px}
+  html[data-da="a"] .pv-main{margin-top:-112px}
+  html[data-da="a"] .pv-hero{padding-top:26px;padding-bottom:22px}
+  html[data-da="a"] .pv-hero h1{font-size:46px}
+  html[data-da="a"] .pv-day{width:68px;height:84px;border-radius:16px}
+  html[data-da="a"] .pv-dd{font-size:23px}
+  html[data-da="a"] .pv-hours{border-radius:26px;margin:0 -6px}
+  html[data-da="a"] .pv-head2{padding:18px 18px 28px}
+  html[data-da="a"] .pv-hours>.pv-bar,html[data-da="a"] .pv-hours>.pv-comp,html[data-da="a"] .pv-hours>.pv-body,html[data-da="a"] .pv-hours>.pv-wn{margin-left:14px;margin-right:14px}
+  html[data-da="a"] .pv-scroll{margin:0 -14px;padding:4px 14px}
+  html[data-da="a"] .pv-lab{box-shadow:-14px 0 0 var(--pv-card)}
+  html[data-da="a"] .pv-b{padding-right:14px}
+  html[data-da="a"] .pv-b+.pv-b{padding-left:16px}
+  html[data-da="a"] .pv-v{font-size:44px}
+  html[data-da="a"] .pv-goldc{padding:26px 22px;border-radius:26px}
+  html[data-da="a"] .pv-gv{font-size:68px}
+  html[data-da="a"] .pv-sec{margin-top:44px}
+  html[data-da="a"] .pv-sh h2{font-size:24px}
+  html[data-da="a"] .pv-near,html[data-da="a"] .pv-rel{border-radius:26px}
+  html[data-da="a"] .pv-rv{font-size:40px}
+}
+
+/* =====================================================================================================
+   B · SURF EDITORIAL — papier chaud, encre bleu nuit, filets plutôt que cartes, typographie de magazine.
+   Unbounded pour les chiffres et les titres, Instrument Serif en italique pour la voix.
+   ===================================================================================================== */
+html.v2[data-da="b"]:not([data-theme="dark"]){--pv-bg:#F3EDE2;--pv-card:#F3EDE2;--pv-soft:#E9E1D2;--pv-ink:#111A20;--pv-ink2:#3B464D;--pv-ink3:#80796D;--pv-line:rgba(17,26,32,.16);--pv-gold:#B5852C;--pv-gold-ink:#8A6418;--pv-tide:#6F7FA8}
+html[data-da="b"] .pv-top{border-bottom:1.5px solid var(--pv-ink);padding-bottom:16px}
+html[data-da="b"] .pv-pick{background:none;box-shadow:none;border-radius:0;height:auto;padding:0;font:400 23px 'Instrument Serif',Georgia,serif;font-style:italic;color:var(--pv-ink)}
+html[data-da="b"] .pv-pick>svg:first-child{display:none}
+html[data-da="b"] .pv-pick small{font:400 17px 'Instrument Serif',Georgia,serif;font-style:italic}
+html[data-da="b"] .pv-ib{background:none;box-shadow:inset 0 0 0 1.5px var(--pv-ink);color:var(--pv-ink)}
+html[data-da="b"] .pv-fav[aria-pressed="true"]{background:var(--pv-ink);color:var(--pv-bg)}
+html[data-da="b"] .pv-hero{flex-direction:column;align-items:stretch;gap:34px;padding-top:44px;padding-bottom:0}
+html[data-da="b"] .pv-hero h1{font-weight:800;font-size:clamp(58px,11vw,176px);letter-spacing:-.07em;line-height:.86}
+html[data-da="b"] .pv-meta{margin-top:20px;font:400 23px/1.35 'Instrument Serif',Georgia,serif;font-style:italic;color:var(--pv-ink2)}
+html[data-da="b"] .pv-meta>*+*:before{content:"—";margin:0 12px;color:var(--pv-ink3)}
+html[data-da="b"] .pv-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;border-top:1.5px solid var(--pv-ink);border-bottom:1px solid var(--pv-line);margin:0}
+html[data-da="b"] .pv-day{width:auto;height:auto;align-items:flex-start;padding:14px 16px 16px;border-radius:0;background:none;border-left:1px solid var(--pv-line)}
+html[data-da="b"] .pv-day:first-child{border-left:0}
+html[data-da="b"] .pv-day:hover{transform:none;background:var(--pv-soft)}
+html[data-da="b"] .pv-dn{font:400 18px 'Instrument Serif',Georgia,serif;font-style:italic;letter-spacing:0;text-transform:none;opacity:.75}
+html[data-da="b"] .pv-dd{font-size:40px;font-weight:800;margin:4px 0 2px}
+html[data-da="b"] .pv-dm{font-size:14px}
+html[data-da="b"] .pv-day[aria-pressed="true"]{background:var(--pv-ink);color:var(--pv-bg)}
+html[data-da="b"] .pv-card{background:transparent;border-radius:0}
+html[data-da="b"] .pv-main{padding-top:6px}
+html[data-da="b"] .pv-hours{padding:0}
+html[data-da="b"] .pv-head2{padding-top:26px}
+html[data-da="b"] .pv-wt{font:400 22px 'Instrument Serif',Georgia,serif;font-style:italic;letter-spacing:0;text-transform:none;color:var(--pv-ink)}
+html[data-da="b"] .pv-ld.on{background:var(--pv-ink);border-color:var(--pv-ink);box-shadow:none}
+html[data-da="b"] .pv-sum{gap:0;margin-top:18px;border-bottom:1px solid var(--pv-line)}
+html[data-da="b"] .pv-b{border-radius:0;padding:2px 32px 30px 0}
+html[data-da="b"] .pv-b+.pv-b{border-left:1px solid var(--pv-line);padding-left:32px}
+html[data-da="b"] .pv-k{font:400 22px 'Instrument Serif',Georgia,serif;font-style:italic;letter-spacing:0;text-transform:none;color:var(--pv-ink2)}
+html[data-da="b"] .pv-v{font-weight:800;font-size:clamp(66px,7.6vw,120px);letter-spacing:-.075em;margin-top:6px}
+html[data-da="b"] .pv-v small{font:400 26px 'Instrument Serif',Georgia,serif;font-style:italic;letter-spacing:0;color:var(--pv-ink2)}
+html[data-da="b"] .pv-s{font-size:15px}
+html[data-da="b"] .pv-gold{background:none;border-radius:0}
+html[data-da="b"] .pv-gold:hover{filter:none}
+html[data-da="b"] .pv-gold .pv-k{color:var(--pv-gold-ink)}
+html[data-da="b"] .pv-gold .pv-v{color:var(--pv-gold)}
+html[data-da="b"] .pv-gold .pv-s{color:var(--pv-gold-ink)}
+html[data-da="b"] .pv-gsp .l{stroke:var(--pv-gold);opacity:1}
+html[data-da="b"] .pv-gsp circle{fill:var(--pv-gold)}
+html[data-da="b"] .pv-no{display:inline-block;font:400 24px 'Instrument Serif',Georgia,serif;font-style:italic;color:var(--pv-gold-ink);margin-right:16px;letter-spacing:0}
+html[data-da="b"] .pv-bar{margin-top:26px;align-items:baseline}
+html[data-da="b"] .pv-tabs button{font:400 22px 'Instrument Serif',Georgia,serif;font-style:italic;padding:2px 0}
+html[data-da="b"] .pv-tbtn{font:400 19px 'Instrument Serif',Georgia,serif;font-style:italic}
+html[data-da="b"] .pv-scroll{margin:0;padding:4px 0}
+html[data-da="b"] .pv-grid{gap:2px}
+html[data-da="b"] .pv-lab{box-shadow:none;font:400 18px 'Instrument Serif',Georgia,serif;font-style:italic;color:var(--pv-ink)}
+html[data-da="b"] .pv-lab small{font:600 10.5px Manrope,system-ui,sans-serif;font-style:normal}
+html[data-da="b"] .pv-hh{font:400 18px 'Instrument Serif',Georgia,serif;font-style:italic;color:var(--pv-ink2)}
+html[data-da="b"] .pv-hh i{font:700 9.5px Manrope,system-ui,sans-serif;color:var(--pv-gold-ink)}
+html[data-da="b"] .pv-cl,html[data-da="b"] .pv-tide{border-radius:2px}
+html[data-da="b"] .pv-wv b{font-size:21px;font-weight:800}
+html[data-da="b"] .pv-selc{border-radius:3px;border-width:2px}
+html[data-da="b"] .pv-sec{margin-top:64px}
+html[data-da="b"] .pv-sh{border-top:1.5px solid var(--pv-ink);padding-top:16px;margin:0 0 24px}
+html[data-da="b"] .pv-sh h2{font-weight:800;font-size:clamp(38px,4.6vw,64px);letter-spacing:-.06em;line-height:.95}
+html[data-da="b"] .pv-sh h2 .pv-no{display:block;margin-bottom:10px;font-size:24px}
+html[data-da="b"] .pv-sh .pv-sp{display:none}
+html[data-da="b"] .pv-goldc{border-radius:0;margin-inline:calc(50% - 50vw);padding:56px max(28px,calc(50vw - 50% + 28px));background:#E7D09D;gap:40px}
+html[data-da="b"] .pv-gk{font:400 24px 'Instrument Serif',Georgia,serif;font-style:italic;color:#4E3A10}
+html[data-da="b"] .pv-gk span{font-size:19px}
+html[data-da="b"] .pv-gv{font-weight:800;font-size:clamp(84px,10vw,150px);letter-spacing:-.075em;color:#111A20}
+html[data-da="b"] .pv-gv small{font:400 32px 'Instrument Serif',Georgia,serif;font-style:italic;color:#4E3A10}
+html[data-da="b"] .pv-gs{color:#111A20;font-size:16px}
+html[data-da="b"] .pv-dot{background:#111A20;width:3px;height:3px}
+html[data-da="b"] .pv-gn{font:400 19px/1.35 'Instrument Serif',Georgia,serif;font-style:italic;color:#4E3A10;opacity:1;max-width:34ch}
+html[data-da="b"] .pv-ga{color:#111A20;text-decoration:underline;text-underline-offset:4px}
+html[data-da="b"] .pv-bys,html[data-da="b"] .pv-bx{color:#4E3A10}
+html[data-da="b"] .pv-b-o{stroke:#111A20;stroke-width:2.2}
+html[data-da="b"] .pv-b-a{fill:rgba(17,26,32,.08)}
+html[data-da="b"] .pv-b-f{stroke:#111A20;opacity:.4}
+html[data-da="b"] .pv-b-g{stroke:rgba(17,26,32,.15)}
+html[data-da="b"] .pv-bdot{background:#E7D09D;border-color:#111A20}
+html[data-da="b"] .pv-bx i.o{background:#111A20}
+html[data-da="b"] .pv-tabs.pv-bsel button{font:400 20px 'Instrument Serif',Georgia,serif;font-style:italic}
+html[data-da="b"] .pv-near{border-radius:0;background:transparent;border-top:1px solid var(--pv-line);border-bottom:1px solid var(--pv-line)}
+html[data-da="b"] .pv-nmap{filter:grayscale(.85) sepia(.2) contrast(1.02)}
+html[data-da="b"] .pv-nside{padding:0 0 0 24px}
+html[data-da="b"] .pv-nwhen{font:400 19px 'Instrument Serif',Georgia,serif;font-style:italic;margin:16px 0 8px}
+html[data-da="b"] .pv-nr{border-radius:0;border-top:1px solid var(--pv-line)}
+html[data-da="b"] .pv-ng{padding:14px 0}
+html[data-da="b"] .pv-nn b{font-size:17px}
+html[data-da="b"] .pv-nv b{font-size:22px;font-weight:800}
+html[data-da="b"] .pv-sort,html[data-da="b"] .pv-sort select,html[data-da="b"] #pvCmpT{font:400 19px 'Instrument Serif',Georgia,serif;font-style:italic}
+html[data-da="b"] .pv-rel{border-radius:0;background:transparent;border-bottom:1px solid var(--pv-line)}
+html[data-da="b"] .pv-rc{padding:4px 32px 30px 0}
+html[data-da="b"] .pv-rc+.pv-rc{padding-left:32px;border-left-color:var(--pv-line)}
+html[data-da="b"] .pv-rk{font:400 22px 'Instrument Serif',Georgia,serif;font-style:italic;letter-spacing:0;text-transform:none;color:var(--pv-ink2)}
+html[data-da="b"] .pv-rv{font-weight:800;font-size:clamp(52px,6vw,88px);letter-spacing:-.07em}
+html[data-da="b"] .pv-rs{font:400 19px 'Instrument Serif',Georgia,serif;font-style:italic}
+html[data-da="b"] .pv-morein,html[data-da="b"] .pv-cmp{border-radius:0;background:var(--pv-soft)}
+html[data-da="b"] .pv-more summary{font:400 19px 'Instrument Serif',Georgia,serif;font-style:italic}
+html[data-da="b"] .pv-comp{border-radius:0}
+@media (max-width:900px){
+  html[data-da="b"] .pv-days{display:flex;overflow-x:auto}
+  html[data-da="b"] .pv-day{flex:0 0 92px}
+  html[data-da="b"] .pv-sum{grid-template-columns:1fr 1fr}
+  html[data-da="b"] .pv-gold{grid-column:1/-1;border-left:0!important;padding-left:0!important;border-top:1px solid var(--pv-line);padding-top:18px}
+  html[data-da="b"] .pv-nside{padding:0}
+}
+@media (max-width:640px){
+  html[data-da="b"] .pv-hero{gap:24px;padding-top:26px}
+  html[data-da="b"] .pv-hero h1{font-size:58px}
+  html[data-da="b"] .pv-meta{font-size:19px}
+  html[data-da="b"] .pv-days{margin:0 -16px;padding:0}
+  html[data-da="b"] .pv-day{flex:0 0 74px;padding:10px 10px 12px}
+  html[data-da="b"] .pv-dd{font-size:28px}
+  html[data-da="b"] .pv-hours{margin:0}
+  html[data-da="b"] .pv-b{padding-right:16px}
+  html[data-da="b"] .pv-b+.pv-b{padding-left:16px}
+  html[data-da="b"] .pv-v{font-size:56px}
+  html[data-da="b"] .pv-scroll{margin:0 -16px;padding:4px 16px}
+  html[data-da="b"] .pv-lab{box-shadow:-16px 0 0 var(--pv-bg)}
+  html[data-da="b"] .pv-sec{margin-top:52px}
+  html[data-da="b"] .pv-goldc{padding:36px 20px}
+  html[data-da="b"] .pv-gv{font-size:84px}
+  html[data-da="b"] .pv-rc{padding:4px 0 22px}
+  html[data-da="b"] .pv-rc+.pv-rc{padding-left:0;padding-top:22px}
+}
+
+/* =====================================================================================================
+   C · MODERN WEATHER — instrument de mesure : grille pointillée, chiffres massifs, étiquettes en mono,
+   tuiles contrastées (houle en bleu nuit, bouée en or plein), une seule famille de couleurs par donnée.
+   ===================================================================================================== */
+html.v2[data-da="c"]:not([data-theme="dark"]){--pv-bg:#ECECE8;--pv-card:#F9F9F6;--pv-soft:#EFEFEB;--pv-ink:#0E1418;--pv-ink2:#394045;--pv-ink3:#7E8488;--pv-line:rgba(14,20,24,.1);--pv-gold:#E1AE45;--pv-gold-ink:#7A5610;--pv-tide:#5F7590}
+html[data-da="c"]:not([data-theme="dark"]) body{background-image:radial-gradient(rgba(14,20,24,.14) 1px,transparent 1.3px);background-size:18px 18px;background-attachment:fixed}
+html[data-da="c"] :is(.pv-k,.pv-dn,.pv-wt,.pv-hh,.pv-lab,.pv-meta,.pv-tabs button,.pv-tbtn,.pv-rk,.pv-nwhen,.pv-chax,.pv-bx,.pv-bys,.pv-cmpt,.pv-tx,.pv-s,.pv-sort,.pv-sort select,.pv-gk,.pv-gs,.pv-mk,.pv-nn small,.pv-nv>small,.pv-dm,.pv-rs,.pv-more summary,.pv-no){font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0}
+html[data-da="c"] .pv-pick{border-radius:14px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:14px;text-transform:uppercase}
+html[data-da="c"] .pv-ib{border-radius:14px}
+html[data-da="c"] .pv-hero{padding-top:34px}
+html[data-da="c"] .pv-hero h1{font-weight:900;text-transform:uppercase;font-size:clamp(40px,6.4vw,96px);letter-spacing:-.045em}
+html[data-da="c"] .pv-meta{text-transform:uppercase;font-size:12px;font-weight:500}
+html[data-da="c"] .pv-meta>*+*:before{content:"/";margin:0 10px}
+html[data-da="c"] .pv-day{border-radius:16px;width:84px;height:100px;background:var(--pv-card);box-shadow:inset 0 0 0 1px var(--pv-line)}
+html[data-da="c"] .pv-dn{font-size:11px;font-weight:700;opacity:.55}
+html[data-da="c"] .pv-dd{font-weight:900;font-size:30px}
+html[data-da="c"] .pv-dm{font-size:11.5px}
+html[data-da="c"] .pv-day[aria-pressed="true"]{background:var(--pv-ink);color:#F9F9F6;box-shadow:none}
+html[data-da="c"] .pv-hours{border-radius:26px;box-shadow:inset 0 0 0 1px var(--pv-line);padding:20px 20px 18px}
+html[data-da="c"] .pv-wt{font-size:12px;font-weight:700;letter-spacing:.02em}
+html[data-da="c"] .pv-ld.on{background:#E1AE45;border-color:#E1AE45;box-shadow:none;border-radius:2px}
+html[data-da="c"] .pv-sum{grid-template-columns:1.35fr 1fr 1.1fr;gap:10px;margin-top:14px}
+html[data-da="c"] .pv-b{border-radius:22px;padding:20px 22px;background:var(--pv-soft);box-shadow:inset 0 0 0 1px var(--pv-line)}
+html[data-da="c"] .pv-k{font-size:11.5px;font-weight:700;letter-spacing:.04em}
+html[data-da="c"] .pv-v{font-weight:900;font-size:clamp(54px,6vw,92px);letter-spacing:-.05em;margin-top:14px}
+html[data-da="c"] .pv-v small{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:15px;font-weight:700}
+html[data-da="c"] .pv-s{font-size:13px;text-transform:uppercase}
+html[data-da="c"] .pv-bh{background:#0E1418;color:#F9F9F6;box-shadow:none}
+html[data-da="c"] .pv-bh .pv-k{color:rgba(249,249,246,.55)}
+html[data-da="c"] .pv-bh .pv-v{color:#F9F9F6}
+html[data-da="c"] .pv-bh .pv-v small,html[data-da="c"] .pv-bh .pv-s{color:rgba(249,249,246,.7)}
+html[data-da="c"] .pv-eq{display:flex;align-items:flex-end;gap:3px;height:46px;margin-top:18px}
+html[data-da="c"] .pv-eq i{flex:1;min-height:3px;border-radius:2px;background:rgba(249,249,246,.24);transition:background .2s,transform .2s;transform-origin:bottom}
+html[data-da="c"] .pv-eq i.on{background:#F9F9F6;transform:scaleY(1.06)}
+html[data-da="c"] .pv-gold{background:#E1AE45;box-shadow:none}
+html[data-da="c"] .pv-gold:hover{filter:brightness(1.03)}
+html[data-da="c"] .pv-gold .pv-k,html[data-da="c"] .pv-gold .pv-s{color:#3D2B06}
+html[data-da="c"] .pv-gold .pv-v{color:#0E1418}
+html[data-da="c"] .pv-gold .pv-v small{color:#3D2B06}
+html[data-da="c"] .pv-gsp .l{stroke:#0E1418;opacity:.85}
+html[data-da="c"] .pv-gsp circle{fill:#0E1418}
+html[data-da="c"] .pv-live{background:#0E1418;box-shadow:none;border-radius:2px}
+html[data-da="c"] .pv-bar{margin-top:20px}
+html[data-da="c"] .pv-tabs button,html[data-da="c"] .pv-tbtn{font-size:12.5px;text-transform:uppercase;font-weight:700}
+html[data-da="c"] .pv-scroll{margin:0 -20px;padding:4px 20px}
+html[data-da="c"] .pv-lab{box-shadow:-20px 0 0 var(--pv-card);font-size:11.5px;text-transform:uppercase;font-weight:700}
+html[data-da="c"] .pv-hh{font-size:12.5px;font-weight:700}
+html[data-da="c"] .pv-hh i{color:#B27C16;font-family:'JetBrains Mono',ui-monospace,monospace}
+html[data-da="c"] .pv-cl{border-radius:9px}
+html[data-da="c"] .pv-wv b{font-weight:900;font-size:21px}
+html[data-da="c"] .pv-pe b,html[data-da="c"] .pv-wi b{font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:700;font-size:14px}
+html[data-da="c"] .pv-pe span{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px}
+html[data-da="c"] .pv-dots i{border-radius:1px;width:6px;height:6px}
+html[data-da="c"] .pv-selc{border-radius:12px;border-width:2px}
+html[data-da="c"] .pv-sec{margin-top:56px}
+html[data-da="c"] .pv-sh h2{font-weight:900;font-size:30px;text-transform:uppercase;letter-spacing:-.035em;display:flex;align-items:baseline;gap:12px}
+html[data-da="c"] .pv-sh h2 .pv-no{display:inline-block;font-size:13px;font-weight:700;color:var(--pv-ink3);letter-spacing:0}
+html[data-da="c"] .pv-sh h2 .pv-no:after{content:" /"}
+html[data-da="c"] .pv-goldc{border-radius:26px;background:#E1AE45;padding:30px 32px}
+html[data-da="c"] .pv-gk{color:#3D2B06;text-transform:uppercase;font-size:12.5px}
+html[data-da="c"] .pv-gv{font-weight:900;font-size:clamp(76px,9vw,128px);color:#0E1418}
+html[data-da="c"] .pv-gv small{font-family:'JetBrains Mono',ui-monospace,monospace;color:#3D2B06}
+html[data-da="c"] .pv-gs{color:#0E1418;font-size:14px;text-transform:uppercase}
+html[data-da="c"] .pv-dot{background:#0E1418;border-radius:1px}
+html[data-da="c"] .pv-gn{color:#3D2B06;opacity:1}
+html[data-da="c"] .pv-ga{color:#0E1418}
+html[data-da="c"] .pv-bys,html[data-da="c"] .pv-bx{color:#3D2B06}
+html[data-da="c"] .pv-b-o{stroke:#0E1418;stroke-width:2.2}
+html[data-da="c"] .pv-b-a{fill:rgba(14,20,24,.1)}
+html[data-da="c"] .pv-b-f{stroke:#0E1418;opacity:.45}
+html[data-da="c"] .pv-b-g{stroke:rgba(14,20,24,.15)}
+html[data-da="c"] .pv-bdot{background:#E1AE45;border-color:#0E1418;border-radius:3px}
+html[data-da="c"] .pv-bx i.o{background:#0E1418}
+html[data-da="c"] .pv-near,html[data-da="c"] .pv-rel,html[data-da="c"] .pv-morein,html[data-da="c"] .pv-cmp{border-radius:26px;box-shadow:inset 0 0 0 1px var(--pv-line)}
+html[data-da="c"] .pv-nmap{filter:grayscale(1) contrast(1.05)}
+html[data-da="c"] .pv-nmap .mkp:before{border-radius:2px}
+html[data-da="c"] .pv-nv b{font-weight:900}
+html[data-da="c"] .pv-rv{font-weight:900;font-size:56px}
+html[data-da="c"] .pv-md{border-radius:2px}
+@media (max-width:900px){
+  html[data-da="c"] .pv-sum{grid-template-columns:1fr 1fr}
+  html[data-da="c"] .pv-bh{grid-column:1/-1}
+  html[data-da="c"] .pv-sum .pv-gold{grid-column:auto}
+}
+@media (max-width:640px){
+  html[data-da="c"] .pv-hero h1{font-size:40px}
+  html[data-da="c"] .pv-day{width:66px;height:82px;border-radius:14px}
+  html[data-da="c"] .pv-dd{font-size:23px}
+  html[data-da="c"] .pv-hours{padding:14px 12px;border-radius:22px;margin:0 -6px}
+  html[data-da="c"] .pv-sum{gap:8px}
+  html[data-da="c"] .pv-b{padding:16px;border-radius:18px}
+  html[data-da="c"] .pv-v{font-size:52px}
+  html[data-da="c"] .pv-sum .pv-b:not(.pv-bh) .pv-v{font-size:38px}
+  html[data-da="c"] .pv-gold .pv-gsp{display:none}
+  html[data-da="c"] .pv-sum .pv-s{font-size:11.5px}
+  html[data-da="c"] .pv-scroll{margin:0 -12px;padding:4px 12px}
+  html[data-da="c"] .pv-lab{box-shadow:-12px 0 0 var(--pv-card)}
+  html[data-da="c"] .pv-goldc{padding:24px 20px;border-radius:22px}
+  html[data-da="c"] .pv-gv{font-size:72px}
+  html[data-da="c"] .pv-sh h2{font-size:22px}
+  html[data-da="c"] .pv-rv{font-size:40px}
+}
+
+/* A et C : le nom du spot sur toute la largeur, les 7 jours en dessous, alignés sur la grille */
+@media (min-width:901px){
+  :is(html[data-da="a"],html[data-da="c"]) .pv-hero{flex-direction:column;align-items:stretch;gap:30px}
+  :is(html[data-da="a"],html[data-da="c"]) .pv-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+  :is(html[data-da="a"],html[data-da="c"]) .pv-day{width:auto;flex-direction:row;justify-content:flex-start;gap:12px;height:72px;padding:0 18px}
+  :is(html[data-da="a"],html[data-da="c"]) .pv-dd{order:-1;margin:0}
+  :is(html[data-da="a"],html[data-da="c"]) .pv-dn{display:block}
+  :is(html[data-da="a"],html[data-da="c"]) .pv-day .pv-dm{margin-left:auto;white-space:nowrap}
+  :is(html[data-da="a"],html[data-da="c"]) .pv-day{padding:0 14px;gap:10px}
+}
+html[data-da="b"] .pv-top{border-bottom:0;background:linear-gradient(var(--pv-ink),var(--pv-ink)) bottom center/calc(100% - 56px) 1.5px no-repeat}
+html[data-da="b"] .pv-sh{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 22px}
+html[data-da="b"] .pv-sh h2{flex:1 1 auto}
+@media (prefers-reduced-motion:reduce){ .pv-tick,.pv-grid,.pv-chart,.pv-deco svg,.pv-live{animation:none!important} html[data-da] .pv-day:hover,html[data-da] .pv-cl:hover{transform:none} }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -3752,10 +4120,10 @@ function pvTable(day,hrs){
     const tag=h.hour===liveH?'<i class="pv-hn">maint.</i>':h.hour===Math.floor(rise)?'<i>lever</i>':h.hour===Math.floor(set)?'<i>coucher</i>':'';
     const ag=agreeOf(h);
     c+=`<button type="button" class="pv-hh${nt}" ${at(1)}" aria-pressed="false" aria-label="${h.hour} h : ${h.H!=null?`houle ${fmt(h.H)} m, ${Math.round(h.T||0)} s${h.D!=null?' du '+sector(h.D):''}, vent ${Math.round(h.v)} km/h ${windWord[h.wind]||''}${h.gust!=null?', rafales '+Math.round(h.gust):''}`:'pas de données'}">${h.hour}h${tag}</button>`;
-    c+=`<div class="pv-cl pv-wv${nt}" ${at(2)};--c:${sizeCol(h.H)}"><b>${h.H!=null?fmt(h.H):'—'}</b></div>`;
-    c+=`<div class="pv-cl pv-pe${nt}" ${at(3)};--c:${periodCell(h.T)}"><b>${h.T?Math.round(h.T)+' s':'—'}</b>${h.D!=null?`<span>${pvArr(h.D)}${sector(h.D)}</span>`:''}</div>`;
+    c+=`<div class="pv-cl pv-wv${nt}" ${at(2)};${pvCellCss(h.H,'H')}"><b>${h.H!=null?fmt(h.H):'—'}</b></div>`;
+    c+=`<div class="pv-cl pv-pe${nt}" ${at(3)};${pvCellCss(h.T,'T')}"><b>${h.T?Math.round(h.T)+' s':'—'}</b>${h.D!=null?`<span>${pvArr(h.D)}${sector(h.D)}</span>`:''}</div>`;
     c+=`<div class="pv-cl pv-ag${nt}" ${at(4)}"${ag?` title="Modèles : de ${fmt(ag.mn)} à ${fmt(ag.mx)} m"`:''}>${ag?`<span class="pv-dots l${ag.lvl}" role="img" aria-label="Accord des modèles : ${AGREE_TXT[ag.lvl]}"><i></i><i></i><i></i></span>`:''}</div>`;
-    c+=`<div class="pv-cl pv-wi${nt}" ${at(5)};--c:${windCell(h.v)}"${h.gust!=null?` title="${windWord[h.wind]||''} · rafales ${Math.round(h.gust)} km/h"`:''}>${h.wd!=null?pvArr(h.wd,'pv-wa'):''}<b>${h.v!=null?Math.round(h.v):'—'}</b></div>`;
+    c+=`<div class="pv-cl pv-wi${nt}" ${at(5)};${pvCellCss(h.v,'W')}"${h.gust!=null?` title="${windWord[h.wind]||''} · rafales ${Math.round(h.gust)} km/h"`:''}>${h.wd!=null?pvArr(h.wd,'pv-wa'):''}<b>${h.v!=null?Math.round(h.v):'—'}</b></div>`;
   });
   const tl=hrs.filter(h=>h.tideN!=null);
   if(tl.length>2){
@@ -3858,7 +4226,7 @@ function radarHtml(s){
   const tog=list.length>1?`<div class="pv-tabs pv-bsel" role="group" aria-label="Choisir la bouée">${list.map(o=>`<button type="button" data-rv="${o.key}" aria-pressed="${o.key===cur.key}">${o.name}</button>`).join('')}</div>`:'';
   const per=L.tp?`${Math.round(L.tp)} s`:(Tm?`≈ ${Math.round(Tm)} s`:null);
   return `<section class="pv-sec radar" id="sRadar" aria-labelledby="sRadarT">
-    <div class="pv-sh"><h2 id="sRadarT">Mesure en mer</h2>${tog}</div>
+    <div class="pv-sh"><h2 id="sRadarT"><span class="pv-no">02</span>Mesure en mer</h2>${tog}</div>
     <div class="pv-goldc">
       <div class="pv-gl">
         <div class="pv-gk">${a<2?'<i class="pv-live"></i>':''}Bouée ${cur.name} <span>${cur.sub}</span></div>
@@ -3887,11 +4255,11 @@ function pvCmpHtml(){
   PV.cmp=PV.cmp.filter(i=>nearOf(state.spot,7).some(o=>o.i===i));
   if(!PV.cmpOn||!PV.cmp.length) return PV.cmpOn?'<p class="pv-fn pv-cmpe">Cochez un à trois spots pour les comparer à celui-ci, heure par heure.</p>':'';
   const k=state.day, ids=[state.spot,...PV.cmp], hrs=[6,8,10,12,14,16,18,20];
-  return `<div class="pv-cmp"><div class="pv-cmps"><div class="pv-cmpg" style="--n:${hrs.length}"><span class="pv-cmpn"></span>${hrs.map(h=>`<span class="pv-cmpt">${h}h</span>`).join('')}${ids.map(i=>{ const x=state.data[i], dd=x.days[k]; return `<span class="pv-cmpn${i===state.spot?' me':''}">${x.spot.name}</span>`+hrs.map(hr=>{ const h=dd&&dd.list.find(z=>z.hour===hr); return h&&h.H!=null?`<span class="pv-cmpc" style="--c:${sizeCol(h.H)}" title="${x.spot.name}, ${hr}h : ${fmt(h.H)} m, ${Math.round(h.T||0)} s${h.D!=null?' '+sector(h.D):''}, vent ${Math.round(h.v)} km/h ${sector(h.wd)}"><b>${fmt(h.H)}</b><i>${Math.round(h.T||0)} s · ${Math.round(h.v)}${pvArr(h.wd)}</i></span>`:'<span class="pv-cmpc">—</span>'; }).join(''); }).join('')}</div></div></div>`;
+  return `<div class="pv-cmp"><div class="pv-cmps"><div class="pv-cmpg" style="--n:${hrs.length}"><span class="pv-cmpn"></span>${hrs.map(h=>`<span class="pv-cmpt">${h}h</span>`).join('')}${ids.map(i=>{ const x=state.data[i], dd=x.days[k]; return `<span class="pv-cmpn${i===state.spot?' me':''}">${x.spot.name}</span>`+hrs.map(hr=>{ const h=dd&&dd.list.find(z=>z.hour===hr); return h&&h.H!=null?`<span class="pv-cmpc" style="${pvCellCss(h.H,'H')}" title="${x.spot.name}, ${hr}h : ${fmt(h.H)} m, ${Math.round(h.T||0)} s${h.D!=null?' '+sector(h.D):''}, vent ${Math.round(h.v)} km/h ${sector(h.wd)}"><b>${fmt(h.H)}</b><i>${Math.round(h.T||0)} s · ${Math.round(h.v)}${pvArr(h.wd)}</i></span>`:'<span class="pv-cmpc">—</span>'; }).join(''); }).join('')}</div></div></div>`;
 }
 function pvNearHtml(s,k){
   return `<section class="pv-sec" id="f-near" aria-labelledby="sNear">
-    <div class="pv-sh"><h2 id="sNear">Autour de ${s.name}</h2><span class="pv-sp"></span>
+    <div class="pv-sh"><h2 id="sNear"><span class="pv-no">03</span>Autour de ${s.name}</h2><span class="pv-sp"></span>
       <label class="pv-sort">Trier <select id="pvSort"><option value="km"${PV.sort==='km'?' selected':''}>par distance</option><option value="H"${PV.sort==='H'?' selected':''}>par houle</option><option value="v"${PV.sort==='v'?' selected':''}>par vent</option></select></label>
       <button type="button" class="pv-tbtn" id="pvCmpT" aria-pressed="${PV.cmpOn}">Comparer</button></div>
     <div class="pv-near">
@@ -3913,7 +4281,7 @@ function pvRelHtml(){
   const r=state.reliability, ok=r&&r.status==='ok', L24=ok&&r.leads['24'];
   const more=ok?['24','48','72','96'].filter(L=>r.leads[L]).map(L=>{ const x=r.leads[L], best=Object.entries(x.models||{}).sort((u,v)=>u[1].mae-v[1].mae)[0], bl=best?shortModel(((state.models||[]).find(m=>m.key===best[0])||{}).label||best[0]):'—';
     return `<tr><th scope="row">${L==='24'?'à 1 jour':`à ${L/24} jours`}</th><td>± ${fmt2(x.mix.mae)} m</td><td>${Math.round(x.mix.within30*100)} %</td><td>${x.mix.bias>0?'+':''}${fmt2(x.mix.bias)} m</td><td>${bl}</td></tr>`; }).join(''):'';
-  return `<section class="pv-sec" id="sRel" aria-labelledby="sRelT"><div class="pv-sh"><h2 id="sRelT">Fiabilité</h2></div>
+  return `<section class="pv-sec" id="sRel" aria-labelledby="sRelT"><div class="pv-sh"><h2 id="sRelT"><span class="pv-no">04</span>Fiabilité</h2></div>
     <div class="pv-rel">
       <div class="pv-rc"><div class="pv-rk">Accord des modèles · <span id="relHr">—</span></div><div id="relModels"></div></div>
       <div class="pv-rc"><div class="pv-rk">Justesse sur ${ok?r.window_days:30} jours</div>${ok?`<div class="pv-rv">± ${fmt2(L24.mix.mae)}<small> m</small></div><p class="pv-rs">écart moyen de la prévision à 1 jour avec la bouée Gascogne, au large</p>`:`<p class="pv-rs">Collecte en cours : les premiers résultats arrivent après quelques jours de mesures.</p>`}</div>
@@ -3943,6 +4311,38 @@ function pvNextTide(date,hour){
   return t.extremes.find(x=>x.t>ref)||null;
 }
 
+/* ======================== DIRECTIONS ARTISTIQUES (essai, branche directions-previsions) ========================
+   Même page, mêmes données, trois habillages : A « Premium Ocean », B « Surf Editorial », C « Modern Weather ».
+   Choix : ?da=a|b|c (ou le sélecteur en bas de page, outil de test À RETIRER avant publication), mémorisé. « v3 » = version précédente. */
+const PV_DAS=[['a','A · Ocean'],['b','B · Éditorial'],['c','C · Météo'],['v3','V3']];
+{ let da=null; try{ const q=new URLSearchParams(location.search).get('da'); if(q&&PV_DAS.some(x=>x[0]===q)) localStorage.setItem('pvDA',q); da=q||localStorage.getItem('pvDA'); }catch(e){} if(!PV_DAS.some(x=>x[0]===da)) da='a'; document.documentElement.dataset.da=da; }
+/* Couleurs de prévision propres à chaque direction (la couleur suit la valeur, jamais un avis) */
+const PV_PAL={
+  a:{H:[[0,'#D6ECF1'],[0.8,'#9DD0DE'],[1.6,'#4FA3C4'],[2.4,'#2471A0'],[3.4,'#16487A'],[5,'#0B2A4A']],T:[[5,'#EEE8DA'],[8,'#D3E3D9'],[11,'#86BFAC'],[14,'#3A8C79'],[17,'#185C4D']],W:[[0,'#EAF0F2'],[10,'#D2E5E9'],[18,'#F2E0C4'],[28,'#EEA883'],[42,'#CF5236']]},
+  b:{H:[[0,'#E8EEF0'],[0.8,'#C3D6DF'],[1.6,'#86A9C0'],[2.4,'#4D7898'],[3.4,'#264C6B'],[5,'#12263A']],T:[[5,'#EDEEE6'],[9,'#CFD9C4'],[13,'#93AD8A'],[17,'#56744F']],W:[[0,'#F2EFE8'],[12,'#E6DDCD'],[22,'#EAC4A5'],[32,'#DA8A60'],[45,'#A9402A']]},
+  c:{H:[[0,'#E3E8EC'],[0.8,'#BFCCD6'],[1.6,'#7E97AA'],[2.4,'#466379'],[3.4,'#243D51'],[5,'#0E1C27']],T:[[5,'#E6E9E8'],[9,'#C2D0CE'],[13,'#76918F'],[17,'#33504E']],W:[[0,'#EBEBE8'],[12,'#D1D1CC'],[22,'#A3A39C'],[32,'#E0703A'],[45,'#B8401A']]}
+};
+function pvHex(h){ return [1,3,5].map(i=>parseInt(h.slice(i,i+2),16)); }
+function pvRamp(v,st){ if(v==null||isNaN(v)) return null; if(v<=st[0][0]) return pvHex(st[0][1]);
+  for(let i=1;i<st.length;i++){ if(v<=st[i][0]){ const a=st[i-1],b=st[i],t=(v-a[0])/(b[0]-a[0]),A=pvHex(a[1]),B=pvHex(b[1]); return A.map((x,k)=>Math.round(x+(B[k]-x)*t)); } }
+  return pvHex(st[st.length-1][1]); }
+function pvCellCss(v,kind){
+  const P=PV_PAL[document.documentElement.dataset.da];
+  if(!P){ const f=kind==='H'?sizeCol:kind==='T'?periodCell:windCell; return `--c:${f(v)}`; }
+  const c=pvRamp(v,P[kind]); if(!c) return '--c:transparent';
+  const L=(0.2126*c[0]+0.7152*c[1]+0.0722*c[2])/255; return `--c:rgb(${c.join(',')});--t:${L<0.52?'#FFFFFF':'#0B1B26'}`;
+}
+/* lignes de houle (décor discret) */
+function pvDeco(){ let p=''; for(let k=0;k<9;k++){ const y=40+k*36, a=8+k*2.4; let d=`M-100 ${y}`; for(let x=-100;x<=1700;x+=120){ d+=` Q${x+30} ${(y-a).toFixed(1)} ${x+60} ${y} T${x+120} ${y}`; } p+=`<path d="${d}"/>`; }
+  return `<svg viewBox="0 0 1600 380" preserveAspectRatio="xMidYMid slice">${p}</svg>`; }
+/* la journée en barres : la houle de 6 h à 21 h, l'heure choisie en plein */
+function pvEq(day){ const l=day.list.filter(h=>h.hour>=6&&h.hour<=21), mx=Math.max(.5,...l.map(h=>h.H||0));
+  return `<div class="pv-eq" aria-hidden="true">${l.map(h=>`<i data-h="${h.hour}" style="height:${h.H!=null?Math.max(10,h.H/mx*100).toFixed(0):6}%"></i>`).join('')}</div>`; }
+function pvDaSwitch(){ const da=document.documentElement.dataset.da;
+  return `<div class="pv-daswitch" role="group" aria-label="Direction artistique (outil de test)"><span>Direction</span>${PV_DAS.map(([k,l])=>`<button type="button" data-da="${k}" aria-pressed="${k===da}">${l}</button>`).join('')}</div>`; }
+document.addEventListener('click',e=>{ const b=e.target.closest('.pv-daswitch [data-da]'); if(!b||!state.data) return;
+  document.documentElement.dataset.da=b.dataset.da; try{ localStorage.setItem('pvDA',b.dataset.da); }catch(e){} const y=scrollY, h=state.hour; render(); state.hour=h; updateLive(); scrollTo(0,y); });
+
 /* ======================================== rendu ======================================== */
 function render(){
   const d=state.data[state.spot], s=d.spot, k=state.day, day=d.days[k];
@@ -3964,6 +4364,7 @@ function render(){
     <button type="button" data-go="map"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.2-6-10a6 6 0 0 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg><span>Autour</span></button>
     <button type="button" data-go="fav"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-3-5.4 3 1.1-6L3.2 9.4l6.1-.8z"/></svg><span>Favoris</span></button>
   </nav>
+  <div class="pv-band"><div class="pv-deco" aria-hidden="true">${pvDeco()}</div>
   <header class="pv pv-top">
     <a class="pv-brand" href="./" aria-label="Houlalah, accueil"><img src="brand/symbol.svg" alt="" width="26" height="24"><img class="pv-bw" src="brand/wordmark.svg" alt="houlalah" height="15"></a>
     <button type="button" class="pv-pick" id="openPicker" aria-label="Changer de spot (actuel : ${s.name})">${PV_ICO.search}<span>${s.name}</span><small>${s.region}</small>${PV_ICO.chev}</button>
@@ -3973,16 +4374,19 @@ function render(){
     <div class="pv-id"><h1><span class="sr">Météo surf </span>${s.name}</h1><p class="pv-meta">${meta.map(x=>`<span>${x}</span>`).join('')}</p></div>
     <nav class="pv-days" aria-label="Choisir le jour">${d.days.map((x,j)=>pvDayTab(x,j,k)).join('')}</nav>
   </div>
+  </div>
   <main class="pv pv-main">
     <section class="pv-card pv-hours" aria-labelledby="sHour">
       <h2 class="sr" id="sHour">${pvDayLong(day,k)}, heure par heure</h2>
+      <div class="pv-head2">
       <div class="pv-when"><span class="pv-wt"><i class="pv-ld" id="pvLd"></i><b id="pvWhen">—</b></span><button type="button" class="pv-tbtn pv-nowb" id="pvNow" hidden>Revenir à maintenant</button></div>
       <div class="pv-sum" aria-live="polite">
-        <div class="pv-b"><div class="pv-k">Houle</div><div class="pv-v" id="pvS">—</div><div class="pv-s" id="pvSd"></div></div>
-        <div class="pv-b"><div class="pv-k">Vent</div><div class="pv-v" id="pvW">—</div><div class="pv-s" id="pvWd"></div></div>
+        <div class="pv-b pv-bh"><div class="pv-k">Houle</div><div class="pv-v" id="pvS">—</div><div class="pv-s" id="pvSd"></div>${pvEq(day)}</div>
+        <div class="pv-b pv-bw2"><div class="pv-k">Vent</div><div class="pv-v" id="pvW">—</div><div class="pv-s" id="pvWd"></div></div>
         ${pvObsCell(s)}
       </div>
-      <div class="pv-bar">
+      </div>
+      <div class="pv-bar"><span class="pv-no">01</span>
         <div class="pv-tabs" role="group" aria-label="Affichage"><button type="button" data-view="table" aria-pressed="${PV.view==='table'}">Heure par heure</button><button type="button" data-view="chart" aria-pressed="${PV.view==='chart'}">7 jours</button></div>
         <span class="pv-sp"></span>
         <button type="button" class="pv-tbtn" id="pvCompBtn" aria-expanded="${PV.comp}" aria-controls="pvComp">Détail de la houle</button>
@@ -4007,12 +4411,13 @@ function render(){
       <details class="allspots"><summary>Tous les spots <span class="cnt">(${state.data.length})</span></summary>
       <nav class="spotlinks" aria-label="Tous les spots">${(()=>{ const g={}; state.data.forEach(x=>{ (g[x.spot.region]=g[x.spot.region]||[]).push(x.spot); }); return Object.entries(g).map(([r,l])=>`<div><h3>${r}</h3>${l.map(sp=>`<a href="spots/${slugOf(sp.name)}/">${sp.name}</a>`).join('')}</div>`).join(''); })()}</nav></details>
       <p class="flinks"><a href="comment-ca-marche/">Comment ça marche</a> · <a href="a-propos/">À propos</a> · <a href="mentions-legales/">Mentions légales</a> · <a href="confidentialite/">Confidentialité</a></p>
+      ${pvDaSwitch()}
       ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}.</p>`:''}
     </footer>
   </div>`;
   updateLive(); bind();
   { const sc=document.getElementById('pvScroll'), c=sc&&sc.querySelector('.pv-hh.sel'); if(sc&&c&&sc.scrollWidth>sc.clientWidth) sc.scrollLeft=Math.max(0,c.offsetLeft-sc.clientWidth/2+c.offsetWidth/2); }
-  { const r=document.querySelector('.pv-days'), a=r&&r.querySelector('.pv-day[aria-pressed="true"]'); if(r&&a&&a.offsetLeft+a.offsetWidth>r.clientWidth-16) r.scrollLeft=a.offsetLeft-16; }
+  { const r=document.querySelector('.pv-days'), a=r&&r.querySelector('.pv-day[aria-pressed="true"]'); if(r&&a){ const rr=r.getBoundingClientRect(), ar=a.getBoundingClientRect(); if(ar.right>rr.right-16) r.scrollLeft+=ar.left-rr.left-16; } }
 }
 
 function updateLive(){
@@ -4029,6 +4434,8 @@ function updateLive(){
     $('pvSd').innerHTML=[h.T?`${Math.round(h.T)} s`:null, h.D!=null?`${pvArr(h.D)}${sector(h.D)}`:null].filter(Boolean).join(' · '); }
   $('pvW').innerHTML=h.v!=null?`${Math.round(h.v)}<small>km/h</small>`:'—';
   $('pvWd').innerHTML=[h.wd!=null?`${pvArr(h.wd)}${sector(h.wd)}`:null, h.wind?`<span style="color:${pvWindCol(h.wind)}">${(windWord[h.wind]||'').toLowerCase()}</span>`:null, h.gust!=null&&h.gust-(h.v||0)>=8?`rafales ${Math.round(h.gust)}`:null].filter(Boolean).join(' · ');
+  document.querySelectorAll('.pv-eq i').forEach(i=>i.classList.toggle('on',+i.dataset.h===h.hour));
+  ['pvS','pvW'].forEach(id=>{ const e=$(id); if(e){ e.classList.remove('pv-tick'); void e.offsetWidth; e.classList.add('pv-tick'); } });
   if(PV.comp){ const c=$('pvComp'); if(c) c.innerHTML=pvCompHtml(h); }
   relUpdate(h);
   { const nl=$('pvNList'), key=`${state.spot}|${state.day}|${pvNearHour()}|${PV.sort}|${PV.cmp.join(',')}|${PV.cmpOn}`; if(nl&&nl.dataset.k!==key){ nl.innerHTML=pvNearRows(); nl.dataset.k=key; nl.classList.toggle('cmp',PV.cmpOn); }
