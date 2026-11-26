@@ -2768,6 +2768,135 @@ html[data-da="c"] .pv-bh .pv-mt .pv-i,html[data-da="c"] .pv-bh .pv-k .pv-i{opaci
   .pv-ngo{display:none}
 }
 @media (prefers-reduced-motion:reduce){ .pv-fresh.live i:after{animation:none;display:none} .pv-tabs button:after,.pv-cl,.pv-ngo,.pv-dir svg{transition:none} }
+/* =====================================================================================================
+   PREMIUM OCEAN — FINITION (26/11/2026) : direction retenue. Largeur, contrastes, calendrier vertical,
+   anatomie commune des blocs du résumé, pictogrammes, carte aux couleurs de la marque, info-bulle de colonne.
+   ===================================================================================================== */
+html.v2[data-da="a"]:not([data-theme="dark"]){--pv-ink3:#68747A;--pv-ink2:#38474F;--pv-line:rgba(11,27,38,.1)}
+html[data-da="a"] .pv{max-width:1360px}
+html[data-da="a"] .pv-foot{max-width:1360px}
+/* textes secondaires : plus grands, plus contrastés */
+html[data-da="a"] .pv-meta{font-size:15px;color:rgba(243,239,230,.75)}
+html[data-da="a"] .pv-meta .pv-i{opacity:.8}
+html[data-da="a"] .pv-k{font-size:11.5px;letter-spacing:.11em;color:rgba(243,239,230,.7)}
+html[data-da="a"] .pv-wt{font-size:12.5px;color:rgba(243,239,230,.85)}
+html[data-da="a"] .pv-upd{font-size:12.5px;color:rgba(243,239,230,.62)}
+html[data-da="a"] .pv-lab{font-size:13.5px;color:var(--pv-ink)}
+html[data-da="a"] .pv-lab small{font-size:11.5px;color:var(--pv-ink3)}
+html[data-da="a"] .pv-hh{font-size:14px;color:var(--pv-ink3)}
+html[data-da="a"] .pv-tx{font-size:12px;color:var(--pv-ink)}
+html[data-da="a"] .pv-tx small{font-size:11.5px;color:var(--pv-ink2)}
+html[data-da="a"] .pv-nn small,html[data-da="a"] .pv-nv>small{font-size:13px;color:var(--pv-ink3)}
+html[data-da="a"] .pv-nwhen{font-size:13px;color:var(--pv-ink2)}
+html[data-da="a"] .pv-nhd2>span{font-size:11px;color:var(--pv-ink3)}
+html[data-da="a"] .pv-rs{font-size:15px}
+html[data-da="a"] .pv-tabs button{font-size:14.5px}
+html[data-da="a"] .pv-tbtn{font-size:14px;color:var(--pv-ink2)}
+html[data-da="a"] .pv-gn{font-size:13.5px;color:rgba(243,239,230,.68)}
+html[data-da="a"] .pv-bx,html[data-da="a"] .pv-bys{font-size:12px;color:rgba(243,239,230,.65)}
+html[data-da="a"] .pv-bleg{font-size:12.5px;color:rgba(243,239,230,.8)}
+
+/* calendrier vertical (V1) sur toute la largeur */
+@media (min-width:901px){
+  html[data-da="a"] .pv-days{gap:12px}
+  html[data-da="a"] .pv-day{flex-direction:column;justify-content:center;align-items:center;gap:0;height:122px;padding:0;border-radius:22px}
+  html[data-da="a"] .pv-dn{order:-1;font-size:12px;letter-spacing:.13em;opacity:.7}
+  html[data-da="a"] .pv-dd{order:0;font-size:40px;margin:6px 0 8px}
+  html[data-da="a"] .pv-day .pv-dm{margin-left:0;font-size:14.5px;opacity:.85}
+}
+html[data-da="a"] .pv-day{transition:background .2s,color .2s,transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+html[data-da="a"] .pv-day:hover{box-shadow:inset 0 0 0 1px rgba(243,239,230,.28)}
+html[data-da="a"] .pv-day[aria-pressed="true"]:hover{box-shadow:0 16px 40px -14px rgba(0,0,0,.6)}
+
+/* résumé : trois blocs à l'anatomie identique */
+html[data-da="a"] .pv-sum{grid-template-columns:1fr 1fr 1.3fr;gap:16px;margin-top:20px}
+html[data-da="a"] .pv-b,html[data-da="a"] .pv-b+.pv-b{padding:22px 24px 18px;border-left:0;border-radius:22px;background:rgba(243,239,230,.045);box-shadow:inset 0 0 0 1px rgba(243,239,230,.09)}
+html[data-da="a"] .pv-gold{background:linear-gradient(155deg,rgba(242,198,107,.13),rgba(242,198,107,.035) 60%);box-shadow:inset 0 0 0 1px rgba(242,198,107,.28)}
+html[data-da="a"] .pv-gold:hover{background:linear-gradient(155deg,rgba(242,198,107,.18),rgba(242,198,107,.05) 60%)}
+html[data-da="a"] .pv-k .pv-src{margin-left:auto;font-size:10px;letter-spacing:.1em;padding:2px 7px;border-radius:5px;background:rgba(243,239,230,.08);color:rgba(243,239,230,.6)}
+html[data-da="a"] .pv-gold .pv-k{color:#E6B95E}
+html[data-da="a"] .pv-v{margin-top:12px;font-size:clamp(52px,5vw,78px)}
+html[data-da="a"] .pv-gw{align-items:center}
+html[data-da="a"] .pv-s{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:14px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(243,239,230,.12)}
+html[data-da="a"] .pv-gold .pv-s{border-top-color:rgba(242,198,107,.2)}
+html[data-da="a"] .pv-st span{display:flex;align-items:center;gap:6px;font:800 10.5px Manrope,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:rgba(243,239,230,.62);white-space:nowrap}
+html[data-da="a"] .pv-st span .pv-i{width:14px;height:14px;color:rgba(243,239,230,.75)}
+html[data-da="a"] .pv-gold .pv-st span .pv-i{color:#E6B95E}
+html[data-da="a"] .pv-st em{display:flex;align-items:center;margin-top:8px;font:800 19px Manrope,system-ui,sans-serif;font-style:normal;color:#F3EFE6;white-space:nowrap;font-variant-numeric:tabular-nums}
+html[data-da="a"] .pv-st em u{text-decoration:none;font-size:13px;font-weight:700;color:rgba(243,239,230,.6);margin-left:3px}
+html[data-da="a"] .pv-st .pv-dir{font-weight:800;color:#F3EFE6}
+html[data-da="a"] .pv-st .pv-dir i{width:21px;height:21px;box-shadow:inset 0 0 0 1.4px rgba(243,239,230,.7)}
+html[data-da="a"] .pv-sf{display:flex;align-items:center;gap:7px;margin:14px 0 0;font:600 12.5px Manrope,system-ui,sans-serif;color:rgba(243,239,230,.6)}
+html[data-da="a"] .pv-sf .pv-i{width:13px;height:13px;opacity:.85}
+html[data-da="a"] .pv-gold .pv-sf{color:rgba(242,198,107,.75)}
+.pv-stl{font-style:normal}
+.pv-wdot{display:inline-block;width:7px;height:7px;border-radius:50%;flex:none}
+html[data-da="a"] .pv-k .pv-fresh,html[data-da] .pv-gk .pv-fresh{font-size:12px;text-transform:none;letter-spacing:0}
+html[data-da="a"] .pv-head2 .pv-fresh.live{background:rgba(75,227,164,.12)}
+
+/* tableau : relief discret, colonne choisie plus nette */
+html[data-da="a"] .pv-wv,html[data-da="a"] .pv-pe,html[data-da="a"] .pv-wi{box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(11,27,38,.06)}
+html[data-da="a"] .pv-selc{border-width:2px;box-shadow:0 10px 24px -12px rgba(11,27,38,.45)}
+html[data-da="a"] .pv-tide{background:#F2ECDF}
+/* info-bulle de colonne */
+.pv-ctip{position:fixed;z-index:80;left:0;top:0;display:flex;flex-direction:column;gap:3px;padding:10px 13px 11px;border-radius:14px;background:#0B1B26;color:#F3EFE6;font:600 12.5px Manrope,system-ui,sans-serif;white-space:nowrap;pointer-events:none;box-shadow:0 14px 34px -12px rgba(11,27,38,.55);opacity:0;transform:translateY(4px);transition:opacity .15s,transform .18s cubic-bezier(.2,.8,.2,1),left .12s,top .12s;font-variant-numeric:tabular-nums}
+.pv-ctip.on{opacity:1;transform:none}
+.pv-ctip b{font:800 13px Unbounded,system-ui,sans-serif;letter-spacing:-.02em;margin-bottom:2px}
+.pv-ctip span{display:flex;align-items:center;gap:7px;color:rgba(243,239,230,.85)}
+.pv-ctip .pv-i{width:13px;height:13px;opacity:.7}
+.pv-ctip:after{content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;margin-left:-5px;background:#0B1B26;transform:rotate(45deg);border-radius:2px}
+
+/* titres de section : un trait en forme de houle */
+html[data-da="a"] .pv-sh h2:after{width:46px;height:7px;border-radius:0;background:#0B1B26;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 7'%3E%3Cpath d='M1 4.5C4.8 1 8.5 1 12.2 4.5S19.7 8 23.4 4.5 30.9 1 34.6 4.5 42.1 8 45 4.5' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 7'%3E%3Cpath d='M1 4.5C4.8 1 8.5 1 12.2 4.5S19.7 8 23.4 4.5 30.9 1 34.6 4.5 42.1 8 45 4.5' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat}
+/* cartes claires : bordure fine et ombre longue et douce */
+html[data-da="a"] .pv-near,html[data-da="a"] .pv-rel,html[data-da="a"] .pv-morein,html[data-da="a"] .pv-cmp{box-shadow:0 0 0 1px rgba(11,27,38,.06),0 28px 56px -40px rgba(11,27,38,.38)}
+html[data-da="a"] .pv-hours{box-shadow:0 0 0 1px rgba(11,27,38,.05),0 50px 90px -52px rgba(11,27,38,.55)}
+/* carte : fond sable, pastilles crème, spot consulté en bleu nuit */
+html[data-da="a"] .pv-nmap{background:#EFE9DC}
+html[data-da="a"] .pv-nmap .mkp{background:#FFFDF8;box-shadow:0 0 0 1px rgba(11,27,38,.08),0 4px 12px -4px rgba(11,27,38,.3)}
+html[data-da="a"] .pv-nmap .mkp.sel{background:#0B1B26;color:#F3EFE6;box-shadow:0 8px 20px -8px rgba(11,27,38,.6)}
+html[data-da="a"] .pv-nmap .mkd{border-color:#0B1B26;background:#FFFDF8}
+html[data-da="a"] .pv-nmap .maplibregl-ctrl-group{border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px rgba(11,27,38,.1)!important}
+html[data-da="a"] .pv-nr{transition:background .15s}
+html[data-da="a"] .pv-nr:hover,html[data-da="a"] .pv-nr.hl{background:#F4EFE4}
+/* mesure en mer */
+html[data-da="a"] .pv-gsub{display:flex;align-items:center;gap:7px;font-size:13px}
+html[data-da="a"] .pv-gsub .pv-i{width:13px;height:13px}
+html[data-da="a"] .pv-gst dt{font-size:11px;letter-spacing:.1em;color:rgba(243,239,230,.65);opacity:1}
+html[data-da="a"] .pv-gst dt .pv-i{color:#E6B95E;width:14px;height:14px}
+html[data-da="a"] .pv-gst dd{font-size:21px}
+html[data-da="a"] .pv-gst u{font-size:14px;opacity:.6}
+html[data-da="a"] .pv-gsts{padding-top:18px;border-top:1px solid rgba(242,198,107,.2);margin-top:22px;gap:14px 36px}
+html[data-da="a"] .pv-gk{font-size:15px}
+html[data-da="a"] .pv-bsel button{color:var(--pv-ink2)}
+@media (max-width:900px){
+  html[data-da="a"] .pv-sum{grid-template-columns:1fr 1fr;gap:10px}
+  html[data-da="a"] .pv-gold{grid-column:1/-1;border-top:0!important;margin-top:0;padding-top:18px!important}
+  html[data-da="a"] .pv-b,html[data-da="a"] .pv-b+.pv-b{padding:18px 18px 16px}
+}
+@media (max-width:640px){
+  html[data-da="a"] .pv-meta{font-size:13.5px}
+  html[data-da="a"] .pv-b,html[data-da="a"] .pv-b+.pv-b{padding:15px 14px 14px;border-radius:18px}
+  html[data-da="a"] .pv-k{font-size:10.5px;gap:6px}
+  html[data-da="a"] .pv-k .pv-src{display:none}
+  html[data-da="a"] .pv-v{font-size:42px;margin-top:8px}
+  html[data-da="a"] .pv-s{gap:8px;margin-top:14px;padding-top:12px}
+  html[data-da="a"] .pv-st span{font-size:9.5px;gap:4px}
+  html[data-da="a"] .pv-st span .pv-i{width:12px;height:12px}
+  html[data-da="a"] .pv-st em{font-size:16px;margin-top:6px}
+  html[data-da="a"] .pv-st .pv-dir{gap:4px}
+  html[data-da="a"] .pv-st .pv-dir i{width:18px;height:18px}
+  html[data-da="a"] .pv-sf{font-size:11.5px;margin-top:11px}
+  html[data-da="a"] .pv-gold .pv-gsp{width:92px}
+  html[data-da="a"] .pv-lab{font-size:12px}
+  html[data-da="a"] .pv-gst dd{font-size:18px}
+  html[data-da="a"] :is(.pv-bh,.pv-bw2) .pv-s{grid-auto-flow:row;gap:8px}
+  html[data-da="a"] :is(.pv-bh,.pv-bw2) .pv-st{display:flex;align-items:center;gap:8px}
+  html[data-da="a"] :is(.pv-bh,.pv-bw2) .pv-stl{display:none}
+  html[data-da="a"] :is(.pv-bh,.pv-bw2) .pv-st em{margin-top:0}
+  html[data-da="a"] :is(.pv-bh,.pv-bw2) .pv-st span .pv-i{width:15px;height:15px}
+  html[data-da="a"] :is(.pv-bh,.pv-bw2) .pv-sf{display:none}
+}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -3820,12 +3949,12 @@ async function initMap(){
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
   state.data.forEach((x,i)=>{
     const dd=x.days[k], isSel=i===sel, big=isSel||nearSet.has(i), m=dayMed(dd), w=document.createElement('div');
-    w.innerHTML=big?`<div class="mkp${isSel?' sel':''}" style="--c:${m!=null?hmCol(m):'#9fb0b4'}" title="${x.spot.name} · ${medTxt(dd)}"><span>${isSel?x.spot.name+' · ':''}${medTxt(dd)}</span></div><div class="mkd" style="display:none" title="${x.spot.name} · ${medTxt(dd)}"></div>`:`<div class="mkd" title="${x.spot.name} · ${medTxt(dd)}"></div>`;
+    w.innerHTML=big?`<div class="mkp${isSel?' sel':''}" style="--c:${m!=null?pvMapCol(m):'#9fb0b4'}" title="${x.spot.name} · ${medTxt(dd)}"><span>${isSel?x.spot.name+' · ':''}${medTxt(dd)}</span></div><div class="mkd" style="display:none" title="${x.spot.name} · ${medTxt(dd)}"></div>`:`<div class="mkd" title="${x.spot.name} · ${medTxt(dd)}"></div>`;
     w.style.zIndex=w.dataset.z=isSel?6:big?3:1; w.style.cursor='pointer'; w.onclick=()=>go(i); w.onmouseenter=()=>pvHl(i); w.onmouseleave=()=>pvHl(null);
     markers[i]=new maplibregl.Marker({element:w}).setLngLat(spotPos(i)).addTo(map);
   });
   const fit=d=>{ if(lmap) lmap.fitBounds(nearBounds(),{padding:{top:60,bottom:60,left:70,right:70},maxZoom:12,duration:d||0}); };
-  map.on('load',()=>{ fit(0); pvMapVals(); }); map.on('moveend',nearDeclutter); setTimeout(()=>{ if(lmap){ lmap.resize(); fit(0); } },300);
+  map.on('load',()=>{ pvMapTheme(map); fit(0); pvMapVals(); }); map.on('moveend',nearDeclutter); setTimeout(()=>{ if(lmap){ lmap.resize(); fit(0); } },300);
   /* la carte se recadre quand sa boîte change de taille (mise en page qui s'installe, rotation du téléphone), tant qu'on n'y a pas touché */
   { let touched=false; map.on('dragstart',()=>touched=true); map.on('zoomstart',e=>{ if(e.originalEvent) touched=true; });
     if(window.ResizeObserver){ const ro=new ResizeObserver(()=>{ if(lmap!==map){ ro.disconnect(); return; } map.resize(); if(!touched) fit(0); }); ro.observe(box); } }
@@ -4213,10 +4342,11 @@ function pvObsCell(s){
   try{
     const cur=pickBuoy(buoyChoices(s)); if(!cur) return '';
     const L=cur.L, a=cur.ageH, per=L.tp||cur.Tm;
-    return `<a class="pv-b pv-gold${a>6?' old':''}" href="#sRadar" title="Mesure réelle de la bouée ${cur.name} (${cur.kind==='coast'?'près de la côte':'au large'}). Ce n’est pas la taille des vagues sur le spot.">
+    return `<a class="pv-b pv-gold${a>6?' old':''}" href="#sRadar" title="Mesure réelle de la bouée ${cur.name}. Ce n’est pas la taille des vagues sur le spot.">
       <div class="pv-k">${pvI('buoy')}<span class="pv-kt">Bouée ${cur.name}</span>${pvFreshHtml(a,L.time)}</div>
       <div class="pv-gw"><div class="pv-v">${fmt(L.hs)}<small>m</small></div>${pvSparkObs(cur)}</div>
-      <div class="pv-s">${per?`<span class="pv-mt">${pvI('period')}${pvNum((L.tp?'':'≈ ')+Math.round(per),'s')}</span>`:''}${L.dir!=null?pvDir(L.dir):''}${L.sst!=null?`<span class="pv-mt">${pvI('temp')}${pvNum(fmt(L.sst),'°C')}</span>`:''}</div></a>`;
+      <div class="pv-s">${pvSt('period',L.tp?'Période':'Période est.',per?pvNum((L.tp?'':'≈ ')+Math.round(per),'s'):'—')}${pvSt('dir','Direction',L.dir!=null?pvDir(L.dir):'—')}${pvSt('temp','Eau',L.sst!=null?pvNum(fmt(L.sst),'°C'):'—')}</div>
+      <p class="pv-sf">${pvI('pin')}${cur.kind==='coast'?'Bouée côtière':'Bouée du large'} · à ${Math.round(cur.km)} km du spot</p></a>`;
   }catch(e){ return ''; }
 }
 
@@ -4361,9 +4491,9 @@ function radarHtml(s){
     <div class="pv-goldc">
       <div class="pv-gl">
         <div class="pv-gk">${pvI('buoy')}<span>Bouée ${cur.name}</span>${pvFreshHtml(cur.ageH,L.time)}</div>
-        <p class="pv-gsub">${cur.kind==='coast'?'Bouée côtière':'Bouée du large'} · ${cur.sub.replace(/^au large, /,'')}</p>
+        <p class="pv-gsub">${pvI('pin')}${cur.kind==='coast'?'Bouée côtière':'Bouée du large'} · ${cur.sub.replace(/^au large, /,'')}</p>
         <div class="pv-gv">${fmt(L.hs)}<small>m</small></div>
-        <dl class="pv-gsts">${st('period',L.tp?'Période':'Période est.',per!=null?pvNum((L.tp?'':'≈ ')+per,'s'):'—')}${st('wind','Vient du',L.dir!=null?pvDir(L.dir):'—')}${st('temp','Eau',L.sst!=null?pvNum(fmt(L.sst),'°C'):'—')}</dl>
+        <dl class="pv-gsts">${st('period',L.tp?'Période':'Période est.',per!=null?pvNum((L.tp?'':'≈ ')+per,'s'):'—')}${st('dir','Direction',L.dir!=null?pvDir(L.dir):'—')}${st('temp','Eau',L.sst!=null?pvNum(fmt(L.sst),'°C'):'—')}</dl>
         <p class="pv-gn">Hauteur de la houle ${cur.kind==='coast'?'à la bouée, près de la côte':'au large'} : ce n’est pas la taille des vagues sur le spot.</p>
         <a class="pv-ga" href="bouees/${slugOf(cur.name)}/">Page de la bouée ${pvI('go')}</a>
       </div>
@@ -4448,10 +4578,10 @@ function pvNextTide(date,hour){
    Même page, mêmes données, trois habillages : A « Premium Ocean », B « Surf Editorial », C « Modern Weather ».
    Choix : ?da=a|b|c (ou le sélecteur en bas de page, outil de test À RETIRER avant publication), mémorisé. « v3 » = version précédente. */
 const PV_DAS=[['a','A · Ocean'],['b','B · Éditorial'],['c','C · Météo'],['v3','V3']];
-{ let da=null; try{ const q=new URLSearchParams(location.search).get('da'); if(q&&PV_DAS.some(x=>x[0]===q)) localStorage.setItem('pvDA',q); da=q||localStorage.getItem('pvDA'); }catch(e){} if(!PV_DAS.some(x=>x[0]===da)) da='a'; document.documentElement.dataset.da=da; }
+{ let da=null; try{ da=new URLSearchParams(location.search).get('da'); }catch(e){} if(!PV_DAS.some(x=>x[0]===da)) da='a'; document.documentElement.dataset.da=da; }   /* Premium Ocean retenue le 26/11/2026 */
 /* Couleurs de prévision propres à chaque direction (la couleur suit la valeur, jamais un avis) */
 const PV_PAL={
-  a:{H:[[0,'#D6ECF1'],[0.8,'#9DD0DE'],[1.6,'#4FA3C4'],[2.4,'#2471A0'],[3.4,'#16487A'],[5,'#0B2A4A']],T:[[5,'#EEE8DA'],[8,'#D3E3D9'],[11,'#86BFAC'],[14,'#3A8C79'],[17,'#185C4D']],W:[[0,'#EAF0F2'],[10,'#D2E5E9'],[18,'#F2E0C4'],[28,'#EEA883'],[42,'#CF5236']]},
+  a:{H:[[0,'#C8E7F0'],[0.8,'#86CBE0'],[1.6,'#3A9DC9'],[2.4,'#1C6EA6'],[3.4,'#134682'],[5,'#0A2850']],T:[[5,'#EBE3D0'],[8,'#C5DFCF'],[11,'#6DB89E'],[14,'#2A8A70'],[17,'#11594A']],W:[[0,'#E2ECEF'],[10,'#C0DEE6'],[18,'#F2D8AE'],[28,'#EE9A6C'],[42,'#CC452A']]},
   b:{H:[[0,'#E8EEF0'],[0.8,'#C3D6DF'],[1.6,'#86A9C0'],[2.4,'#4D7898'],[3.4,'#264C6B'],[5,'#12263A']],T:[[5,'#EDEEE6'],[9,'#CFD9C4'],[13,'#93AD8A'],[17,'#56744F']],W:[[0,'#F2EFE8'],[12,'#E6DDCD'],[22,'#EAC4A5'],[32,'#DA8A60'],[45,'#A9402A']]},
   c:{H:[[0,'#E3E8EC'],[0.8,'#BFCCD6'],[1.6,'#7E97AA'],[2.4,'#466379'],[3.4,'#243D51'],[5,'#0E1C27']],T:[[5,'#E6E9E8'],[9,'#C2D0CE'],[13,'#76918F'],[17,'#33504E']],W:[[0,'#EBEBE8'],[12,'#D1D1CC'],[22,'#A3A39C'],[32,'#E0703A'],[45,'#B8401A']]}
 };
@@ -4466,12 +4596,26 @@ function pvCellCss(v,kind){
   const L=(0.2126*c[0]+0.7152*c[1]+0.0722*c[2])/255; return `--c:rgb(${c.join(',')});--t:${L<0.52?'#FFFFFF':'#0B1B26'}`;
 }
 /* lignes de houle (décor discret) */
+function pvMapCol(m){ const P=PV_PAL[document.documentElement.dataset.da]; if(!P) return hmCol(m); const c=pvRamp(m,P.H); return `rgb(${c.join(',')})`; }
+function pvMapTheme(map){
+  if(document.documentElement.dataset.da!=='a') return;
+  try{ map.getStyle().layers.forEach(l=>{ const id=l.id, set=(k,v)=>{ try{ map.setPaintProperty(id,k,v); }catch(e){} };
+    if(l.type==='background') set('background-color','#EFE9DC');
+    else if(l.type==='fill'&&/water|ocean|sea/.test(id)) set('fill-color','#BCD3DC');
+    else if(l.type==='fill'&&/building/.test(id)) set('fill-color','#E2D9C7');
+    else if(l.type==='fill'&&/land|park|wood|grass|farm|forest|wetland|sand|beach/.test(id)) set('fill-color','#E7E0D0');
+    else if(l.type==='line'&&/water|river|stream|canal/.test(id)) set('line-color','#A9C6D1');
+    else if(l.type==='line'&&/road|highway|street|path|track|rail|bridge|tunnel|motorway|trunk|primary|secondary|minor|service/.test(id)) set('line-color','#FBF8F1');
+    else if(l.type==='line'&&/boundary|admin/.test(id)) set('line-color','rgba(11,27,38,.2)');
+    else if(l.type==='symbol'){ set('text-color','#4A5961'); set('text-halo-color','#EFE9DC'); }
+  }); }catch(e){}
+}
 function pvDeco(){ let p=''; for(let k=0;k<9;k++){ const y=40+k*36, a=8+k*2.4; let d=`M-100 ${y}`; for(let x=-100;x<=1700;x+=120){ d+=` Q${x+30} ${(y-a).toFixed(1)} ${x+60} ${y} T${x+120} ${y}`; } p+=`<path d="${d}"/>`; }
   return `<svg viewBox="0 0 1600 380" preserveAspectRatio="xMidYMid slice">${p}</svg>`; }
 /* la journée en barres : la houle de 6 h à 21 h, l'heure choisie en plein */
 function pvEq(day){ const l=day.list.filter(h=>h.hour>=6&&h.hour<=21), mx=Math.max(.5,...l.map(h=>h.H||0));
   return `<div class="pv-eq" aria-hidden="true">${l.map(h=>`<i data-h="${h.hour}" style="height:${h.H!=null?Math.max(10,h.H/mx*100).toFixed(0):6}%"></i>`).join('')}</div>`; }
-function pvDaSwitch(){ const da=document.documentElement.dataset.da;
+function pvDaSwitch(){ const da=document.documentElement.dataset.da; if(da) return '';   /* sélecteur de test retiré : direction A retenue */
   return `<div class="pv-daswitch" role="group" aria-label="Direction artistique (outil de test)"><span>Direction</span>${PV_DAS.map(([k,l])=>`<button type="button" data-da="${k}" aria-pressed="${k===da}">${l}</button>`).join('')}</div>`; }
 document.addEventListener('click',e=>{ const b=e.target.closest('.pv-daswitch [data-da]'); if(!b||!state.data) return;
   document.documentElement.dataset.da=b.dataset.da; try{ localStorage.setItem('pvDA',b.dataset.da); }catch(e){} const y=scrollY, h=state.hour; render(); state.hour=h; updateLive(); scrollTo(0,y); });
@@ -4479,7 +4623,9 @@ document.addEventListener('click',e=>{ const b=e.target.closest('.pv-daswitch [d
 /* ---------- finitions (26/11/2026) : micro-icônes techniques, fraîcheur des mesures, directions lisibles ---------- */
 const PV_I={
   wave:'<path d="M2.5 15c2.1-2.6 4.3-2.6 6.4 0s4.3 2.6 6.4 0 4.3-2.6 6.2 0"/><path d="M2.5 9.5c2.1-2.6 4.3-2.6 6.4 0s4.3 2.6 6.4 0 4.3-2.6 6.2 0" opacity=".45"/>',
-  period:'<circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.4 1.5M9.6 3h4.8"/>',
+  period:'<path d="M3 8.5c1.5-1.6 3-1.6 4.5 0s3 1.6 4.5 0 3-1.6 4.5 0 3 1.6 4.5 0"/><path d="M3 13c1.5-1.6 3-1.6 4.5 0s3 1.6 4.5 0 3-1.6 4.5 0 3 1.6 4.5 0"/><path d="M3 17.5c1.5-1.6 3-1.6 4.5 0s3 1.6 4.5 0 3-1.6 4.5 0 3 1.6 4.5 0" opacity=".5"/>',
+  dir:'<circle cx="12" cy="12" r="8.5"/><path d="M14.8 9.2l-1.9 4.1-3.7 1.5 1.9-4.1z"/>',
+  gust:'<path d="M3 8h9a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12.5h14a2.8 2.8 0 1 1-2.8 2.8"/><path d="M14 4l1.5 2M18 7l1.8 1" opacity=".6"/>',
   wind:'<path d="M3 9h10.5a2.8 2.8 0 1 0-2.8-2.8"/><path d="M3 13.5h15.2a2.8 2.8 0 1 1-2.8 2.8"/><path d="M3 18h6" opacity=".5"/>',
   temp:'<path d="M10 14.4V5.2a2 2 0 1 1 4 0v9.2a4 4 0 1 1-4 0z"/><path d="M12 9.5v6.5"/>',
   tide:'<path d="M2.5 18c2.1-1.8 4.3-1.8 6.4 0s4.3 1.8 6.4 0 4.3-1.8 6.2 0"/><path d="M12 3.5v9m-3-3 3 3 3-3"/>',
@@ -4504,6 +4650,8 @@ function pvFresh(ageH,t){
 }
 const pvFreshHtml=(ageH,t)=>{ const f=pvFresh(ageH,t); return `<span class="pv-fresh ${f.c}" title="Mesure en temps réel, non validée"><i></i>${f.t}</span>`; };
 const pvNum=(v,u)=>`<b>${v}</b><u>${u}</u>`;
+/* une mesure du résumé : pictogramme + petite étiquette, valeur en dessous */
+const pvSt=(ic,lab,val)=>`<div class="pv-st" title="${lab}"><span>${pvI(ic)}<i class="pv-stl">${lab}</i></span><em>${val}</em></div>`;
 
 /* ======================================== rendu ======================================== */
 function render(){
@@ -4543,8 +4691,8 @@ function render(){
       <div class="pv-head2">
       <div class="pv-when"><span class="pv-wt"><i class="pv-ld" id="pvLd"></i><b id="pvWhen">—</b></span>${state.mode==='server'&&state.meta?`<span class="pv-upd" title="Heure du dernier calcul des prévisions">${pvI('clock')}Prévisions de ${state.meta.generated.slice(11,16).replace(':','h')}</span>`:''}<button type="button" class="pv-tbtn pv-nowb" id="pvNow" hidden>Revenir à maintenant</button></div>
       <div class="pv-sum" aria-live="polite">
-        <div class="pv-b pv-bh"><div class="pv-k">${pvI('wave')}Houle</div><div class="pv-v" id="pvS">—</div><div class="pv-s" id="pvSd"></div>${pvEq(day)}</div>
-        <div class="pv-b pv-bw2"><div class="pv-k">${pvI('wind')}Vent</div><div class="pv-v" id="pvW">—</div><div class="pv-s" id="pvWd"></div></div>
+        <div class="pv-b pv-bh"><div class="pv-k">${pvI('wave')}Houle<span class="pv-src">prévision</span></div><div class="pv-v" id="pvS">—</div><div class="pv-s" id="pvSd"></div>${pvEq(day)}<p class="pv-sf" id="pvSf"></p></div>
+        <div class="pv-b pv-bw2"><div class="pv-k">${pvI('wind')}Vent<span class="pv-src">prévision</span></div><div class="pv-v" id="pvW">—</div><div class="pv-s" id="pvWd"></div><p class="pv-sf" id="pvWf"></p></div>
         ${pvObsCell(s)}
       </div>
       </div>
@@ -4593,9 +4741,11 @@ function updateLive(){
   $('pvNow').hidden=isNow||!(state.day!==0||state.live);
   if(h.H==null){ $('pvS').textContent='—'; $('pvSd').textContent='pas de prévision de houle'; }
   else { $('pvS').innerHTML=`${fmt(h.H)}<small>m</small>`;
-    $('pvSd').innerHTML=`${h.T?`<span class="pv-mt">${pvI('period')}${pvNum(Math.round(h.T),'s')}</span>`:''}${pvDir(h.D)}`; }
+    $('pvSd').innerHTML=pvSt('period','Période',h.T?pvNum(Math.round(h.T),'s'):'—')+pvSt('dir','Direction',h.D!=null?pvDir(h.D):'—');
+    { const n=Object.keys(h.models||{}).length; $('pvSf').innerHTML=`${pvI('pin')}Au large du spot${n>1?` · moyenne de ${n} modèles`:''}`; } }
   $('pvW').innerHTML=h.v!=null?`${Math.round(h.v)}<small>km/h</small>`:'—';
-  $('pvWd').innerHTML=`${pvDir(h.wd)}${h.wind?`<span class="pv-ww" style="color:${pvWindCol(h.wind)}">${windWord[h.wind]||''}</span>`:''}${h.gust!=null&&h.gust-(h.v||0)>=8?`<span class="pv-mt">raf. ${pvNum(Math.round(h.gust),'km/h')}</span>`:''}`;
+  $('pvWd').innerHTML=pvSt('dir','Direction',h.wd!=null?pvDir(h.wd):'—')+pvSt('gust','Rafales',h.gust!=null?pvNum(Math.round(h.gust),'km/h'):'—');
+  $('pvWf').innerHTML=h.wind?`<i class="pv-wdot" style="background:${pvWindCol(h.wind)}"></i>${windWord[h.wind]} pour ce spot`:'';
   document.querySelectorAll('.pv-eq i').forEach(i=>i.classList.toggle('on',+i.dataset.h===h.hour));
   ['pvS','pvW'].forEach(id=>{ const e=$(id); if(e){ e.classList.remove('pv-tick'); void e.offsetWidth; e.classList.add('pv-tick'); } });
   if(PV.comp){ const c=$('pvComp'); if(c) c.innerHTML=pvCompHtml(h); }
@@ -4613,7 +4763,17 @@ function pvSetView(v){
   const wn=document.querySelector('.pv-wn'); if(wn) wn.hidden=v==='chart';
   pvBindBody(); updateLive();
 }
+function pvColTip(hr){
+  const d=state.data[state.spot], day=d.days[state.day], h=day&&day.list.find(x=>x.hour===+hr); if(!h||h.H==null) return '';
+  const ph=tidePhase(h);
+  return `<b>${h.hour}h</b><span>${pvI('wave')}${fmt(h.H)} m · ${Math.round(h.T||0)} s${h.D!=null?' '+sector(h.D):''}</span><span>${pvI('wind')}${h.v!=null?Math.round(h.v):'—'} km/h${h.wd!=null?' '+sector(h.wd):''}${h.gust!=null?` · raf. ${Math.round(h.gust)}`:''}</span>${h.wind?`<span><i class="pv-wdot" style="background:${pvWindCol(h.wind)}"></i>${windWord[h.wind]}</span>`:''}${ph!=='—'?`<span>${pvI('tide')}marée ${ph.toLowerCase()}</span>`:''}`;
+}
 function pvBindBody(){
+  { const g=document.querySelector('.pv-grid'), sc=document.getElementById('pvScroll'); if(g&&sc&&matchMedia('(hover:hover) and (pointer:fine)').matches){
+      let tip=document.getElementById('pvCTip'); if(!tip){ tip=document.createElement('div'); tip.id='pvCTip'; tip.className='pv-ctip'; tip.setAttribute('aria-hidden','true'); document.body.appendChild(tip); }
+      g.addEventListener('mouseover',e=>{ const c=e.target.closest('[data-h]'); if(!c){ tip.classList.remove('on'); return; } const hh=g.querySelector(`.pv-hh[data-h="${c.dataset.h}"]`); const html=pvColTip(c.dataset.h); if(!hh||!html){ tip.classList.remove('on'); return; }
+        tip.innerHTML=html; const r=hh.getBoundingClientRect(); tip.classList.add('on'); const w=tip.offsetWidth; tip.style.left=Math.round(clamp(r.left+r.width/2-w/2,8,innerWidth-w-8))+'px'; tip.style.top=Math.round(r.top-tip.offsetHeight-10)+'px'; });
+      g.addEventListener('mouseleave',()=>tip.classList.remove('on')); sc.addEventListener('scroll',()=>tip.classList.remove('on'),{passive:true}); window.addEventListener('scroll',()=>tip.classList.remove('on'),{passive:true}); } }
   { const g=document.querySelector('.pv-grid'); if(g){ const set=h=>{ if(g._h===h) return; g._h=h; g.querySelectorAll('.hov').forEach(x=>x.classList.remove('hov')); if(h!=null) g.querySelectorAll(`[data-h="${h}"]`).forEach(x=>x.classList.add('hov')); };
     g.addEventListener('mouseover',e=>{ const c=e.target.closest('[data-h]'); set(c?c.dataset.h:null); }); g.addEventListener('mouseleave',()=>set(null)); } }
   document.querySelectorAll('.pv-grid [data-h]').forEach(c=>c.addEventListener('click',()=>{ state.hour=+c.dataset.h; updateLive(); }));

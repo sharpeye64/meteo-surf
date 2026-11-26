@@ -79,21 +79,26 @@ def hav(a, b):
     return 2 * 6371 * math.asin(math.sqrt(h))
 
 
-CSS = """:root{--bg:#eef1f2;--card:#fff;--text:#10202c;--muted:#5b6b75;--sand:#8a5f14;--aqua:#2b8aa8;--edge:rgba(16,32,44,.1)}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-a{color:var(--sand)}main{max-width:900px;margin:0 auto;padding:24px 20px 60px}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
-.brand{font-weight:700;text-decoration:none;color:var(--text);letter-spacing:.01em;display:inline-flex;align-items:center;gap:9px}.mk{display:block;width:auto;height:26px}.bw{display:block;width:auto;height:15px}
-h1{font-size:clamp(28px,5vw,42px);line-height:1.1;margin:0 0 12px}h2{font-size:20px;margin:34px 0 12px}
+CSS = """:root{--bg:#F3EFE6;--card:#FFFDF8;--text:#0B1B26;--muted:#5F6B71;--sand:#8A6418;--gold:#D9A441;--aqua:#1C6EA6;--edge:rgba(11,27,38,.09);--navy:#0B1B26;--cream:#F3EFE6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 Manrope,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--text);text-decoration-color:rgba(11,27,38,.35);text-underline-offset:3px}a:hover{text-decoration-color:currentColor}
+.band{position:relative;background:radial-gradient(900px 380px at 88% -20%,rgba(48,118,160,.5),transparent 62%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='44' viewBox='0 0 240 44'%3E%3Cpath d='M0 22Q30 10 60 22T120 22T180 22T240 22' fill='none' stroke='rgba(243,239,230,0.07)'/%3E%3C/svg%3E"),#0B1B26;color:var(--cream)}
+.band header{max-width:900px;margin:0 auto;padding:18px 20px 22px;display:flex;justify-content:space-between;align-items:center}
+.band:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:16px;background:var(--bg);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 16' preserveAspectRatio='none'%3E%3Cpath d='M0 16V9C100 1 200 1 300 9S500 17 600 9 800 1 900 9 1100 17 1200 9V16Z'/%3E%3C/svg%3E") center/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 16' preserveAspectRatio='none'%3E%3Cpath d='M0 16V9C100 1 200 1 300 9S500 17 600 9 800 1 900 9 1100 17 1200 9V16Z'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+.band .top{color:rgba(243,239,230,.85);font-weight:700;font-size:14px;text-decoration:none;border:1px solid rgba(243,239,230,.18);border-radius:999px;padding:7px 14px;transition:background .15s}.band .top:hover{background:rgba(243,239,230,.08)}
+main{max-width:900px;margin:0 auto;padding:30px 20px 60px}
+.brand{font-weight:700;text-decoration:none;color:var(--cream);letter-spacing:.01em;display:inline-flex;align-items:center;gap:9px}.mk{display:block;width:auto;height:26px}.bw{display:block;width:auto;height:15px}
+h1{font:700 clamp(30px,5.4vw,48px)/1.05 Unbounded,system-ui,sans-serif;letter-spacing:-.045em;margin:0 0 14px}h2{font:700 21px/1.2 Unbounded,system-ui,sans-serif;letter-spacing:-.035em;margin:38px 0 14px}
 .lead{font-size:18px;color:var(--text);margin:0 0 20px}.muted{color:var(--muted);font-size:14px}
-.cta{display:inline-block;background:linear-gradient(135deg,#f4e2b8,#e3c283);color:#2a2112;font-weight:700;padding:12px 20px;border-radius:999px;text-decoration:none;margin:6px 0 10px}
-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(16,32,44,.08)}
-th,td{padding:10px 12px;text-align:left;border-top:1px solid var(--edge);font-size:15px}thead th{border-top:0;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
-dl.fiche{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:0 0 16px}dl.fiche div{background:var(--card);border-radius:14px;padding:10px 14px}dl.fiche dt{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}dl.fiche dd{margin:3px 0 0;font-weight:600}
+.cta{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:var(--cream);font-weight:800;padding:13px 22px;border-radius:999px;text-decoration:none;margin:6px 0 10px;box-shadow:0 14px 30px -16px rgba(11,27,38,.6);transition:transform .2s}.cta:hover{transform:translateY(-1px)}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:18px;overflow:hidden;box-shadow:0 0 0 1px var(--edge),0 20px 40px -32px rgba(11,27,38,.35);font-variant-numeric:tabular-nums}
+th,td{padding:11px 14px;text-align:left;border-top:1px solid var(--edge);font-size:15px}thead th{border-top:0;color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em}
+dl.fiche{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:0 0 16px}dl.fiche div{background:var(--card);border-radius:16px;padding:12px 15px;box-shadow:0 0 0 1px var(--edge)}dl.fiche dt{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800}dl.fiche dd{margin:4px 0 0;font-weight:700}
 ul.near{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
-ul.near a{display:block;background:var(--card);border-radius:14px;padding:12px 14px;text-decoration:none;color:var(--text)}ul.near small{display:block;color:var(--muted)}
-.grp{margin-top:26px}.grp h2{color:var(--sand)}footer{margin-top:44px;color:var(--muted);font-size:13px}footer nav{margin-bottom:6px}footer a{color:var(--muted)}
-.prose p,.prose li{max-width:68ch}.prose ul{padding-left:20px}"""
+ul.near a{display:block;background:var(--card);border-radius:16px;padding:13px 15px;text-decoration:none;color:var(--text);box-shadow:0 0 0 1px var(--edge);transition:box-shadow .15s,transform .15s}ul.near a:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(11,27,38,.2)}ul.near small{display:block;color:var(--muted)}
+.grp{margin-top:26px}.grp h2{color:var(--text)}footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--edge);color:var(--muted);font-size:13px}footer nav{margin-bottom:6px}footer a{color:var(--muted)}
+.prose p,.prose li{max-width:68ch}.prose ul{padding-left:20px}
+@media (max-width:640px){table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}th,td{padding:10px 12px}}"""
 
 
 def country_of(region):
@@ -124,11 +129,12 @@ def page(site, title, desc, canonical, body, jsonld, base="../../", extra_css=""
 <meta property="og:type" content="website"><meta property="og:site_name" content="{BRAND}"><meta property="og:locale" content="fr_FR">
 <meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}"><meta property="og:url" content="{esc(canonical)}"><meta property="og:image" content="{og}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{og}"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc)}">
-<meta name="theme-color" content="#eef1f2">
+<meta name="theme-color" content="#0B1B26">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script data-goatcounter="https://houlalah.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <link rel="icon" href="{base}brand/favicon.svg" type="image/svg+xml"><link rel="icon" href="{base}brand/icon-192.png" sizes="192x192" type="image/png"><link rel="shortcut icon" href="{base}favicon.ico"><link rel="apple-touch-icon" href="{base}brand/apple-touch-icon.png">
-<style>{CSS}{extra_css}</style>{ld}</head><body><main>
-<header><a class="brand" href="{base}"><img class="mk" src="{base}brand/symbol.svg" alt="" height="26"><img class="bw" src="{base}brand/wordmark.svg" alt="{BRAND}" height="15"></a><a class="muted" href="{base}{top[1]}">{top[0]}</a></header>
+<style>{CSS}{extra_css}</style>{ld}</head><body><div class="band">
+<header><a class="brand" href="{base}"><img class="mk" src="{base}brand/symbol.svg" alt="" height="26"><img class="bw" src="{base}brand/wordmark.svg" alt="{BRAND}" height="15"></a><a class="top" href="{base}{top[1]}">{top[0]}</a></header></div><main>
 <div class="prose">{body}</div>
 <footer><nav aria-label="Informations"><a href="{base}comment-ca-marche/">Comment ça marche</a> · <a href="{base}a-propos/">À propos</a> · <a href="{base}mentions-legales/">Mentions légales</a> · <a href="{base}confidentialite/">Confidentialité</a></nav><br>Prévisions calculées à partir de plusieurs modèles (Météo-France, DWD, ECMWF, NOAA, Ifremer) via Open-Meteo, corrigées avec les bouées. Estimations : à confirmer sur place. {BRAND} est un prototype non commercial.</footer>
 </main></body></html>"""

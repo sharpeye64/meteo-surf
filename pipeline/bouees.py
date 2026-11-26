@@ -22,19 +22,19 @@ EXTRA_CSS = """
 .dbars{margin-top:20px}.dbars svg{display:block;width:100%;height:84px;margin-top:8px}.dax{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px}
 .crumb{font-size:13px;color:var(--muted);margin:0 0 12px}.crumb a{color:var(--muted)}.crumb b{color:var(--text);font-weight:600}
 .live{display:inline-flex;gap:8px;align-items:center;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#7a5a1c;margin-bottom:8px}
-.live:before{content:"";width:8px;height:8px;border-radius:50%;background:#1f9d55}
+.live:before{content:"";width:8px;height:8px;border-radius:50%;background:#1f9d55;box-shadow:0 0 0 0 rgba(31,157,85,.5);animation:lv 2.2s ease-out infinite}@keyframes lv{70%{box-shadow:0 0 0 8px rgba(31,157,85,0)}100%{box-shadow:0 0 0 0 rgba(31,157,85,0)}}@media (prefers-reduced-motion:reduce){.live:before{animation:none}}
 .bh{display:grid;grid-template-columns:1.25fr 1fr;gap:14px;margin:22px 0 0}
 @media(max-width:760px){.bh{grid-template-columns:1fr}}
-.mapbox{position:relative;border-radius:22px;overflow:hidden;min-height:400px;border:1px solid var(--edge);background:#e9eceb}
+.mapbox{position:relative;border-radius:24px;overflow:hidden;min-height:400px;border:1px solid var(--edge);background:#EFE9DC}
 @media(max-width:760px){.mapbox{min-height:300px}}
 #bmap{position:absolute;inset:0}#bmap .maplibregl-canvas{filter:none}
-.cur{background:linear-gradient(135deg,#f4e2b8,#e3c283);color:#2a2112;border-radius:22px;padding:22px 24px;display:flex;flex-direction:column;gap:16px}
-.k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:800}.cur .k{color:#5a4a28}
+.cur{background:radial-gradient(500px 240px at 100% 0%,rgba(217,164,65,.22),transparent 68%),#0B1B26;color:#F3EFE6;border-radius:24px;padding:24px 26px;display:flex;flex-direction:column;gap:16px;box-shadow:0 30px 60px -40px rgba(11,27,38,.6)}.cur .big{color:#F2C66B}.cur .live{color:#E6B95E}
+.k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:800}.cur .k{color:#E6B95E}
 .big{font-size:clamp(60px,9vw,88px);font-weight:800;line-height:.95;letter-spacing:-.04em}.big small{font-size:.3em;font-weight:600;letter-spacing:0;opacity:.7}
 .cur .when{font-size:13px;font-weight:600;opacity:.8}
-.cg{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cg div{background:rgba(42,33,18,.1);border-radius:14px;padding:11px 14px}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cg div{background:rgba(243,239,230,.06);box-shadow:inset 0 0 0 1px rgba(243,239,230,.1);border-radius:14px;padding:11px 14px}
 .cg b{display:flex;gap:8px;align-items:center;font-size:23px;line-height:1.15}.cg b i{font-size:.55em;font-style:normal;opacity:.7;font-weight:600}
-.bcard{background:var(--card);border-radius:20px;padding:16px 18px}
+.bcard{background:var(--card);border-radius:22px;padding:18px 20px;box-shadow:0 0 0 1px var(--edge)}
 .chart{width:100%;height:auto;display:block}.leg{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:6px}
 .leg i{display:inline-block;width:18px;height:3px;border-radius:2px;margin-right:7px;vertical-align:middle}
 .tw{overflow-x:auto}table.rel td{white-space:nowrap}table.rel{background:none;border-radius:0}
@@ -54,7 +54,7 @@ details.more summary::-webkit-details-marker{display:none}details.more[open] sum
 .bidx a.mute{opacity:.55}
 ul.bidx{padding:0;margin:0}
 .bidx{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;list-style:none;padding:0;margin:0}
-.bidx a{display:block;background:var(--card);border-radius:18px;padding:16px 18px;text-decoration:none;color:var(--text)}
+.bidx a{display:block;background:var(--card);border-radius:20px;padding:16px 18px;text-decoration:none;color:var(--text);box-shadow:0 0 0 1px var(--edge);transition:transform .15s,box-shadow .15s}.bidx a:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(11,27,38,.22)}.bidx .v{font-family:Unbounded,system-ui,sans-serif;letter-spacing:-.04em}
 .bidx b{font-size:18px}.bidx small{display:block;color:var(--muted)}.bidx .v{font-size:28px;font-weight:800;margin-top:6px}
 """
 
