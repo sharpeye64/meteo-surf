@@ -73,6 +73,55 @@ def day_rows(sp, coef):
     return rows
 
 
+def hourly(sp, now):
+    """La journée toutes les 3 h (6 h à 21 h), à partir des prévisions horaires déjà calculées. Après 19 h : le lendemain."""
+    from datetime import timedelta
+    m, w = sp["marine"], sp["wind"]
+    day = (now + timedelta(days=1 if now.hour >= 19 else 0)).strftime("%Y-%m-%d")
+    mi = {t: i for i, t in enumerate(m["time"])}
+    wi = {t: i for i, t in enumerate(w["time"])}
+    g = lambda d, k, i: (d.get(k) or [None] * (i + 1))[i] if i is not None and i < len(d.get(k) or []) else None
+    out = []
+    for h in (6, 9, 12, 15, 18, 21):
+        t = f"{day}T{h:02d}:00"
+        i, j = mi.get(t), wi.get(t)
+        hs = g(m, "wave_height", i)
+        if hs is None:
+            continue
+        out.append({"h": h, "hs": hs, "tp": g(m, "wave_period", i), "dir": g(m, "wave_direction", i),
+                    "w": g(w, "wind_speed_10m", j), "wd": g(w, "wind_direction_10m", j), "gust": g(w, "wind_gusts_10m", j)})
+    return {"day": day, "rows": out}
+
+
+def tide_days(sp, coef):
+    """Pleines et basses mers de la semaine (horaires calculés pour le port de référence du spot, décalage du spot compris)."""
+    t = sp.get("tide") or {}
+    by = {}
+    for x in t.get("extremes") or []:
+        by.setdefault(x["t"][:10], []).append(x)
+    rows = []
+    for date in sorted(by)[:7]:
+        d = datetime.strptime(date, "%Y-%m-%d")
+        fmt = lambda x: f"{int(x['t'][11:13])} h {x['t'][14:16]}" + (f" ({fr(x['h'])} m)" if x.get("h") is not None else "")
+        rows.append({"label": DAYS[d.weekday()].capitalize(), "dm": d.strftime("%d/%m"),
+                     "pm": [fmt(x) for x in by[date] if x["type"] == "PM"], "bm": [fmt(x) for x in by[date] if x["type"] == "BM"],
+                     "coef": max(coef.get(date) or [0]) or None})
+    return {"port": t.get("label"), "rows": rows}
+
+
+WIND_WORD = {"lisse": "Lisse", "offshore": "Offshore", "side-off": "Side-offshore", "de côté": "Side-shore", "onshore": "Onshore"}
+
+
+def wind_for_spot(v, wd, ori):
+    """Même règle que le site (windInfo) : vent rapporté à l'orientation PROPRE du spot (offshore = vent de terre)."""
+    if v is None or wd is None or ori is None:
+        return None
+    if v < 8:
+        return "lisse"
+    d = _angle(wd, (ori + 180) % 360)
+    return "offshore" if d <= 45 else "side-off" if d <= 80 else "de côté" if d <= 120 else "onshore"
+
+
 def hav(a, b):
     la1, lo1, la2, lo2 = map(math.radians, (a["lat"], a["lon"], b["lat"], b["lon"]))
     h = math.sin((la2 - la1) / 2) ** 2 + math.cos(la1) * math.cos(la2) * math.sin((lo2 - lo1) / 2) ** 2
@@ -264,12 +313,31 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
     from . import zones as _z
     zn = next((z for z in _z.ZONES if z["key"] == sp["region"]), None)
     zone_link = f'<p class="muted" style="margin-top:18px"><a href="../../{zn["slug"]}/">Météo surf {esc(zn["name"])} : tous les spots {zn["in"]}</a></p>' if zn else ""
+    hh = sp.get("hours") or {}
+    hours_html = ""
+    if hh.get("rows"):
+        hd = datetime.strptime(hh["day"], "%Y-%m-%d")
+        lab = "aujourd'hui" if hh["day"] == now.strftime("%Y-%m-%d") else "demain"
+        ws = lambda r: WIND_WORD.get(wind_for_spot(r["w"], r["wd"], sp.get("ori")), "—")
+        hrs = "".join(f"<tr><td>{r['h']} h</td><td>{fr(r['hs'])} m</td><td>{fr(r['tp'], 0)} s {sector(r['dir']) or ''}</td>"
+                      f"<td>{fr(r['w'], 0)} km/h {sector(r['wd']) or ''}{(' · rafales ' + fr(r['gust'], 0)) if r.get('gust') is not None else ''}</td><td>{ws(r)}</td></tr>" for r in hh["rows"])
+        hours_html = (f'<h2>Heure par heure {lab} ({DAYS[hd.weekday()]} {hd:%d/%m})</h2>'
+                      f'<table><thead><tr><th>Heure</th><th>Houle</th><th>Période</th><th>Vent</th><th>Pour ce spot</th></tr></thead><tbody>{hrs}</tbody></table>'
+                      f'<p class="muted">Toutes les 3 heures. « Pour ce spot » : le vent rapporté à l’orientation de {esc(name)} (face au {sector(sp["ori"]) if sp.get("ori") is not None else "large"}). Le détail heure par heure, les modèles et la bouée : <a href="{app}">prévision complète</a>.</p>')
+    td = sp.get("tides") or {}
+    tides_html = ""
+    if td.get("rows"):
+        trw = "".join(f"<tr><td>{r['label']} {r['dm']}</td><td>{' · '.join(r['pm']) or '—'}</td><td>{' · '.join(r['bm']) or '—'}</td><td>{r['coef'] or '—'}</td></tr>" for r in td["rows"])
+        tides_html = (f'<h2>Marées à {esc(name)}</h2>'
+                      f'<table><thead><tr><th>Jour</th><th>Pleine mer</th><th>Basse mer</th><th>Coef.</th></tr></thead><tbody>{trw}</tbody></table>'
+                      f'<p class="muted">Horaires indicatifs calculés pour {esc(td["port"]) if td.get("port") else "le port de référence"} (port de référence du spot).</p>')
     body = f"""<h1>Prévisions surf à {esc(full)}</h1>
 <p class="lead">{lead}</p>
 <p><a class="cta" href="{app}">Voir les prévisions heure par heure</a></p>
 <p class="muted">{(esc(sp['type']) + ' · fond de ' + esc(sp['bottom'].lower()) + ' · ') if sp.get('type') and sp.get('bottom') else ''}{esc(sp['commune'])}, {esc(sp['region'])}. Mis à jour le {now:%d/%m/%Y à %Hh%M}.</p>
 {buoy_line}<h2>La semaine à {esc(name)}</h2>
 <table><thead><tr><th>Jour</th><th>Houle</th><th>Période</th><th>Vent</th><th>Coef.</th></tr></thead><tbody>{trs}</tbody></table>
+{hours_html}{tides_html}
 {profile_html(sp, t)}
 <h2>Autres spots autour de {esc(name)}</h2><ul class="near">{nl}</ul>
 {zone_link}"""
@@ -329,7 +397,7 @@ def generate(payload, out_dir=None, site=None):
         m = meta.get(sp["name"])
         if not m:
             continue
-        spots.append({**m, "slug": slugify(m["name"]), "rows": day_rows(sp, coef)})
+        spots.append({**m, "slug": slugify(m["name"]), "rows": day_rows(sp, coef), "hours": hourly(sp, now), "tides": tide_days(sp, coef)})
     base = root / "spots"
     if base.exists():
         shutil.rmtree(base)

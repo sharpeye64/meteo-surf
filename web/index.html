@@ -3589,6 +3589,18 @@ html[data-da="a"] .pv-band[data-sky="night"]{background:radial-gradient(1000px 4
 
 /* bouton « près de moi » (grand écran) : au-dessus des boutons de zoom, sans les toucher */
 @media (min-width:760px){ #home.ho .ho-geo{bottom:138px;right:16px;width:40px;height:40px} }
+
+/* accueil : liens explorables vers les contenus (repliés, sans encombrer le panneau) */
+.ho-xp{flex:none;margin:0 16px 12px;border-top:1px solid var(--ln)}
+.ho-xp summary{display:flex;align-items:center;justify-content:space-between;padding:10px 4px 2px;font:700 12.5px Manrope,system-ui,sans-serif;color:var(--i3);cursor:pointer;list-style:none}
+.ho-xp summary::-webkit-details-marker{display:none}
+.ho-xp summary:after{content:"";width:7px;height:7px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(45deg);transition:transform .25s}
+.ho-xp[open] summary:after{transform:rotate(225deg)}
+.ho-xp nav{display:flex;flex-wrap:wrap;gap:4px 12px;padding:8px 4px 2px;max-height:170px;overflow:auto;scrollbar-width:none}
+.ho-xp a{font:600 12.5px Manrope,system-ui,sans-serif;color:var(--i2);text-decoration:none}
+.ho-xp a:hover{color:var(--n);text-decoration:underline}
+#home.ho:is([data-view="spot"],[data-view="buoy"],[data-view="search"]) .ho-xp{display:none}
+@media (max-width:759px){ .ho-xp{display:none} .ho-sh-menu .ho-menu{overflow:auto;min-height:0} }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -4758,7 +4770,7 @@ function tideSvg(list, hour){
   const cur=list.find(h=>h.hour===hour);
   return `<svg class="tideline" viewBox="0 0 160 46" preserveAspectRatio="none" aria-hidden="true"><path d="${d} L160 46 L0 46 Z" fill="rgba(var(--lilac-rgb),.22)"/><path d="${d}" fill="none" stroke="var(--lilac)" stroke-width="2" vector-effect="non-scaling-stroke"/>${cur&&cur.tideN!=null?`<line x1="${X(hour)}" x2="${X(hour)}" y1="0" y2="46" stroke="rgba(255,255,255,.35)" vector-effect="non-scaling-stroke"/><circle cx="${X(hour)}" cy="${Y(cur.tideN)}" r="4" fill="#fff"/>`:''}</svg>`;
 }
-let BOOT_HOME=false;
+let BOOT_HOME=false, APP_PENDING=false;
 function render_v1(){
   const d=state.data[state.spot], s=d.spot, k=state.day, day=d.days[k];
   if(!BOOT_HOME){ try{ document.title=`Météo surf ${s.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(s.name)); }catch(e){} }
@@ -5033,7 +5045,7 @@ function pvSparkObs(cur){
 function pvObsCell(s){
   try{
     const cur=pickBuoy(buoyChoices(s)); if(!cur) return '';
-    const L=cur.L, a=cur.ageH, per=L.tp||cur.Tm, f=pvFresh(a,L.time);
+    const L=cur.L, a=cur.ageH, per=L.tp||cur.Tm, f=pvFresh(a,L.time,cur.key);
     const age=f.c==='live'?`<span class="pv-fresh live"><i></i>${f.t}</span>`:`<span class="pv-age${f.c==='off'?' off':''}">${f.t}</span>`;
     return `<a class="pv-b pv-gold${a>6?' old':''}" href="#sRadar" title="Mesure réelle de la bouée ${cur.name} (${cur.kind==='coast'?'côtière':'au large'}, à ${Math.round(cur.km)} km). Ce n’est pas la taille des vagues sur le spot.">
       <div class="pv-k">${pvI('buoy')}<span class="pv-kt">${cur.name}</span></div>
@@ -5188,14 +5200,14 @@ function radarHtml(s){
     const byT={}; (cur.model||[]).forEach(m=>byT[m.t.slice(0,13)]=m.hs);
     fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null); fLabel='Prévu à la bouée';
   }
-  const tog=list.length>1?`<div class="pv-tabs pv-bsel" role="group" aria-label="Choisir la bouée">${list.map(o=>`<button type="button" data-rv="${o.key}" aria-pressed="${o.key===cur.key}"${o.ageH<1?' class="lv"':''}>${o.name}</button>`).join('')}</div>`:'';
+  const tog=list.length>1?`<div class="pv-tabs pv-bsel" role="group" aria-label="Choisir la bouée">${list.map(o=>`<button type="button" data-rv="${o.key}" aria-pressed="${o.key===cur.key}"${pvFresh(o.ageH,o.L.time,o.key).c==='live'?' class="lv"':''}>${o.name}</button>`).join('')}</div>`:'';
   const per=L.tp?Math.round(L.tp):(Tm?Math.round(Tm):null);
   const st=(ic,lab,val)=>`<div class="pv-gst"><dt>${pvI(ic)}${lab}</dt><dd>${val}</dd></div>`;
   return `<section class="pv-sec radar" id="sRadar" aria-labelledby="sRadarT">
     <div class="pv-sh"><h2 id="sRadarT"><span class="pv-no">02</span>Mesure en mer</h2>${tog}</div>
     <div class="pv-goldc">
       <div class="pv-gl">
-        <div class="pv-gk">${pvI('buoy')}<span>Bouée ${cur.name}</span>${pvFreshHtml(cur.ageH,L.time)}</div>
+        <div class="pv-gk">${pvI('buoy')}<span>Bouée ${cur.name}</span>${pvFreshHtml(cur.ageH,L.time,cur.key)}</div>
         <p class="pv-gsub">${pvI('pin')}${cur.kind==='coast'?'Bouée côtière':'Bouée du large'} · ${cur.sub.replace(/^au large, /,'')}</p>
         <div class="pv-gv">${fmt(L.hs)}<small>m</small></div>
         <dl class="pv-gsts">${st('period',L.tp?'Période':'Période est.',per!=null?pvNum((L.tp?'':'≈ ')+per,'s'):'—')}${st('dir','Direction',L.dir!=null?pvDir(L.dir):'—')}${st('temp','Eau',L.sst!=null?pvNum(fmt(L.sst),'°C'):'—')}</dl>
@@ -5348,15 +5360,18 @@ const pvI=k=>`<svg class="pv-i" viewBox="0 0 24 24" aria-hidden="true">${PV_I[k]
 /* direction : flèche dans un petit cercle (sens où va la houle ou le vent) + secteur d'où ça vient */
 const pvDir=(deg,col)=>deg==null?'':`<span class="pv-dir" title="Vient du ${sector(deg)} (${Math.round(deg)}°)"><i${col?` style="color:${col}"`:''}><svg viewBox="-6 -6 12 12" aria-hidden="true" style="transform:rotate(${Math.round((deg+180)%360)}deg)"><path d="M0 -4.6L3.2 3.6L0 2L-3.2 3.6Z"/></svg></i>${sector(deg)}</span>`;
 /* fraîcheur d'une mesure : en direct (moins d'1 h, pastille verte animée), récente (1 à 3 h), ancienne, muette */
-function pvFresh(ageH,t){
-  const m=Math.max(1,Math.round(ageH*60));
+/* cadence de publication : houlographes CANDHIS toutes les 30 min (« en direct » jusqu'à 1 h) ;
+   bouées horaires (Météo-France 62001, Copernicus Marine) publiées avec 30 à 60 min de retard (« en direct » jusqu'à 2 h) */
+const pvLim=key=>/^0\d{4}$/.test(String(key||''))?1:2;
+function pvFresh(ageH,t,key){
+  const m=Math.max(1,Math.round(ageH*60)), lim=pvLim(key);
   if(ageH<0.2) return {c:'live',t:'En direct'};
-  if(ageH<1) return {c:'live',t:`il y a ${m} min`};
-  if(ageH<3) return {c:'recent',t:`il y a ${Math.round(ageH)} h`};
+  if(ageH<lim) return {c:'live',t:ageH<1?`il y a ${m} min`:`il y a ${Math.round(ageH)} h`};
+  if(ageH<3*lim) return {c:'recent',t:`il y a ${Math.round(ageH)} h`};
   if(ageH<48) return {c:'old',t:ageH<6?`il y a ${Math.round(ageH)} h`:stampTxt(t)};
   return {c:'off',t:`aucune mesure depuis le ${dmy(t)}`};
 }
-const pvFreshHtml=(ageH,t)=>{ const f=pvFresh(ageH,t); return `<span class="pv-fresh ${f.c}" title="Mesure en temps réel, non validée"><i></i>${f.t}</span>`; };
+const pvFreshHtml=(ageH,t,key)=>{ const f=pvFresh(ageH,t,key); return `<span class="pv-fresh ${f.c}" title="Mesure en temps réel, non validée"><i></i>${f.t}</span>`; };
 const pvNum=(v,u)=>`<b>${v}</b><u>${u}</u>`;
 /* une mesure du résumé : pictogramme + petite étiquette, valeur en dessous */
 const pvSt=(ic,lab,val)=>`<div class="pv-st" title="${lab}"><span>${pvI(ic)}<i class="pv-stl">${lab}</i></span><em>${val}</em></div>`;
@@ -5683,6 +5698,7 @@ const HO_I={
   cal:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>'
 };
 const hoIc=k=>k==='T'?'<svg class="pv-i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M10 2.8h4M12 2.8V6M18.2 6.8l1.4-1.4"/></svg>':pvI(k==='H'?'wave':'wind');
+const hoFc=b=>pvFresh(hoAge(b.L),b.L.time,b.id).c;
 const hoAge=L=>(Date.now()-new Date(L.time+':00').getTime())/36e5;
 const hoKey=t=>t.slice(0,13);
 const hoDays=['Dim.','Lun.','Mar.','Mer.','Jeu.','Ven.','Sam.'], hoDaysL=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
@@ -5704,7 +5720,7 @@ function homeBuoys(){
   const o=[]; (state.coast||[]).forEach(b=>{ if(b.latest&&b.latest.hs!=null) o.push({id:b.id,n:b.name,sub:b.sub||'Bouée côtière',lat:+b.lat,lon:+b.lon,L:b.latest,coast:true}); });
   (state.offshore||[]).forEach(b=>{ if(b.latest&&b.latest.hs!=null) o.push({id:b.id,n:b.name,sub:b.sub||'Bouée du large',lat:+b.lat,lon:+b.lon,L:b.latest}); });
   { const g=state.gascogne; if(g&&g.latest&&g.latest.hs!=null) o.push({id:'gascogne',n:'Gascogne',sub:'Au large, Météo-France 62001',lat:+g.lat,lon:+g.lon,L:g.latest,large:true}); }
-  return o.sort((a,b)=>hoAge(a.L)-hoAge(b.L));
+  const rk={live:0,recent:1,old:2,off:3}; return o.sort((a,b)=>rk[hoFc(a)]-rk[hoFc(b)]||hoAge(a.L)-hoAge(b.L));
 }
 function homeBuoyPos(key){ if(key==='gascogne') return {lat:+state.gascogne.lat,lon:+state.gascogne.lon}; const b=[...(state.coast||[]),...(state.offshore||[])].find(x=>x.id===key); return b?{lat:+b.lat,lon:+b.lon}:null; }
 function homeIsNow(){ return HOME.ti===0; }
@@ -5725,7 +5741,7 @@ async function homeOpen(fromSpot){
     try{ HOME.v=localStorage.getItem('hoVar')||'H'; HOME.showBu=localStorage.getItem('hoBu')!=='0'; }catch(e){ HOME.v='H'; HOME.showBu=true; }
     if(!HOME_VARS[HOME.v]) HOME.v='H';
     el.className='ho'; el.dataset.v=HOME.v;
-    const live=HOME.bu.filter(b=>hoAge(b.L)<1).length, rec=HOME.bu.filter(b=>hoAge(b.L)<3).length;
+    const live=HOME.bu.filter(b=>hoFc(b)==='live').length, rec=HOME.bu.filter(b=>hoFc(b)!=='old'&&hoFc(b)!=='off').length;
     el.innerHTML=`<div class="ho-map" id="hmMap"></div>
       <div class="ho-top"><a class="ho-mlogo" href="./" aria-label="Houlalah"><img src="brand/symbol.svg" alt="" width="22" height="20"><img src="brand/wordmark.svg" alt="houlalah" height="14"></a><span class="ho-sp"></span>
         <button type="button" class="ho-ib" id="hoFavB" aria-label="Mes spots">${HO_I.star}</button><button type="button" class="ho-ib" id="hoMenuB" aria-label="Menu">${HO_I.menu}</button></div>
@@ -5739,6 +5755,7 @@ async function homeOpen(fromSpot){
         </header>
         <div class="ho-zones" id="hoZones" role="group" aria-label="Zone"></div>
         <div class="ho-body" id="hoBody"></div>
+        <details class="ho-xp" id="hoXp"><summary>Spots, bouées et régions</summary><nav aria-label="Explorer Houlalah"><a href="spots/">Tous les spots</a><a href="bouees/">Toutes les bouées</a>${ZONE_LINKS.map(([z,n])=>`<a href="meteo-surf-${z}/">Météo surf ${n}</a>`).join('')}<a href="comment-ca-marche/">Comment ça marche</a><a href="a-propos/">À propos</a></nav></details>
       </section>
       <div class="ho-tools"><div class="ho-seg" id="hoVar" role="group" aria-label="Donnée affichée"><i class="ho-ind" aria-hidden="true"></i>${Object.values(HOME_VARS).map(x=>`<button type="button" data-v="${x.k}" aria-pressed="${x.k===HOME.v}">${hoIc(x.k)}<span>${x.lab}</span></button>`).join('')}</div>
         <button type="button" class="ho-rb" id="hoBuT" aria-pressed="${HOME.showBu}" aria-label="Afficher les bouées" title="Bouées : mesures réelles">${pvI('buoy')}</button>
@@ -5759,6 +5776,7 @@ async function homeOpen(fromSpot){
 }
 function homeClose(){
   homeMark(); try{ sessionStorage.removeItem('homeOpen'); }catch(e){}
+  if(APP_PENDING&&state.data){ APP_PENDING=false; BOOT_HOME=true; render(); BOOT_HOME=false; refreshModels(); }
   if(state.data){ try{ const sp=state.data[state.spot].spot; document.title=`Météo surf ${sp.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(sp.name)); }catch(e){} }
   HOME.on=false;
   const el=document.getElementById('home'); if(el) el.hidden=true; document.body.classList.remove('homeOn');
@@ -5817,7 +5835,7 @@ function homeHover(b,html){
 function homeTipHide(){ const t=document.getElementById('hoTip'); if(t){ t.classList.remove('on'); t.hidden=true; } }
 function homeSpotTip(s){ const h=homeHour(s); if(!h) return `<b>${s.n}</b>`;
   return `<b>${s.n}</b><small>${s.r} · ${homeIsNow()?'maintenant':homeWhen(true)}</small><span>${pvI('wave')}${h.H!=null?hmF(h.H)+' m':'—'}${h.T?` · ${Math.round(h.T)} s`:''}${h.D!=null?` · ${sector(h.D)}`:''}</span><span>${pvI('wind')}${h.v!=null?Math.round(h.v)+' km/h':'—'}${h.wd!=null?` · ${sector(h.wd)}`:''}${h.wind?` · <em style="color:${pvWindCol(h.wind)}">${windWord[h.wind]}</em>`:''}</span>`; }
-function homeBuoyTip(b){ const f=pvFresh(hoAge(b.L),b.L.time);
+function homeBuoyTip(b){ const f=pvFresh(hoAge(b.L),b.L.time,b.id);
   return `<b class="g">Bouée ${b.n}</b><span class="g">${pvI('buoy')}${hmF(b.L.hs)} m${hoPer(b.L)?' · '+hoPer(b.L):''}${b.L.dir!=null?` · ${sector(b.L.dir)}`:''}</span><i class="ho-tn"><i class="ho-fd f-${f.c}"></i>Mesure réelle · ${f.t}</i>`; }
 function homeMarks(){
   const v=HOME.v;
@@ -5826,7 +5844,7 @@ function homeMarks(){
     b.style.cssText=x==null?'--c:#D8D2C4;--t:#5F6B71':pvCellCss(x,v);
     b.classList.toggle('fav',state.fav.includes(s.n)); b.classList.toggle('sel',HOME.sel===s.i); m.getElement().classList.toggle('is-sel',HOME.sel===s.i); });
   Object.entries(HOME.bm||{}).forEach(([id,m])=>{ const bu=HOME.bu.find(x=>x.id===id), b=m.getElement().firstChild, a=hoAge(bu.L);
-    const fc=pvFresh(a,bu.L.time).c; ['live','recent','old','off'].forEach(c=>b.classList.toggle('b-'+c,c===fc)); b.classList.remove('b-rec'); b.dataset.f=fc; m.getElement().classList.toggle('is-sel',!!(HOME.selB&&HOME.selB.id===id)); b.classList.toggle('b-fut',!homeIsNow()); b.classList.toggle('sel',HOME.selB&&HOME.selB.id===id); });
+    const fc=pvFresh(a,bu.L.time,bu.id).c; ['live','recent','old','off'].forEach(c=>b.classList.toggle('b-'+c,c===fc)); b.classList.remove('b-rec'); b.dataset.f=fc; m.getElement().classList.toggle('is-sel',!!(HOME.selB&&HOME.selB.id===id)); b.classList.toggle('b-fut',!homeIsNow()); b.classList.toggle('sel',HOME.selB&&HOME.selB.id===id); });
   document.getElementById('home').classList.toggle('ho-fut',!homeIsNow());
   homeCluster();
 }
@@ -5970,12 +5988,12 @@ function homeVarSheet(){
   document.querySelectorAll('#hoSheet [data-v]').forEach(b=>b.onclick=()=>{ HOME.setV(b.dataset.v); homeSheet(null); });
 }
 function homeMenu(){
-  homeSheet(`<p class="ho-sk">Houlalah</p><nav class="ho-menu"><a href="comment-ca-marche/">Comment ça marche ${HO_I.next}</a><a href="bouees/">Toutes les bouées ${HO_I.next}</a><a href="spots/">Tous les spots ${HO_I.next}</a><a href="a-propos/">À propos ${HO_I.next}</a></nav>`,'ho-sh-s');
+  homeSheet(`<p class="ho-sk">Houlalah</p><nav class="ho-menu"><a href="spots/">Tous les spots ${HO_I.next}</a><a href="bouees/">Toutes les bouées ${HO_I.next}</a>${ZONE_LINKS.map(([z,n])=>`<a href="meteo-surf-${z}/">Météo surf ${n} ${HO_I.next}</a>`).join('')}<a href="comment-ca-marche/">Comment ça marche ${HO_I.next}</a><a href="a-propos/">À propos ${HO_I.next}</a></nav>`,'ho-sh-l ho-sh-menu');
 }
 /* survol d'une bouée dans le panneau : son marqueur ressort sur la carte (et inversement) */
 function homeBuHl(id,on){ const m=HOME.bm&&HOME.bm[id]; if(m) m.getElement().classList.toggle('is-hl',!!on); document.querySelectorAll(`#home [data-b="${id}"]`).forEach(r=>r.classList.toggle('hl',!!on)); }
 document.addEventListener('mouseover',e=>{ const r=e.target.closest&&e.target.closest('#home .ho-br[data-b]'); if(HOME._hb&&(!r||r.dataset.b!==HOME._hb)){ homeBuHl(HOME._hb,false); HOME._hb=null; } if(r&&!HOME._hb){ HOME._hb=r.dataset.b; homeBuHl(HOME._hb,true); } });
-function homeBuRow(b){ const a=hoAge(b.L), f=pvFresh(a,b.L.time);
+function homeBuRow(b){ const a=hoAge(b.L), f=pvFresh(a,b.L.time,b.id);
   return `<button type="button" class="ho-br${a>=6?' ho-old':''}${f.c==='live'?' ho-blive':''}" data-b="${b.id}"><i class="ho-fd f-${f.c}"></i><span class="ho-bn"><b>${b.n}</b><small>${[hoPer(b.L),b.L.dir!=null?sector(b.L.dir):''].filter(Boolean).join(' · ')}${f.c==='live'?` · <em class="ho-lvt">${f.t}</em>`:` · ${f.t}`}</small></span><span class="ho-bv">${hmF(b.L.hs)}<u>m</u></span></button>`; }
 function homeFavList(T){
   if(!T) return; const fav=HOME.data.filter(s=>state.fav.includes(s.n)), v=HOME.v, box=T.querySelector('#hoFavL')||T;
@@ -5991,14 +6009,14 @@ function homePanel(){
   if(v==='buoy'&&HOME.selB){ homeBuoyPanel(HOME.selB); return; }
   if(mob){ B.innerHTML=''; B.hidden=true;
     if(v==='favs'){ homeSheet(`<p class="ho-sk">${HO_I.star}Mes spots</p><div id="hoFavL"></div>`); homeFavList(document.getElementById('hoSheet')); }
-    else if(v==='buoys'){ homeSheet(`<p class="ho-sk">${pvI('buoy')}Mesures en mer <span>${(n=>n?n+' en direct':HOME.bu.filter(b=>hoAge(b.L)<3).length+' récentes')(HOME.bu.filter(b=>hoAge(b.L)<1).length)} sur ${HOME.bu.length}</span></p><div class="ho-bl">${HOME.bu.map(homeBuRow).join('')}</div><a class="ho-more" href="bouees/">Pages des bouées ${HO_I.next}</a>`,'ho-sh-l');
+    else if(v==='buoys'){ homeSheet(`<p class="ho-sk">${pvI('buoy')}Mesures en mer <span>${(n=>n?n+' en direct':HOME.bu.filter(b=>['live','recent'].includes(hoFc(b))).length+' récentes')(HOME.bu.filter(b=>hoFc(b)==='live').length)} sur ${HOME.bu.length}</span></p><div class="ho-bl">${HOME.bu.map(homeBuRow).join('')}</div><a class="ho-more" href="bouees/">Pages des bouées ${HO_I.next}</a>`,'ho-sh-l');
       document.querySelectorAll('#hoSheet [data-b]').forEach(b=>b.onclick=()=>homeBuoy(HOME.bu.find(x=>x.id===b.dataset.b))); }
     return; }
   B.hidden=false;
   /* grand écran : mes spots (repliés), puis 3 bouées, la liste complète à la demande */
-  const live=HOME.bu.filter(b=>hoAge(b.L)<1).length, rec=HOME.bu.filter(b=>hoAge(b.L)<3).length, all=HOME.buAll, fav=HOME.data.filter(s=>state.fav.includes(s.n)), fo=v==='favs';
+  const live=HOME.bu.filter(b=>hoFc(b)==='live').length, rec=HOME.bu.filter(b=>['live','recent'].includes(hoFc(b))).length, all=HOME.buAll, fav=HOME.data.filter(s=>state.fav.includes(s.n)), fo=v==='favs';
   B.innerHTML=`<button type="button" class="ho-row" id="hoFavT" aria-expanded="${fo}">${HO_I.star}<b>Mes spots</b>${fav.length?`<small>${fav.length}</small>`:''}<i class="ho-chev${fo?' on':''}">${HO_I.next}</i></button>${fo?'<div id="hoFavL"></div>':''}
-    <div class="ho-sea"><div class="ho-bh"><span>${pvI('buoy')}Mesures en mer</span><span class="ho-bcount${live?' on':''}" title="${live?'Mesures de moins d’une heure':'Mesures de moins de 3 heures'}"><i class="ho-fd ${live?'f-live':'f-recent'}"></i>${live?`${live} en direct`:`${rec} récentes`}<small> / ${HOME.bu.length}</small></span></div>
+    <div class="ho-sea"><div class="ho-bh"><span>${pvI('buoy')}Mesures en mer</span><span class="ho-bcount${live?' on':''}" title="${live?'Mesures publiées depuis moins d’une heure (houlographes CANDHIS) ou deux heures (bouées horaires)':'Mesures de moins de 3 h (houlographes) ou 6 h (bouées horaires)'}"><i class="ho-fd ${live?'f-live':'f-recent'}"></i>${live?`${live} en direct`:`${rec} récentes`}<small> / ${HOME.bu.length}</small></span></div>
     <div class="ho-bl${all?' all':''}">${(all?HOME.bu:HOME.bu.slice(0,3)).map(homeBuRow).join('')}</div>
     <button type="button" class="ho-more" id="hoBuAll">${all?'Moins de bouées':'Toutes les bouées'} ${all?HO_I.down:HO_I.next}</button></div>`;
   if(fo) homeFavList(B);
@@ -6030,7 +6048,7 @@ function homeSpotPanel(s){
   if(!mob) homeHead({n:s.n,r:reg,fav});
   const html=`<div class="ho-spot">${mob?`<div class="ho-sp-hd"><div class="ho-sp-t"><h2 class="ho-sp-n">${s.n}</h2><p class="ho-sp-r">${reg}</p></div><button type="button" class="ho-fv${fav?' on':''}" id="hoFv" aria-pressed="${fav}" aria-label="${fav?'Retirer de mes spots':'Ajouter à mes spots'}">${HO_I.star}</button></div>`:''}
     <div id="hoNums"></div>
-    ${cur?`<button type="button" class="ho-ms" id="hoMs"><span class="ho-mk">${pvI('buoy')}Bouée ${cur.name}</span><span class="ho-mv">${hmF(cur.L.hs)} m${(cur.L.tp||cur.Tm)?` · ${Math.round(cur.L.tp||cur.Tm)} s`:''}</span><span class="ho-mf"><i class="ho-fd f-${pvFresh(cur.ageH,cur.L.time).c}"></i>${pvFresh(cur.ageH,cur.L.time).t} · à ${Math.round(cur.km)} km</span></button>`:''}
+    ${cur?`<button type="button" class="ho-ms" id="hoMs"><span class="ho-mk">${pvI('buoy')}Bouée ${cur.name}</span><span class="ho-mv">${hmF(cur.L.hs)} m${(cur.L.tp||cur.Tm)?` · ${Math.round(cur.L.tp||cur.Tm)} s`:''}</span><span class="ho-mf"><i class="ho-fd f-${pvFresh(cur.ageH,cur.L.time,cur.key).c}"></i>${pvFresh(cur.ageH,cur.L.time,cur.key).t} · à ${Math.round(cur.km)} km</span></button>`:''}
     <button type="button" class="ho-go" id="hoGo">Voir la prévision ${pvI('go')}</button></div>`;
   if(mob){ homeSheet(html,'ho-sh-spot'); document.getElementById('hoBody').hidden=true; } else { const B=document.getElementById('hoBody'); B.hidden=false; B.innerHTML=html; }
   homeSpotNums(s);
@@ -6049,7 +6067,7 @@ function homeBuoy(b){
   homeFitPts([b,...homeNearest(b.lat,b.lon,b.coast?4:6)],b.coast?9.6:7.4);
 }
 function homeBuoyPanel(b){
-  const L=b.L, a=hoAge(L), f=pvFresh(a,L.time), mob=hoMob();
+  const L=b.L, a=hoAge(L), f=pvFresh(a,L.time,b.id), mob=hoMob();
   if(!mob) homeHead({n:'Bouée '+b.n,r:b.coast?'Bouée côtière · mesure réelle':'Bouée du large · mesure réelle'});
   const html=`<div class="ho-spot ho-buoy">${mob?`<div class="ho-sp-hd"><div class="ho-sp-t"><h2 class="ho-sp-n">${b.n}</h2><p class="ho-sp-r">${b.coast?'Bouée côtière':'Bouée du large'}</p></div></div>`:''}
     <div class="ho-gold"><div class="ho-gt"><span class="ho-fp f-${f.c}"><i class="ho-fd f-${f.c}"></i>${f.t}</span><span>Mesure réelle</span></div>
@@ -6084,7 +6102,9 @@ async function start(){
     const favIdx = state.data.findIndex(x=>state.fav.includes(x.spot.name));
     state.spot = favIdx>=0 ? favIdx : 0;
     try{ const want=new URLSearchParams(location.search).get('spot'); if(want){ const j=state.data.findIndex(x=>slugOf(x.spot.name)===want); if(j>=0) state.spot=j; } }catch(e){}
-    BOOT_HOME=showHome; render(); BOOT_HOME=false; refreshModels();
+    /* accueil : on ne construit pas la page d'un spot derrière la carte (sinon, pour Google, l'accueil parle de ce spot) ;
+       elle est construite à la fermeture de l'accueil */
+    if(showHome){ APP_PENDING=true; } else { BOOT_HOME=false; render(); refreshModels(); }
     if(showHome) homeOpen();
   }catch(err){
     document.getElementById('app').innerHTML=`<div class="loading"><div class="disp">Les prévisions n’ont pas pu être chargées</div><div style="color:var(--muted);max-width:46ch">${/trop de requêtes|429/.test(err.message)?'Le service météo gratuit limite le nombre de requêtes et la limite est atteinte. Attends une à deux minutes, puis réessaie.':err.message+'. Vérifie ta connexion internet, puis réessaie.'}</div><button class="retry" onclick="location.reload()">Réessayer</button></div>`;

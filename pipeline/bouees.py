@@ -17,6 +17,8 @@ esc = html.escape
 DAYS = ["lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim."]
 
 EXTRA_CSS = """
+.stale{margin:14px 0 6px;padding:13px 16px;border-radius:14px;background:#FBF1E4;box-shadow:inset 0 0 0 1px rgba(176,86,58,.25);color:#5A3A22;font-size:15px}.stale b{color:#8A3A1F}.stale a{color:#5A3A22;font-weight:700}
+.src{font-size:13px}.live.off{color:#8A867C}
 .sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}@media(max-width:760px){.sg{grid-template-columns:1fr 1fr}}
 .sg b{display:block;font-size:26px;font-weight:800;letter-spacing:-.02em;margin:4px 0 2px}.sg b i{font-size:.55em;font-style:normal;opacity:.6;font-weight:600}.sg small{display:block;font-size:12px;color:var(--muted)}.sg .k{color:var(--muted)}
 .dbars{margin-top:20px}.dbars svg{display:block;width:100%;height:84px;margin-top:8px}.dax{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px}
@@ -60,7 +62,7 @@ ul.bidx{padding:0;margin:0}
 
 MAP_JS = """
 (function(){
-  var ag=document.getElementById('bage'); if(ag){var t=new Date(ag.getAttribute('data-t')); var h=(Date.now()-t.getTime())/36e5; if(h>=0&&h<24*30) ag.textContent=h<1?"à l'instant":h<36?'il y a '+Math.round(h)+' h':'il y a '+Math.round(h/24)+' j'; if(ag.parentNode&&ag.parentNode.classList) ag.parentNode.classList.toggle('on',h>=0&&h<1);}
+  var ag=document.getElementById('bage'); if(ag){var t=new Date(ag.getAttribute('data-t')); var h=(Date.now()-t.getTime())/36e5; if(h>=0&&h<24*30) ag.textContent=h<1?"à l'instant":h<36?'il y a '+Math.round(h)+' h':'il y a '+Math.round(h/24)+' j'; var lim=+(ag.getAttribute('data-lim')||1); if(ag.parentNode&&ag.parentNode.classList) ag.parentNode.classList.toggle('on',h>=0&&h<lim);}
   var el=document.getElementById('bmap'); var raw=document.getElementById('bdata'); if(!el||!raw) return;
   var D=JSON.parse(raw.textContent), started=false;
   function col(h){var S=[[0,'#9ed8f0'],[.6,'#43b8c9'],[1.2,'#6bc46d'],[1.8,'#e8d54a'],[2.4,'#f39a2b'],[3.2,'#e24a3b']];for(var i=S.length-1;i>=0;i--)if(h>=S[i][0])return S[i][1];return S[0][1];}
@@ -143,12 +145,49 @@ def spot_color(h):
     return c
 
 
-def is_fresh(now, t):
-    """mesure de moins d'une heure : seule cette situation justifie la pastille verte animée"""
+# « de » devant le nom d'un houlographe (H1 : « Bouée houlographe d'Anglet »)
+DE = {"Cap Ferret": "du Cap Ferret", "Anglet": "d'Anglet", "Saint-Jean-de-Luz": "de Saint-Jean-de-Luz", "Plateau du Four": "du Plateau du Four",
+      "Les Pierres Noires": "des Pierres Noires", "Île de Batz": "de l'Île de Batz", "Belle-Île": "de Belle-Île"}
+# exploitants connus (documentés dans pipeline/ibi_buoys.py) ; sinon on ne cite que la source Copernicus Marine
+OPERATOR = {"6200024": "Puertos del Estado", "donostia": "Euskalmet"}
+
+
+def station(b):
+    """Ce que l'on sait VRAIMENT de la station : type, identifiant officiel, source, licence, cadence de publication.
+    lim = âge (h) jusqu'auquel la mesure est dite « en direct » (cadence + retard de publication de la source)."""
+    from . import candhis, ibi_buoys
+    bid = str(b["id"])
+    cs = next((x for x in candhis.STATIONS if x["id"] == bid), None)
+    if cs:
+        return {"kind": "houlographe", "ident": f"CANDHIS {bid}", "source": "Cerema, réseau CANDHIS", "license": "Licence Ouverte Etalab 2.0",
+                "url": candhis.URL.format(page=cs["page"]), "cadence": "une mesure toutes les 30 minutes", "lim": 1, "creator": "Cerema (réseau CANDHIS)"}
+    if bid == "gascogne":
+        return {"kind": "bouée du large", "ident": "Météo-France 62001", "source": "Météo-France", "license": "Licence Ouverte Etalab 2.0",
+                "url": None, "cadence": "une mesure par heure", "lim": 2, "creator": "Météo-France"}
+    st = next((x for x in ibi_buoys.STATIONS if x["id"] == bid), None)
+    code = st["file"].replace("IR_TS_MO_", "") if st else bid
+    op = OPERATOR.get(bid)
+    return {"kind": "bouée", "ident": f"plateforme Copernicus {code}", "source": (op + ", via " if op else "") + "Copernicus Marine (In Situ)",
+            "license": "données Copernicus Marine, libres et gratuites", "url": None, "cadence": "une mesure par heure", "lim": 2,
+            "creator": (op + " / " if op else "") + "Copernicus Marine Service"}
+
+
+def age_h(now, t):
     try:
-        return 0 <= (now - datetime.strptime(t[:16], "%Y-%m-%dT%H:%M")).total_seconds() < 3600
+        return (now - datetime.strptime(t[:16], "%Y-%m-%dT%H:%M")).total_seconds() / 3600
     except ValueError:
-        return False
+        return 999
+
+
+def fresh_state(now, t, lim=1):
+    """Même règle que le site (pvFresh) : en direct < lim, récente < 3 × lim, ancienne < 48 h, muette au-delà."""
+    a = age_h(now, t)
+    return "live" if 0 <= a < lim else "recent" if a < 3 * lim else "old" if a < 48 else "off"
+
+
+def is_fresh(now, t, lim=1):
+    """seule une mesure « en direct » (selon la cadence de la station) justifie la pastille verte animée"""
+    return fresh_state(now, t, lim) == "live"
 
 
 def age_txt(now, t):
@@ -272,33 +311,59 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
             kept.append((k, s))
     near = kept
     others = sorted(((hav(b, o), o) for o in allb if o["slug"] != slug), key=lambda x: x[0])
-    title = fit(f"Bouée {name} : houle mesurée en direct | {BRAND}", f"Bouée {name} : houle en direct | {BRAND}", f"Bouée {name} | {BRAND}")
-    desc = (f"Houle mesurée par la bouée {name} : {fr(L['hs'])} m"
-            + (f", période {fr(L['tp'], 0)} s" if L.get("tp") else "") + (f", direction {sector(L['dir'])}" if L.get("dir") is not None else "")
-            + (f", eau {fr(L['sst'])} °C" if L.get("sst") is not None else "") + ". Relevés des dernières heures et prévisions des spots voisins.")
-    desc = fit_desc(desc)
+    S = station(b)
+    fs = fresh_state(now, L["time"], S["lim"])
+    working = fs in ("live", "recent") or age_h(now, L["time"]) < 6      # station qui publie normalement
+    houlo = S["kind"] == "houlographe"
+    who = f"Bouée houlographe {name}" if houlo else f"Bouée {name}"
+    wl = who[0].lower() + who[1:]
+    tail = "houle mesurée en direct" if working else "dernières mesures de houle"
+    short = "houle en direct" if working else "dernières mesures"
+    # sans place : on garde les mots recherchés (« houle en direct ») plutôt que la marque
+    title = fit(f"{who} : {tail} | {BRAND}", f"{who} : {short} | {BRAND}", f"{who} : {short}", f"{who} : {tail}", f"{who} | {BRAND}", who)
+    when = f"le {L['time'][8:10]}/{L['time'][5:7]} à {int(L['time'][11:13])} h {L['time'][14:16]}".replace(" h 00", " h")
+    vals = (f"{fr(L['hs'])} m" + (f", période {fr(L['tp'], 0)} s" if L.get("tp") else "")
+            + (f", direction {sector(L['dir'])}" if L.get("dir") is not None else "") + (f", eau {fr(L['sst'])} °C" if L.get("sst") is not None else ""))
+    if working:
+        desc = fit_desc(f"Hauteur de houle mesurée en direct par la {wl} ({S['ident']}) : {vals}. Historique 48 h, records et spots voisins.",
+                        f"Hauteur de houle mesurée par la {wl} ({S['ident']}) : {vals}. Historique, records et spots voisins.",
+                        f"Houle mesurée par la {wl} : {vals}. Historique et spots voisins.")
+    else:
+        desc = fit_desc(f"Dernières mesures de la {wl} ({S['ident']}), {when} : {vals}. Historique, records et bouées voisines à jour.",
+                        f"Dernières mesures de la {wl}, {when} : {vals}. Historique et bouées voisines à jour.")
     canonical = f"{site}/bouees/{slug}/"
     base = "../../"
-    chips = "".join(f'<li><a href="{base}?spot={s["slug"]}"><i class="dot" style="background:{spot_color(s["h"])}"></i><span><b>{esc(s["name"])}</b> <small>{round(k)} km</small></span><span class="v">{fr(s["h"])} m</span></a></li>' for k, s in near)
+    chips = "".join(f'<li><a href="{base}spots/{s["slug"]}/"><i class="dot" style="background:{spot_color(s["h"])}"></i><span><b>{esc(s["name"])}</b> <small>{round(k)} km</small></span><span class="v">{fr(s["h"])} m</span></a></li>' for k, s in near)
     ochips = "".join(f'<li><a href="../{o["slug"]}/"><span aria-hidden="true">⚓</span><span><b>{esc(o["name"])}</b> <small>{round(k)} km</small></span><span class="v">{fr(o["L"]["hs"])} m</span></a></li>' for k, o in others)
     cg = (f'<div><span class="k">Vague max</span><b>{fr(L.get("hmax"))}<i> m</i></b></div><div><span class="k">Période</span><b>{fr(L.get("tp"))}<i> s</i></b></div>'
           f'<div><span class="k">Direction</span><b>{sector(L.get("dir")) or "—"} {arrow(L.get("dir"), 26)}</b></div><div><span class="k">Eau</span><b>{sst_txt(L.get("sst"))}<i> °C</i></b></div>')
     head = "".join(f"<th>{h}</th>" for h in ("Heure", "Hauteur", "Max", "Période", "Direction", "Eau"))
+    stale = ""
+    if not working:
+        alt = [(k, o) for k, o in others if fresh_state(now, o["L"]["time"], station(o)["lim"]) in ("live", "recent")][:3]
+        al = ", ".join(f'<a href="../{o["slug"]}/">{esc(o["name"])}</a> ({round(k)} km, {fr(o["L"]["hs"])} m)' for k, o in alt)
+        stale = (f'<div class="stale"><b>Pas de mesure transmise depuis {when}.</b> Les valeurs ci-dessous sont les dernières reçues.'
+                 + (f' Bouées à jour les plus proches : {al}.' if al else '') + '</div>')
+    src = (f'<p class="muted src">Source des mesures : {esc(S["source"])}'
+           + (f', station <a href="{esc(S["url"])}" rel="noopener" target="_blank">{esc(S["ident"].replace("CANDHIS ", ""))}</a>' if S["url"] else f', {esc(S["ident"])}')
+           + f' · {esc(S["license"])} · {esc(S["cadence"])} · mesures en temps réel, non validées.</p>')
     data = {"b": {"n": name, "lat": b["lat"], "lon": b["lon"], "hs": L["hs"]}, "base": base,
             "s": [{"n": s["name"], "slug": s["slug"], "lat": s["lat"], "lon": s["lon"], "h": s["h"]} for k, s in near]}
     body = f"""<p class="crumb"><a href="{base}">{BRAND}</a> › <a href="../">Bouées</a> › <b>{esc(name)}</b></p>
-<span class="live{' on' if is_fresh(now, L['time']) else ''}">Mesure réelle · <span id="bage" data-t="{esc(L["time"][:16])}">{esc(age_txt(now, L["time"]))}</span></span>
-<h1>Bouée {esc(name)}</h1>
-<p class="muted">{esc(b["sub"][:1].upper() + b["sub"][1:])} · {fr(abs(b["lat"]), 2)} °N, {fr(abs(b["lon"]), 2)} °{"O" if b["lon"] < 0 else "E"} · relevé de {hour_label(L["time"])}</p>
+<span class="live{' on' if is_fresh(now, L['time'], S['lim']) else ''}{' off' if not working else ''}">Mesure réelle · <span id="bage" data-lim="{S['lim']}" data-t="{esc(L["time"][:16])}">{esc(age_txt(now, L["time"]))}</span></span>
+<h1>{"Bouée houlographe " + esc(DE.get(name, "de " + name)) if houlo else "Bouée " + esc(name)}</h1>
+<p class="muted">{("Houlographe du réseau CANDHIS (Cerema) · station " + esc(S["ident"].replace("CANDHIS ", "")) + " · ") if houlo else esc(b["sub"][:1].upper() + b["sub"][1:]) + " · " + esc(S["ident"]) + " · "}{fr(abs(b["lat"]), 2)} °N, {fr(abs(b["lon"]), 2)} °{"O" if b["lon"] < 0 else "E"} · {esc(S["cadence"])}</p>
+{stale}
 <div class="bh"><div class="mapbox"><div id="bmap"></div></div>
-<div class="cur"><span class="k">Relevé actuel</span><div><div class="big">{fr(L["hs"])}<small> m</small></div><div class="when">Hauteur significative des vagues</div></div><div class="cg">{cg}</div></div></div>
-<h2>Les 48 dernières heures</h2><div class="bcard">{chart_svg(obs, fc, label)}</div>
-<h2>Relevés précédents</h2><div class="bcard tw"><table class="rel"><thead><tr>{head}</tr></thead><tbody>{rows_html(obs, 12)}</tbody></table>
+<div class="cur"><span class="k">{"Dernière mesure de houle" if working else "Dernière mesure reçue"}</span><div><div class="big">{fr(L["hs"])}<small> m</small></div><div class="when">Hauteur significative des vagues</div></div><div class="cg">{cg}</div></div></div>
+<h2>Historique de la hauteur de houle (48 h)</h2><div class="bcard">{chart_svg(obs, fc, label)}</div>
+<h2>Historique des mesures</h2><div class="bcard tw"><table class="rel"><thead><tr>{head}</tr></thead><tbody>{rows_html(obs, 12)}</tbody></table>
 <details class="more"><summary>Afficher les 48 dernières heures</summary><table class="rel"><tbody>{rows_html(obs, len(obs), 12)}</tbody></table></details></div>
 {stats_html(b.get("st"))}
 <h2>Spots autour de la bouée</h2><ul class="chips">{chips}</ul>
 <h2>Bouées voisines</h2><ul class="chips">{ochips}</ul>
 <p class="muted" style="margin-top:26px">La bouée mesure la mer à l'endroit où elle est placée, pas la taille des vagues sur un spot précis. Prévisions : voir la page de chaque spot.</p>
+{src}
 <script type="application/json" id="bdata">{json.dumps(data, ensure_ascii=False)}</script><script>{MAP_JS}</script>"""
     ld = [{"@context": "https://schema.org", "@type": "WebPage", "name": title, "description": desc, "url": canonical, "inLanguage": "fr",
            "isPartOf": {"@type": "WebSite", "name": BRAND, "url": site + "/"},
@@ -307,7 +372,15 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
           {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
               {"@type": "ListItem", "position": 1, "name": BRAND, "item": site + "/"},
               {"@type": "ListItem", "position": 2, "name": "Bouées", "item": f"{site}/bouees/"},
-              {"@type": "ListItem", "position": 3, "name": name, "item": canonical}]}]
+              {"@type": "ListItem", "position": 3, "name": name, "item": canonical}]},
+          {"@context": "https://schema.org", "@type": "Dataset", "name": f"Mesures de houle de la {wl} ({S['ident']})",
+           "description": f"Hauteur significative, hauteur maximale, période et direction de la houle, et température de l'eau mesurées par la {wl} ({S['ident']}), {S['cadence']}. Dernières 48 heures.",
+           "url": canonical, "isAccessibleForFree": True, "license": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/" if "Etalab" in S["license"] else "https://marine.copernicus.eu/user-corner/service-commitments-and-licence",
+           "creator": {"@type": "Organization", "name": S["creator"]},
+           "spatialCoverage": {"@type": "Place", "geo": {"@type": "GeoCoordinates", "latitude": b["lat"], "longitude": b["lon"]}},
+           "temporalCoverage": (obs[0]["t"][:16] + "/" + obs[-1]["t"][:16]) if obs else L["time"][:16],
+           "variableMeasured": ["Hauteur significative des vagues", "Hauteur maximale des vagues", "Période de la houle", "Direction de la houle", "Température de l'eau"],
+           "dateModified": now.strftime("%Y-%m-%dT%H:%M:00")}]
     return page(site, title, desc, canonical, body, ld, base=base, extra_css=EXTRA_CSS, og_image=og_image)
 
 
@@ -333,7 +406,7 @@ def per_txt(L):
 
 
 def index_page(site, allb, now):
-    item = lambda b: (f'<li><a href="{b["slug"]}/"{' class="mute"' if b.get("silent") else ''}><b>Bouée {esc(b["name"])}</b><small>{esc(b["sub"])} · {("pas de mesure depuis le " + b["L"]["time"][8:10] + "/" + b["L"]["time"][5:7]) if b.get("silent") else "relevé de " + hour_label(b["L"]["time"])}</small>'
+    item = lambda b: (f'<li><a href="{b["slug"]}/"{' class="mute"' if b.get("silent") else ''}><b>{"Houlographe" if station(b)["kind"] == "houlographe" else "Bouée"} {esc(b["name"])}</b><small>{esc(b["sub"])} · {("pas de mesure depuis le " + b["L"]["time"][8:10] + "/" + b["L"]["time"][5:7]) if b.get("silent") else "relevé de " + hour_label(b["L"]["time"])}</small>'
                     f'<div class="v">{fr(b["L"]["hs"])} m<small style="display:inline;font-size:14px;font-weight:500"> · {per_txt(b["L"])} {sector(b["L"].get("dir")) or ""}</small></div></a></li>')
     groups = []
     for key, name in ZONES:

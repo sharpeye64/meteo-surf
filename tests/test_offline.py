@@ -226,7 +226,10 @@ assert "Houlalah" in (config.ROOT / "web" / "spots" / "index.html").read_text(en
 for _slug in ("comment-ca-marche", "mentions-legales", "confidentialite"):
     assert "<h1>" in (config.ROOT / "web" / _slug / "index.html").read_text(encoding="utf-8"), _slug
 bp = (config.ROOT / "web" / "bouees" / "cap-ferret" / "index.html").read_text(encoding="utf-8")
-assert "<h1>Bouée Cap Ferret</h1>" in bp and "Relevé actuel" in bp and "application/ld+json" in bp and "Relevés précédents" in bp
+# houlographe CANDHIS : vrai nom de l'appareil, numéro de station, source, Dataset ; liens vers les pages de spots (pas l'application)
+assert "<h1>Bouée houlographe du Cap Ferret</h1>" in bp and "CANDHIS 03302" in bp and "Historique des mesures" in bp and "Source des mesures" in bp, "page bouée"
+assert '"@type": "Dataset"' in bp and "../../spots/" in bp and "?spot=" not in bp.split("Spots autour")[1].split("Bouées voisines")[0]
+assert "Heure par heure" in pg and "Marées à Lacanau" in pg, "page spot : heure par heure et marées"
 assert "Les bouées" in (config.ROOT / "web" / "bouees" / "index.html").read_text(encoding="utf-8")
 print("SEO OK :", len(data["spots"]), "pages de spots + index + sitemap ;", _nb, "pages de bouées")
 
