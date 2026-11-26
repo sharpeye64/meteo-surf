@@ -3380,6 +3380,156 @@ html[data-da="a"] .pv-band[data-sky="night"]{background:radial-gradient(1000px 4
 }
 @keyframes hoUp{from{transform:translateY(14px);opacity:0}}
 @media (prefers-reduced-motion:reduce){ .ho-sheet{animation:none} }
+
+/* =====================================================================================================
+   ACCUEIL — FINITION (test) : signaux vivants, relief, transitions. Même structure ; rien de gadget.
+   Tous les mouvements s'arrêtent si la personne a demandé moins d'animations.
+   ===================================================================================================== */
+#home.ho{--ease:cubic-bezier(.22,.8,.24,1);--spring:cubic-bezier(.3,1.35,.45,1);--sh:0 1px 2px rgba(11,27,38,.08),0 8px 18px -10px rgba(11,27,38,.35),0 26px 50px -30px rgba(11,27,38,.5)}
+/* ---- surfaces bleu nuit : reflet doux, grain très léger, houle qui dérive ---- */
+.ho-hd{background:radial-gradient(360px 200px at 105% -30%,rgba(78,148,190,.42),transparent 68%),radial-gradient(300px 180px at -20% 120%,rgba(217,164,65,.13),transparent 65%),linear-gradient(170deg,#102838 0%,#0B1B26 58%,#091722 100%)}
+.ho-hd:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.07;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+.ho-deco i{position:absolute;left:0;right:0;height:46px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='46' viewBox='0 0 240 46'%3E%3Cpath d='M0 23Q30 11 60 23T120 23T180 23T240 23' fill='none' stroke='%23F3EFE6' stroke-width='1.1'/%3E%3C/svg%3E") repeat-x 0 0/240px 46px;opacity:.07;animation:hoDrift 38s linear infinite}
+.ho-deco i:first-child{top:34%}
+.ho-deco i:last-child{top:58%;opacity:.045;background-size:300px 52px;animation-duration:56s;animation-direction:reverse}
+@keyframes hoDrift{to{background-position-x:240px}}
+.ho-deco i:last-child{animation-name:hoDrift2}
+@keyframes hoDrift2{to{background-position-x:300px}}
+.ho-panel{box-shadow:0 0 0 1px rgba(11,27,38,.05),0 2px 4px rgba(11,27,38,.04),0 18px 36px -18px rgba(11,27,38,.35),0 50px 80px -46px rgba(11,27,38,.55);transition:box-shadow .4s var(--ease);animation:hoIn .6s var(--ease) both}
+.ho-panel:hover{box-shadow:0 0 0 1px rgba(11,27,38,.07),0 2px 4px rgba(11,27,38,.05),0 22px 44px -18px rgba(11,27,38,.4),0 60px 90px -46px rgba(11,27,38,.6)}
+@keyframes hoIn{from{opacity:0;transform:translateY(calc(-50% + 12px))}}
+.ho-tools,.ho-time{animation:hoFade .6s .15s var(--ease) both}
+@keyframes hoFade{from{opacity:0;transform:translateY(6px)}}
+.ho-time{animation-name:hoFadeT}
+@keyframes hoFadeT{from{opacity:0;transform:translateY(8px)}}
+.ho-h1 em{background:linear-gradient(100deg,#F2C66B 0%,#F7DA9A 45%,#E6B95E 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ho-logo{transition:opacity .2s}
+.ho-logo:hover{opacity:.85}
+/* ---- recherche ---- */
+.ho-srch{transition:box-shadow .25s var(--ease),background .25s}
+.ho-srch>svg{transition:color .25s,opacity .25s,transform .3s var(--ease)}
+.ho-srch:focus-within>svg{color:var(--g);opacity:1;transform:scale(1.06)}
+.ho-srch input::placeholder{transition:opacity .2s}
+.ho-srch input:focus::placeholder{opacity:.35}
+.ho-qx{animation:hoPopIn .2s var(--ease)}
+@keyframes hoPopIn{from{transform:scale(.6);opacity:0}}
+/* ---- zones ---- */
+.ho-chip{transition:background .2s,color .2s,box-shadow .25s,transform .25s var(--ease)}
+.ho-chip:hover{transform:translateY(-1px)}
+.ho-chip:active{transform:scale(.95)}
+.ho-chip.on{background:linear-gradient(180deg,#183445,#0B1B26);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 10px -4px rgba(11,27,38,.55)}
+/* ---- lignes du panneau ---- */
+.ho-row{border-bottom:0;background:linear-gradient(90deg,transparent,var(--ln) 12%,var(--ln) 88%,transparent) bottom/100% 1px no-repeat;transition:color .2s}
+.ho-row>svg{transition:transform .35s var(--spring)}
+.ho-row:hover>svg{transform:rotate(-12deg) scale(1.1)}
+.ho-row:hover .ho-chev{transform:translateX(2px)}
+.ho-row:hover .ho-chev.on{transform:rotate(90deg)}
+.ho-br,.ho-it{transition:background .2s,transform .25s var(--ease)}
+.ho-br:hover,.ho-it:hover{transform:translateX(2px)}
+.ho-br:active,.ho-it:active{transform:scale(.985)}
+.ho-bv{transition:transform .25s var(--ease)}
+/* ---- mesures en mer : un encart sable, l'or des mesures ---- */
+.ho-sea{margin:12px -4px 0;padding:10px 8px 4px;border-radius:16px;background:linear-gradient(180deg,#F8F3E8,#F3ECDE);box-shadow:inset 0 0 0 1px rgba(138,100,24,.09),inset 0 1px 0 rgba(255,255,255,.7)}
+.ho-sea .ho-bh{margin:2px 4px 6px}
+.ho-sea .ho-bh>span:first-child{gap:7px;font:800 11px Manrope,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--gi)}
+.ho-sea .ho-bh .pv-i{width:14px;height:14px}
+.ho-bcount{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 9px 0 8px;border-radius:999px;background:rgba(11,27,38,.06);font:700 11.5px Manrope,system-ui,sans-serif;color:var(--i2)}
+.ho-bcount small{font:600 11px Manrope,system-ui,sans-serif;color:var(--i3)}
+.ho-bcount.on{background:rgba(18,146,90,.1);color:#0E7A4B}
+.ho-sea .ho-br:hover{background:rgba(255,253,248,.75)}
+.ho-sea .ho-more{border-top-color:rgba(138,100,24,.12)}
+.ho-blive .ho-bv{color:#7A5410;text-shadow:0 0 18px rgba(217,164,65,.35)}
+.ho-lvt{font-style:normal;font-weight:700;color:#12925A}
+.ho-bv{background:linear-gradient(180deg,#9A7020,#7A5410);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ho-bv u{color:#8A6418;-webkit-text-fill-color:#8A6418}
+/* ---- barre des données : une pastille qui glisse ---- */
+.ho-seg{position:relative;background:linear-gradient(180deg,#132C3B,#0B1B26);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),var(--sh)}
+.ho-seg button{position:relative;z-index:1;transition:color .3s}
+.ho-seg button[aria-pressed="true"]{background:none;color:var(--n)}
+.ho-seg .ho-ind{position:absolute;z-index:0;top:4px;bottom:4px;left:0;width:0;border-radius:999px;background:linear-gradient(180deg,#FFFDF8,#ECE4D2);box-shadow:inset 0 1px 0 #fff,0 3px 10px -3px rgba(0,0,0,.45)}
+.ho-ind.rd{transition:transform .4s var(--spring),width .4s var(--ease)}
+.ho-rb{background:linear-gradient(180deg,#132C3B,#0B1B26);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),var(--sh);transition:color .25s,transform .25s var(--ease)}
+.ho-rb:hover{transform:translateY(-1px)}
+.ho-rb:active{transform:scale(.94)}
+.ho-rb[aria-pressed="true"]{box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 0 3px rgba(242,198,107,.12),var(--sh)}
+.ho-rb:after{transition:transform .25s var(--ease)}
+.ho-geo{background:linear-gradient(180deg,#FFFDF8,#F3EDE1);box-shadow:inset 0 1px 0 #fff,var(--sh)}
+.ho-leg{transition:opacity .3s}
+.ho-lsteps i{transition:background-color .45s var(--ease)}
+/* ---- jour et heure ---- */
+.ho-time{background:linear-gradient(180deg,#122A39,#0B1B26 70%);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),var(--sh)}
+.ho-tds{position:relative}
+.ho-tds button{position:relative;z-index:1;display:flex;align-items:baseline;justify-content:center;gap:4px;background:none;transition:color .3s}
+.ho-tds button small{font:600 11px Manrope,system-ui,sans-serif;opacity:.55}
+.ho-tds button:hover{background:rgba(243,239,230,.06)}
+.ho-tds button.on{background:none;color:var(--n)}
+.ho-tds button.on small{opacity:.6}
+.ho-tds .ho-ind{position:absolute;z-index:0;top:0;bottom:0;left:0;width:0;border-radius:9px;background:linear-gradient(180deg,#FFFDF8,#ECE4D2);box-shadow:inset 0 1px 0 #fff,0 4px 12px -4px rgba(0,0,0,.5)}
+.ho-time.fut .ho-tds .ho-ind{background:linear-gradient(180deg,#F7D58E,#E3B355)}
+.ho-tw b.ho-tk,.ho-tc b.ho-tk{animation:hoTk .35s var(--ease)}
+@keyframes hoTk{from{opacity:.2;transform:translateY(3px)}}
+.ho-tw:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--cr);box-shadow:0 0 0 3px rgba(243,239,230,.14);order:-1}
+.ho-tw svg{display:none}
+.ho-time.fut .ho-tw:before{background:var(--g);box-shadow:0 0 0 3px rgba(242,198,107,.16)}
+.ho-hr select{transition:background .2s}
+.ho-hr select:hover{background:rgba(243,239,230,.16)}
+/* ---- marqueurs des spots : relief, survol, choix qui respire ---- */
+.ho-m{background-color:var(--c);background-image:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 58%);box-shadow:0 0 0 2px #FFFDF8,0 1px 2px rgba(11,27,38,.18),0 6px 14px -6px rgba(11,27,38,.45);transition:transform .3s var(--spring),box-shadow .3s var(--ease),background-color .45s var(--ease),color .45s var(--ease);animation-delay:var(--dl,0s)}
+.ho-m:hover{transform:translateY(-2px) scale(1.1);box-shadow:0 0 0 2px #FFFDF8,0 2px 4px rgba(11,27,38,.18),0 12px 22px -8px rgba(11,27,38,.5)}
+.ho-m:active{transform:scale(.95)}
+.ho-sw .ho-m>span{animation:hoSwap .42s var(--ease)}
+@keyframes hoSwap{from{opacity:0;transform:translateY(4px)}}
+.ho-mw.is-sel:before,.ho-bw.is-sel:before{content:"";position:absolute;inset:-7px;border-radius:999px;border:2px solid rgba(11,27,38,.55);pointer-events:none;animation:hoBreath 2.6s var(--ease) infinite}
+.ho-bw.is-sel:before{border-color:rgba(242,198,107,.8)}
+@keyframes hoBreath{0%{transform:scale(.92);opacity:.9}70%,100%{transform:scale(1.28);opacity:0}}
+.ho-m.sel{box-shadow:0 0 0 2.5px #0B1B26,0 0 0 5px rgba(255,253,248,.95),0 12px 24px -8px rgba(11,27,38,.55)}
+/* ---- bouées : en direct (halo doré qui respire + pastille verte), récente (anneau plein), ancienne (en retrait) ---- */
+.ho-b{background:linear-gradient(180deg,#16313F,#0B1B26);transition:transform .3s var(--spring),opacity .3s,box-shadow .3s}
+.ho-b:hover{transform:translateY(-2px) scale(1.1)}
+.ho-b:active{transform:scale(.95)}
+.ho-b.b-live{box-shadow:0 0 0 1.5px #F2C66B,0 0 0 4px rgba(242,198,107,.14),0 6px 14px -5px rgba(11,27,38,.55);animation:hoGlow 3.2s ease-in-out infinite}
+@keyframes hoGlow{50%{box-shadow:0 0 0 1.5px #F2C66B,0 0 0 6px rgba(242,198,107,.2),0 0 18px 2px rgba(242,198,107,.35),0 6px 14px -5px rgba(11,27,38,.55)}}
+.ho-b.b-rec .ho-lv{display:block;background:#F3EFE6;box-shadow:0 0 0 1.5px var(--n)}
+.ho-b.b-fut{animation:none}
+.ho-zlo .ho-b.b-live{box-shadow:0 0 0 1.5px #F2C66B,0 0 0 4px rgba(242,198,107,.16),0 6px 14px -5px rgba(11,27,38,.55)}
+/* ---- info-bulle : apparition douce ---- */
+.ho-tip{background:linear-gradient(180deg,#132C3B,#0B1B26);transform:translateY(5px) scale(.97);transform-origin:50% 100%;transition:opacity .18s var(--ease),transform .25s var(--ease)}
+.ho-tip.on{transform:none}
+/* ---- fiches ---- */
+.ho-ms,.ho-gold{background:radial-gradient(220px 100px at 100% 0%,rgba(217,164,65,.26),transparent 70%),linear-gradient(170deg,#132C3B,#0B1B26 70%);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 10px 22px -14px rgba(11,27,38,.6);transition:transform .25s var(--ease)}
+.ho-ms:hover{transform:translateY(-1px)}
+.ho-mv{background:linear-gradient(180deg,#F7DA9A,#E6B95E);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ho-go{background:linear-gradient(180deg,#16313F,#0B1B26);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 12px 24px -14px rgba(11,27,38,.7)}
+.ho-go:active{transform:scale(.98)}
+.ho-fv{transition:background .2s,color .2s,transform .35s var(--spring)}
+.ho-fv.on svg{animation:hoStar .45s var(--spring)}
+@keyframes hoStar{from{transform:scale(.4) rotate(-30deg)}}
+.ho-spot{animation:hoFade .35s var(--ease)}
+#hoFavL,.ho-bl.all{animation:hoFade .3s var(--ease)}
+/* ---- téléphone ---- */
+@media (max-width:759px){
+  .ho-panel,.ho-panel:hover{animation:none;box-shadow:none}
+  .ho-hd{background:none}
+  .ho-hd:before{display:none}
+  .ho-mlogo{background:linear-gradient(180deg,#16313F,#0B1B26);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),var(--sh)}
+  .ho-ib,.ho-chip{transition:transform .25s var(--ease),background .2s,color .2s}
+  .ho-ib:active,.ho-chip:active,.ho-vb:active,.ho-bc:active,.ho-ta:active{transform:scale(.94)}
+  .ho-ib{background:linear-gradient(180deg,#FFFDF8,#F3EDE1);box-shadow:inset 0 1px 0 #fff,var(--sh)}
+  .ho-srch{background:linear-gradient(180deg,#FFFDF8,#FAF6EE)}
+  .ho-mb{background:linear-gradient(180deg,rgba(255,253,248,.98),rgba(247,242,233,.98));box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(11,27,38,.05),var(--sh);animation:hoFade .5s .1s var(--ease) both}
+  .ho-vb,.ho-bc,.ho-ta{transition:transform .2s var(--ease),background .2s}
+  .ho-bc{gap:7px}
+  .ho-sheet{box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(11,27,38,.06),0 30px 60px -24px rgba(11,27,38,.6);animation:hoUp .38s var(--spring)}
+  .ho-sheet:before{content:"";display:block;width:34px;height:4px;margin:-6px auto 10px;border-radius:2px;background:rgba(11,27,38,.14)}
+  .ho-tc b{display:flex;align-items:center;gap:7px}
+  .ho-tc b:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--cr);box-shadow:0 0 0 3px rgba(243,239,230,.14)}
+  .ho-time.fut .ho-tc b:before{background:var(--g)}
+}
+@keyframes hoUp{from{transform:translateY(18px) scale(.98);opacity:0}}
+@media (prefers-reduced-motion:reduce){
+  .ho-deco i,.ho-panel,.ho-tools,.ho-time,.ho-mb,.ho-sheet,.ho-spot,.ho-b.b-live,.ho-mw.is-sel:before,.ho-bw.is-sel:before,.ho-sw .ho-m>span,.ho-tk,.ho-fv.on svg,#hoFavL,.ho-bl.all,.ho-qx{animation:none!important}
+  .ho-ind.rd,.ho-m,.ho-b,.ho-chip,.ho-br,.ho-it{transition:none}
+}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -5520,7 +5670,7 @@ async function homeOpen(fromSpot){
       <div class="ho-top"><a class="ho-mlogo" href="./" aria-label="Houlalah"><img src="brand/symbol.svg" alt="" width="22" height="20"><img src="brand/wordmark.svg" alt="houlalah" height="14"></a><span class="ho-sp"></span>
         <button type="button" class="ho-ib" id="hoFavB" aria-label="Mes spots">${HO_I.star}</button><button type="button" class="ho-ib" id="hoMenuB" aria-label="Menu">${HO_I.menu}</button></div>
       <section class="ho-panel" id="hoPanel" aria-label="Explorer la côte">
-        <header class="ho-hd"><div class="ho-deco" aria-hidden="true">${pvDeco()}</div>
+        <header class="ho-hd"><div class="ho-deco" aria-hidden="true"><i></i><i></i></div>
           <div class="ho-brand"><a class="ho-logo" href="./" aria-label="Houlalah"><img src="brand/symbol.svg" alt="" width="24" height="22"><img class="ho-wm" src="brand/wordmark.svg" alt="houlalah" height="15"></a><a class="ho-how" href="comment-ca-marche/" aria-label="Comment ça marche" title="Comment ça marche">${HO_I.info}</a></div>
           <h1 class="ho-h1">La houle prévue, <em>vérifiée par les bouées.</em></h1>
           <p class="ho-k">${HOME.data.length} spots · ${HOME.bu.length} bouées · Bretagne au Portugal</p>
@@ -5529,7 +5679,7 @@ async function homeOpen(fromSpot){
         <div class="ho-zones" id="hoZones" role="group" aria-label="Zone"></div>
         <div class="ho-body" id="hoBody"></div>
       </section>
-      <div class="ho-tools"><div class="ho-seg" id="hoVar" role="group" aria-label="Donnée affichée">${Object.values(HOME_VARS).map(x=>`<button type="button" data-v="${x.k}" aria-pressed="${x.k===HOME.v}">${pvI(x.k==='H'?'wave':x.k==='T'?'period':'wind')}<span>${x.lab}</span></button>`).join('')}</div>
+      <div class="ho-tools"><div class="ho-seg" id="hoVar" role="group" aria-label="Donnée affichée"><i class="ho-ind" aria-hidden="true"></i>${Object.values(HOME_VARS).map(x=>`<button type="button" data-v="${x.k}" aria-pressed="${x.k===HOME.v}">${pvI(x.k==='H'?'wave':x.k==='T'?'period':'wind')}<span>${x.lab}</span></button>`).join('')}</div>
         <button type="button" class="ho-rb" id="hoBuT" aria-pressed="${HOME.showBu}" aria-label="Afficher les bouées" title="Bouées : mesures réelles">${pvI('buoy')}</button>
         <div class="ho-leg" id="hoLeg" aria-hidden="true"></div></div>
       <button type="button" class="ho-rb ho-geo" id="hmGeo" title="Spots près de moi" aria-label="Spots près de moi">${HO_I.loc}</button>
@@ -5541,6 +5691,7 @@ async function homeOpen(fromSpot){
     el.setAttribute('role','dialog'); el.setAttribute('aria-label','Houlalah : la côte en ce moment');
     document.getElementById('hmClose').onclick=()=>{ homeClose(); };
     homeBindUi(); HOME.ready=true; homeTimeBar(); homeLegend(); homeZones(); homePanel();
+    const ind=()=>{ homeInd(document.getElementById('hoVar')); homeInd(document.querySelector('#hoTime .ho-tds')); }; requestAnimationFrame(ind); try{ document.fonts.ready.then(ind); }catch(e){}
     try{ await homeLoadLib(); homeInitMap(); }catch(e){ const m=document.getElementById('hmMap'); if(m) m.classList.add('off'); }
   } else { homeSheet(null); homeZones(); homePanel(); if(HOME.map){ HOME.map.resize(); homeFit(); } }
   homeTopBtn();
@@ -5584,7 +5735,7 @@ function homeInitMap(){
     map.addLayer({id:'ho-ref',type:'line',source:'ho-ref',paint:{'line-color':'#C99A3A','line-width':2,'line-dasharray':[1.2,2.2],'line-opacity':.9},layout:{'line-cap':'round'}});
     homeRef(); });
   HOME.mk={}; HOME.bm={}; HOME.cl=[];
-  HOME.data.forEach(s=>{ const w=document.createElement('div'); w.className='ho-mw'; w.innerHTML=`<button type="button" class="ho-m" aria-label="${s.n}"><span></span></button>`;
+  HOME.data.forEach((s,k)=>{ const w=document.createElement('div'); w.className='ho-mw'; w.style.setProperty('--dl',(k*3)+'ms'); w.innerHTML=`<button type="button" class="ho-m" aria-label="${s.n}"><span></span></button>`;
     const b=w.firstChild; b.onclick=e=>{ e.stopPropagation(); homeSpot(s,!hoMob()); }; homeHover(b,()=>homeSpotTip(s));
     HOME.mk[s.i]=new maplibregl.Marker({element:w}).setLngLat([s.lon,s.lat]).addTo(map); });
   HOME.bu.forEach(bu=>{ const w=document.createElement('div'); w.className='ho-bw';
@@ -5612,9 +5763,9 @@ function homeMarks(){
   HOME.data.forEach(s=>{ const m=HOME.mk&&HOME.mk[s.i]; if(!m) return; const b=m.getElement().firstChild, h=homeHour(s), x=homeVal(h,v);
     b.querySelector('span').innerHTML=x==null?'—':v==='W'?`${h.wd!=null?pvArr(h.wd,'ho-wa'):''}${Math.round(x)}`:homeTxt(x,v);
     b.style.cssText=x==null?'--c:#D8D2C4;--t:#5F6B71':pvCellCss(x,v);
-    b.classList.toggle('fav',state.fav.includes(s.n)); b.classList.toggle('sel',HOME.sel===s.i); });
+    b.classList.toggle('fav',state.fav.includes(s.n)); b.classList.toggle('sel',HOME.sel===s.i); m.getElement().classList.toggle('is-sel',HOME.sel===s.i); });
   Object.entries(HOME.bm||{}).forEach(([id,m])=>{ const bu=HOME.bu.find(x=>x.id===id), b=m.getElement().firstChild, a=hoAge(bu.L);
-    b.classList.toggle('b-live',a<1); b.classList.toggle('b-old',a>=6); b.classList.toggle('b-fut',!homeIsNow()); b.classList.toggle('sel',HOME.selB&&HOME.selB.id===id); });
+    b.classList.toggle('b-live',a<1); b.classList.toggle('b-rec',a>=1&&a<3); b.classList.toggle('b-old',a>=6); m.getElement().classList.toggle('is-sel',!!(HOME.selB&&HOME.selB.id===id)); b.classList.toggle('b-fut',!homeIsNow()); b.classList.toggle('sel',HOME.selB&&HOME.selB.id===id); });
   document.getElementById('home').classList.toggle('ho-fut',!homeIsNow());
   homeCluster();
 }
@@ -5665,7 +5816,7 @@ function homeDays(){ const o=[]; HOME.T.forEach((t,i)=>{ const d=t.slice(0,10); 
 function homeTimeBar(){
   const el=document.getElementById('hoTime'); if(!el) return; const D=homeDays();
   el.innerHTML=`<div class="ho-th"><span class="ho-tw">${HO_I.cal}<b id="hoTl"></b></span><label class="ho-hr">${''}<select id="hoHr" aria-label="Heure"></select>${HO_I.down}</label></div>
-    <div class="ho-tds" role="group" aria-label="Jour">${D.map((x,k)=>{ const d=new Date(x.d+'T12:00:00'); return `<button type="button" data-d="${x.d}">${k===0?'Auj.':hoDays[d.getDay()]}</button>`; }).join('')}</div>
+    <div class="ho-tds" role="group" aria-label="Jour"><i class="ho-ind" aria-hidden="true"></i>${D.map((x,k)=>{ const d=new Date(x.d+'T12:00:00'); return `<button type="button" data-d="${x.d}">${k===0?'Auj.':hoDays[d.getDay()]}<small>${d.getDate()}</small></button>`; }).join('')}</div>
     <div class="ho-tm"><button type="button" class="ho-ta" id="hoPrev" aria-label="Jour précédent">${HO_I.back}</button><span class="ho-tc"><b id="hoTlM"></b><label class="ho-hrm"><select id="hoHrM" aria-label="Heure"></select></label></span><button type="button" class="ho-ta" id="hoNext" aria-label="Jour suivant">${HO_I.next}</button></div>`;
   el.querySelectorAll('.ho-tds [data-d]').forEach(b=>b.onclick=()=>homeDay(b.dataset.d));
   const step=k=>{ const D=homeDays(), cur=HOME.T[HOME.ti].slice(0,10), j=D.findIndex(x=>x.d===cur)+k; if(j>=0&&j<D.length) homeDay(D[j].d); };
@@ -5689,9 +5840,15 @@ function homeTimeUi(){
   document.querySelectorAll('#hoTime .ho-tds [data-d]').forEach(x=>{ const on=x.dataset.d===d; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)); });
   const D=homeDays(), j=D.findIndex(x=>x.d===d), p=document.getElementById('hoPrev'), n=document.getElementById('hoNext'); if(p) p.disabled=j<=0; if(n) n.disabled=j>=D.length-1;
   document.getElementById('hoTime').classList.toggle('fut',!homeIsNow());
+  homeInd(document.querySelector('#hoTime .ho-tds')); ['hoTl','hoTlM'].forEach(id=>homeTick(document.getElementById(id)));
 }
+/* pastille qui glisse sous le bouton actif (donnée affichée, jour) */
+function homeInd(box){ if(!box) return; const i=box.querySelector('.ho-ind'), a=box.querySelector('[aria-pressed="true"]'); if(!i||!a||!a.offsetWidth) return; i.style.width=a.offsetWidth+'px'; i.style.transform=`translateX(${a.offsetLeft}px)`; if(!i.classList.contains('rd')) requestAnimationFrame(()=>i.classList.add('rd')); }
+function homeTick(e){ if(!e) return; e.classList.remove('ho-tk'); void e.offsetWidth; e.classList.add('ho-tk'); }
+/* changement de donnée ou d'heure : les valeurs des marqueurs se renouvellent en douceur */
+function homeSwap(){ const e=document.getElementById('home'); if(!e) return; e.classList.remove('ho-sw'); void e.offsetWidth; e.classList.add('ho-sw'); clearTimeout(HOME.swt); HOME.swt=setTimeout(()=>e.classList.remove('ho-sw'),500); }
 function homeSetTime(i){
-  HOME.ti=clamp(i,0,HOME.T.length-1); homeTimeUi(); homeMarks();
+  HOME.ti=clamp(i,0,HOME.T.length-1); homeSwap(); homeTimeUi(); homeMarks();
   if(HOME.view==='spot'&&HOME.sel!=null){ const s=HOME.data.find(x=>x.i===HOME.sel); if(s) homeSpotNums(s); }
   if(HOME.view==='favs') homeFavList(document.getElementById(hoMob()?'hoSheet':'hoBody'));
 }
@@ -5713,7 +5870,7 @@ function homeBindUi(){
   qi.oninput=()=>{ HOME.q=qi.value; qx.hidden=!qi.value; if(HOME.q.trim()){ homeSheet(null); HOME.view='search'; } else if(HOME.view==='search') HOME.view='home'; homePanel(); };
   qi.onkeydown=e=>{ if(e.key==='Enter'){ const f=document.querySelector('#hoBody .ho-it'); if(f) f.click(); } if(e.key==='Escape'){ qx.click(); } };
   qx.onclick=()=>{ qi.value=''; HOME.q=''; qx.hidden=true; if(HOME.view==='search') HOME.view='home'; homePanel(); qi.blur(); };
-  const setV=v=>{ HOME.v=v; try{ localStorage.setItem('hoVar',v); }catch(e){} document.getElementById('home').dataset.v=v; document.querySelectorAll('#hoVar [data-v]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v))); homeLegend(); homeMarks(); };
+  const setV=v=>{ HOME.v=v; homeSwap(); try{ localStorage.setItem('hoVar',v); }catch(e){} document.getElementById('home').dataset.v=v; document.querySelectorAll('#hoVar [data-v]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v))); homeInd(document.getElementById('hoVar')); homeLegend(); homeMarks(); };
   HOME.setV=setV;
   document.querySelectorAll('#hoVar [data-v]').forEach(b=>b.onclick=()=>setV(b.dataset.v));
   const tb=()=>{ HOME.showBu=!HOME.showBu; try{ localStorage.setItem('hoBu',HOME.showBu?'1':'0'); }catch(er){} ['hoBuT','hoBuTM'].forEach(id=>{ const b=document.getElementById(id); b.setAttribute('aria-pressed',String(HOME.showBu)); b.setAttribute('aria-label',HOME.showBu?'Masquer les bouées':'Afficher les bouées'); }); homeMarks(); };
@@ -5740,7 +5897,7 @@ function homeMenu(){
   homeSheet(`<p class="ho-sk">Houlalah</p><nav class="ho-menu"><a href="comment-ca-marche/">Comment ça marche ${HO_I.next}</a><a href="bouees/">Toutes les bouées ${HO_I.next}</a><a href="spots/">Tous les spots ${HO_I.next}</a><a href="a-propos/">À propos ${HO_I.next}</a></nav>`,'ho-sh-s');
 }
 function homeBuRow(b){ const a=hoAge(b.L), f=pvFresh(a,b.L.time);
-  return `<button type="button" class="ho-br${a>=6?' ho-old':''}" data-b="${b.id}"><i class="ho-fd f-${f.c}"></i><span class="ho-bn"><b>${b.n}</b><small>${[hoPer(b.L),b.L.dir!=null?sector(b.L.dir):'',f.c==='live'?'':f.t].filter(Boolean).join(' · ')}</small></span><span class="ho-bv">${hmF(b.L.hs)}<u>m</u></span></button>`; }
+  return `<button type="button" class="ho-br${a>=6?' ho-old':''}${f.c==='live'?' ho-blive':''}" data-b="${b.id}"><i class="ho-fd f-${f.c}"></i><span class="ho-bn"><b>${b.n}</b><small>${[hoPer(b.L),b.L.dir!=null?sector(b.L.dir):''].filter(Boolean).join(' · ')}${f.c==='live'?` · <em class="ho-lvt">${f.t}</em>`:` · ${f.t}`}</small></span><span class="ho-bv">${hmF(b.L.hs)}<u>m</u></span></button>`; }
 function homeFavList(T){
   if(!T) return; const fav=HOME.data.filter(s=>state.fav.includes(s.n)), v=HOME.v, box=T.querySelector('#hoFavL')||T;
   const html=fav.length?`<div class="ho-rl">${fav.map(s=>{ const h=homeHour(s), x=homeVal(h,v); return `<button type="button" class="ho-it" data-i="${s.i}"><span class="ho-pill" style="${x==null?'':pvCellCss(x,v)}">${x==null?'—':homeTxt(x,v)}</span><span class="ho-rn"><b>${s.n}</b><small>${s.r}</small></span>${HO_I.next}</button>`; }).join('')}</div>`:'<p class="ho-note">Touchez l’étoile d’un spot pour le retrouver ici.</p>';
@@ -5762,9 +5919,9 @@ function homePanel(){
   /* grand écran : mes spots (repliés), puis 3 bouées, la liste complète à la demande */
   const live=HOME.bu.filter(b=>hoAge(b.L)<1).length, rec=HOME.bu.filter(b=>hoAge(b.L)<3).length, all=HOME.buAll, fav=HOME.data.filter(s=>state.fav.includes(s.n)), fo=v==='favs';
   B.innerHTML=`<button type="button" class="ho-row" id="hoFavT" aria-expanded="${fo}">${HO_I.star}<b>Mes spots</b>${fav.length?`<small>${fav.length}</small>`:''}<i class="ho-chev${fo?' on':''}">${HO_I.next}</i></button>${fo?'<div id="hoFavL"></div>':''}
-    <div class="ho-bh"><span><i class="ho-fd ${live?'f-live':'f-recent'}"></i>${live?'Bouées en direct':'Mesures récentes'}</span><span class="ho-bcount"><b class="${live?'':'n'}">${live||rec}</b> / ${HOME.bu.length}</span></div>
+    <div class="ho-sea"><div class="ho-bh"><span>${pvI('buoy')}Mesures en mer</span><span class="ho-bcount${live?' on':''}"><i class="ho-fd ${live?'f-live':'f-recent'}"></i>${live?`${live} en direct`:`${rec} récentes`}<small> / ${HOME.bu.length}</small></span></div>
     <div class="ho-bl${all?' all':''}">${(all?HOME.bu:HOME.bu.slice(0,3)).map(homeBuRow).join('')}</div>
-    <button type="button" class="ho-more" id="hoBuAll">${all?'Moins de bouées':'Toutes les bouées'} ${all?HO_I.down:HO_I.next}</button>`;
+    <button type="button" class="ho-more" id="hoBuAll">${all?'Moins de bouées':'Toutes les bouées'} ${all?HO_I.down:HO_I.next}</button></div>`;
   if(fo) homeFavList(B);
   document.getElementById('hoFavT').onclick=()=>{ HOME.view=fo?'home':'favs'; homePanel(); };
   document.getElementById('hoBuAll').onclick=()=>{ HOME.buAll=!HOME.buAll; homePanel(); };
@@ -5836,7 +5993,7 @@ function homeGeo(btn){
 document.addEventListener('click',e=>{ const a=e.target.closest&&e.target.closest('.hero .brand'); if(a&&state.data){ e.preventDefault(); homeOpen(true); } });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&HOME.on) homeClose(); });
 if(window.visualViewport){ const vv=()=>document.documentElement.style.setProperty('--hmvh',visualViewport.height+'px'); visualViewport.addEventListener('resize',vv); visualViewport.addEventListener('scroll',vv); vv(); }
-addEventListener('resize',()=>{ if(!HOME.on) return; if(!HOME.map) return; clearTimeout(HOME.rt); HOME.rt=setTimeout(()=>{ HOME.map.resize(); homeCluster(); },200); });
+addEventListener('resize',()=>{ if(!HOME.on) return; homeInd(document.getElementById('hoVar')); homeInd(document.querySelector('#hoTime .ho-tds')); if(!HOME.map) return; clearTimeout(HOME.rt); HOME.rt=setTimeout(()=>{ HOME.map.resize(); homeCluster(); },200); });
 
 async function start(){
   oceanInit();
