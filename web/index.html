@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr" class="lp">
+<html lang="fr" class="lp v2">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -1903,6 +1903,454 @@ html.lp{--text:#10202c;--muted:#5b6b75;--edge:rgba(16,32,44,.10);--glass:#fff;--
   #home .hmb-dcard[data-side="r"]:after{right:-9px}
   #home .hmb-dcard[data-side="l"]:after{left:-9px;border-radius:0 0 0 5px}
 }
+/* =====================================================================================================
+   PAGE DE PRÉVISIONS V2 (26/11/2026) — un seul système : jetons de couleur, rayons, bordures fines, ombres légères.
+   Bleu nuit = prévisions ; DORÉ = mesures réelles (bouées). Chiffres tabulaires partout où l'on compare.
+   ===================================================================================================== */
+html.v2{
+  --pv-bg:#F1F3F4; --pv-surface:#FFFFFF; --pv-sunk:#F5F7F8; --pv-line:rgba(16,32,44,.085); --pv-line2:rgba(16,32,44,.15);
+  --pv-ink:#10202C; --pv-ink2:#44545E; --pv-ink3:#768690; --pv-ink4:#A7B2B8;
+  --pv-gold:#C9A463; --pv-gold-ink:#86661C; --pv-gold-bg:#FBF7EE; --pv-gold-line:rgba(201,164,99,.5);
+  --pv-off:#1B8476; --pv-side:#6F7F88; --pv-on:#C25B37; --pv-per:#3E8F68; --pv-tide:#7A76BE;
+  --pv-mix:46%; --pv-mixn:26%; --pv-r:16px; --pv-rs:9px;
+  --pv-sh:0 1px 2px rgba(16,32,44,.04),0 8px 24px -12px rgba(16,32,44,.10);
+  --pv-sel:#10202C; --pv-on-sel:#FFFFFF;
+  background:var(--pv-bg);
+}
+@media (prefers-color-scheme:dark){
+  html.v2{
+    --pv-bg:#0A1216; --pv-surface:#101B21; --pv-sunk:#0D171C; --pv-line:rgba(255,255,255,.07); --pv-line2:rgba(255,255,255,.13);
+    --pv-ink:#EAF0F2; --pv-ink2:#B2BEC4; --pv-ink3:#83939B; --pv-ink4:#55656D;
+    --pv-gold:#E4C79B; --pv-gold-ink:#E4C79B; --pv-gold-bg:rgba(228,199,155,.06); --pv-gold-line:rgba(228,199,155,.32);
+    --pv-off:#5CC2B2; --pv-side:#93A3AA; --pv-on:#E8896A; --pv-per:#79C79F; --pv-tide:#A9A6E0;
+    --pv-mix:30%; --pv-mixn:16%; --pv-sh:none; --pv-sel:#EAF0F2; --pv-on-sel:#0A1216;
+    color-scheme:dark;
+  }
+  html.v2 .pv-nmap .maplibregl-canvas{filter:invert(.92) hue-rotate(180deg) saturate(.6) brightness(.95)}
+  html.v2 .pv-nmap{background:#1b2428}
+}
+html.v2 body{color:var(--pv-ink);background:var(--pv-bg)}
+html.v2 :focus-visible{outline:2px solid var(--pv-ink);outline-offset:2px;border-radius:8px}
+.pv{max-width:1120px;margin:0 auto;padding:0 24px}
+.pv-sp{flex:1}
+.pv-empty{margin:8px 0;font:600 13.5px Manrope,system-ui,sans-serif;color:var(--pv-ink3)}
+.pv-fn{margin:12px 0 0;font:500 12px/1.5 Manrope,system-ui,sans-serif;color:var(--pv-ink3)}
+.pv-arr{width:12px;height:12px;fill:currentColor;margin-right:4px;flex:none;display:inline-block;vertical-align:-1px}
+.pv-sep{display:inline-block;width:3px;height:3px;border-radius:50%;background:var(--pv-ink4);margin:0 8px;flex:none}
+.pv-tag{display:inline-flex;align-items:center;height:18px;padding:0 6px;border-radius:5px;font:800 9.5px Manrope,system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;flex:none}
+.pv-tag.obs{background:color-mix(in srgb,var(--pv-gold) 24%,transparent);color:var(--pv-gold-ink)}
+.pv-tag.fc{background:color-mix(in srgb,var(--pv-ink) 7%,transparent);color:var(--pv-ink2)}
+.pv-card{background:var(--pv-surface);border:1px solid var(--pv-line);border-radius:var(--pv-r);box-shadow:var(--pv-sh)}
+.pv-seg{display:inline-flex;padding:3px;gap:2px;border-radius:10px;background:var(--pv-sunk);border:1px solid var(--pv-line);flex-wrap:wrap}
+.pv-seg button{border:0;background:none;min-height:30px;padding:0 12px;border-radius:7px;font:700 13px Manrope,system-ui,sans-serif;color:var(--pv-ink3);cursor:pointer;transition:background .15s,color .15s,box-shadow .15s;white-space:nowrap}
+.pv-seg button:hover{color:var(--pv-ink)}
+.pv-seg button[aria-pressed="true"]{background:var(--pv-surface);color:var(--pv-ink);box-shadow:0 1px 2px rgba(16,32,44,.08),0 0 0 1px var(--pv-line)}
+.pv-btn{min-height:32px;padding:0 12px;border-radius:9px;border:1px solid var(--pv-line2);background:var(--pv-surface);font:700 13px Manrope,system-ui,sans-serif;color:var(--pv-ink2);cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.pv-btn:hover{border-color:var(--pv-ink4);color:var(--pv-ink)}
+.pv-btn[aria-pressed="true"]{background:var(--pv-ink);border-color:var(--pv-ink);color:var(--pv-on-sel)}
+.v2 .tipbtn{width:18px;height:18px;font-size:11px}
+
+/* ---- barre du haut : logo · recherche · favori ---- */
+.pv-top{background:var(--pv-surface);border-bottom:1px solid var(--pv-line)}
+.pv-top .pv-in{max-width:1120px;margin:0 auto;padding:10px 24px;padding-top:calc(10px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:16px}
+.pv-brand{display:flex;align-items:center;gap:8px;text-decoration:none;flex:none;min-width:150px}
+.pv-pick{flex:1;max-width:440px;margin:0 auto;height:40px;display:flex;align-items:center;gap:10px;padding:0 10px 0 14px;border:1px solid var(--pv-line2);border-radius:999px;background:var(--pv-sunk);color:var(--pv-ink3);font:600 14px Manrope,system-ui,sans-serif;cursor:pointer;transition:border-color .15s,background .15s}
+.pv-pick:hover{border-color:var(--pv-ink4);background:var(--pv-surface);color:var(--pv-ink2)}
+.pv-pick svg{width:17px;height:17px;flex:none}
+.pv-pick span{flex:1;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-pick kbd{font:700 11px Manrope,system-ui,sans-serif;border:1px solid var(--pv-line2);border-radius:6px;padding:1px 7px;color:var(--pv-ink3);background:var(--pv-surface)}
+.pv-fav{width:40px;height:40px;flex:none;border-radius:50%;border:1px solid var(--pv-line2);background:var(--pv-surface);color:var(--pv-ink3);display:grid;place-items:center;cursor:pointer;transition:color .15s,border-color .15s,background .15s;margin-left:auto}
+.pv-fav svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.pv-fav:hover{color:var(--pv-ink);border-color:var(--pv-ink4)}
+.pv-fav[aria-pressed="true"]{color:var(--pv-on-sel);background:var(--pv-ink);border-color:var(--pv-ink)}
+.pv-fav[aria-pressed="true"] svg{fill:currentColor}
+
+/* ---- en-tête : nom du spot, infos du jour, webcam ---- */
+.pv-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-top:26px;padding-bottom:16px}
+.pv-head h1{margin:0;font:700 clamp(26px,3.4vw,40px)/1.04 Unbounded,system-ui,sans-serif;letter-spacing:-.04em;color:var(--pv-ink)}
+.pv-meta{margin:10px 0 0;display:flex;flex-wrap:wrap;row-gap:2px;font:600 13.5px Manrope,system-ui,sans-serif;color:var(--pv-ink3);font-variant-numeric:tabular-nums}
+.pv-meta span+span:before{content:"";display:inline-block;width:3px;height:3px;border-radius:50%;background:var(--pv-ink4);margin:0 10px;vertical-align:middle}
+.pv-cam{display:inline-flex;align-items:center;gap:7px;flex:none;height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--pv-line2);font:700 13px Manrope,system-ui,sans-serif;color:var(--pv-ink2);text-decoration:none;background:var(--pv-surface)}
+.pv-cam:hover{color:var(--pv-ink);border-color:var(--pv-ink4)}
+.pv-cam svg{width:17px;height:17px}
+
+/* ---- jours : collés en haut au défilement ---- */
+.pv-days{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--pv-bg) 88%,transparent);-webkit-backdrop-filter:saturate(1.3) blur(12px);backdrop-filter:saturate(1.3) blur(12px);border-bottom:1px solid transparent;transition:border-color .2s}
+.pv-days.stuck{border-bottom-color:var(--pv-line)}
+.pv-dayrow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;padding-top:8px;padding-bottom:10px}
+.pv-day{display:flex;flex-direction:column;align-items:stretch;gap:2px;min-width:0;padding:9px 12px 8px;border:1px solid var(--pv-line);border-radius:12px;background:var(--pv-surface);color:var(--pv-ink);cursor:pointer;text-align:left;transition:border-color .15s,background .15s,color .15s}
+.pv-day:hover{border-color:var(--pv-line2)}
+.pv-dn{font:700 11.5px Manrope,system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:color-mix(in srgb,currentColor 55%,transparent)}
+.pv-dn b{font-weight:800;color:color-mix(in srgb,currentColor 85%,transparent)}
+.pv-dv{display:flex;align-items:baseline;gap:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pv-dv b{font:700 19px Unbounded,system-ui,sans-serif;letter-spacing:-.045em}
+.pv-dv small{font:700 11px Manrope,system-ui,sans-serif;color:color-mix(in srgb,currentColor 55%,transparent)}
+.pv-dv i{font:700 12px Manrope,system-ui,sans-serif;font-style:normal;color:color-mix(in srgb,currentColor 55%,transparent);margin-left:auto}
+.pv-spk{display:block;width:100%;height:18px;margin-top:3px}
+.pv-spk .a{fill:color-mix(in srgb,currentColor 9%,transparent)}
+.pv-spk .l{fill:none;stroke:color-mix(in srgb,currentColor 55%,transparent);stroke-width:1.4;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.pv-day[aria-pressed="true"]{background:var(--pv-sel);border-color:var(--pv-sel);color:var(--pv-on-sel)}
+
+/* ---- carte « heure par heure » : résumé de l'heure choisie ---- */
+.pv-main{padding-bottom:12px}
+.pv-hours{padding:16px 20px 14px;margin-top:2px}
+.pv-hours{position:relative}
+#sHour{top:0;scroll-margin-top:96px}
+.pv-when{display:flex;align-items:center;gap:9px;min-height:28px;font:700 13.5px Manrope,system-ui,sans-serif;color:var(--pv-ink2);font-variant-numeric:tabular-nums}
+.pv-ld{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--pv-ink3);flex:none}
+.pv-ld.on{background:var(--pv-ink);border-color:var(--pv-ink);box-shadow:0 0 0 3px color-mix(in srgb,var(--pv-ink) 12%,transparent)}
+.pv-nowb{margin-left:auto;min-height:28px;padding:0 11px;border-radius:8px;border:1px solid var(--pv-line2);background:var(--pv-surface);font:700 12.5px Manrope,system-ui,sans-serif;color:var(--pv-ink2);cursor:pointer}
+.pv-nowb:hover{color:var(--pv-ink);border-color:var(--pv-ink4)}
+.pv-cells{display:grid;grid-template-columns:1.15fr 1fr 1fr 1.25fr;margin-top:10px;border:1px solid var(--pv-line);border-radius:12px;overflow:hidden}
+.pv-c{display:block;padding:12px 16px 13px;min-width:0;position:relative;color:inherit;text-decoration:none}
+.pv-c+.pv-c{border-left:1px solid var(--pv-line)}
+.pv-k{display:flex;align-items:center;gap:6px;min-height:20px;font:800 10.5px Manrope,system-ui,sans-serif;letter-spacing:.11em;text-transform:uppercase;color:var(--pv-ink3);white-space:nowrap}
+.pv-kt{overflow:hidden;text-overflow:ellipsis}
+.pv-v{margin-top:6px;font:700 30px/1.05 Unbounded,system-ui,sans-serif;letter-spacing:-.05em;color:var(--pv-ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pv-v small{font:700 13px Manrope,system-ui,sans-serif;letter-spacing:0;color:var(--pv-ink3);margin-left:4px}
+.pv-vt{display:flex;align-items:center;gap:6px;height:32px;font-size:19px;letter-spacing:-.035em}
+.pv-tda{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;color:var(--pv-tide)}
+.pv-s{display:flex;align-items:center;flex-wrap:wrap;row-gap:2px;margin-top:6px;font:600 13px Manrope,system-ui,sans-serif;color:var(--pv-ink2);font-variant-numeric:tabular-nums}
+.pv-s b{color:var(--pv-ink);font-weight:800}
+.pv-s>span{white-space:nowrap}
+.pv-s i{font-style:normal;color:var(--pv-ink3);margin-left:5px}
+.pv-wdc{display:inline-flex}
+.pv-wdc .pv-arr{width:14px;height:14px}
+.pv-link{display:inline-flex;align-items:center;gap:4px;margin-top:9px;padding:0;border:0;background:none;font:700 12.5px Manrope,system-ui,sans-serif;color:var(--pv-ink2);cursor:pointer}
+.pv-link svg{width:14px;height:14px;transition:transform .2s}
+.pv-link[aria-expanded="true"] svg{transform:rotate(180deg)}
+.pv-link:hover{color:var(--pv-ink)}
+.pv-obs{background:var(--pv-gold-bg);box-shadow:inset 2px 0 0 var(--pv-gold);transition:background .15s}
+.pv-obs:hover{background:color-mix(in srgb,var(--pv-gold) 13%,var(--pv-surface))}
+.pv-obs .pv-k{color:var(--pv-gold-ink)}
+.pv-obs.old .pv-v{color:var(--pv-ink3)}
+.pv-age{color:var(--pv-ink3)}
+
+/* composition de la houle */
+.pv-comp{margin-top:10px;padding:14px 16px;border-radius:12px;background:var(--pv-sunk);border:1px solid var(--pv-line)}
+.pv-cmpo{display:grid;grid-template-columns:132px minmax(0,1fr);gap:20px;align-items:center}
+.pv-rose{width:132px;height:132px;display:block;overflow:visible}
+.pv-rose .ring{fill:none;stroke:var(--pv-line2);stroke-width:1}
+.pv-rose .land{fill:color-mix(in srgb,#E4C79B 34%,transparent)}
+.pv-rose .shore{stroke:color-mix(in srgb,#B8955B 70%,transparent);stroke-width:1.2}
+.pv-rose .sec{fill:none;stroke:color-mix(in srgb,var(--pv-ink) 22%,transparent);stroke-width:5;stroke-linecap:round}
+.pv-rose text{font:800 8.5px Manrope,system-ui,sans-serif;fill:var(--pv-ink3);text-anchor:middle;dominant-baseline:central}
+.pv-rose g line{stroke-linecap:round}
+.pv-rose .c0 line{stroke:var(--pv-ink)} .pv-rose .c0 path{fill:var(--pv-ink)}
+.pv-rose .c1 line{stroke:#5A7FB8} .pv-rose .c1 path{fill:#5A7FB8}
+.pv-rose .c2 line{stroke:var(--pv-ink4)} .pv-rose .c2 path{fill:var(--pv-ink4)}
+.pv-rose .cw line{stroke:var(--pv-off);stroke-dasharray:3 2.5} .pv-rose .cw path{fill:var(--pv-off)}
+.pv-crow{display:grid;grid-template-columns:minmax(130px,1.4fr) 70px 64px minmax(90px,1fr);align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--pv-line);font:600 13.5px Manrope,system-ui,sans-serif;color:var(--pv-ink2);font-variant-numeric:tabular-nums}
+.pv-crow b{color:var(--pv-ink);font-weight:800}
+.pv-crow i{font-style:normal;color:var(--pv-ink3);font-size:12px}
+.pv-crow.pv-chd{padding-top:0;font:800 10px Manrope,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--pv-ink3)}
+.pv-cn{display:flex;align-items:center;gap:8px;color:var(--pv-ink);font-weight:700}
+.pv-cn i{width:10px;height:3px;border-radius:2px;flex:none}
+.pv-cn.c0 i{background:var(--pv-ink)} .pv-cn.c1 i{background:#5A7FB8} .pv-cn.c2 i{background:var(--pv-ink4)}
+
+/* barre d'outils */
+.pv-tools{display:flex;align-items:center;gap:10px;margin:16px 0 10px}
+
+/* ---- tableau horaire ---- */
+.pv-scroll{overflow-x:auto;margin:0 -20px;padding:2px 20px 6px;scrollbar-width:thin;overscroll-behavior-x:contain}
+.pv-grid{display:grid;grid-template-columns:96px repeat(var(--n),minmax(54px,1fr));gap:3px;position:relative;min-width:max-content}
+.pv-lab{position:sticky;left:0;z-index:4;grid-column:1;box-shadow:-20px 0 0 var(--pv-surface),6px 0 8px -6px color-mix(in srgb,var(--pv-ink) 18%,transparent);display:flex;flex-direction:column;justify-content:center;padding-right:8px;background:var(--pv-surface);font:700 12.5px Manrope,system-ui,sans-serif;color:var(--pv-ink);line-height:1.2}
+.pv-lab small{font:600 10.5px Manrope,system-ui,sans-serif;color:var(--pv-ink3);margin-top:1px}
+.pv-lab.pv-ml span{font-weight:700;color:var(--pv-ink2);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-hh{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0;background:none;padding:0;border-radius:8px;font:700 13px Manrope,system-ui,sans-serif;color:var(--pv-ink2);cursor:pointer;font-variant-numeric:tabular-nums;line-height:1.15}
+.pv-hh i{font:700 9.5px Manrope,system-ui,sans-serif;font-style:normal;color:var(--pv-ink3)}
+.pv-hh.pv-now{color:var(--pv-ink)}
+.pv-hh .pv-hn{color:var(--pv-ink);font-weight:800}
+.pv-hh:hover,.pv-hh.sel{color:var(--pv-ink)}
+.pv-cl{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:8px;cursor:pointer;font-variant-numeric:tabular-nums;transition:filter .12s}
+.pv-wv,.pv-pe,.pv-wi{background:color-mix(in srgb,var(--c) var(--pv-mix),var(--pv-surface))}
+.pv-cl:hover{filter:brightness(.97)}
+.pv-wv b{font:700 17px Unbounded,system-ui,sans-serif;letter-spacing:-.055em;color:var(--pv-ink)}
+.pv-pe b{font:800 14.5px Manrope,system-ui,sans-serif;color:var(--pv-ink);line-height:1.1}
+.pv-pe b small{font-size:11px;font-weight:700;color:var(--pv-ink2)}
+.pv-pe span{display:flex;align-items:center;font:700 10.5px Manrope,system-ui,sans-serif;color:var(--pv-ink2);line-height:1}
+.pv-pe .pv-arr{width:9px;height:9px;margin-right:2px}
+.pv-wi{gap:0}
+.pv-wd{display:flex;line-height:0}
+.pv-wd .pv-arr{width:15px;height:15px;margin:0 0 1px}
+.pv-wi b{font:800 15px Manrope,system-ui,sans-serif;color:var(--pv-ink);line-height:1.15}
+.pv-g{font:700 10.5px Manrope,system-ui,sans-serif;color:var(--pv-ink3);line-height:1}
+.pv-ag{background:none}
+.pv-dots{display:inline-flex;gap:3px}
+.pv-dots i{width:5px;height:5px;border-radius:50%;background:var(--pv-line2)}
+.pv-dots.l3 i,.pv-dots.l2 i:nth-child(-n+2),.pv-dots.l1 i:first-child{background:var(--pv-ink2)}
+.pv-dots.l1 i:first-child{background:var(--pv-on)}
+.pv-night.pv-wv,.pv-night.pv-pe,.pv-night.pv-wi{background:color-mix(in srgb,var(--c) var(--pv-mixn),var(--pv-surface))}
+.pv-night>*,.pv-hh.pv-night{opacity:.55}
+.pv-m{background:var(--pv-sunk);font:700 12.5px Manrope,system-ui,sans-serif;color:var(--pv-ink2)}
+.pv-grid.cmp .pv-lab.pv-ml{border-top:0}
+.pv-selc{position:relative;z-index:3;grid-column:2;margin:-2px;border:1.5px solid var(--pv-ink);border-radius:10px;pointer-events:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--pv-ink) 8%,transparent)}
+.pv-tide{position:relative;border-radius:8px;background:var(--pv-sunk);overflow:hidden}
+.pv-tide svg{position:absolute;inset:0;width:100%;height:100%}
+.pv-tide .a{fill:color-mix(in srgb,var(--pv-tide) 16%,transparent)}
+.pv-tide .l{fill:none;stroke:var(--pv-tide);stroke-width:1.7;vector-effect:non-scaling-stroke}
+.pv-tx{position:absolute;transform:translateX(-50%);padding:1px 6px;border-radius:5px;background:color-mix(in srgb,var(--pv-surface) 88%,transparent);font:600 10.5px Manrope,system-ui,sans-serif;color:var(--pv-ink2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pv-tx b{font-weight:800;color:var(--pv-ink)}
+.pv-tx.hi{top:3px} .pv-tx.lo{bottom:3px}
+.pv-tnone{display:flex;align-items:center;justify-content:center;font:600 12px Manrope,system-ui,sans-serif;color:var(--pv-ink3)}
+.pv-wn{margin-top:6px}
+
+/* ---- graphique 7 jours ---- */
+.pv-chart{position:relative}
+.pv-chdays{position:relative;height:26px;margin:0 38px 4px 34px}
+.pv-chday{position:absolute;top:0;transform:translateX(-50%);height:24px;padding:0 9px;border:0;border-radius:7px;background:none;font:700 12px Manrope,system-ui,sans-serif;color:var(--pv-ink3);cursor:pointer;white-space:nowrap}
+.pv-chday:hover{color:var(--pv-ink)}
+.pv-chday.on{background:var(--pv-ink);color:var(--pv-on-sel)}
+.pv-chwrap{display:grid;grid-template-columns:34px minmax(0,1fr) 38px}
+.pv-chp{position:relative;height:300px;cursor:crosshair;touch-action:pan-y}
+.pv-chp svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.pv-chp .nt{fill:color-mix(in srgb,var(--pv-ink) 2.6%,transparent)}
+.pv-chp .sep{stroke:var(--pv-line2);stroke-width:1;vector-effect:non-scaling-stroke}
+.pv-chp .dsel{fill:color-mix(in srgb,var(--pv-ink) 5%,transparent);stroke:none}
+.pv-chp .gl{stroke:var(--pv-line);stroke-width:1;vector-effect:non-scaling-stroke}
+.pv-chp .band{fill:color-mix(in srgb,#5A7FB8 24%,transparent)}
+.pv-chp .ha{fill:color-mix(in srgb,var(--pv-ink) 5%,transparent)}
+.pv-chp .hl{fill:none;stroke:var(--pv-ink);stroke-width:2.2;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.pv-chp .tl{fill:none;stroke:var(--pv-per);stroke-width:1.6;stroke-dasharray:5 3;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.pv-chp .gu{fill:none;stroke:var(--pv-ink3);stroke-width:1;vector-effect:non-scaling-stroke;opacity:.8}
+.pv-chp .cur{stroke:var(--pv-ink);stroke-width:1.5;vector-effect:non-scaling-stroke}
+.pv-chax{position:relative;font:700 10.5px Manrope,system-ui,sans-serif;color:var(--pv-ink3);font-variant-numeric:tabular-nums}
+.pv-chax span{position:absolute;transform:translateY(-50%);white-space:nowrap}
+.pv-chax.l span{right:8px} .pv-chax.r span{left:8px;color:var(--pv-per)}
+.pv-chax .u{transform:translateY(-170%);font-weight:800}
+.pv-chax .w{color:var(--pv-ink4)}
+.pv-chtip{position:absolute;top:6px;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;gap:1px;padding:8px 10px;border-radius:10px;background:var(--pv-surface);border:1px solid var(--pv-line2);box-shadow:0 6px 18px rgba(16,32,44,.12);font:600 12px Manrope,system-ui,sans-serif;color:var(--pv-ink2);white-space:nowrap;pointer-events:none;font-variant-numeric:tabular-nums}
+.pv-chtip b{color:var(--pv-ink);font-weight:800}
+.pv-chleg{display:flex;flex-wrap:wrap;gap:6px 16px;margin:10px 0 0 34px;font:600 12px Manrope,system-ui,sans-serif;color:var(--pv-ink3)}
+.pv-chleg span{display:inline-flex;align-items:center;gap:6px}
+.pv-chleg span:before{content:"";width:14px;height:3px;border-radius:2px}
+.pv-chleg .k-h:before{background:var(--pv-ink)} .pv-chleg .k-b:before{height:9px;background:color-mix(in srgb,#5A7FB8 30%,transparent)}
+.pv-chleg .k-t:before{background:repeating-linear-gradient(90deg,var(--pv-per) 0 5px,transparent 5px 8px)}
+.pv-chleg .k-w:before{height:9px;width:9px;background:color-mix(in srgb,hsl(160 36% 56%) 75%,var(--pv-surface))}
+.pv-chleg .k-g:before{height:1px;background:var(--pv-ink3)} .pv-chleg .k-n:before{height:9px;background:color-mix(in srgb,var(--pv-ink) 7%,transparent)}
+
+/* ---- sections ---- */
+.pv-sec{margin-top:30px;scroll-margin-top:96px}
+.pv-sh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 2px 12px}
+.pv-sh h2{margin:0;font:700 19px Unbounded,system-ui,sans-serif;letter-spacing:-.035em;color:var(--pv-ink)}
+.pv-note{font:600 13px Manrope,system-ui,sans-serif;color:var(--pv-ink3)}
+
+/* mesure en mer */
+.pv-obc{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);overflow:hidden;box-shadow:inset 3px 0 0 var(--pv-gold),var(--pv-sh)}
+.pv-obl{padding:20px 22px 18px 24px;border-right:1px solid var(--pv-line)}
+.pv-obh{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:700 14px Manrope,system-ui,sans-serif;color:var(--pv-ink)}
+.pv-obh small{font:600 12.5px Manrope,system-ui,sans-serif;color:var(--pv-ink3)}
+.pv-obv{margin:14px 0 6px;font:700 54px/1 Unbounded,system-ui,sans-serif;letter-spacing:-.055em;color:var(--pv-ink);font-variant-numeric:tabular-nums}
+.pv-obv small{font:700 16px Manrope,system-ui,sans-serif;letter-spacing:0;color:var(--pv-ink3);margin-left:5px}
+.pv-obcap{margin:0 0 16px;font:500 12.5px/1.5 Manrope,system-ui,sans-serif;color:var(--pv-ink3);max-width:46ch}
+.pv-obst{display:grid;grid-template-columns:repeat(4,minmax(0,auto));justify-content:space-between;gap:10px;margin:0;padding-top:14px;border-top:1px solid var(--pv-line)}
+.pv-obst dt{font:800 10px Manrope,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--pv-ink3);white-space:nowrap}
+.pv-obst dd{display:flex;align-items:center;margin:4px 0 0;font:800 15px Manrope,system-ui,sans-serif;color:var(--pv-ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pv-fr{gap:6px;font-size:13px!important}
+.pv-fr i{width:7px;height:7px;border-radius:50%;background:var(--pv-gold);flex:none}
+.pv-fr.pv-lv i{box-shadow:0 0 0 3px color-mix(in srgb,var(--pv-gold) 25%,transparent)}
+.pv-fr.old i{background:var(--pv-ink4)}
+.pv-fr.old{color:var(--pv-ink3)!important}
+.pv-obcmp{margin:14px 0 0;font:600 13px Manrope,system-ui,sans-serif;color:var(--pv-ink2)}
+.pv-obcmp b{color:var(--pv-ink)}
+.pv-oba{display:inline-block;margin-top:12px;font:700 13px Manrope,system-ui,sans-serif;color:var(--pv-gold-ink);text-decoration:none}
+.pv-oba:hover{text-decoration:underline}
+.pv-obr{padding:20px 22px 16px;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.pv-bch{display:grid;grid-template-columns:40px minmax(0,1fr)}
+.pv-bys{position:relative;font:700 10.5px Manrope,system-ui,sans-serif;color:var(--pv-ink3);font-variant-numeric:tabular-nums}
+.pv-bys span{position:absolute;right:8px;transform:translateY(-50%);white-space:nowrap}
+.pv-bpl{position:relative;height:190px}
+.pv-bpl svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.pv-bpl .gl{stroke:var(--pv-line);stroke-width:1;vector-effect:non-scaling-stroke} .pv-bpl .gl.b{stroke:var(--pv-line2)}
+.pv-bpl .oa{fill:color-mix(in srgb,var(--pv-gold) 16%,transparent)}
+.pv-bpl .ol{fill:none;stroke:var(--pv-gold);stroke-width:2.4;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.pv-bpl .fl{fill:none;stroke:var(--pv-ink2);stroke-width:1.6;stroke-dasharray:5 4;vector-effect:non-scaling-stroke}
+.pv-bdot{position:absolute;right:-5px;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:var(--pv-surface);border:2.5px solid var(--pv-gold)}
+.pv-bx{display:flex;justify-content:space-between;margin:6px 0 0 40px;font:600 11px Manrope,system-ui,sans-serif;color:var(--pv-ink3)}
+.pv-leg{display:flex;flex-wrap:wrap;gap:6px 16px;margin:12px 0 0 40px;font:600 12px Manrope,system-ui,sans-serif;color:var(--pv-ink2)}
+.pv-leg span{display:inline-flex;align-items:center;gap:7px}
+.pv-leg span:before{content:"";width:16px;height:3px;border-radius:2px}
+.pv-leg .o:before{background:var(--pv-gold)} .pv-leg .f:before{background:repeating-linear-gradient(90deg,var(--pv-ink2) 0 5px,transparent 5px 9px)}
+.pv-bsel{max-width:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+
+/* spots à proximité */
+.pv-near{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:hidden;min-height:460px}
+.pv-nside{display:flex;flex-direction:column;border-right:1px solid var(--pv-line);min-width:0}
+.pv-nhd,.pv-nv{display:grid;grid-template-columns:62px 56px 50px;align-items:center;justify-items:end}
+.pv-nhd{grid-template-columns:minmax(0,1fr) 62px 56px 50px 44px;padding:10px 0 8px 16px;border-bottom:1px solid var(--pv-line);font:800 10px Manrope,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--pv-ink3)}
+.pv-nhd span:first-child{justify-self:start}
+.pv-nlist{flex:1;overflow:auto}
+.pv-nr{display:flex;align-items:stretch;border-bottom:1px solid var(--pv-line);transition:background .12s}
+.pv-nr:hover,.pv-nr.hl{background:var(--pv-sunk)}
+.pv-nr.me{background:color-mix(in srgb,var(--pv-ink) 4%,var(--pv-surface));box-shadow:inset 3px 0 0 var(--pv-ink)}
+.pv-ng{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:10px 0 10px 16px;border:0;background:none;text-align:left;color:inherit;cursor:pointer}
+.pv-ng:disabled{cursor:default;opacity:1}
+.pv-nn{flex:1;min-width:0}
+.pv-nn b{display:block;font:800 14.5px Manrope,system-ui,sans-serif;color:var(--pv-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-nn small{display:block;font:600 12px Manrope,system-ui,sans-serif;color:var(--pv-ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-nv{font:700 13px Manrope,system-ui,sans-serif;color:var(--pv-ink2);font-variant-numeric:tabular-nums}
+.pv-nv>span{display:flex;align-items:center;gap:2px}
+.pv-nv b{font:700 15px Unbounded,system-ui,sans-serif;letter-spacing:-.045em;color:var(--pv-ink);white-space:nowrap}
+.pv-nv b small{font:700 11px Manrope,system-ui,sans-serif;color:var(--pv-ink3);letter-spacing:0}
+.pv-nv .pv-arr{margin:0 0 0 3px;width:11px;height:11px}
+.pv-nw i{display:inline-flex}
+.pv-nc{width:44px;flex:none;display:grid;place-items:center;border:0;background:none;color:var(--pv-ink3);cursor:pointer}
+.pv-nc svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.pv-nc:hover{color:var(--pv-ink)}
+.pv-nc[aria-pressed="true"]{color:var(--pv-ink)}
+.pv-nc[aria-pressed="true"] svg{background:var(--pv-ink);color:var(--pv-on-sel);stroke:var(--pv-on-sel);border-radius:6px;padding:2px;width:20px;height:20px}
+.pv-ncx{cursor:default}
+.pv-nfn{margin:0;padding:10px 16px 12px}
+.pv-nmap{position:relative;min-height:320px;background:#E6EAEB}
+.pv-nmap .maplibregl-ctrl-group{box-shadow:none!important;border:1px solid var(--pv-line2)}
+.pv-nmap .mkp{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:999px;background:var(--pv-surface);border:1px solid var(--pv-line2);box-shadow:0 2px 6px rgba(16,32,44,.12);font:800 12px Manrope,system-ui,sans-serif;color:var(--pv-ink);white-space:nowrap;transform:translateY(-50%);transition:transform .15s,background .15s,color .15s}
+.pv-nmap .mkp:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--c);margin-right:6px;flex:none}
+.pv-nmap .mkp.sel{background:var(--pv-ink);color:var(--pv-on-sel);border-color:var(--pv-ink);height:28px;padding:0 11px;font-size:12.5px}
+.pv-nmap .mkd{width:9px;height:9px;border-radius:50%;background:var(--pv-surface);border:2px solid var(--pv-ink3)}
+.pv-nmap .pv-hl .mkp{transform:translateY(-50%) scale(1.12);background:var(--pv-ink);color:var(--pv-on-sel);border-color:var(--pv-ink)}
+.pv-nmap .pv-hl .mkd{border-color:var(--pv-ink);transform:scale(1.4)}
+.pv-cmp{margin-top:12px;padding:14px 16px}
+.pv-cmph{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.pv-cmph b{font:800 14px Manrope,system-ui,sans-serif;color:var(--pv-ink)}
+.pv-cmph span{font:600 12.5px Manrope,system-ui,sans-serif;color:var(--pv-ink3);flex:1}
+.pv-cmps{overflow-x:auto;margin:0 -16px;padding:0 16px}
+.pv-cmpg{display:grid;grid-template-columns:150px repeat(var(--n),minmax(78px,1fr));gap:3px;min-width:max-content}
+.pv-cmpt{text-align:center;font:700 12px Manrope,system-ui,sans-serif;color:var(--pv-ink3);padding-bottom:2px}
+.pv-cmpn{position:sticky;left:0;z-index:2;display:flex;align-items:center;padding-right:8px;background:var(--pv-surface);font:700 13px Manrope,system-ui,sans-serif;color:var(--pv-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-cmpn.me:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--pv-ink);margin-right:7px;flex:none}
+.pv-cmpc{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:58px;padding:4px;border-radius:8px;background:color-mix(in srgb,var(--c,transparent) var(--pv-mix),var(--pv-surface));font:600 11px Manrope,system-ui,sans-serif;color:var(--pv-ink2);font-variant-numeric:tabular-nums;text-align:center}
+.pv-cmpc b{font:700 15px Unbounded,system-ui,sans-serif;letter-spacing:-.05em;color:var(--pv-ink)}
+.pv-cmpc i{font-style:normal}
+.pv-cmpc em{display:flex;align-items:center;font-style:normal;font-weight:800;color:var(--pv-ink)}
+.pv-cmpc u{display:inline-flex;text-decoration:none}
+
+/* fiabilité et spot */
+.pv-relg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.pv-rc{padding:18px 20px}
+.pv-ck{font:800 10.5px Manrope,system-ui,sans-serif;letter-spacing:.11em;text-transform:uppercase;color:var(--pv-ink3)}
+.pv-strip{margin:18px 0 4px}
+.pv-strk{position:relative;height:26px;border-radius:13px;background:var(--pv-sunk);border:1px solid var(--pv-line)}
+.pv-rng{position:absolute;top:7px;height:10px;border-radius:5px;background:color-mix(in srgb,#5A7FB8 30%,transparent)}
+.pv-md{position:absolute;top:7px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--pv-surface);border:2px solid #5A7FB8}
+.pv-ret{position:absolute;top:2px;bottom:2px;width:2.5px;margin-left:-1.25px;border-radius:2px;background:var(--pv-ink)}
+.pv-sax{display:flex;justify-content:space-between;margin-top:6px;font:700 11px Manrope,system-ui,sans-serif;color:var(--pv-ink3);font-variant-numeric:tabular-nums}
+.pv-ags{margin:10px 0 0;font:600 13px Manrope,system-ui,sans-serif;color:var(--pv-ink2)}
+.pv-ags b{color:var(--pv-ink)}
+.pv-mlist{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:5px;font:600 13px Manrope,system-ui,sans-serif;color:var(--pv-ink2)}
+.pv-mlist li{display:flex;justify-content:space-between;gap:10px}
+.pv-mlist li span{display:flex;align-items:center;gap:8px}
+.pv-mlist b{color:var(--pv-ink);font-variant-numeric:tabular-nums}
+.pv-mlist li.ret{padding-top:6px;border-top:1px solid var(--pv-line);color:var(--pv-ink)}
+.pv-mdk{width:8px;height:8px;border-radius:50%;border:2px solid #5A7FB8;flex:none}
+.pv-retk{width:3px;height:12px;border-radius:2px;background:var(--pv-ink);flex:none;margin:0 2.5px}
+.pv-hist{margin-top:12px}
+.pv-hr{display:grid;grid-template-columns:70px minmax(0,1fr) 66px;align-items:center;gap:4px 12px;padding:9px 0;border-bottom:1px solid var(--pv-line)}
+.pv-hl{font:700 13px Manrope,system-ui,sans-serif;color:var(--pv-ink)}
+.pv-hb{height:7px;border-radius:4px;background:var(--pv-sunk);overflow:hidden}
+.pv-hb i{display:block;height:100%;border-radius:4px;background:var(--pv-ink2)}
+.pv-hr>b{font:800 13.5px Manrope,system-ui,sans-serif;color:var(--pv-ink);text-align:right;font-variant-numeric:tabular-nums}
+.pv-hs{grid-column:2/-1;font:600 11.5px Manrope,system-ui,sans-serif;color:var(--pv-ink3)}
+.pv-spg{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;align-items:center;margin-top:14px}
+.pv-spot .pv-rose{width:120px;height:120px}
+.pv-facts{margin:0;display:grid;gap:7px}
+.pv-facts div{display:flex;justify-content:space-between;gap:10px;font:600 13px Manrope,system-ui,sans-serif}
+.pv-facts dt{color:var(--pv-ink3)} .pv-facts dd{margin:0;color:var(--pv-ink);font-weight:700;text-align:right}
+.pv-spleg{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:12px;font:600 11.5px Manrope,system-ui,sans-serif;color:var(--pv-ink3)}
+.pv-spleg span{display:inline-flex;align-items:center;gap:6px}
+.pv-spleg span:before{content:"";width:12px;height:3px;border-radius:2px}
+.pv-spleg .k-s:before{background:var(--pv-ink)} .pv-spleg .k-w:before{background:repeating-linear-gradient(90deg,var(--pv-off) 0 3px,transparent 3px 5px)} .pv-spleg .k-a:before{height:5px;background:color-mix(in srgb,var(--pv-ink) 22%,transparent)}
+
+/* pied de page aux couleurs de la page */
+html.v2 .pv-foot footer{color:var(--pv-ink3)}
+html.v2 .pv-foot footer h3{color:var(--pv-ink)}
+html.v2 .pv-foot footer a{color:var(--pv-ink2)}
+html.v2 .pv-foot footer .fgrid,html.v2 .pv-foot footer .spotlinks{border-color:var(--pv-line)}
+html.v2 .pv-foot footer .fgen{color:var(--pv-ink3)}
+html.v2 .pv-foot .allspots summary{color:var(--pv-ink)}
+.pv-foot{max-width:1120px;padding:0 24px}
+
+/* ---- tablette ---- */
+@media (max-width:1000px){
+  .pv-cells{grid-template-columns:1fr 1fr}
+  .pv-c:nth-child(3){border-left:0}
+  .pv-c:nth-child(n+3){border-top:1px solid var(--pv-line)}
+  .pv-relg{grid-template-columns:1fr 1fr}
+  .pv-relg .pv-spot{grid-column:1/-1}
+  .pv-obc{grid-template-columns:1fr}
+  .pv-obl{border-right:0;border-bottom:1px solid var(--pv-line)}
+}
+@media (max-width:900px){
+  .pv-dayrow{display:flex;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;padding-left:24px;padding-right:24px}
+  .pv-dayrow::-webkit-scrollbar{display:none}
+  .pv-day{flex:0 0 112px;scroll-snap-align:start}
+  .pv-near{grid-template-columns:1fr}
+  .pv-nmap{order:-1;height:300px;min-height:0}
+  .pv-nside{border-right:0}
+  .pv-nlist{overflow:visible}
+}
+/* ---- téléphone : pensé pour une lecture au réveil, à une main ---- */
+@media (max-width:640px){
+  .pv{padding:0 16px}
+  .pv-top .pv-in{padding-left:16px;padding-right:16px;gap:10px}
+  .pv-brand{min-width:0}
+  .pv-bw,.pv-pick kbd{display:none}
+  .pv-pick{height:42px}
+  .pv-fav{width:42px;height:42px;margin-left:0}
+  .pv-head{padding-top:18px;padding-bottom:10px;align-items:flex-start}
+  .pv-head h1{font-size:27px}
+  .pv-meta{font-size:12.5px;margin-top:7px}
+  .pv-meta span+span:before{margin:0 7px}
+  .pv-cam{width:38px;height:38px;padding:0;justify-content:center}
+  .pv-cam span{display:none}
+  .pv-dayrow{gap:6px;padding:6px 16px 8px}
+  .pv-day{flex:0 0 92px;padding:8px 10px 7px;border-radius:11px}
+  .pv-dv b{font-size:17px}
+  .pv-hours{padding:12px 12px 10px;border-radius:14px;margin-left:-4px;margin-right:-4px}
+  .pv-cells{margin-top:8px}
+  .pv-c{padding:10px 12px 11px}
+  .pv-k{font-size:9.5px;letter-spacing:.09em;gap:5px}
+  .pv-k .tip{display:none}
+  .pv-lx{display:none}
+  .pv-meta{font-size:12px}
+  .pv-v{font-size:25px}
+  .pv-vt{font-size:16px;height:27px}
+  .pv-s{font-size:12px}
+  .pv-sep{margin:0 6px}
+  .pv-cmpo{grid-template-columns:1fr;justify-items:center;gap:8px}
+  .pv-ctab{width:100%}
+  .pv-crow{grid-template-columns:minmax(0,1.3fr) 54px 50px minmax(74px,1fr);font-size:12.5px;gap:8px}
+  .pv-crow.pv-chd{font-size:9px;letter-spacing:.06em}
+  .pv-rose{width:112px;height:112px}
+  .pv-tools{margin:12px 0 8px;gap:8px;flex-wrap:wrap}
+  .pv-tools .tip{display:none}
+  .pv-scroll{margin:0 -12px;padding:2px 12px 6px}
+  .pv-grid{grid-template-columns:58px repeat(var(--n),50px);gap:2.5px}
+  .pv-lab{font-size:11.5px;padding-right:4px}
+  .pv-lab small{font-size:9.5px}
+  .pv-wv b{font-size:16px}
+  .pv-chdays{margin:0 30px 4px 28px}
+  .pv-chwrap{grid-template-columns:28px minmax(0,1fr) 30px}
+  .pv-chp{height:240px}
+  .pv-chleg{margin-left:0;font-size:11.5px}
+  .pv-sec{margin-top:24px}
+  .pv-sh h2{font-size:17px}
+  .pv-sh .pv-seg{width:100%}
+  .pv-sh .pv-seg button{flex:1;padding:0 8px}
+  .pv-obl,.pv-obr{padding:16px}
+  .pv-obv{font-size:46px}
+  .pv-obst{grid-template-columns:1fr 1fr;row-gap:12px}
+  .pv-bpl{height:150px}
+  .pv-nmap{height:240px}
+  .pv-nhd{grid-template-columns:minmax(0,1fr) 54px 46px 42px 40px}
+  .pv-nv{grid-template-columns:54px 46px 42px}
+  .pv-ng{padding-left:12px}
+  .pv-nc{width:40px}
+  .pv-relg{grid-template-columns:1fr}
+  .pv-rc{padding:16px}
+  .pv-foot{padding:0 16px}
+  html.v2 .pv-main{padding-bottom:84px}
+}
+@media (prefers-reduced-motion:reduce){ .pv-day,.pv-seg button,.pv-link svg,.pv-nmap .mkp{transition:none} }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -2073,7 +2521,9 @@ function analyse(s, m, w){
     if(s2!=null && s2>=0.25 && s2>=0.25*(sw||H||0) && g('secondary_swell_wave_period')>=6) sec={kind:'houle secondaire',H:s2,T:g('secondary_swell_wave_period'),D:g('secondary_swell_wave_direction')};
     else if(w2!=null && w2>=0.3 && w2>=0.4*(H||0) && g('wind_wave_period')!=null) sec={kind:'mer du vent',H:w2,T:g('wind_wave_period'),D:g('wind_wave_direction')};
     const v = w.hourly.wind_speed_10m[i], wd = w.hourly.wind_direction_10m[i];
-    hours.push({time:t[i], date:t[i].slice(0,10), hour:+t[i].slice(11,13), H, T, D, sec, v, wd, gust:w.hourly.wind_gusts_10m[i], lvl:lvl[i], sst:m.hourly.sea_surface_temperature?.[i]});
+    // trains de houle bruts (pour « Composition de la houle ») : on garde les valeurs du modèle telles quelles
+    const cp=(a,b,c)=>({H:g(a),T:g(b),D:g(c)}), comp=(g('swell_wave_height')!=null||g('wind_wave_height')!=null)?{sw:cp('swell_wave_height','swell_wave_period','swell_wave_direction'),s2:cp('secondary_swell_wave_height','secondary_swell_wave_period','secondary_swell_wave_direction'),ww:cp('wind_wave_height','wind_wave_period','wind_wave_direction')}:null;
+    hours.push({time:t[i], date:t[i].slice(0,10), hour:+t[i].slice(11,13), H, T, D, sec, comp, v, wd, gust:w.hourly.wind_gusts_10m?.[i], lvl:lvl[i], sst:m.hourly.sea_surface_temperature?.[i]});
   }
   hours.forEach((h,i)=>{ h.models={}; h.wmodels={};
     for(const k in (m._models||{})){ const v=m._models[k][i]; if(v!=null) h.models[k]=v; }
@@ -2578,7 +3028,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') hideTip(true); });
 document.addEventListener('click',e=>{ if(!e.target.closest('.tipbtn,#tipLayer')) hideTip(true); });
 document.addEventListener('click',e=>{ if(e.target.closest('#stkSpot')){ const o=document.getElementById('openPicker'); if(o) o.click(); } });
 window.addEventListener('scroll',()=>{ const el=document.getElementById('stk'); if(el) el.classList.toggle('on',scrollY>430); },{passive:true});
-document.addEventListener('click',e=>{ const b=e.target.closest('.rtog button'); if(!b||!state.data) return;
+document.addEventListener('click',e=>{ const b=e.target.closest('.rtog button,.pv-bsel button'); if(!b||!state.data) return;
   state.radarView[state.data[state.spot].spot.name]=b.dataset.rv; saveRadarView(state.radarView);
   const sec=b.closest('.radar'); if(sec){ const t=document.createElement('div'); t.innerHTML=radarHtml(state.data[state.spot].spot); sec.replaceWith(t.firstElementChild); } });
 /* Barre du bas (téléphone) et sections repliables */
@@ -2613,7 +3063,7 @@ function windCell(v){ return stopsCol(v,WI_ST); }
 /* Téléphone : les sections secondaires sont repliées (sur grand écran elles restent ouvertes, sans titre cliquable). */
 const isPhone=()=>innerWidth<=520;
 function fold(id,title,inner){ if(!inner) return ''; return `<details class="fold" id="f-${id}"${isPhone()?'':' open'}><summary class="fsum"><span>${title}</span><i aria-hidden="true"></i></summary><div class="fbody">${inner}</div></details>`; }
-function hourlyHtml(day,hrs){
+function hourlyHtml_v1(day,hrs){
   const rise=day.sun?hDec(day.sun.rise):8, set=day.sun?hDec(day.sun.set):18;
   const winA=99, winB=-1;
   const mx=Math.max(1,...hrs.map(h=>h.H||0)); let c='';
@@ -2644,7 +3094,7 @@ function hourlyHtml(day,hrs){
   hourlyRows=row-1;
   return c;
 }
-function markHour(){
+function markHour_v1(){
   const g=document.querySelector('.hgrid'); if(!g) return;
   const avail=[...g.querySelectorAll('.hhr')].map(x=>+x.dataset.h); if(!avail.length) return;
   const hr=avail.reduce((b,x)=>Math.abs(x-state.hour)<Math.abs(b-state.hour)?x:b,avail[0]);
@@ -2655,7 +3105,7 @@ function markHour(){
 const fmt2 = x => x.toFixed(2).replace('.',',');
 const shortModel = l => l.replace('Météo-France ','').replace('DWD ','').replace('NOAA ','').replace('Ifremer ','').replace(' (côtier)',' côtier');
 const dFr = d => d?d.slice(8,10)+'/'+d.slice(5,7):'';
-function relHtml(s){
+function relHtml_v1(s){
   const r=state.reliability;
   let tr;
   if(r&&r.status==='ok'){
@@ -2673,7 +3123,7 @@ function relHtml(s){
       <div class="relc"><div class="rk">Écart avec la bouée</div>${tr}</div>
     </div></section>`;
 }
-function relUpdate(h,ag){
+function relUpdate_v1(h,ag){
   const el=document.getElementById('relModels'); if(!el) return;
   const rows=(state.models||[]).map(md=>({l:shortModel(md.label),v:h.models&&h.models[md.key]})).filter(x=>x.v!=null);
   const mx=Math.max(0.1,...rows.map(x=>x.v));
@@ -2761,7 +3211,7 @@ function pickBuoy(list){
   const fresh=list.filter(o=>o.ageH<6);
   return fresh.length?fresh.sort((x,y)=>x.km-y.km)[0]:list.slice().sort((x,y)=>x.ageH-y.ageH)[0];
 }
-function radarHtml(s){
+function radarHtml_v1(s){
   const list=buoyChoices(s), cur=pickBuoy(list); if(!cur) return '';
   const L=cur.L, view=cur.kind==='coast'?'cote':'large', Tm=(!L.tp&&cur.Tm)?cur.Tm:null;
   let obs=cur.obs, fc, fNow, fLabel;
@@ -2954,11 +3404,11 @@ async function initMap(){
   state.data.forEach((x,i)=>{
     const dd=x.days[k], isSel=i===sel, big=isSel||nearSet.has(i), m=dayMed(dd), w=document.createElement('div');
     w.innerHTML=big?`<div class="mkp${isSel?' sel':''}" style="--c:${m!=null?hmCol(m):'#9fb0b4'}" title="${x.spot.name} · ${medTxt(dd)}"><span>${isSel?x.spot.name+' · ':''}${medTxt(dd)}</span></div><div class="mkd" style="display:none" title="${x.spot.name} · ${medTxt(dd)}"></div>`:`<div class="mkd" title="${x.spot.name} · ${medTxt(dd)}"></div>`;
-    w.style.zIndex=isSel?5:big?3:1; w.style.cursor='pointer'; w.onclick=()=>go(i);
+    w.style.zIndex=w.dataset.z=isSel?6:big?3:1; w.style.cursor='pointer'; w.onclick=()=>go(i); w.onmouseenter=()=>pvHl(i); w.onmouseleave=()=>pvHl(null);
     markers[i]=new maplibregl.Marker({element:w}).setLngLat(spotPos(i)).addTo(map);
   });
   const fit=d=>{ if(lmap) lmap.fitBounds(nearBounds(),{padding:{top:60,bottom:60,left:70,right:70},maxZoom:12,duration:d||0}); };
-  map.on('load',()=>{ fit(0); nearDeclutter(); }); map.on('moveend',nearDeclutter); setTimeout(()=>{ if(lmap){ lmap.resize(); fit(0); } },300);
+  map.on('load',()=>{ fit(0); pvMapVals(); }); map.on('moveend',nearDeclutter); setTimeout(()=>{ if(lmap){ lmap.resize(); fit(0); } },300);
 }
 function sectorRange(txt){ const c={'N':0,'NNE':22.5,'NE':45,'ENE':67.5,'E':90,'ESE':112.5,'SE':135,'SSE':157.5,'S':180,'SSO':202.5,'SO':225,'OSO':247.5,'O':270,'ONO':292.5,'NO':315,'NNO':337.5};
   if(!txt) return null; const m=txt.split(' à '); if(m.length===2) return [c[m[0]]-22.5,c[m[1]]+22.5]; return [c[txt]-22.5,c[txt]+22.5]; }
@@ -3068,7 +3518,7 @@ function tideSvg(list, hour){
   return `<svg class="tideline" viewBox="0 0 160 46" preserveAspectRatio="none" aria-hidden="true"><path d="${d} L160 46 L0 46 Z" fill="rgba(var(--lilac-rgb),.22)"/><path d="${d}" fill="none" stroke="var(--lilac)" stroke-width="2" vector-effect="non-scaling-stroke"/>${cur&&cur.tideN!=null?`<line x1="${X(hour)}" x2="${X(hour)}" y1="0" y2="46" stroke="rgba(255,255,255,.35)" vector-effect="non-scaling-stroke"/><circle cx="${X(hour)}" cy="${Y(cur.tideN)}" r="4" fill="#fff"/>`:''}</svg>`;
 }
 let BOOT_HOME=false;
-function render(){
+function render_v1(){
   const d=state.data[state.spot], s=d.spot, k=state.day, day=d.days[k];
   if(!BOOT_HOME){ try{ document.title=`Météo surf ${s.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(s.name)); }catch(e){} }
   try{ if(window.__gcSpot!==undefined && window.__gcSpot!==s.name && !BOOT_HOME && window.goatcounter && goatcounter.count) goatcounter.count({path:'/?spot='+slugOf(s.name), title:document.title}); window.__gcSpot=s.name; }catch(e){}   // à l'ouverture de l'accueil, on garde le titre et l'adresse de l'accueil (Google lit cette page)
@@ -3245,7 +3695,7 @@ function v5Update(h,day,ex,exact,cfd){
   $('v5U').innerHTML=day.sun?`${V5I.sun}<span>Lever <b>${day.sun.rise.replace(':',' h ')}</b> · coucher <b>${day.sun.set.replace(':',' h ')}</b></span>`:'';
   $('v5U').hidden=!day.sun;
 }
-function updateLive(){
+function updateLive_v1(){
   const d=state.data[state.spot], s=d.spot, day=d.days[state.day];
   const hr=Math.min(21,Math.round(state.hour)); const h=day.list.find(x=>x.hour===hr) || day.list[0];
   markHour(); ambient();
@@ -3294,6 +3744,452 @@ function updateLive(){
   oceanUpdate();
 }
 
+/* =====================================================================================================
+   PAGE DE PRÉVISIONS V2 (branche v2-previsions, 26/11/2026)
+   - Le résumé du haut suit l'heure choisie (tableau ou graphique).
+   - Code couleur : bleu nuit = prévisions des modèles ; DORÉ = mesures réelles en mer (bouées), et rien d'autre.
+   - Aucune note, aucun créneau « favorable », aucune recommandation : des données lisibles, à interpréter soi-même.
+   ===================================================================================================== */
+const PV={ view:'table', sort:'km', cmp:[], comp:false };
+try{ if(localStorage.getItem('pvView')==='chart') PV.view='chart'; }catch(e){}
+/* Échelles de couleur (même logique qu'avant : la couleur suit la valeur, jamais un avis), moins saturées ;
+   la teinte réelle est mélangée au fond de la carte en CSS (--pv-mix), ce qui marche aussi en mode sombre. */
+const PV_SZ=[[0,195,45,72],[0.6,200,60,64],[1.2,212,62,62],[1.8,230,55,64],[2.5,255,48,64],[3.5,285,42,62],[5,320,42,60]];
+const PV_PE=[[5,60,28,72],[8,95,32,62],[11,145,36,52],[14,162,42,46],[17,172,48,42]];
+const PV_WI=[[0,200,22,80],[8,195,42,64],[15,160,36,56],[23,95,38,54],[31,48,68,56],[42,25,72,56],[55,5,62,52]];
+const pvC=(v,st)=>stopsCol(v,st);
+const pvWindCol=w=>w==='onshore'?'var(--pv-on)':w==='de côté'?'var(--pv-side)':'var(--pv-off)';
+const pvDayShort=x=>DAYS_FR[new Date(x.date+'T12:00').getDay()];
+const pvDayLong=(x,j)=>j===0?'Aujourd’hui':j===1?'Demain':DAYS_LONG[new Date(x.date+'T12:00').getDay()].replace(/^./,c=>c.toUpperCase())+' '+(+x.date.slice(8,10));
+const pvArr=(deg,cls)=>deg==null?'':`<svg class="pv-arr${cls?' '+cls:''}" viewBox="-6 -6 12 12" aria-hidden="true" style="transform:rotate(${Math.round((deg+180)%360)}deg)"><path d="M0 -5.2L3.8 4.2L0 2.3L-3.8 4.2Z"/></svg>`;
+const pvIsNow=()=>!!state.live&&state.day===0&&state.hour===state.liveHour;
+const pvHourOf=day=>{ const hr=clamp(Math.round(state.hour),0,23); return day.list.find(x=>x.hour===hr)||day.list[0]; };
+const pvNice=v=>v<=2?Math.ceil(v*2)/2:v<=5?Math.ceil(v):Math.ceil(v/2)*2;
+const PV_ICO={
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>',
+  star:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2l2.7 5.5 6 .9-4.35 4.25 1.03 6L12 17l-5.38 2.85 1.03-6L3.3 9.6l6-.9z"/></svg>',
+  cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 11l5-3v8l-5-3"/></svg>',
+  chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>'
+};
+
+/* ---------- navigation des jours : médiane 8 h-19 h, période, et petite courbe de la houle de 6 h à 21 h (même échelle pour les 7 jours) ---------- */
+function pvSpark(x,wmax){
+  const l=x.list.filter(h=>h.hour>=6&&h.hour<=21&&h.H!=null); if(l.length<3) return '<span class="pv-spk"></span>';
+  const W=80,H=18, X=h=>((h.hour-6)/15*W).toFixed(1), Y=v=>(H-1.5-(v/wmax)*(H-4)).toFixed(1);
+  const d=l.map((h,i)=>(i?'L':'M')+X(h)+' '+Y(h.H)).join('');
+  return `<svg class="pv-spk" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path class="a" d="${d}L${X(l[l.length-1])} ${H}L${X(l[0])} ${H}Z"/><path class="l" d="${d}"/></svg>`;
+}
+function pvDayTab(x,j,k,wmax){
+  if(x.tag==='—') return '';
+  const m=dayMed(x), T=dayMedOf(x,'T');
+  return `<button type="button" class="pv-day" data-d="${j}" aria-pressed="${j===k}" aria-label="${pvDayLong(x,j)} : houle ${m!=null?fmt(m)+' m':'indisponible'}${T?', période '+Math.round(T)+' s':''}"><span class="pv-dn">${j===0?'Auj.':pvDayShort(x)} <b>${+x.date.slice(8,10)}</b></span><span class="pv-dv"><b>${m!=null?fmt(m):'—'}</b><small>m</small>${T?`<i>${Math.round(T)} s</i>`:''}</span>${pvSpark(x,wmax)}</button>`;
+}
+
+/* ---------- résumé : la mesure réelle de la bouée (dorée), à côté des prévisions ---------- */
+function pvObsCell(s){
+  try{
+    const cur=pickBuoy(buoyChoices(s)); if(!cur) return '';
+    const L=cur.L, a=cur.ageH, per=L.tp||cur.Tm;
+    const when=a>=48?`aucune mesure depuis le ${dmy(L.time)}`:a<1?'à l’instant':ageTxt(a);
+    return `<a class="pv-c pv-obs${a>6?' old':''}" href="#sRadar" title="Mesure réelle de la bouée ${cur.name} (${cur.kind==='coast'?'près de la côte':'au large'}). Ce n’est pas la taille des vagues sur le spot."><div class="pv-k"><span class="pv-tag obs">Mesuré</span><span class="pv-kt">${cur.name}</span></div><div class="pv-v">${fmt(L.hs)}<small>m</small></div><div class="pv-s">${per?`<b>${L.tp?'':'≈ '}${Math.round(per)} s</b><span class="pv-sep"></span>`:''}${L.dir!=null?`${pvArr(L.dir)}${sector(L.dir)}<span class="pv-sep"></span>`:''}<span class="pv-age">${when}</span></div></a>`;
+  }catch(e){ return ''; }
+}
+
+/* ---------- composition de la houle à l'heure choisie (houle principale, secondaire, mer du vent) ---------- */
+function pvPt(b,r){ const a=b*Math.PI/180; return (Math.sin(a)*r).toFixed(1)+' '+(-Math.cos(a)*r).toFixed(1); }
+function pvCompass(s,arrows,opt){
+  const R=44; let g='';
+  if(s.ori!=null) g+=`<path class="land" d="M0 0L${pvPt(s.ori+90,R)}A${R} ${R} 0 0 1 ${pvPt(s.ori+270,R)}Z"/><line class="shore" x1="${pvPt(s.ori+90,R).split(' ')[0]}" y1="${pvPt(s.ori+90,R).split(' ')[1]}" x2="${pvPt(s.ori+270,R).split(' ')[0]}" y2="${pvPt(s.ori+270,R).split(' ')[1]}"/>`;
+  if(opt&&opt.sector){ const [a0,a1]=opt.sector, r=R-3; g+=`<path class="sec" d="M${pvPt(a0,r)}A${r} ${r} 0 ${((a1-a0+360)%360)>180?1:0} 1 ${pvPt(a1,r)}"/>`; }
+  g+=`<circle class="ring" r="${R}"/>`;
+  ['N','E','S','O'].forEach((l,i)=>{ const p=pvPt(i*90,R+10).split(' '); g+=`<text x="${p[0]}" y="${p[1]}">${l}</text>`; });
+  arrows.forEach(a=>{ if(a.deg==null) return; const len=clamp(a.len==null?1:a.len,.25,1), o=pvPt(a.deg,R-2), e=pvPt(a.deg,R-2-(R-12)*len);
+    g+=`<g class="${a.cls}"><line x1="${o.split(' ')[0]}" y1="${o.split(' ')[1]}" x2="${e.split(' ')[0]}" y2="${e.split(' ')[1]}" stroke-width="${a.w||2.2}"/><path d="M0 -5L3.6 3L-3.6 3Z" transform="translate(${e}) rotate(${(a.deg+180)%360})"/></g>`; });
+  return `<svg class="pv-rose" viewBox="-60 -60 120 120" role="img" aria-label="${opt&&opt.label||'Boussole'}">${g}</svg>`;
+}
+function pvCompHtml(h){
+  const s=state.data[state.spot].spot, c=h&&h.comp;
+  if(!c) return '<p class="pv-empty">Décomposition de la houle indisponible pour cette heure.</p>';
+  const parts=[['Houle principale',c.sw,'c0'],['Houle secondaire',c.s2,'c1'],['Mer du vent',c.ww,'c2']].filter(p=>p[1]&&p[1].H!=null&&p[1].H>=0.05);
+  if(!parts.length) return '<p class="pv-empty">Décomposition de la houle indisponible pour cette heure.</p>';
+  const mx=Math.max(.3,...parts.map(p=>p[1].H));
+  const rose=pvCompass(s,parts.map(([,p,cl])=>({deg:p.D,len:p.H/mx,cls:cl,w:1.6+2*p.H/mx})),{label:'Directions d’où viennent les trains de houle ; la zone sable est la terre'});
+  return `<div class="pv-cmpo">${rose}<div class="pv-ctab"><div class="pv-crow pv-chd"><span></span><span>Hauteur</span><span>Période</span><span>Vient du</span></div>${parts.map(([n,p,cl])=>`<div class="pv-crow"><span class="pv-cn ${cl}"><i></i>${n}</span><b>${fmt(p.H)} m</b><span>${p.T?Math.round(p.T)+' s':'—'}</span><span>${p.D!=null?pvArr(p.D)+sector(p.D)+` <i>${Math.round(p.D)}°</i>`:'—'}</span></div>`).join('')}<p class="pv-fn">Trains de houle calculés par un seul modèle de vagues, au large du spot. La hauteur combinée n’est pas leur somme : elle se calcule comme la racine de la somme des carrés.</p></div></div>`;
+}
+
+/* ---------- tableau horaire : cœur de la page ---------- */
+function pvTable(day,hrs){
+  const rise=day.sun?hDec(day.sun.rise):8, set=day.sun?hDec(day.sun.set):18, n=hrs.length;
+  const liveH=state.live&&state.day===0?Math.round(state.liveHour):null;
+  const L=(row,txt,unit,cls)=>`<div class="pv-lab${cls?' '+cls:''}" style="grid-row:${row}"><span>${txt}</span>${unit?`<small>${unit}</small>`:''}</div>`;
+  let c=L(1,'')+L(2,'Houle','m')+L(3,'Période','s · direction')+L(4,'Accord','modèles')+L(5,'Vent','km/h · rafales')+L(6,'Marée','');
+  hrs.forEach((h,i)=>{
+    const col=i+2, nt=(h.hour<Math.floor(rise)||h.hour>Math.floor(set))?' pv-night':'', at=r=>`data-h="${h.hour}" style="grid-column:${col};grid-row:${r}`;
+    const tag=h.hour===liveH?'<i class="pv-hn">maint.</i>':h.hour===Math.floor(rise)?`<i title="Lever du soleil à ${day.sun.rise}">lever</i>`:h.hour===Math.floor(set)?`<i title="Coucher du soleil à ${day.sun.set}">coucher</i>`:'';
+    const ag=agreeOf(h);
+    c+=`<button type="button" class="pv-hh${nt}${h.hour===liveH?' pv-now':''}" ${at(1)}" aria-pressed="false" aria-label="${h.hour} h : ${h.H!=null?`houle ${fmt(h.H)} m, ${Math.round(h.T||0)} s${h.D!=null?' du '+sector(h.D):''}, vent ${Math.round(h.v)} km/h ${windWord[h.wind]||''}`:'pas de données'}">${h.hour}h${tag}</button>`;
+    c+=`<div class="pv-cl pv-wv${nt}" ${at(2)};--c:${pvC(h.H,PV_SZ)}"><b>${h.H!=null?fmt(h.H):'—'}</b></div>`;
+    c+=`<div class="pv-cl pv-pe${nt}" ${at(3)};--c:${pvC(h.T,PV_PE)}"><b>${h.T?Math.round(h.T):'—'}<small> s</small></b>${h.D!=null?`<span>${pvArr(h.D)}${sector(h.D)}</span>`:''}</div>`;
+    c+=`<div class="pv-cl pv-ag${nt}" ${at(4)}"${ag?` title="Modèles : de ${fmt(ag.mn)} à ${fmt(ag.mx)} m (${ag.n} modèles)"`:''}>${ag?`<span class="pv-dots l${ag.lvl}" role="img" aria-label="Accord des modèles : ${AGREE_TXT[ag.lvl]}"><i></i><i></i><i></i></span>`:''}</div>`;
+    c+=`<div class="pv-cl pv-wi${nt}" ${at(5)};--c:${pvC(h.v,PV_WI)}">${h.wd!=null?`<span class="pv-wd" style="color:${pvWindCol(h.wind)}" title="${windWord[h.wind]||''}">${pvArr(h.wd)}</span>`:''}<b>${h.v!=null?Math.round(h.v):'—'}</b><small class="pv-g">${h.gust!=null?Math.round(h.gust):''}</small></div>`;
+  });
+  const tl=hrs.filter(h=>h.tideN!=null);
+  if(tl.length>2){
+    const X=i=>((i+.5)/n*1000), Y=v=>(16+(1-v)*40);
+    const pts=hrs.map((h,i)=>h.tideN!=null?[+X(i).toFixed(1),+Y(h.tideN).toFixed(1)]:null).filter(Boolean), d=smooth(pts);
+    const step=n>1?hrs[1].hour-hrs[0].hour:1;
+    const ex=(exactTides(state.spot,day.date)||extremes(day.list).map(x=>({type:x.t==='Pleine mer'?'PM':'BM',hm:x.h+'h',hd:x.h,h:null}))).filter(x=>x.hd>=hrs[0].hour-.5&&x.hd<=hrs[n-1].hour+.5);
+    c+=`<div class="pv-tide" style="grid-column:2/-1;grid-row:6"><svg viewBox="0 0 1000 72" preserveAspectRatio="none" aria-hidden="true"><path class="a" d="${d}L${pts[pts.length-1][0]} 72L${pts[0][0]} 72Z"/><path class="l" d="${d}"/></svg>${ex.map(x=>{ const p=clamp(((x.hd-hrs[0].hour)/step+.5)/n*100,5,95); return `<span class="pv-tx ${x.type==='PM'?'hi':'lo'}" style="left:${p.toFixed(2)}%"><b>${x.type==='PM'?'PM':'BM'} ${x.hm}</b>${x.h!=null?` · ${fmt(x.h)} m`:''}</span>`; }).join('')}</div>`;
+  } else c+=`<div class="pv-tide pv-tnone" style="grid-column:2/-1;grid-row:6">Marée indisponible pour ce spot</div>`;
+  let row=7;
+  if(state.cmp){
+    (state.models||[]).forEach(md=>{ c+=L(row,shortModel(md.label),'houle, m','pv-ml'); hrs.forEach((h,i)=>{ const v=h.models?.[md.key]; c+=`<div class="pv-cl pv-m" data-h="${h.hour}" style="grid-column:${i+2};grid-row:${row}">${v!=null?fmt(v):'—'}</div>`; }); row++; });
+    (state.windModels||[]).forEach(md=>{ c+=L(row,shortModel(md.label),'vent, km/h','pv-ml'); hrs.forEach((h,i)=>{ const v=h.wmodels?.[md.key]; c+=`<div class="pv-cl pv-m" data-h="${h.hour}" style="grid-column:${i+2};grid-row:${row}">${v!=null?Math.round(v):'—'}</div>`; }); row++; });
+  }
+  c+=`<div class="pv-selc" id="pvSel" style="grid-row:1/${row}" aria-hidden="true"></div>`;
+  const rows=`38px 54px 52px 22px 58px 74px${state.cmp?' '+'30px '.repeat(row-7):''}`;
+  return `<div class="pv-scroll" id="pvScroll"><div class="pv-grid${state.cmp?' cmp':''}" style="--n:${n};grid-template-rows:${rows}">${c}</div></div>`;
+}
+function markHour(){
+  const g=document.querySelector('.pv-grid'); if(!g){ pvChartMark(); return; }
+  const avail=[...g.querySelectorAll('.pv-hh')].map(x=>+x.dataset.h); if(!avail.length) return;
+  const tg=Math.round(state.hour), hr=avail.reduce((b,x)=>Math.abs(x-tg)<Math.abs(b-tg)?x:b,avail[0]);
+  g.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel')); g.querySelectorAll(`[data-h="${hr}"]`).forEach(x=>x.classList.add('sel'));
+  g.querySelectorAll('.pv-hh').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.h===hr)));
+  const f=g.querySelector(`.pv-hh[data-h="${hr}"]`), s=document.getElementById('pvSel'); if(f&&s) s.style.gridColumn=f.style.gridColumn;
+}
+
+/* ---------- graphique : tendance sur 7 jours (houle, fourchette des modèles, période, vent) ---------- */
+function pvChart(d,k){
+  const dates=d.days.map(x=>x.date), H=d.hours.filter(h=>dates.includes(h.date)), N=H.length;
+  if(N<24) return '<p class="pv-empty">Pas assez de données pour tracer la tendance.</p>';
+  const hv=H.map(h=>h.H).filter(v=>v!=null), mv=H.flatMap(h=>Object.values(h.models||{}).filter(v=>v!=null));
+  const top=pvNice(Math.max(1,...hv,...mv)), TT=20, vmax=Math.max(30,...H.map(h=>Math.max(h.v||0,h.gust||0)));
+  const W=1000, X=i=>+(i/(N-1)*W).toFixed(1), cw=W/(N-1);
+  const yH=v=>+(134-(v/top)*122).toFixed(1), yT=v=>+(134-(Math.min(v,TT)/TT)*122).toFixed(1), yW=v=>+(206-(v/vmax)*50).toFixed(1);
+  const sunOf=date=>{ const x=d.days.find(y=>y.date===date); return x&&x.sun?[hDec(x.sun.rise),hDec(x.sun.set)]:[8,18]; };
+  let night='', run=null;
+  H.forEach((h,i)=>{ const [r,s]=sunOf(h.date), nt=h.hour+.5<r||h.hour-.5>s;
+    if(nt&&run==null) run=i; if((!nt||i===N-1)&&run!=null){ const e=nt?i:i-1; night+=`<rect class="nt" x="${Math.max(0,X(run)-cw/2).toFixed(1)}" y="0" width="${(X(e)-X(run)+cw).toFixed(1)}" height="210"/>`; run=null; } });
+  const seg=(f)=>{ let p='',on=false; H.forEach((h,i)=>{ const v=f(h); if(v==null){ on=false; return; } p+=(on?'L':'M')+X(i)+' '+v; on=true; }); return p; };
+  const hp=seg(h=>h.H!=null?yH(h.H):null);
+  const hi=H.map((h,i)=>{ const v=Object.values(h.models||{}).filter(x=>x!=null); return v.length>1?[i,Math.max(...v),Math.min(...v)]:null; }).filter(Boolean);
+  const band=hi.length>2?`<path class="band" d="M${hi.map(([i,a])=>X(i)+' '+yH(a)).join('L')}L${hi.slice().reverse().map(([i,,b])=>X(i)+' '+yH(b)).join('L')}Z"/>`:'';
+  const first=H.findIndex(h=>h.H!=null), last=H.length-1-H.slice().reverse().findIndex(h=>h.H!=null);
+  const area=hp?`<path class="ha" d="${hp}L${X(last)} 134L${X(first)} 134Z"/>`:'';
+  const wind=H.map((h,i)=>h.v!=null?`<rect class="wb" x="${(X(i)-cw*.36).toFixed(1)}" y="${yW(h.v)}" width="${(cw*.72).toFixed(1)}" height="${(206-yW(h.v)).toFixed(1)}" style="fill:color-mix(in srgb,${pvC(h.v,PV_WI)} 75%,var(--pv-surface))"/>`:'').join('');
+  const gust=seg(h=>h.gust!=null?yW(h.gust):null);
+  let seps='', dl='';
+  d.days.forEach((x,j)=>{ const i0=H.findIndex(h=>h.date===x.date), i1=H.length-1-H.slice().reverse().findIndex(h=>h.date===x.date); if(i0<0) return;
+    if(i0>0) seps+=`<line class="sep" x1="${(X(i0)-cw/2).toFixed(1)}" x2="${(X(i0)-cw/2).toFixed(1)}" y1="0" y2="210"/>`;
+    if(j===k) seps+=`<rect class="dsel" x="${Math.max(0,X(i0)-cw/2).toFixed(1)}" y="0" width="${(X(i1)-X(i0)+cw).toFixed(1)}" height="210"/>`;
+    dl+=`<button type="button" class="pv-chday${j===k?' on':''}" data-d="${j}" style="left:${((X(i0)+X(i1))/2/W*100).toFixed(2)}%">${j===0?'Auj.':pvDayShort(x)} ${+x.date.slice(8,10)}</button>`; });
+  const yt=[]; for(let v=0;v<=top+1e-9;v+=top<=2?.5:top<=5?1:2) yt.push(v);
+  const grid=yt.map(v=>`<line class="gl" x1="0" x2="${W}" y1="${yH(v)}" y2="${yH(v)}"/>`).join('');
+  const pct=y=>(y/210*100).toFixed(2);
+  return `<div class="pv-chart" id="pvChart" data-n="${N}">
+    <div class="pv-chdays">${dl}</div>
+    <div class="pv-chwrap"><div class="pv-chax l">${yt.map(v=>`<span style="top:${pct(yH(v))}%">${fmt(v).replace(',0','')}</span>`).join('')}<span class="u" style="top:${pct(yH(top))}%">m</span><span class="w" style="top:${pct(yW(vmax))}%">${Math.round(vmax)}</span><span class="w u" style="top:${pct(yW(vmax))}%">km/h</span><span class="w" style="top:${pct(206)}%">0</span></div>
+      <div class="pv-chp" id="pvChP"><svg viewBox="0 0 ${W} 210" preserveAspectRatio="none" aria-hidden="true">${night}${seps}${grid}<line class="gl" x1="0" x2="${W}" y1="150" y2="150"/>${band}${area}<path class="hl" d="${hp}"/><path class="tl" d="${seg(h=>h.T?yT(h.T):null)}"/>${wind}<path class="gu" d="${gust}"/><line class="cur" id="pvChLine" x1="0" x2="0" y1="0" y2="210"/></svg><div class="pv-chtip" id="pvChTip" hidden></div></div>
+      <div class="pv-chax r">${[0,5,10,15,20].map(v=>`<span style="top:${pct(yT(v))}%">${v}</span>`).join('')}<span class="u" style="top:${pct(yT(TT))}%">s</span></div></div>
+    <div class="pv-chleg"><span class="k-h">Houle (m)</span>${band?'<span class="k-b">Fourchette des modèles</span>':''}<span class="k-t">Période (s)</span><span class="k-w">Vent moyen (km/h)</span><span class="k-g">Rafales</span><span class="k-n">Nuit</span></div>
+  </div>`;
+}
+function pvChartData(){ const d=state.data[state.spot], dates=d.days.map(x=>x.date); return d.hours.filter(h=>dates.includes(h.date)); }
+function pvChartMark(){
+  const ln=document.getElementById('pvChLine'); if(!ln) return;
+  const d=state.data[state.spot], day=d.days[state.day], H=pvChartData(), hr=clamp(Math.round(state.hour),0,23);
+  const i=H.findIndex(h=>h.date===day.date&&h.hour===hr); if(i<0) return; const x=(i/(H.length-1)*1000).toFixed(1); ln.setAttribute('x1',x); ln.setAttribute('x2',x);
+}
+function pvChartBind(){
+  const p=document.getElementById('pvChP'), tip=document.getElementById('pvChTip'); if(!p) return;
+  const H=pvChartData(), d=state.data[state.spot];
+  const at=e=>{ const r=p.getBoundingClientRect(); return clamp(Math.round((e.clientX-r.left)/r.width*(H.length-1)),0,H.length-1); };
+  p.addEventListener('pointermove',e=>{ const i=at(e), h=H[i], j=d.days.findIndex(x=>x.date===h.date), r=p.getBoundingClientRect();
+    tip.hidden=false; tip.innerHTML=`<b>${pvDayLong(d.days[j],j)} · ${h.hour}h</b><span>Houle ${h.H!=null?fmt(h.H)+' m':'—'} · ${h.T?Math.round(h.T)+' s':'—'}${h.D!=null?' · '+sector(h.D):''}</span><span>Vent ${h.v!=null?Math.round(h.v):'—'} km/h${h.wd!=null?' · '+sector(h.wd):''}${h.gust!=null?' · rafales '+Math.round(h.gust):''}</span>`;
+    const x=e.clientX-r.left; tip.style.left=clamp(x,80,r.width-80)+'px'; });
+  p.addEventListener('pointerleave',()=>{ tip.hidden=true; });
+  p.addEventListener('click',e=>{ const h=H[at(e)], j=d.days.findIndex(x=>x.date===h.date); if(j<0) return;
+    if(j!==state.day){ const y=scrollY; state.day=j; render(); scrollTo(0,y); }
+    state.hour=h.hour; updateLive(); });
+  document.querySelectorAll('.pv-chday').forEach(b=>b.onclick=()=>{ const y=scrollY; state.day=+b.dataset.d; render(); scrollTo(0,y); });
+}
+
+/* ---------- mesure en mer (bouées) : le doré = mesuré ---------- */
+function pvBuoyChart(obs,fc,label){
+  if(obs.length<4) return '<p class="pv-empty">Pas assez de mesures récentes pour tracer la courbe.</p>';
+  const all=[...obs.map(o=>o.hs),...fc.map(o=>o.hs)], top=pvNice(Math.max(1,Math.max(...all)*1.12));
+  const t0=new Date(obs[0].t).getTime(), t1=new Date(obs[obs.length-1].t).getTime(), span=Math.round((t1-t0)/36e5);
+  const X=t=>((new Date(t).getTime()-t0)/(t1-t0||1)*1000).toFixed(1), Y=v=>(150-(v/top)*138).toFixed(1);
+  const P=a=>a.map((o,i)=>(i?'L':'M')+X(o.t)+' '+Y(o.hs)).join('');
+  const last=obs[obs.length-1], ly=+Y(last.hs);
+  return `<div class="pv-bch"><div class="pv-bys"><span style="top:${(+Y(top)/152*100).toFixed(1)}%">${fmt(top)} m</span><span style="top:${(+Y(top/2)/152*100).toFixed(1)}%">${fmt(top/2)}</span><span style="top:${(150/152*100).toFixed(1)}%">0</span></div>
+    <div class="pv-bpl"><svg viewBox="0 0 1000 152" preserveAspectRatio="none" role="img" aria-label="Hauteur mesurée par la bouée sur ${span} heures, comparée à la prévision"><line class="gl" x1="0" x2="1000" y1="${Y(top)}" y2="${Y(top)}"/><line class="gl" x1="0" x2="1000" y1="${Y(top/2)}" y2="${Y(top/2)}"/><line class="gl b" x1="0" x2="1000" y1="150" y2="150"/><path class="oa" d="${P(obs)}L1000 150L0 150Z"/>${fc.length>1?`<path class="fl" d="${P(fc)}"/>`:''}<path class="ol" d="${P(obs)}"/></svg><span class="pv-bdot" style="top:${(ly/152*100).toFixed(1)}%"></span></div></div>
+    <div class="pv-bx"><span>il y a ${span} h</span><span>${span>30?'il y a '+Math.round(span/2)+' h':''}</span><span>dernière mesure</span></div>
+    <div class="pv-leg"><span class="o">Mesuré par la bouée</span><span class="f">${label}</span></div>`;
+}
+function radarHtml(s){
+  const list=buoyChoices(s), cur=pickBuoy(list); if(!cur) return '';
+  const L=cur.L, Tm=(!L.tp&&cur.Tm)?cur.Tm:null;
+  let obs=cur.obs, fc, fNow, fLabel;
+  if(cur.kind==='coast'){
+    const d=state.data[state.spot], byT={}; d.hours.forEach(h=>{ if(h.H!=null) byT[h.time.slice(0,13)]=h.H; });
+    fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null); fNow=byT[L.time.slice(0,13)]; fLabel=`Prévision à ${s.name}`;
+  } else {
+    const byT={}; (cur.model||[]).forEach(m=>byT[m.t.slice(0,13)]=m.hs);
+    fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null); fNow=byT[L.time.slice(0,13)]; fLabel='Prévision des modèles à la bouée';
+  }
+  const a=cur.ageH, fr=a<2?(a<1?'En direct':'En direct · '+ageTxt(a)):a<6?ageTxt(a):a>=48?`Aucune mesure depuis le ${dmy(L.time)}`:stampTxt(L.time);
+  const tog=list.length>1?`<div class="pv-bsel pv-seg" role="group" aria-label="Choisir la bouée">${list.map(o=>`<button type="button" data-rv="${o.key}" aria-pressed="${o.key===cur.key}">${o.name}</button>`).join('')}</div>`:'';
+  const per=L.tp?`${Math.round(L.tp)} s`:(Tm?`≈ ${Math.round(Tm)} s`:'—');
+  const dd=fNow!=null?L.hs-fNow:null;
+  return `<section class="pv-sec radar" id="sRadar" aria-labelledby="sRadarT">
+    <div class="pv-sh"><h2 id="sRadarT">Mesure en mer</h2>${tip('radar','Comment fonctionnent les bouées ?')}<span class="pv-sp"></span>${tog}</div>
+    <div class="pv-card pv-obc">
+      <div class="pv-obl">
+        <div class="pv-obh"><span class="pv-tag obs">Mesuré</span><b>Bouée ${cur.name}</b><small>${cur.sub}</small></div>
+        <div class="pv-obv">${fmt(L.hs)}<small>m</small></div>
+        <p class="pv-obcap">${cur.kind==='coast'?'Hauteur de la houle à la bouée, près de la côte.':'Hauteur de la houle au large.'} Ce n’est pas la taille des vagues sur le spot : elle dépend aussi de la période, du fond et de la marée.</p>
+        <dl class="pv-obst"><div><dt>Période${L.tp?'':' estimée'}</dt><dd>${per}</dd></div><div><dt>Vient du</dt><dd>${L.dir!=null?pvArr(L.dir)+sector(L.dir):'—'}</dd></div><div><dt>Eau</dt><dd>${L.sst!=null?fmt(L.sst)+' °C':'—'}</dd></div><div><dt>Mesure</dt><dd class="pv-fr${a<2?' pv-lv':a>6?' old':''}"><i></i>${fr}</dd></div></dl>
+        ${dd!=null?`<p class="pv-obcmp">Prévu à la même heure : <b>${fmt(fNow)} m</b> · ${Math.abs(dd)<0.05?'conforme à la mesure':`mesure ${dd>0?'au-dessus':'en dessous'} de ${fmt(Math.abs(dd))} m`}</p>`:''}
+        <a class="pv-oba" href="bouees/${slugOf(cur.name)}/">Historique et page de la bouée →</a>
+      </div>
+      <div class="pv-obr">${pvBuoyChart(obs,fc,fLabel)}</div>
+    </div>
+  </section>`;
+}
+
+/* ---------- spots à proximité : liste et carte réunies, valeurs à l'heure choisie, comparaison ---------- */
+function pvNearHour(){ return clamp(Math.round(state.hour),6,21); }
+function pvNearRows(){
+  const k=state.day, hr=pvNearHour(), cur=state.spot;
+  const val=i=>{ const dd=state.data[i].days[k]; return dd&&dd.list.find(x=>x.hour===hr); };
+  let rows=nearOf(cur,8).map(o=>({...o,h:val(o.i)}));
+  if(PV.sort==='H') rows.sort((a,b)=>((b.h&&b.h.H)??-1)-((a.h&&a.h.H)??-1));
+  else if(PV.sort==='v') rows.sort((a,b)=>((a.h&&a.h.v)??999)-((b.h&&b.h.v)??999));
+  rows=[{i:cur,km:0,h:val(cur)},...rows];
+  return rows.map(o=>{ const x=state.data[o.i].spot, h=o.h, me=o.i===cur, on=PV.cmp.includes(o.i);
+    return `<div class="pv-nr${me?' me':''}" data-i="${o.i}"><button type="button" class="pv-ng" data-i="${o.i}"${me?' disabled aria-current="true"':''}><span class="pv-nn"><b>${x.name}</b><small>${me?'Spot consulté':(o.km<1?'< 1':Math.round(o.km))+' km'} · ${x.commune}</small></span><span class="pv-nv"><b>${h&&h.H!=null?fmt(h.H):'—'}<small> m</small></b><span>${h&&h.T?Math.round(h.T)+' s':'—'}${h?pvArr(h.D):''}</span><span class="pv-nw">${h&&h.v!=null?Math.round(h.v):'—'}${h&&h.wd!=null?`<i style="color:${pvWindCol(h.wind)}">${pvArr(h.wd)}</i>`:''}</span></span></button>${me?'<span class="pv-nc pv-ncx" aria-hidden="true"></span>':`<button type="button" class="pv-nc" data-c="${o.i}" aria-pressed="${on}" aria-label="${on?'Retirer de':'Ajouter à'} la comparaison : ${x.name}" title="${on?'Retirer de la comparaison':'Comparer avec ce spot'}">${on?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>'}</button>`}</div>`; }).join('');
+}
+function pvCmpHtml(){
+  PV.cmp=PV.cmp.filter(i=>nearOf(state.spot,8).some(o=>o.i===i));
+  if(!PV.cmp.length) return '';
+  const k=state.day, ids=[state.spot,...PV.cmp], hrs=[6,8,10,12,14,16,18,20];
+  const day0=state.data[state.spot].days[k];
+  return `<div class="pv-card pv-cmp"><div class="pv-cmph"><b>Comparaison · ${pvDayLong(day0,k)}</b><span>houle (m) · période · vent (km/h)</span><button type="button" class="pv-btn" id="pvCmpX">Effacer</button></div><div class="pv-cmps"><div class="pv-cmpg" style="--n:${hrs.length}"><span class="pv-cmpn"></span>${hrs.map(h=>`<span class="pv-cmpt">${h}h</span>`).join('')}${ids.map(i=>{ const x=state.data[i], dd=x.days[k]; return `<span class="pv-cmpn${i===state.spot?' me':''}">${x.spot.name}</span>`+hrs.map(hr=>{ const h=dd&&dd.list.find(z=>z.hour===hr); return h&&h.H!=null?`<span class="pv-cmpc" style="--c:${pvC(h.H,PV_SZ)}"><b>${fmt(h.H)}</b><i>${Math.round(h.T||0)} s${h.D!=null?' '+sector(h.D):''}</i><em><u style="color:${pvWindCol(h.wind)}">${pvArr(h.wd)}</u>${Math.round(h.v)}</em></span>`:'<span class="pv-cmpc">—</span>'; }).join(''); }).join('')}</div></div></div>`;
+}
+function pvNearHtml(s,k){
+  const day=state.data[state.spot].days[k];
+  return `<section class="pv-sec" id="f-near" aria-labelledby="sNear">
+    <div class="pv-sh"><h2 id="sNear">Spots à proximité</h2><span class="pv-note" id="pvNearWhen">${pvDayLong(day,k)} · ${pvNearHour()}h</span><span class="pv-sp"></span><div class="pv-seg" role="group" aria-label="Trier les spots">${[['km','Distance'],['H','Houle'],['v','Vent']].map(([v,l])=>`<button type="button" data-sort="${v}" aria-pressed="${PV.sort===v}">${l}</button>`).join('')}</div></div>
+    <div class="pv-card pv-near">
+      <div class="pv-nside"><div class="pv-nhd"><span>Spot</span><span>Houle</span><span>Période</span><span>Vent</span></div><div class="pv-nlist" id="pvNList">${pvNearRows()}</div><p class="pv-fn pv-nfn">Touchez + pour comparer jusqu’à 3 spots heure par heure.</p></div>
+      <div class="pv-nmap"><div id="lmap" role="region" aria-label="Carte des spots autour de ${s.name}"></div></div>
+    </div>
+    <div id="pvCmp">${pvCmpHtml()}</div>
+  </section>`;
+}
+/* étiquettes de la carte : valeur à l'heure choisie */
+function pvMapVals(){
+  if(!lmap) return; const k=state.day, hr=pvNearHour();
+  Object.entries(markers).forEach(([i,m])=>{ const sp=m.getElement().querySelector('.mkp span'); if(!sp) return; const x=state.data[+i], h=x.days[k]&&x.days[k].list.find(z=>z.hour===hr);
+    sp.textContent=(+i===state.spot?x.spot.name+' · ':'')+(h&&h.H!=null?fmt(h.H)+' m':'—'); });
+  nearDeclutter();
+}
+
+/* ---------- fiabilité : accord des modèles (instant) ≠ justesse passée (comparée aux mesures) ---------- */
+function pvRelHtml(){
+  const r=state.reliability;
+  let hist;
+  if(r&&r.status==='ok'){
+    const leads=['24','48','72','96'].filter(L=>r.leads[L]), mx=Math.max(.4,...leads.map(L=>r.leads[L].mix.mae));
+    hist=`<div class="pv-hist">${leads.map(L=>{ const x=r.leads[L], best=Object.entries(x.models||{}).sort((u,v)=>u[1].mae-v[1].mae)[0], bl=best?shortModel(((state.models||[]).find(m=>m.key===best[0])||{}).label||best[0]):'—';
+      return `<div class="pv-hr"><span class="pv-hl">${L==='24'?'Demain':`à ${L/24} jours`}</span><span class="pv-hb"><i style="width:${(x.mix.mae/mx*100).toFixed(0)}%"></i></span><b>± ${fmt2(x.mix.mae)} m</b><span class="pv-hs">${Math.round(x.mix.within30*100)} % des cas à moins de 0,3 m · biais ${x.mix.bias>0?'+':''}${fmt2(x.mix.bias)} m · meilleur : ${bl}</span></div>`; }).join('')}</div>
+      <p class="pv-fn">Écart moyen entre la prévision et la mesure de la bouée Gascogne (au large), sur ${r.window_days} jours. Biais positif : prévision trop haute. Ce n’est pas une mesure au spot.</p>`;
+  } else hist=`<p class="pv-empty">Collecte en cours : les premiers résultats arrivent après quelques jours de mesures.</p>`;
+  return `<section class="pv-sec" id="sRel" aria-labelledby="sRelT"><div class="pv-sh"><h2 id="sRelT">Fiabilité et spot</h2></div><div class="pv-relg">
+    <div class="pv-card pv-rc"><div class="pv-ck">Accord des modèles · <span id="relHr">—</span></div><div id="relModels"></div><p class="pv-fn">L’accord dit si les modèles sont cohérents entre eux, pas s’ils ont raison : ils peuvent se tromper ensemble. Ce n’est pas un intervalle de confiance.</p></div>
+    <div class="pv-card pv-rc"><div class="pv-ck">Justesse passée · comparée aux mesures</div>${hist}</div>
+    <div class="pv-card pv-rc pv-spot" id="pvSpot"></div>
+  </div></section>`;
+}
+function relUpdate(h){
+  const el=document.getElementById('relModels'); if(!el) return;
+  const t=document.getElementById('relHr'); if(t) t.textContent=(pvIsNow()?'maintenant':pvDayLong(state.data[state.spot].days[state.day],state.day).toLowerCase())+', '+h.hour+'h';
+  const rows=(state.models||[]).map(md=>({l:shortModel(md.label),v:h.models&&h.models[md.key]})).filter(x=>x.v!=null);
+  if(rows.length<2){ el.innerHTML='<p class="pv-empty">Pas assez de modèles disponibles à cette heure pour les comparer.</p>'; return; }
+  const vs=rows.map(r=>r.v), mn=Math.min(...vs), mx=Math.max(...vs), lo=Math.max(0,Math.floor((mn-.3)*2)/2), hi=Math.ceil((mx+.3)*2)/2, P=v=>((v-lo)/(hi-lo)*100).toFixed(1), ag=agreeOf(h);
+  rows.sort((a,b)=>a.v-b.v);
+  el.innerHTML=`<div class="pv-strip"><div class="pv-strk"><i class="pv-rng" style="left:${P(mn)}%;width:${(P(mx)-P(mn)).toFixed(1)}%"></i>${rows.map(r=>`<i class="pv-md" style="left:${P(r.v)}%" title="${r.l} : ${fmt(r.v)} m"></i>`).join('')}${h.H!=null?`<i class="pv-ret" style="left:${P(h.H)}%" title="Valeur affichée : ${fmt(h.H)} m"></i>`:''}</div><div class="pv-sax"><span>${fmt(lo)} m</span><span>${fmt(hi)} m</span></div></div>
+    <p class="pv-ags">De <b>${fmt(mn)}</b> à <b>${fmt(mx)} m</b>, soit ${fmt(mx-mn)} m d’écart${ag?` · accord ${AGREE_TXT[ag.lvl]}`:''}</p>
+    <ul class="pv-mlist">${rows.map(r=>`<li><span><i class="pv-mdk"></i>${r.l}</span><b>${fmt(r.v)} m</b></li>`).join('')}<li class="ret"><span><i class="pv-retk"></i>Valeur affichée (moyenne pondérée)</span><b>${h.H!=null?fmt(h.H)+' m':'—'}</b></li></ul>`;
+}
+/* Fiche du spot : seulement ce qui est connu. Spots « génériques » : orientation estimée d'après le trait de côte, rien d'autre. */
+function pvSpotUpdate(h){
+  const el=document.getElementById('pvSpot'); if(!el) return; const s=state.data[state.spot].spot;
+  const curated=!s.generic, sec=curated?sectorRange(s.swell):null;
+  const rose=pvCompass(s,[{deg:h&&h.D,len:1,cls:'c0',w:2.6},{deg:h&&h.wd,len:.75,cls:'cw',w:2}],{sector:sec,label:`Plage orientée vers ${sector(s.ori)} ; flèches : houle et vent à l’heure choisie`});
+  const facts=[[`Orientation`,`${sector(s.ori)} · ${Math.round(s.ori)}°`],
+    curated&&s.type?['Type',s.type]:null, curated&&s.bottom?['Fond',s.bottom]:null,
+    curated&&s.swell?['Houle (réglage)',s.swell]:null, curated&&s.tide?['Marée (réglage)',s.tide]:null, s.notes?['À savoir',s.notes]:null].filter(Boolean);
+  el.innerHTML=`<div class="pv-ck">Le spot</div><div class="pv-spg">${rose}<dl class="pv-facts">${facts.map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl></div>
+    <div class="pv-spleg"><span class="k-s">Houle</span><span class="k-w">Vent</span>${sec?'<span class="k-a">Secteur de houle du réglage</span>':''}</div>
+    <p class="pv-fn">${curated?'Réglages indicatifs, pas encore vérifiés sur le terrain.':'Orientation estimée d’après le trait de côte ; la fiche de ce spot n’est pas encore renseignée.'}</p>`;
+}
+
+/* ---------- prochaine marée après l'heure choisie (horaires calculés à la minute, si disponibles) ---------- */
+function pvNextTide(date,hour){
+  const t=state.tides&&state.tides[state.spot]; if(!t||!t.extremes) return null;
+  const ref=date+'T'+String(Math.floor(hour)).padStart(2,'0')+':'+String(Math.round((hour%1)*60)).padStart(2,'0');
+  return t.extremes.find(x=>x.t>ref)||null;
+}
+
+/* ======================================== rendu de la page ======================================== */
+function render(){
+  const d=state.data[state.spot], s=d.spot, k=state.day, day=d.days[k];
+  if(!BOOT_HOME){ try{ document.title=`Météo surf ${s.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(s.name)); }catch(e){} }
+  try{ if(window.__gcSpot!==undefined && window.__gcSpot!==s.name && !BOOT_HOME && window.goatcounter && goatcounter.count) goatcounter.count({path:'/?spot='+slugOf(s.name), title:document.title}); window.__gcSpot=s.name; }catch(e){}
+  const isFav=state.fav.includes(s.name), sst=d.hours.find(h=>h.sst!=null)?.sst, now=new Date();
+  { const rs0=day.sun?hDec(day.sun.rise):8, ss0=day.sun?hDec(day.sun.set):18;
+    state.hour = k===0 ? clamp(now.getHours()+Math.round(now.getMinutes()/15)/4, Math.ceil(rs0), Math.floor(ss0)) : 10;
+    const rawNow=now.getHours()+now.getMinutes()/60; state.liveHour=state.hour; state.live = k===0 && rawNow>=Math.ceil(rs0) && rawNow<=Math.floor(ss0)+.99; }
+  if(day.sun){ ocean.rise=hDec(day.sun.rise); ocean.set=hDec(day.sun.set); }
+  const hrs=day.list.filter(h=>h.hour>=6&&h.hour<=21);
+  const wmax=Math.max(.5,...d.days.flatMap(x=>x.list.filter(h=>h.hour>=6&&h.hour<=21&&h.H!=null).map(h=>h.H)));
+  const cf=state.coef&&state.coef[day.date], cam=camFor(s);
+  const meta=[s.commune&&slugOf(s.commune)!==slugOf(s.name)?s.commune:null, s.region, sst!=null?`Eau ${Math.round(sst)} °C`:null, day.sun?`Soleil ${day.sun.rise.replace(':','h').replace(/^0/,'')} – ${day.sun.set.replace(':','h').replace(/^0/,'')}`:null].filter(Boolean);
+  const wn=windNote(hrs);
+  document.getElementById('app').innerHTML=`
+  <nav class="tbar" id="tbar" aria-label="Navigation rapide">
+    <button type="button" data-go="today"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M2 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0" opacity=".5"/></svg><span>Aujourd’hui</span></button>
+    <button type="button" data-go="hours"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16M15 4v16"/></svg><span>Heures</span></button>
+    <button type="button" data-go="map"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.2-6-10a6 6 0 0 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg><span>Autour</span></button>
+    <button type="button" data-go="fav"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-3-5.4 3 1.1-6L3.2 9.4l6.1-.8z"/></svg><span>Favoris</span></button>
+  </nav>
+  <header class="pv-top"><div class="pv-in">
+    <a class="pv-brand" href="./" aria-label="Houlalah, accueil"><img src="brand/symbol.svg" alt="" width="26" height="24"><img class="pv-bw" src="brand/wordmark.svg" alt="houlalah" height="15"></a>
+    <button type="button" class="pv-pick" id="openPicker" aria-label="Rechercher un spot (actuel : ${s.name})">${PV_ICO.search}<span>Rechercher un spot ou une ville</span><kbd>/</kbd></button>
+    <button type="button" class="pv-fav" id="favBtn" aria-pressed="${isFav}" aria-label="${isFav?'Retirer de mes spots':'Ajouter à mes spots'}" title="${isFav?'Dans mes spots':'Ajouter à mes spots'}">${PV_ICO.star}</button>
+  </div></header>
+  <div class="pv pv-head">
+    <div class="pv-hl"><h1><span class="sr">Météo surf </span>${s.name}</h1><p class="pv-meta">${meta.map(x=>`<span>${x}</span>`).join('')}</p></div>
+    ${cam?`<a class="pv-cam" href="${cam.u}" target="_blank" rel="noopener noreferrer" title="Page ${cam.src}, nouvel onglet. Caméra gérée par un tiers : elle peut être hors ligne.">${PV_ICO.cam}<span>${cam.near?`Webcam · ${cam.near.name}`:'Webcam'}</span></a>`:''}
+  </div>
+  <nav class="pv-days" id="pvDays" aria-label="Choisir le jour"><div class="pv pv-dayrow">${d.days.map((x,j)=>pvDayTab(x,j,k,wmax)).join('')}</div></nav>
+  <main class="pv pv-main">
+    <section class="pv-card pv-hours" aria-labelledby="sHour">
+      <h2 class="sr" id="sHour">${pvDayLong(day,k)}, heure par heure</h2>
+      <div class="pv-when"><span class="pv-ld" id="pvLd"></span><b id="pvWhen">—</b><button type="button" class="pv-nowb" id="pvNow" hidden>Revenir à maintenant</button></div>
+      <div class="pv-cells" aria-live="polite">
+        <div class="pv-c"><div class="pv-k"><span class="pv-tag fc">Prévu</span><span class="pv-kt">Houle</span>${tip('taille','Hauteur de la houle : explications')}</div><div class="pv-v" id="pvS">—</div><div class="pv-s" id="pvSd"></div><button type="button" class="pv-link" id="pvCompBtn" aria-expanded="${PV.comp}" aria-controls="pvComp">Composition<span class="pv-lx"> de la houle</span>${PV_ICO.chev}</button></div>
+        <div class="pv-c"><div class="pv-k"><span class="pv-kt">Vent</span>${tip('vent','Offshore, onshore, rafales : explications')}</div><div class="pv-v" id="pvW">—</div><div class="pv-s" id="pvWd"></div></div>
+        <div class="pv-c"><div class="pv-k"><span class="pv-kt">Marée</span>${tip('maree','Comment lire la marée ?')}</div><div class="pv-v pv-vt" id="pvT">—</div><div class="pv-s" id="pvTd"></div></div>
+        ${pvObsCell(s)}
+      </div>
+      <div class="pv-comp" id="pvComp"${PV.comp?'':' hidden'}></div>
+      <div class="pv-tools">
+        <div class="pv-seg" role="group" aria-label="Affichage"><button type="button" data-view="table" aria-pressed="${PV.view==='table'}">Tableau</button><button type="button" data-view="chart" aria-pressed="${PV.view==='chart'}">Tendance 7 jours</button></div>
+        <span class="pv-sp"></span>${tip('modeles','D’où viennent les prévisions ?')}
+        <button type="button" class="pv-btn" id="cmpBtn" aria-pressed="${!!state.cmp}"${PV.view==='chart'?' hidden':''}>Détail des modèles</button>
+      </div>
+      <div class="pv-body" id="pvBody">${PV.view==='chart'?pvChart(d,k):pvTable(day,hrs)}</div>
+      ${wn&&PV.view!=='chart'?`<p class="pv-fn pv-wn">${wn.trim()}</p>`:''}
+    </section>
+    ${radarHtml(s)}
+    ${pvNearHtml(s,k)}
+    ${pvRelHtml()}
+  </main>
+  <div class="wrap pv-foot">
+    <footer>
+      <div class="fgrid">
+        <div><h3>Prévisions</h3><p>Données via <a href="https://open-meteo.com/">Open-Meteo</a> (CC BY 4.0). Vagues : Météo-France MFWAM (Copernicus Marine), DWD EWAM, ECMWF WAM, NOAA GFS-Wave. Vent : Météo-France AROME, DWD ICON, NOAA GFS, ECMWF IFS. Modèle côtier Ifremer MARC (Licence Ouverte).</p></div>
+        <div><h3>Mesures et marées</h3><p>Bouée Gascogne : Météo-France (Licence Ouverte). Bouées côtières : Cerema, réseau CANDHIS (Licence Ouverte). Bouées du large Bilbao-Vizcaya et Donostia : Puertos del Estado et Euskalmet, via Copernicus Marine. Mesures temps réel non validées. Marées : calcul harmonique indépendant à partir des mesures REFMAR (© Shom, Licence Ouverte). Coefficient : calcul indépendant à partir de Brest. Marée indicative.</p></div>
+        <div><h3>Météo surf par région</h3><p class="zlinks">${ZONE_LINKS.map(([z,n])=>`<a href="meteo-surf-${z}/">${n}</a>`).join(' · ')}</p><p><a href="bouees/">Toutes les bouées en direct</a></p></div>
+        <div><h3>À savoir</h3><p><a href="spots/">Tous les spots, de la Bretagne au Portugal</a></p><p>Prototype non commercial. Les prévisions sont des estimations : elles ne remplacent ni un coup d’œil sur place ni les consignes de sécurité locales.</p></div>
+      </div>
+      <details class="allspots"><summary>Tous les spots <span class="cnt">(${state.data.length})</span></summary>
+      <nav class="spotlinks" aria-label="Tous les spots">${(()=>{ const g={}; state.data.forEach(x=>{ (g[x.spot.region]=g[x.spot.region]||[]).push(x.spot); }); return Object.entries(g).map(([r,l])=>`<div><h3>${r}</h3>${l.map(sp=>`<a href="spots/${slugOf(sp.name)}/">${sp.name}</a>`).join('')}</div>`).join(''); })()}</nav></details>
+      <p class="flinks"><a href="comment-ca-marche/">Comment ça marche</a> · <a href="a-propos/">À propos</a> · <a href="mentions-legales/">Mentions légales</a> · <a href="confidentialite/">Confidentialité</a></p>
+      ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}.</p>`:''}
+    </footer>
+  </div>`;
+  updateLive(); bind();
+  { const sc=document.getElementById('pvScroll'), c=sc&&sc.querySelector('.pv-hh.sel'); if(sc&&c&&sc.scrollWidth>sc.clientWidth) sc.scrollLeft=Math.max(0,c.offsetLeft-sc.clientWidth/2+c.offsetWidth/2); }
+  { const r=document.querySelector('.pv-dayrow'), a=r&&r.querySelector('.pv-day[aria-pressed="true"]'); if(r&&a&&a.offsetLeft+a.offsetWidth>r.clientWidth-16) r.scrollLeft=a.offsetLeft-24; }
+}
+
+function updateLive(){
+  const d=state.data[state.spot], day=d.days[state.day]; if(!day) return;
+  const h=pvHourOf(day), $=id=>document.getElementById(id);
+  markHour(); pvChartMark();
+  if(!$('pvS')) return;
+  const isNow=pvIsNow();
+  $('pvWhen').textContent=isNow?`Maintenant · ${hhmm(state.hour)}`:`${pvDayLong(day,state.day)} · ${h?h.hour:Math.round(state.hour)}h`;
+  $('pvLd').classList.toggle('on',isNow);
+  $('pvNow').hidden=isNow||!(state.day!==0||state.live);
+  const sv=$('stkV'); if(sv&&h&&h.H!=null) sv.textContent=`${fmt(h.H)} m · ${Math.round(h.T||0)} s`;
+  if(!h) return;
+  if(h.H==null){ $('pvS').textContent='—'; $('pvSd').textContent='Pas de prévision de houle pour cette heure'; }
+  else $('pvS').innerHTML=`${fmt(h.H)}<small>m</small>`;
+  if(h.H!=null) $('pvSd').innerHTML=[h.T?`<b>${Math.round(h.T)} s</b>`:null, h.D!=null?`${pvArr(h.D)}${sector(h.D)}<i>${Math.round(h.D)}°</i>`:null].filter(Boolean).join('<span class="pv-sep"></span>');
+  $('pvW').innerHTML=h.v!=null?`${Math.round(h.v)}<small>km/h</small>`:'—';
+  $('pvWd').innerHTML=[h.wd!=null?`<span class="pv-wdc" style="color:${pvWindCol(h.wind)}">${pvArr(h.wd)}</span>${sector(h.wd)}`:null, h.wind?`<span>${windWord[h.wind]}</span>`:null, h.gust!=null?`<span>rafales ${Math.round(h.gust)}</span>`:null].filter(Boolean).join('<span class="pv-sep"></span>');
+  { const ph=tidePhase(h), nx=pvNextTide(day.date,state.hour), cf=state.coef&&state.coef[day.date];
+    $('pvT').innerHTML=ph!=='—'?`${h.rising!=null&&ph!=='Haute'&&ph!=='Basse'?`<svg class="pv-tda" viewBox="0 0 24 24" aria-hidden="true" style="transform:rotate(${h.rising?0:180}deg)"><path d="M12 19V5M6 11l6-6 6 6"/></svg>`:''}${ph==='Haute'||ph==='Basse'?ph+' mer':ph}`:'—';
+    $('pvTd').innerHTML=[nx?`<span>${nx.type==='PM'?'Pleine mer':'Basse mer'} ${nx.t.slice(0,10)!==day.date?'demain ':''}${nx.t.slice(11,16).replace(':','h')}${nx.h!=null?' · '+fmt(nx.h)+' m':''}</span>`:null, cf&&cf.length?`<span>coef. ${cf.join(' · ')}</span>`:null].filter(Boolean).join('<span class="pv-sep"></span>')||'<span>Horaires indisponibles</span>'; }
+  if(PV.comp){ const c=$('pvComp'); if(c) c.innerHTML=pvCompHtml(h); }
+  relUpdate(h); pvSpotUpdate(h);
+  { const nl=$('pvNList'); if(nl&&nl.dataset.k!==`${state.spot}|${state.day}|${pvNearHour()}|${PV.sort}|${PV.cmp.join(',')}`){ nl.innerHTML=pvNearRows(); nl.dataset.k=`${state.spot}|${state.day}|${pvNearHour()}|${PV.sort}|${PV.cmp.join(',')}`; }
+    const w=$('pvNearWhen'); if(w) w.textContent=`${pvDayLong(day,state.day)} · ${pvNearHour()}h`; pvMapVals(); }
+}
+
+function pvSetView(v){
+  PV.view=v; try{ localStorage.setItem('pvView',v); }catch(e){}
+  const d=state.data[state.spot], day=d.days[state.day], b=document.getElementById('pvBody'); if(!b) return;
+  b.innerHTML=v==='chart'?pvChart(d,state.day):pvTable(day,day.list.filter(h=>h.hour>=6&&h.hour<=21));
+  document.querySelectorAll('.pv-tools [data-view]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.view===v)));
+  const cb=document.getElementById('cmpBtn'); if(cb) cb.hidden=v==='chart';
+  const wn=document.querySelector('.pv-wn'); if(wn) wn.hidden=v==='chart';
+  pvBindBody(); updateLive();
+}
+function pvBindBody(){
+  document.querySelectorAll('.pv-grid [data-h]').forEach(c=>c.addEventListener('click',()=>{ state.hour=+c.dataset.h; updateLive(); }));
+  document.querySelectorAll('.pv-grid .pv-ag[data-h]').forEach(c=>c.addEventListener('dblclick',()=>{ const r=document.getElementById('sRel'); if(r) r.scrollIntoView({behavior:REDUCED?'auto':'smooth',block:'start'}); }));
+  pvChartBind();
+}
+function bind(){
+  document.getElementById('openPicker').onclick=()=>{ renderPicker(); document.getElementById('picker').showModal(); fitPicker(); if(innerWidth>=700) document.getElementById('q').focus(); };
+  document.getElementById('favBtn').onclick=()=>{ const n=state.data[state.spot].spot.name; state.fav=state.fav.includes(n)?state.fav.filter(x=>x!==n):[...state.fav,n]; saveFav(); const b=document.getElementById('favBtn'), on=state.fav.includes(n); b.setAttribute('aria-pressed',String(on)); b.setAttribute('aria-label',on?'Retirer de mes spots':'Ajouter à mes spots'); b.title=on?'Dans mes spots':'Ajouter à mes spots'; };
+  document.getElementById('cmpBtn').onclick=()=>{ state.cmp=!state.cmp; document.getElementById('cmpBtn').setAttribute('aria-pressed',String(state.cmp)); pvSetView('table'); };
+  document.querySelectorAll('.pv-tools [data-view]').forEach(b=>b.onclick=()=>pvSetView(b.dataset.view));
+  document.querySelectorAll('.pv-day').forEach(b=>b.onclick=()=>{ const y=scrollY; state.day=+b.dataset.d; render(); scrollTo(0,y); });
+  document.getElementById('pvNow').onclick=()=>{ if(state.day!==0){ const y=scrollY; state.day=0; render(); scrollTo(0,y); } else { state.hour=state.liveHour; updateLive(); } };
+  document.getElementById('pvCompBtn').onclick=()=>{ PV.comp=!PV.comp; const c=document.getElementById('pvComp'); c.hidden=!PV.comp; document.getElementById('pvCompBtn').setAttribute('aria-expanded',String(PV.comp)); updateLive(); };
+  document.querySelectorAll('#f-near [data-sort]').forEach(b=>b.onclick=()=>{ PV.sort=b.dataset.sort; document.querySelectorAll('#f-near [data-sort]').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); updateLive(); });
+  const nl=document.getElementById('pvNList');
+  if(nl){
+    nl.onclick=e=>{ const c=e.target.closest('.pv-nc[data-c]'); if(c){ const i=+c.dataset.c; PV.cmp=PV.cmp.includes(i)?PV.cmp.filter(x=>x!==i):[...PV.cmp,i].slice(-3); document.getElementById('pvCmp').innerHTML=pvCmpHtml(); pvBindCmp(); updateLive(); return; }
+      const g=e.target.closest('.pv-ng'); if(g&&!g.disabled){ PV.cmp=[]; go(+g.dataset.i); } };
+    nl.onmouseover=e=>{ const r=e.target.closest('.pv-nr'); pvHl(r?+r.dataset.i:null); };
+    nl.onmouseleave=()=>pvHl(null);
+  }
+  pvBindCmp(); pvBindBody();
+  bindTips(document);
+  function bindTips(root){ root.querySelectorAll('.tipbtn').forEach(b=>{ b.onmouseenter=()=>showTip(b); b.onmouseleave=()=>hideTip(); b.onfocus=()=>showTip(b); b.onblur=()=>hideTip(); b.onclick=e=>{ e.stopPropagation(); (tipOwner===b&&tipLayer.classList.contains('on'))?hideTip(true):showTip(b); }; }); }
+  initMap();
+}
+function pvBindCmp(){ const x=document.getElementById('pvCmpX'); if(x) x.onclick=()=>{ PV.cmp=[]; document.getElementById('pvCmp').innerHTML=''; updateLive(); }; }
+/* survol liste ↔ carte */
+function pvHl(i){
+  document.querySelectorAll('.pv-nr.hl').forEach(r=>r.classList.remove('hl'));
+  Object.entries(markers).forEach(([j,m])=>{ const el=m.getElement(); el.classList.toggle('pv-hl',+j===i); el.style.zIndex=+j===state.spot?6:+j===i?7:el.dataset.z||1; });
+  if(i!=null){ const r=document.querySelector(`.pv-nr[data-i="${i}"]`); if(r) r.classList.add('hl'); }
+}
+/* jours collés en haut : un fin trait apparaît quand ils flottent au-dessus du contenu */
+window.addEventListener('scroll',()=>{ const n=document.getElementById('pvDays'); if(n) n.classList.toggle('stuck',n.getBoundingClientRect().top<=0.5&&scrollY>40); },{passive:true});
+/* « / » ouvre la recherche de spot (comme beaucoup d'outils) */
+document.addEventListener('keydown',e=>{ if(e.key!=='/'||e.ctrlKey||e.metaKey||e.altKey) return; const t=e.target; if(t&&(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return; const p=document.getElementById('openPicker'); if(p&&!document.getElementById('picker').open&&!HOME.on){ e.preventDefault(); p.click(); } });
+
 function fitPicker(){
   const v=window.visualViewport, r=document.documentElement.style;
   if(!v||innerWidth>=700){ r.removeProperty('--pkh'); r.removeProperty('--pkt'); return; }
@@ -3328,7 +4224,7 @@ function renderPicker(){
 function refreshModels(){ const i=state.spot; enrich(i).then(ch=>{ if(ch && state.spot===i){ const h=state.hour, y=scrollY; render(); state.hour=h; updateLive(); scrollTo(0,y); } else if(state.spot===i){ const g=document.querySelector('#szC'); if(g) updateLive(); } }).catch(()=>{}); }
 function slugOf(n){ return n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
 function go(i){ state.spot=i; render(); refreshModels(); window.scrollTo({top:0,behavior:REDUCED?'auto':'smooth'}); }
-function bind(){
+function bind_v1(){
   { const ws=document.getElementById('wSel'); if(ws) ws.onchange=()=>{ state.weight=+ws.value; saveWeight(state.weight); const el=document.getElementById('gBoard'); if(el){ el.innerHTML=gearBoardHtml(); bindTips(el); } }; }
   document.getElementById('openPicker').onclick=()=>{ renderPicker(); document.getElementById('picker').showModal(); fitPicker(); if(innerWidth>=700) document.getElementById('q').focus(); };
   document.getElementById('favBtn').onclick=()=>{ const n=state.data[state.spot].spot.name; state.fav=state.fav.includes(n)?state.fav.filter(x=>x!==n):[...state.fav,n]; saveFav(); render(); };
