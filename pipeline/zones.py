@@ -156,7 +156,8 @@ def _zone_pages(zone, spots, payload, now, site):
 def generate(spots, payload, root, site, now=None):
     """Écrit root/<slug>/index.html pour chaque zone. Retourne la liste des adresses créées."""
     import shutil
-    now = now or datetime.now()
+    from .seo import paris_now
+    now = now or paris_now()
     urls = []
     for z in ZONES:
         html_ = _zone_pages(z, spots, payload, now, site)

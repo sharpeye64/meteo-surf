@@ -188,3 +188,35 @@ Même exploration (255 URL du sitemap, HTML brut) sur la production et sur la ve
 3. **Dans Search Console** :
    - « Inspection de l'URL » puis « Demander l'indexation » pour `/`, 3 pages de bouées et 3 pages de spots ;
    - suivre l'onglet « Pages » 2 à 4 semaines après.
+
+## 9. Validation finale avant publication (ajouts)
+
+- **Fuseau horaire** (défaut qui existait déjà en production) : le robot GitHub tourne en UTC, alors que les mesures, les prévisions et les marées sont en heure de Paris. Les pages générées sous-estimaient donc l'âge des mesures d'une heure (deux en été), et l'heure « Mis à jour le … » était fausse d'autant.
+  - **Correction** : `seo.paris_now()` et `zones.py` calculent « maintenant » en heure de Paris (`zoneinfo`, `config.TIMEZONE`).
+  - **Vérification** : avec la machine simulée en UTC (19 h 04), on obtient bien 20 h 04 à Paris.
+- **Robot arrêté** : les pages statiques ne bougent plus, mais la page de bouée recalcule l'âge dans le navigateur. Au-delà de 6 h (ou de 3 fois la cadence de la station), elle corrige d'elle-même le titre (« dernières mesures »), éteint la pastille et affiche « Dernière mesure reçue il y a 11 h ». C'est testé en avançant l'horloge du navigateur de 10 h.
+- **Arrêt puis reprise d'une bouée** : testé en régénérant les pages trois fois (normal → mesure de 8 h et de 60 h → reprise).
+
+| Situation | Titre | Pastille verte | Encadré « pas de mesure depuis » |
+|---|---|---|---|
+| Normal | « houle en direct » | si la mesure a moins d'1 h (CANDHIS) | non |
+| Arrêt | « dernières mesures » | non | oui |
+| Reprise | « houle en direct » | oui | non |
+
+- **Erreur d'une source** : déjà gérée par `build.keep_silent`. La bouée est reprise depuis l'archive, puis marquée muette au-delà de 48 h. Les nouveaux titres s'appuient sur l'heure réelle de la dernière mesure, donc ils suivent.
+- **Unités et dates** :
+  - mesures CANDHIS, Copernicus et Météo-France, prévisions Open-Meteo et marées : toutes converties en heure de Paris par le robot (vérifié dans `candhis.py`, `ibi_buoys.py`, `meteofrance.py`, `openmeteo.py` et `tides.py`) ;
+  - unités homogènes : m, s, km/h, °C ;
+  - heures écrites avec des espaces insécables (« 0 h 30 » ne se coupe plus) ;
+  - rafales abrégées « (raf. 15) » ;
+  - la ligne « bouée de référence » des pages de spots indique l'heure de la mesure (« dernière mesure 1,6 m (26/11 à 18 h 00) ») plutôt que « mesure actuelle ».
+- **Canonique de `/?spot=x`** : **implémentée**.
+  - La balise en dur a été retirée de `index.html`. Un petit script dans l'en-tête la pose aussitôt : `/` pour l'accueil, `/spots/x/` pour `/?spot=x`.
+  - L'application la tient à jour (`setCanon`) quand elle change de spot, ouvre l'accueil ou le ferme. `og:url` suit.
+  - Une adresse de spot inconnue est réécrite vers le spot réellement affiché, avec sa canonique.
+  - Testé : `/`, `/?spot=la-graviere`, `/?spot=nimporte-quoi`, accueil → spot → retour.
+- **URL de test** : aucune. Le sitemap, les canoniques et les données structurées des pages générées pointent tous vers `https://houlalah.fr/` (`config.SITE_URL`) ; aucun « localhost ».
+- **Favoris et liens profonds** :
+  - `/?spot=x` ouvre directement le spot ;
+  - un favori ajouté depuis l'application apparaît dans « Mes spots » de l'accueil et reste après rechargement.
+- **Rendu** : pages de spots et de bouées vérifiées à 390 et 1440 px, sans débordement de page. Sur téléphone, les tableaux défilent horizontalement, comme le tableau de la semaine existant.

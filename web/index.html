@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Météo surf Atlantique : houle, vent et marée | Houlalah</title>
 <meta name="description" content="Prévisions surf de la Bretagne au Portugal : houle, vent, marée et coefficient pour 214 spots, vérifiées avec les bouées. Mises à jour toutes les heures.">
-<link rel="canonical" href="https://houlalah.fr/">
+<script>/* canonique : l'accueil pour « / », la page indexable du spot pour « /?spot=x » (même contenu : la prévision de ce spot) */
+(function(){var s=new URLSearchParams(location.search).get("spot"),u="https://houlalah.fr/"+(s&&/^[a-z0-9-]{2,60}$/.test(s)?"spots/"+s+"/":""),l=document.createElement("link");l.rel="canonical";l.id="canon";l.href=u;document.head.appendChild(l);var o=document.querySelector('meta[property="og:url"]');if(o)o.content=u;})();</script>
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Houlalah"><meta property="og:locale" content="fr_FR">
 <meta property="og:title" content="Météo surf Landes, Gironde, Pays basque | Houlalah">
@@ -4771,6 +4772,7 @@ function tideSvg(list, hour){
   return `<svg class="tideline" viewBox="0 0 160 46" preserveAspectRatio="none" aria-hidden="true"><path d="${d} L160 46 L0 46 Z" fill="rgba(var(--lilac-rgb),.22)"/><path d="${d}" fill="none" stroke="var(--lilac)" stroke-width="2" vector-effect="non-scaling-stroke"/>${cur&&cur.tideN!=null?`<line x1="${X(hour)}" x2="${X(hour)}" y1="0" y2="46" stroke="rgba(255,255,255,.35)" vector-effect="non-scaling-stroke"/><circle cx="${X(hour)}" cy="${Y(cur.tideN)}" r="4" fill="#fff"/>`:''}</svg>`;
 }
 let BOOT_HOME=false, APP_PENDING=false;
+function setCanon(slug){ try{ const u='https://houlalah.fr/'+(slug?'spots/'+slug+'/':''); let l=document.getElementById('canon')||document.querySelector('link[rel=canonical]'); if(!l){ l=document.createElement('link'); l.rel='canonical'; l.id='canon'; document.head.appendChild(l); } l.href=u; const o=document.querySelector('meta[property="og:url"]'); if(o) o.content=u; }catch(e){} }
 function render_v1(){
   const d=state.data[state.spot], s=d.spot, k=state.day, day=d.days[k];
   if(!BOOT_HOME){ try{ document.title=`Météo surf ${s.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(s.name)); }catch(e){} }
@@ -5436,7 +5438,7 @@ function pvSky(){
 /* ======================================== rendu ======================================== */
 function render(){
   const d=state.data[state.spot], s=d.spot, k=state.day, day=d.days[k];
-  if(!BOOT_HOME){ try{ document.title=`Météo surf ${s.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(s.name)); }catch(e){} }
+  if(!BOOT_HOME){ try{ document.title=`Météo surf ${s.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(s.name)); setCanon(slugOf(s.name)); }catch(e){} }
   try{ if(window.__gcSpot!==undefined && window.__gcSpot!==s.name && !BOOT_HOME && window.goatcounter && goatcounter.count) goatcounter.count({path:'/?spot='+slugOf(s.name), title:document.title}); window.__gcSpot=s.name; }catch(e){}
   const isFav=state.fav.includes(s.name), sst=d.hours.find(h=>h.sst!=null)?.sst, now=new Date();
   { const rs0=day.sun?hDec(day.sun.rise):8, ss0=day.sun?hDec(day.sun.set):18;
@@ -5735,7 +5737,7 @@ async function homeOpen(fromSpot){
   HOME.from=fromSpot===true?state.spot:null;
   HOME.on=true; document.body.classList.add('homeOn'); el.hidden=false;
   HOME.q=''; HOME.view='home'; HOME.sel=null; HOME.selB=null;
-  try{ history.replaceState(null,'','./'); document.title=HOME_TITLE; sessionStorage.setItem('homeOpen','1'); }catch(e){}
+  try{ history.replaceState(null,'','./'); document.title=HOME_TITLE; setCanon(''); sessionStorage.setItem('homeOpen','1'); }catch(e){}
   if(!HOME.ready){
     HOME.data=homeData(); HOME.bu=homeBuoys(); HOME.T=homeTimes(); HOME.ti=0; HOME.hr=+HOME.T[0].slice(11,13);
     try{ HOME.v=localStorage.getItem('hoVar')||'H'; HOME.showBu=localStorage.getItem('hoBu')!=='0'; }catch(e){ HOME.v='H'; HOME.showBu=true; }
@@ -5777,7 +5779,7 @@ async function homeOpen(fromSpot){
 function homeClose(){
   homeMark(); try{ sessionStorage.removeItem('homeOpen'); }catch(e){}
   if(APP_PENDING&&state.data){ APP_PENDING=false; BOOT_HOME=true; render(); BOOT_HOME=false; refreshModels(); }
-  if(state.data){ try{ const sp=state.data[state.spot].spot; document.title=`Météo surf ${sp.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(sp.name)); }catch(e){} }
+  if(state.data){ try{ const sp=state.data[state.spot].spot; document.title=`Météo surf ${sp.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(sp.name)); setCanon(slugOf(sp.name)); }catch(e){} }
   HOME.on=false;
   const el=document.getElementById('home'); if(el) el.hidden=true; document.body.classList.remove('homeOn');
   if(typeof oceanKick==='function') oceanKick();

@@ -62,7 +62,7 @@ ul.bidx{padding:0;margin:0}
 
 MAP_JS = """
 (function(){
-  var ag=document.getElementById('bage'); if(ag){var t=new Date(ag.getAttribute('data-t')); var h=(Date.now()-t.getTime())/36e5; if(h>=0&&h<24*30) ag.textContent=h<1?"à l'instant":h<36?'il y a '+Math.round(h)+' h':'il y a '+Math.round(h/24)+' j'; var lim=+(ag.getAttribute('data-lim')||1); if(ag.parentNode&&ag.parentNode.classList) ag.parentNode.classList.toggle('on',h>=0&&h<lim);}
+  var ag=document.getElementById('bage'); if(ag){var t=new Date(ag.getAttribute('data-t')); var h=(Date.now()-t.getTime())/36e5; if(h>=0&&h<24*30) ag.textContent=h<1?"à l'instant":h<36?'il y a '+Math.round(h)+' h':'il y a '+Math.round(h/24)+' j'; var lim=+(ag.getAttribute('data-lim')||1); if(ag.parentNode&&ag.parentNode.classList) ag.parentNode.classList.toggle('on',h>=0&&h<lim); /* si le robot n'a pas tourné depuis : la page se corrige seule (titre, pastille, encadré) */ if(h>=Math.max(6,3*lim)){ document.title=document.title.replace(/ : houle( mesurée)? en direct/,' : dernières mesures'); if(ag.parentNode) ag.parentNode.classList.add('off'); if(!document.querySelector('.stale')){ var d=document.createElement('div'); d.className='stale'; d.innerHTML='<b>Dernière mesure reçue '+ag.textContent+'.</b> Les valeurs ci-dessous peuvent ne plus refléter la mer actuelle.'; var h1=document.querySelector('h1'), nx=h1&&h1.nextElementSibling; if(nx) nx.parentNode.insertBefore(d,nx.nextSibling); } } }
   var el=document.getElementById('bmap'); var raw=document.getElementById('bdata'); if(!el||!raw) return;
   var D=JSON.parse(raw.textContent), started=false;
   function col(h){var S=[[0,'#9ed8f0'],[.6,'#43b8c9'],[1.2,'#6bc46d'],[1.8,'#e8d54a'],[2.4,'#f39a2b'],[3.2,'#e24a3b']];for(var i=S.length-1;i>=0;i--)if(h>=S[i][0])return S[i][1];return S[0][1];}
@@ -321,7 +321,7 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
     short = "houle en direct" if working else "dernières mesures"
     # sans place : on garde les mots recherchés (« houle en direct ») plutôt que la marque
     title = fit(f"{who} : {tail} | {BRAND}", f"{who} : {short} | {BRAND}", f"{who} : {short}", f"{who} : {tail}", f"{who} | {BRAND}", who)
-    when = f"le {L['time'][8:10]}/{L['time'][5:7]} à {int(L['time'][11:13])} h {L['time'][14:16]}".replace(" h 00", " h")
+    when = f"le {L['time'][8:10]}/{L['time'][5:7]} à {int(L['time'][11:13])} h {L['time'][14:16]}".replace(" h 00", " h")
     vals = (f"{fr(L['hs'])} m" + (f", période {fr(L['tp'], 0)} s" if L.get("tp") else "")
             + (f", direction {sector(L['dir'])}" if L.get("dir") is not None else "") + (f", eau {fr(L['sst'])} °C" if L.get("sst") is not None else ""))
     if working:

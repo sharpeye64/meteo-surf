@@ -20,6 +20,12 @@ DAYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
 BRAND = "Houlalah"
 
 
+def paris_now():
+    """Heure de Paris sans fuseau : même référence que les heures des mesures, prévisions et marées (config.TIMEZONE)."""
+    from zoneinfo import ZoneInfo
+    return datetime.now(ZoneInfo(config.TIMEZONE)).replace(tzinfo=None)
+
+
 def slugify(name):
     s = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().lower()
     return re.sub(r"[^a-z0-9]+", "-", s).strip("-")
@@ -102,7 +108,7 @@ def tide_days(sp, coef):
     rows = []
     for date in sorted(by)[:7]:
         d = datetime.strptime(date, "%Y-%m-%d")
-        fmt = lambda x: f"{int(x['t'][11:13])} h {x['t'][14:16]}" + (f" ({fr(x['h'])} m)" if x.get("h") is not None else "")
+        fmt = lambda x: f"{int(x['t'][11:13])} h {x['t'][14:16]}" + (f" ({fr(x['h'])} m)" if x.get("h") is not None else "")
         rows.append({"label": DAYS[d.weekday()].capitalize(), "dm": d.strftime("%d/%m"),
                      "pm": [fmt(x) for x in by[date] if x["type"] == "PM"], "bm": [fmt(x) for x in by[date] if x["type"] == "BM"],
                      "coef": max(coef.get(date) or [0]) or None})
@@ -307,7 +313,7 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
                 b = None
         if b is not None:
             buoy_line = (f'<p class="muted">{label} : <a href="../../bouees/{slugify(b["name"])}/">{esc(b["name"])}</a>, '
-                         f'à {round(dist(b))} km, mesure actuelle {fr(b["latest"]["hs"])} m.</p>')
+                         f'à {round(dist(b))} km, dernière mesure {fr(b["latest"]["hs"])} m ({b["latest"]["time"][8:10]}/{b["latest"]["time"][5:7]} à {int(b["latest"]["time"][11:13])} h {b["latest"]["time"][14:16]}).</p>')
     except Exception:
         buoy_line = ""
     from . import zones as _z
@@ -320,7 +326,7 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
         lab = "aujourd'hui" if hh["day"] == now.strftime("%Y-%m-%d") else "demain"
         ws = lambda r: WIND_WORD.get(wind_for_spot(r["w"], r["wd"], sp.get("ori")), "—")
         hrs = "".join(f"<tr><td>{r['h']} h</td><td>{fr(r['hs'])} m</td><td>{fr(r['tp'], 0)} s {sector(r['dir']) or ''}</td>"
-                      f"<td>{fr(r['w'], 0)} km/h {sector(r['wd']) or ''}{(' · rafales ' + fr(r['gust'], 0)) if r.get('gust') is not None else ''}</td><td>{ws(r)}</td></tr>" for r in hh["rows"])
+                      f"<td>{fr(r['w'], 0)} km/h {sector(r['wd']) or ''}{(' (raf. ' + fr(r['gust'], 0) + ')') if r.get('gust') is not None else ''}</td><td>{ws(r)}</td></tr>" for r in hh["rows"])
         hours_html = (f'<h2>Heure par heure {lab} ({DAYS[hd.weekday()]} {hd:%d/%m})</h2>'
                       f'<table><thead><tr><th>Heure</th><th>Houle</th><th>Période</th><th>Vent</th><th>Pour ce spot</th></tr></thead><tbody>{hrs}</tbody></table>'
                       f'<p class="muted">Toutes les 3 heures. « Pour ce spot » : le vent rapporté à l’orientation de {esc(name)} (face au {sector(sp["ori"]) if sp.get("ori") is not None else "large"}). Le détail heure par heure, les modèles et la bouée : <a href="{app}">prévision complète</a>.</p>')
@@ -389,7 +395,7 @@ def generate(payload, out_dir=None, site=None):
     """Écrit web/spots/…, web/sitemap.xml et web/robots.txt. Retourne le nombre de pages créées."""
     site = (site or config.SITE_URL).rstrip("/")
     root = out_dir or (config.ROOT / "web")
-    now = datetime.now()
+    now = paris_now()   # heure de Paris, comme les mesures et les prévisions (le robot GitHub tourne en UTC)
     meta = {s["name"]: s for s in json.loads(config.SPOTS_FILE.read_text(encoding="utf-8"))}
     coef = payload.get("tide_coef") or {}
     spots = []
