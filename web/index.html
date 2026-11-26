@@ -3092,6 +3092,319 @@ html[data-da="a"] .pv-band[data-sky="night"]{background:radial-gradient(1000px 4
   html[data-da="a"] .pv-dn{letter-spacing:.04em}
   html[data-da="a"] .pv-day .pv-dm{font-size:11px}
 }
+
+/* =====================================================================================================
+   ACCUEIL PREMIUM OCEAN (test) — classes ho- (l'ancien CSS de l'accueil cible hm-/hmb- et reste sans effet)
+   ===================================================================================================== */
+#home.ho{--n:#0B1B26;--cr:#F3EFE6;--card:#FFFDF8;--sand:#ECE5D5;--g:#F2C66B;--gi:#8A6418;--i2:#38474F;--i3:#68747A;--ln:rgba(11,27,38,.09);--ho-day:rgba(243,239,230,.3);--ho-night:rgba(243,239,230,.09);
+  background:var(--sand);color:var(--n);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+#home.ho *{box-sizing:border-box}
+#home.ho button{font-family:inherit}
+#home.ho svg:not(.pv-arr){fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#home.ho svg .f{fill:currentColor;stroke:none}
+#home.ho .ho-map{position:absolute;inset:0}
+.ho-map.off{background:radial-gradient(ellipse at 70% 50%,#D9E4E8,#ECE5D5)}
+/* panneau */
+.ho-panel{position:absolute;z-index:6;left:20px;top:20px;bottom:20px;width:388px;display:flex;flex-direction:column;border-radius:28px;overflow:hidden;background:var(--card);box-shadow:0 0 0 1px rgba(11,27,38,.06),0 40px 80px -40px rgba(11,27,38,.5)}
+.ho-hd{position:relative;flex:none;padding:20px 24px 30px;color:var(--cr);background:radial-gradient(520px 260px at 100% -20%,rgba(48,118,160,.55),transparent 65%),radial-gradient(420px 220px at -10% 120%,rgba(217,164,65,.12),transparent 60%),var(--n)}
+.ho-hd:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:14px;background:var(--card);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 14' preserveAspectRatio='none'%3E%3Cpath d='M0 14V8C33 1 67 1 100 8S167 15 200 8 267 1 300 8 367 15 400 8V14Z'/%3E%3C/svg%3E") center/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 14' preserveAspectRatio='none'%3E%3Cpath d='M0 14V8C33 1 67 1 100 8S167 15 200 8 267 1 300 8 367 15 400 8V14Z'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+.ho-deco{position:absolute;inset:0;pointer-events:none;opacity:.9}
+.ho-deco svg{width:100%;height:100%}
+.ho-deco path{fill:none;stroke:rgba(243,239,230,.05);stroke-width:1.2}
+.ho-hd>*:not(.ho-deco){position:relative}
+.ho-grab{display:none}
+.ho-brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ho-logo{display:inline-flex;align-items:center;gap:9px;text-decoration:none}
+.ho-logo img{display:block;height:28px;width:auto}
+.ho-logo .ho-wm{height:17px}
+.ho-tag{display:none}
+.ho-how{color:rgba(243,239,230,.72);font:700 12.5px Manrope,system-ui,sans-serif;text-decoration:none;padding:6px 11px;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(243,239,230,.16);transition:background .15s,color .15s}
+.ho-how:hover{background:rgba(243,239,230,.08);color:var(--cr)}
+.ho-k{margin:26px 0 0;font:800 11px Manrope,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#E6B95E}
+.ho-h1{margin:10px 0 0;font:700 27px/1.08 Unbounded,system-ui,sans-serif;letter-spacing:-.045em;color:var(--cr)}
+.ho-h1 em{font-style:normal;color:var(--g)}
+.ho-srch{display:flex;align-items:center;gap:10px;height:50px;margin-top:20px;padding:0 8px 0 16px;border-radius:999px;background:rgba(243,239,230,.08);box-shadow:inset 0 0 0 1px rgba(243,239,230,.14);cursor:text;transition:box-shadow .2s,background .2s}
+.ho-srch:focus-within{background:rgba(243,239,230,.12);box-shadow:inset 0 0 0 1.5px rgba(242,198,107,.6)}
+.ho-srch>svg{width:19px;height:19px;flex:none;opacity:.65}
+.ho-srch input{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;color:var(--cr);font:600 15.5px Manrope,system-ui,sans-serif;-webkit-appearance:none;appearance:none}
+.ho-srch input,.ho-srch input:focus{box-shadow:none!important;border:0!important;outline:0!important;border-radius:0!important;padding:0!important}
+.ho-srch input::placeholder{color:rgba(243,239,230,.5)}
+.ho-srch input::-webkit-search-cancel-button{display:none}
+.ho-qx{flex:none;display:grid;place-items:center;width:34px;height:34px;border:0;border-radius:50%;background:rgba(243,239,230,.1);color:var(--cr);cursor:pointer}
+.ho-qx svg{width:15px;height:15px}
+.ho-qx[hidden]{display:none}
+.ho-body{flex:1;min-height:0;overflow:auto;padding:4px 22px 22px;scrollbar-width:thin;scrollbar-color:rgba(11,27,38,.2) transparent;overscroll-behavior:contain}
+.ho-sec{margin-top:18px}
+.ho-sh{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
+.ho-sh h2{display:flex;align-items:center;gap:7px;margin:0;font:800 11.5px Manrope,system-ui,sans-serif;letter-spacing:.11em;text-transform:uppercase;color:var(--i2)}
+.ho-sh h2 svg{width:15px;height:15px;opacity:.75}
+.ho-sh>span{font:600 12px Manrope,system-ui,sans-serif;color:var(--i3)}
+.ho-note{margin:0 0 10px;font:500 13px/1.45 Manrope,system-ui,sans-serif;color:var(--i3)}
+/* zones */
+.ho-chips{display:flex;gap:7px;overflow-x:auto;margin:0 -22px;padding:0 22px 2px;scrollbar-width:none}
+.ho-chips::-webkit-scrollbar{display:none}
+.ho-chip{flex:none}
+.ho-chip{height:34px;padding:0 14px;border:0;border-radius:999px;background:#F1EBDF;color:var(--i2);font:700 13.5px Manrope,system-ui,sans-serif;cursor:pointer;transition:background .15s,color .15s,transform .15s}
+.ho-chip:hover{background:#EAE2D2}
+.ho-chip.on{background:var(--n);color:var(--cr)}
+.ho-sub{margin-top:8px}
+.ho-sub .ho-chip{height:30px;padding:0 12px;font-size:12.5px;background:none;box-shadow:inset 0 0 0 1px var(--ln)}
+.ho-sub .ho-chip.on{background:var(--n);box-shadow:none}
+/* fraîcheur : vert animé seulement si la mesure a moins d'une heure */
+.ho-fd{position:relative;display:inline-block;width:8px;height:8px;border-radius:50%;flex:none;background:#8D979C}
+.ho-fd.f-live{background:#12925A}
+.ho-fd.f-live:after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1.5px solid #12925A;animation:pvRing 2.2s ease-out infinite}
+.ho-fd.f-recent{background:#4F6270}
+.ho-fd.f-old{background:none;box-shadow:inset 0 0 0 1.5px #8A867C}
+.ho-fd.f-off{background:none;box-shadow:inset 0 0 0 1.5px #B0563A}
+@media (prefers-reduced-motion:reduce){ .ho-fd.f-live:after,.ho-b.b-live .ho-lv:after{animation:none;display:none} }
+/* bouées dans le panneau : l'or des mesures */
+.ho-bl{display:flex;flex-direction:column;gap:2px;margin:0 -10px}
+.ho-br{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;width:100%;padding:10px 10px;border:0;border-radius:14px;background:none;text-align:left;color:var(--n);cursor:pointer;transition:background .15s}
+.ho-br:hover{background:#F6F1E6}
+.ho-br.ho-old{opacity:.6}
+.ho-bn{min-width:0}
+.ho-bn b,.ho-rn b{display:block;font:800 14.5px Manrope,system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ho-bn small,.ho-rn small,.ho-bv small{display:block;font:600 12px Manrope,system-ui,sans-serif;color:var(--i3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ho-bv{text-align:right}
+.ho-bv b{font:800 19px Unbounded,system-ui,sans-serif;letter-spacing:-.04em;color:var(--gi)}
+.ho-bv u,.ho-pill u,.ho-nums u,.ho-mv u,.ho-gv u{text-decoration:none;font:700 .55em Manrope,system-ui,sans-serif;letter-spacing:0;margin-left:2px;opacity:.75}
+.ho-more{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font:700 13px Manrope,system-ui,sans-serif;color:var(--i2);text-decoration:none}
+.ho-more .pv-i{width:14px;height:14px;transition:transform .2s}
+.ho-more:hover .pv-i{transform:translateX(3px)}
+.ho-links{display:flex;flex-wrap:wrap;gap:6px 16px;padding-top:16px;border-top:1px solid var(--ln)}
+.ho-links a{font:700 12.5px Manrope,system-ui,sans-serif;color:var(--i3);text-decoration:none}
+.ho-links a:hover{color:var(--n)}
+/* favoris et résultats */
+.ho-fl{display:flex;gap:8px;overflow-x:auto;margin:0 -22px;padding:2px 22px 6px;scrollbar-width:none}
+.ho-fl::-webkit-scrollbar{display:none}
+.ho-fc{flex:0 0 132px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:12px;border:0;border-radius:16px;background:#F6F1E6;text-align:left;cursor:pointer;transition:background .15s,transform .2s}
+.ho-fc:hover{background:#F0E9DA;transform:translateY(-1px)}
+.ho-fc b{margin-top:6px;font:800 13.5px Manrope,system-ui,sans-serif;color:var(--n);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ho-fc small{font:600 11.5px Manrope,system-ui,sans-serif;color:var(--i3)}
+.ho-pill{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:28px;padding:0 9px;border-radius:999px;background:var(--c,#E3DDD0);color:var(--t,var(--n));font:800 13px Unbounded,system-ui,sans-serif;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.ho-rl{display:flex;flex-direction:column;gap:2px;margin:0 -10px}
+.ho-it{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;width:100%;padding:9px 10px;border:0;border-radius:14px;background:none;text-align:left;color:var(--n);cursor:pointer;transition:background .15s}
+.ho-it:hover,.ho-it:focus-visible{background:#F6F1E6;outline:0}
+.ho-rn{min-width:0}
+.ho-fs{color:#C99A3A}
+.ho-fs svg{width:15px;height:15px;fill:currentColor}
+/* fiche d'un spot */
+.ho-sp-hd{display:flex;align-items:center;justify-content:space-between}
+.ho-bk{display:inline-flex;align-items:center;gap:4px;height:34px;padding:0 12px 0 6px;border:0;border-radius:999px;background:#F1EBDF;color:var(--i2);font:700 13px Manrope,system-ui,sans-serif;cursor:pointer;transition:background .15s}
+.ho-bk:hover{background:#EAE2D2}
+.ho-bk svg{width:18px;height:18px}
+.ho-fv{display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:50%;background:#F1EBDF;color:var(--i2);cursor:pointer;transition:background .15s,color .15s,transform .2s}
+.ho-fv svg{width:19px;height:19px}
+.ho-fv.on{background:var(--n);color:var(--g)}
+.ho-fv.on svg{fill:currentColor}
+.ho-fv:active{transform:scale(.92)}
+.ho-sp-n{margin:16px 0 0;font:700 30px/1.05 Unbounded,system-ui,sans-serif;letter-spacing:-.045em}
+.ho-sp-r{display:flex;align-items:center;gap:6px;margin:8px 0 0;font:600 13.5px Manrope,system-ui,sans-serif;color:var(--i3)}
+.ho-sp-r .pv-i{width:14px;height:14px;opacity:.7}
+.ho-when{display:flex;align-items:center;gap:7px;margin:20px 0 10px;font:800 11px Manrope,system-ui,sans-serif;letter-spacing:.11em;text-transform:uppercase;color:var(--i2)}
+.ho-nd{width:7px;height:7px;border-radius:50%;background:var(--n)}
+.ho-nums{display:grid;grid-template-columns:1fr 1fr}
+.ho-nums>div{display:flex;flex-direction:column;gap:6px;padding-right:12px}
+.ho-nums>div+div{padding-left:16px;border-left:1px solid var(--ln)}
+.ho-nums small{display:flex;align-items:center;gap:6px;font:800 10.5px Manrope,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--i3)}
+.ho-nums small .pv-i{width:14px;height:14px}
+.ho-nums b{font:800 40px/1 Unbounded,system-ui,sans-serif;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+.ho-nums span{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font:700 14px Manrope,system-ui,sans-serif;color:var(--n)}
+.ho-nums span em{font-style:normal;color:var(--i3);font-weight:700}
+.ho-nums .pv-dir i{box-shadow:inset 0 0 0 1.4px rgba(11,27,38,.5)}
+.ho-or{font-size:13px!important}
+.ho-wk{display:flex;gap:6px;height:74px;margin-top:20px;padding:0 0 2px}
+.ho-wk button{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;gap:6px;min-width:0;padding:0;border:0;background:none;cursor:pointer;color:var(--i3)}
+.ho-wk i{display:block;border-radius:7px 7px 4px 4px;background:var(--c,#E3DDD0);transition:box-shadow .2s,transform .2s;transform-origin:bottom}
+.ho-wk button:hover i{transform:scaleY(1.04)}
+.ho-wk span{font:700 11px Manrope,system-ui,sans-serif;text-align:center}
+.ho-wk button.on span{color:var(--n);font-weight:800}
+.ho-wk button.on i{box-shadow:0 0 0 2px var(--card),0 0 0 3.5px var(--n)}
+.ho-ms{display:flex;flex-direction:column;gap:6px;margin-top:20px;padding:14px 16px;border-radius:18px;text-decoration:none;color:var(--cr);background:radial-gradient(260px 120px at 100% 0%,rgba(217,164,65,.22),transparent 70%),var(--n);transition:transform .2s}
+.ho-ms:hover{transform:translateY(-1px)}
+.ho-mk{display:flex;align-items:center;gap:7px;font:800 10.5px Manrope,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#E6B95E}
+.ho-mk .pv-i{width:14px;height:14px}
+.ho-mv{display:flex;align-items:baseline;gap:12px}
+.ho-mv b{font:800 30px/1 Unbounded,system-ui,sans-serif;letter-spacing:-.05em;color:var(--g)}
+.ho-mv em{font:700 14px Manrope,system-ui,sans-serif;font-style:normal;color:rgba(242,198,107,.85)}
+.ho-mf{display:flex;align-items:center;gap:7px;font:600 12px/1.35 Manrope,system-ui,sans-serif;color:rgba(243,239,230,.62)}
+.ho-ms .ho-fd.f-recent{background:rgba(243,239,230,.7)}
+.ho-ms .ho-fd.f-live{background:#4BE3A4}.ho-ms .ho-fd.f-live:after{border-color:#4BE3A4}
+.ho-go{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;height:52px;margin-top:16px;border:0;border-radius:999px;background:var(--n);color:var(--cr);font:800 15px Manrope,system-ui,sans-serif;text-decoration:none;cursor:pointer;box-shadow:0 16px 30px -18px rgba(11,27,38,.7);transition:transform .2s,box-shadow .2s}
+.ho-go:hover{transform:translateY(-1px)}
+.ho-spot>.ho-go{position:sticky;bottom:0;z-index:2;box-shadow:0 -14px 18px 4px var(--card),0 16px 30px -18px rgba(11,27,38,.7)}
+.ho-go .pv-i{width:17px;height:17px;transition:transform .2s}
+.ho-go:hover .pv-i{transform:translateX(3px)}
+.ho-gk{display:flex;align-items:center;gap:7px;margin:16px 0 -8px;font:800 11px Manrope,system-ui,sans-serif;letter-spacing:.11em;text-transform:uppercase;color:var(--gi)}
+.ho-gk .pv-i{width:14px;height:14px}
+.ho-gold{margin-top:18px;padding:18px 18px 16px;border-radius:20px;color:var(--cr);background:radial-gradient(300px 160px at 100% 0%,rgba(217,164,65,.24),transparent 70%),var(--n)}
+.ho-gt{display:flex;align-items:center;justify-content:space-between;font:700 12px Manrope,system-ui,sans-serif;color:rgba(243,239,230,.6)}
+.ho-fp{display:inline-flex;align-items:center;gap:7px;height:24px;padding:0 10px 0 8px;border-radius:999px;font:700 12px Manrope,system-ui,sans-serif;color:rgba(243,239,230,.78);background:rgba(243,239,230,.08)}
+.ho-fp.f-live{color:#4BE3A4;background:rgba(75,227,164,.12)}
+.ho-fp .ho-fd.f-live{background:#4BE3A4}.ho-fp .ho-fd.f-live:after{border-color:#4BE3A4}.ho-fp .ho-fd.f-recent{background:rgba(243,239,230,.7)}
+.ho-gv{display:block;margin-top:12px;font:800 56px/1 Unbounded,system-ui,sans-serif;letter-spacing:-.05em;color:var(--g)}
+.ho-gold dl{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin:16px 0 0;padding-top:14px;border-top:1px solid rgba(242,198,107,.2)}
+.ho-gold dt{display:flex;align-items:center;gap:6px;font:800 10px Manrope,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:rgba(243,239,230,.6)}
+.ho-gold dt .pv-i{width:13px;height:13px;color:#E6B95E}
+.ho-gold dd{margin:5px 0 0;font:800 16px Manrope,system-ui,sans-serif;color:var(--g)}
+.ho-gold dd .pv-dir{color:var(--g)}
+.ho-buoy .ho-note{margin-top:14px}
+/* barre d'outils : donnée affichée, bouées, position */
+.ho-tools{position:absolute;z-index:5;top:20px;right:20px;display:flex;align-items:center;gap:8px}
+.ho-seg{display:flex;padding:4px;border-radius:999px;background:rgba(11,27,38,.94);box-shadow:0 14px 30px -16px rgba(11,27,38,.6)}
+.ho-seg button,.ho-rb{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 15px;border:0;border-radius:999px;background:none;color:rgba(243,239,230,.7);font:700 13.5px Manrope,system-ui,sans-serif;cursor:pointer;transition:background .2s,color .2s}
+.ho-seg button .pv-i,.ho-rb .pv-i,.ho-rb>svg{width:16px;height:16px}
+.ho-seg button:hover{color:var(--cr)}
+.ho-seg button[aria-pressed="true"]{background:var(--cr);color:var(--n)}
+.ho-rb{height:46px;padding:0 16px;background:rgba(11,27,38,.94);box-shadow:0 14px 30px -16px rgba(11,27,38,.6)}
+.ho-rb[aria-pressed="true"]{color:var(--g)}
+.ho-rb[aria-pressed="false"]{color:rgba(243,239,230,.45)}
+.ho-rb[aria-pressed="false"] span{text-decoration:line-through;text-decoration-thickness:1.5px}
+.ho-geo{width:46px;padding:0;justify-content:center;color:var(--cr)}
+.ho-geo.wait svg{animation:hoSpin 1.2s linear infinite}
+.ho-geo.err{color:#EC8F6E}
+@keyframes hoSpin{to{transform:rotate(360deg)}}
+/* légende */
+.ho-leg{position:absolute;z-index:4;top:78px;right:20px;width:232px;padding:11px 14px 12px;border-radius:16px;background:rgba(255,253,248,.94);box-shadow:0 0 0 1px rgba(11,27,38,.06),0 14px 30px -20px rgba(11,27,38,.45)}
+.ho-lt{display:flex;align-items:baseline;gap:5px;font:600 12px Manrope,system-ui,sans-serif;color:var(--i3)}
+.ho-lt b{font-weight:800;color:var(--n)}
+.ho-lt span{margin-left:auto}
+.ho-lg{display:block;height:7px;margin-top:8px;border-radius:4px}
+.ho-lk{display:flex;justify-content:space-between;margin-top:5px;font:700 10.5px Manrope,system-ui,sans-serif;color:var(--i3);font-variant-numeric:tabular-nums}
+.ho-lb{display:flex;align-items:center;gap:7px;margin-top:9px;padding-top:9px;border-top:1px solid var(--ln);font:700 11.5px Manrope,system-ui,sans-serif;color:var(--gi)}
+.ho-lb i{width:16px;height:10px;border-radius:999px;background:var(--n);box-shadow:inset 0 0 0 1.5px rgba(242,198,107,.8)}
+/* frise du temps */
+.ho-time{position:absolute;z-index:5;left:430px;right:84px;bottom:20px;max-width:820px;margin:0 auto;padding:12px 18px 8px;border-radius:22px;color:var(--cr);background:rgba(11,27,38,.95);box-shadow:0 20px 40px -22px rgba(11,27,38,.7)}
+.ho-tl{display:flex;align-items:center;gap:12px}
+.ho-play{display:grid;place-items:center;flex:none;width:34px;height:34px;border:0;border-radius:50%;background:var(--cr);color:var(--n);cursor:pointer;transition:transform .15s}
+.ho-play:active{transform:scale(.92)}
+.ho-play svg{width:15px;height:15px}
+.ho-tv{display:flex;align-items:baseline;gap:8px;min-width:0}
+.ho-tv b{font:700 14px Unbounded,system-ui,sans-serif;letter-spacing:-.03em;white-space:nowrap}
+.ho-tv span{font:600 12px Manrope,system-ui,sans-serif;color:rgba(243,239,230,.55);white-space:nowrap}
+.ho-now{display:inline-flex;align-items:center;gap:6px;margin-left:auto;height:30px;padding:0 12px;border:0;border-radius:999px;background:rgba(243,239,230,.1);color:var(--cr);font:700 12.5px Manrope,system-ui,sans-serif;cursor:pointer}
+.ho-now svg{width:14px;height:14px}
+.ho-now[hidden]{display:none}
+.ho-tr{position:relative;margin-top:8px}
+#hoRange{display:block;width:100%;height:24px;margin:0;background:none;-webkit-appearance:none;appearance:none;cursor:pointer;touch-action:pan-y}
+#hoRange:focus{outline:0}
+#hoRange::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--trk)}
+#hoRange::-moz-range-track{height:6px;border-radius:3px;background:var(--trk)}
+#hoRange::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;margin-top:-7px;border-radius:50%;background:var(--g);box-shadow:0 0 0 3px var(--n),0 3px 10px rgba(0,0,0,.4);transition:transform .15s}
+#hoRange::-moz-range-thumb{width:20px;height:20px;border:0;border-radius:50%;background:var(--g);box-shadow:0 0 0 3px var(--n)}
+#hoRange:active::-webkit-slider-thumb{transform:scale(1.15)}
+#hoRange:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px var(--n),0 0 0 5px rgba(242,198,107,.6)}
+.ho-td{position:relative;height:22px}
+.ho-td button{position:absolute;top:2px;padding:2px 4px;margin-left:-4px;border:0;background:none;color:rgba(243,239,230,.5);font:700 11.5px Manrope,system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:color .15s}
+.ho-td button:last-child{transform:translateX(-60%)}
+.ho-td button:hover{color:var(--cr)}
+.ho-td button.on{color:var(--g)}
+.ho-td button.ho-dh{visibility:hidden}
+/* retour vers le spot quitté */
+.ho-back{position:absolute;z-index:6;top:20px;left:424px;display:inline-flex;align-items:center;gap:6px;height:42px;padding:0 16px 0 10px;border:0;border-radius:999px;background:var(--card);color:var(--n);font:800 13.5px Manrope,system-ui,sans-serif;cursor:pointer;box-shadow:0 14px 30px -16px rgba(11,27,38,.5)}
+.ho-back svg{width:18px;height:18px}
+.ho-back[hidden]{display:none}
+/* marqueurs des spots : même échelle de couleurs que le tableau des prévisions */
+.ho-mw{line-height:0}
+.ho-mw[hidden]{display:none}
+.ho-mw:has(.sel){z-index:6}
+.ho-mw:hover{z-index:7}
+.ho-m{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:2px;min-width:40px;height:26px;padding:0 8px;border:0;border-radius:999px;background:var(--c);color:var(--t);font:800 12.5px Manrope,system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.01em;cursor:pointer;box-shadow:0 0 0 2px #FFFDF8,0 5px 12px -4px rgba(11,27,38,.4);transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s;animation:hoPop .35s cubic-bezier(.2,.8,.2,1) both}
+.ho-m:hover{transform:scale(1.12)}
+.ho-m.sel{transform:scale(1.18);box-shadow:0 0 0 2.5px #0B1B26,0 0 0 5px rgba(255,253,248,.95),0 10px 20px -6px rgba(11,27,38,.5)}
+.ho-m.fav:after{content:"";position:absolute;top:-4px;right:-3px;width:9px;height:9px;border-radius:50%;background:#D9A441;box-shadow:0 0 0 1.5px #FFFDF8}
+.ho-m .ho-wa{width:10px;height:10px;margin:0 1px 0 -2px}
+.ho-c{padding-right:11px}
+.ho-c i{position:absolute;top:-8px;right:-9px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:var(--n);color:var(--cr);font:800 10px/18px Manrope,system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 0 0 1.5px #FFFDF8}
+@keyframes hoPop{from{transform:scale(.6);opacity:0}}
+@media (prefers-reduced-motion:reduce){ .ho-m{animation:none} }
+/* bouées : bleu nuit et or ; pastille verte animée seulement si la mesure a moins d'une heure */
+.ho-bw{line-height:0;z-index:3}
+.ho-bw[hidden]{display:none}
+.ho-b{position:relative;display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 9px 0 6px;border:0;border-radius:999px;background:var(--n);color:var(--g);font:800 12px Unbounded,system-ui,sans-serif;letter-spacing:-.03em;cursor:pointer;box-shadow:0 0 0 1.5px rgba(242,198,107,.75),0 6px 14px -5px rgba(11,27,38,.55);transition:transform .2s,opacity .2s}
+.ho-b:hover{transform:scale(1.1)}
+.ho-b .pv-i{width:15px;height:15px;stroke-width:1.9}
+.ho-b .ho-lv{display:none;position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:#2FC48A;box-shadow:0 0 0 1.5px var(--n)}
+.ho-b.b-live .ho-lv{display:block}
+.ho-b.b-live .ho-lv:after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1.5px solid #2FC48A;animation:pvRing 2.2s ease-out infinite}
+.ho-zlo .ho-b{gap:0;width:24px;height:24px;padding:0;justify-content:center}
+.ho-zlo .ho-b b{display:none}
+.ho-zlo .ho-b .pv-i{width:14px;height:14px}
+.ho-b.b-old{opacity:.6;color:#CDBB93;box-shadow:0 0 0 1.5px rgba(205,187,147,.5)}
+.ho-b.b-fut{box-shadow:0 0 0 1.5px rgba(242,198,107,.45);opacity:.72}
+/* info-bulle */
+.ho-tip{position:fixed;z-index:30;left:0;top:0;display:flex;flex-direction:column;gap:3px;max-width:260px;padding:10px 13px 11px;border-radius:14px;background:var(--n);color:var(--cr);font:600 12.5px Manrope,system-ui,sans-serif;pointer-events:none;box-shadow:0 14px 34px -12px rgba(11,27,38,.6);opacity:0;transform:translateY(3px);transition:opacity .15s,transform .15s}
+.ho-tip.on{opacity:1;transform:none}
+.ho-tip[hidden]{display:none}
+.ho-tip b{font:800 13px Unbounded,system-ui,sans-serif;letter-spacing:-.02em}
+.ho-tip b.g,.ho-tip span.g{color:var(--g)}
+.ho-tip small{font:600 11.5px Manrope,system-ui,sans-serif;color:rgba(243,239,230,.55);margin-bottom:3px}
+.ho-tip span{display:flex;align-items:center;gap:7px}
+.ho-tip span em{font-style:normal;font-weight:800}
+.ho-tip .pv-i{width:13px;height:13px;opacity:.7}
+.ho-tn{display:flex;align-items:center;gap:6px;margin-top:3px;font:600 11.5px Manrope,system-ui,sans-serif;font-style:normal;color:rgba(243,239,230,.55)}
+.ho-tip .ho-fd.f-live{background:#4BE3A4}.ho-tip .ho-fd.f-live:after{border-color:#4BE3A4}
+/* contrôles MapLibre aux couleurs du site */
+#home.ho .maplibregl-ctrl-group{border-radius:14px;overflow:hidden;background:var(--card);box-shadow:0 0 0 1px rgba(11,27,38,.08),0 10px 24px -14px rgba(11,27,38,.4)}
+#home.ho .maplibregl-ctrl-bottom-right{right:10px;bottom:10px}
+#home.ho .maplibregl-ctrl-attrib{background:rgba(255,253,248,.85);font-size:11px}
+#home.ho .maplibregl-ctrl-attrib a{color:var(--i2)}
+
+/* ---------- téléphone : carte immersive, panneau inférieur à trois crans ---------- */
+@media (max-width:759px){
+  #home.ho{--peek:250px}
+  .ho-panel{left:0;right:0;top:auto;bottom:0;width:auto;height:calc(var(--hmvh,100vh) - 64px);border-radius:24px 24px 0 0;transform:translateY(calc(100% - var(--peek)));transition:transform .38s cubic-bezier(.2,.85,.25,1);box-shadow:0 -10px 40px -20px rgba(11,27,38,.5);will-change:transform}
+  .ho-panel.drag{transition:none}
+  .ho-panel[data-snap="mid"]{transform:translateY(46%)}
+  .ho-panel[data-snap="full"]{transform:none}
+  .ho-hd{padding:4px 16px 24px;touch-action:none}
+  .ho-grab{display:block;width:100%;height:20px;margin:0;padding:0;border:0;background:none;cursor:pointer}
+  .ho-grab:before{content:"";display:block;width:38px;height:5px;margin:7px auto 0;border-radius:3px;background:rgba(243,239,230,.35)}
+  .ho-brand{gap:9px;justify-content:flex-start;margin-top:2px}
+  .ho-logo img{height:22px}
+  .ho-logo .ho-wm{display:none}
+  .ho-tag{display:block;min-width:0;font:700 13px Manrope,system-ui,sans-serif;color:rgba(243,239,230,.78);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ho-tag em{font-style:normal;color:var(--g)}
+  .ho-hd .ho-how,.ho-hd .ho-k,.ho-hd .ho-h1{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .ho-srch{height:46px;margin-top:12px}
+  .ho-srch input{font-size:16px}
+  .ho-time{position:relative;left:auto;right:auto;bottom:auto;max-width:none;margin:12px 0 0;padding:0;background:none;box-shadow:none;border-radius:0}
+  .ho-tl{gap:10px}
+  .ho-play{width:32px;height:32px}
+  .ho-tv b{font-size:13px}
+  .ho-tv span{display:none}
+  .ho-now{height:28px;font-size:12px}
+  .ho-td button{font-size:11px}
+  .ho-body{padding:0 16px calc(24px + env(safe-area-inset-bottom,0px))}
+  .ho-fl,.ho-chips{margin:0 -16px;padding:2px 16px 6px}
+  .ho-sp-n{font-size:26px}
+  .ho-nums b{font-size:34px}
+  .ho-tools{top:calc(12px + env(safe-area-inset-top,0px));left:12px;right:12px;gap:6px}
+  .ho-seg{flex:1;min-width:0}
+  .ho-seg button{flex:1;justify-content:center;gap:5px;height:36px;padding:0 6px;font-size:12.5px}
+  .ho-seg button .pv-i{width:14px;height:14px}
+  .ho-rb{width:44px;height:44px;padding:0;justify-content:center}
+  .ho-rb span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .ho-rb[aria-pressed="false"]:after{content:"";position:absolute;width:22px;height:1.8px;border-radius:1px;background:currentColor;transform:rotate(-45deg)}
+  .ho-leg{top:calc(62px + env(safe-area-inset-top,0px));left:12px;right:auto;width:176px;padding:7px 10px 8px;border-radius:13px}
+  .ho-lg{height:5px;margin-top:6px}
+  .ho-lk{font-size:10px}
+  .ho-lt{font-size:11.5px}
+  .ho-lb{display:none}
+  .ho-back{top:calc(116px + env(safe-area-inset-top,0px));left:12px;height:38px;font-size:13px}
+  #home.ho .maplibregl-ctrl-bottom-right{top:calc(64px + env(safe-area-inset-top,0px));bottom:auto;right:12px}
+  #home.ho .maplibregl-ctrl-group{display:none}
+  .ho-m{height:28px;min-width:42px;font-size:13px}
+  .ho-b{height:28px}
+  .ho-br,.ho-it{padding:11px 10px}
+}
+@media (max-width:759px){
+  /* fiche ouverte : la recherche s'efface pour laisser la place à la fiche (retour par « Toute la côte ») */
+  #home.ho:is([data-view="spot"],[data-view="buoy"],[data-view="near"]) .ho-hd :is(.ho-brand,.ho-srch){display:none}
+  #home.ho:is([data-view="spot"],[data-view="buoy"],[data-view="near"]) .ho-time{margin-top:4px}
+}
+@media (max-width:759px) and (prefers-reduced-motion:reduce){ .ho-panel{transition:none} }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -5161,283 +5474,396 @@ function homeLoadLib(){
   });
   return HOME.lib;
 }
-function homeData(){
-  const n=new Date(), p=v=>String(v).padStart(2,'0'), key=`${n.getFullYear()}-${p(n.getMonth()+1)}-${p(n.getDate())}T${p(n.getHours())}`;
-  return state.data.map((d,i)=>{ const hs=d.hours, h=hs.find(x=>x.time.slice(0,13)===key)||hs.find(x=>x.time>=key)||hs[0]; return {i,n:d.spot.name,c:d.spot.commune||'',r:d.spot.region,lat:d.spot.mlat??d.spot.lat,lon:d.spot.mlon??d.spot.lon,h:h&&h.H,p:h&&h.T?Math.round(h.T):null,d:h&&h.D}; }).filter(x=>x.h!=null).sort((a,b)=>b.lat-a.lat);
-}
 /* Crédits de la carte (OpenFreeMap, OpenStreetMap) repliés derrière le bouton ⓘ dès l'ouverture : MapLibre les déplie
    au chargement, ce qui masquait le bas de la carte. Un clic sur ⓘ les affiche. */
 function attribFold(map){
   const fold=()=>map.getContainer().querySelectorAll('.maplibregl-ctrl-attrib').forEach(a=>{ a.classList.remove('maplibregl-compact-show'); a.removeAttribute('open'); });
   map.once('load',fold); map.once('idle',fold);
 }
-/* Téléphone : la présentation s'efface au premier geste sur la carte, une fois par visite (HOME.introGone) */
-function homeIntroWatch(){
-  const n=document.getElementById('hmIntro'), m=HOME.map; if(!n||!m||HOME.introGone||innerWidth>=760) return;
-  /* un geste de la personne (pas un recentrage fait par le site) : déplacer, zoomer, pincer ou toucher la carte */
-  const onMove=e=>{ if(e&&e.originalEvent) hide(); };
-  const hide=()=>{ if(HOME.introGone) return; HOME.introGone=true; n.classList.add('gone'); m.off('movestart',onMove); m.off('click',hide); };
-  m.on('movestart',onMove); m.on('click',hide);
+/* =====================================================================================================
+   ACCUEIL « PREMIUM OCEAN » (test, 26/11/2026) : carte plein écran couleur sable et mer, panneau à en-tête
+   bleu nuit, données au choix (houle, période, vent), frise des 7 jours (vraies prévisions déjà chargées :
+   aucun appel en plus), bouées dorées (mesures réelles, jamais confondues avec la prévision), regroupement
+   des spots selon le zoom. Téléphone : carte immersive et panneau inférieur à trois crans.
+   ===================================================================================================== */
+const HOME_VARS={H:{k:'H',lab:'Houle',u:'m',ticks:[0,1,2,3,4],max:'4 m +'},T:{k:'T',lab:'Période',u:'s',ticks:[6,9,12,15,18],max:'18 s +'},W:{k:'W',lab:'Vent',u:'km/h',ticks:[0,10,20,30,40],max:'40 +'}};
+const HO_I={
+  srch:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+  loc:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="2" class="f"/></svg>',
+  play:'<svg viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M8 5.5v13l10.5-6.5z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>',
+  star:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-3-5.4 3 1.1-6-4.5-4.2 6.1-.8z"/></svg>',
+  back:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
+  x:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  now:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4h-4"/></svg>'
+};
+const hoAge=L=>(Date.now()-new Date(L.time+':00').getTime())/36e5;
+const hoKey=t=>t.slice(0,13);
+const hoDays=['Dim.','Lun.','Mar.','Mer.','Jeu.','Ven.','Sam.'];
+/* données de l'accueil : pour chaque spot, ses heures indexées par « AAAA-MM-JJTHH » (prévisions déjà chargées) */
+function homeData(){
+  return state.data.map((d,i)=>{ const hm={}; d.hours.forEach(h=>{ hm[hoKey(h.time)]=h; });
+    return {i,n:d.spot.name,c:d.spot.commune||'',r:d.spot.region,ty:d.spot.type||'',lat:d.spot.mlat??d.spot.lat,lon:d.spot.mlon??d.spot.lon,hm}; }).sort((a,b)=>b.lat-a.lat);
 }
+/* frise : toutes les heures à venir (à partir de l'heure en cours), sur les jours disponibles */
+function homeTimes(){
+  const n=new Date(), p=v=>String(v).padStart(2,'0'), now=`${n.getFullYear()}-${p(n.getMonth()+1)}-${p(n.getDate())}T${p(n.getHours())}`;
+  const ref=state.data.find(d=>d.hours.length>100)||state.data[0];
+  const T=[...new Set(ref.hours.map(h=>hoKey(h.time)))].sort().filter(t=>t>=now);
+  return T.length?T:[now];
+}
+function homeHour(s,t){ return s.hm[t||HOME.T[HOME.ti]]||null; }
+function homeVal(h,v){ if(!h) return null; return v==='H'?h.H:v==='T'?h.T:h.v; }
+function homeTxt(x,v){ return x==null?'—':v==='H'?hmF(x):String(Math.round(x)); }
 function homeBuoys(){
-  const o=[]; (state.coast||[]).forEach(b=>{ if(b.latest&&b.latest.hs!=null) o.push({id:b.id,n:b.name,sub:b.sub||'sur la côte',lat:+b.lat,lon:+b.lon,L:b.latest,coast:true}); });
-  (state.offshore||[]).forEach(b=>{ if(b.latest&&b.latest.hs!=null) o.push({id:b.id,n:b.name,sub:b.sub||'sur la côte',lat:+b.lat,lon:+b.lon,L:b.latest}); });
-  { const g=state.gascogne; if(g&&g.latest&&g.latest.hs!=null) o.push({id:'gascogne',n:'Gascogne',sub:'au large, bouée Météo-France 62001',lat:+g.lat,lon:+g.lon,L:g.latest,large:true}); }
+  const o=[]; (state.coast||[]).forEach(b=>{ if(b.latest&&b.latest.hs!=null) o.push({id:b.id,n:b.name,sub:b.sub||'Bouée côtière',lat:+b.lat,lon:+b.lon,L:b.latest,coast:true}); });
+  (state.offshore||[]).forEach(b=>{ if(b.latest&&b.latest.hs!=null) o.push({id:b.id,n:b.name,sub:b.sub||'Bouée du large',lat:+b.lat,lon:+b.lon,L:b.latest}); });
+  { const g=state.gascogne; if(g&&g.latest&&g.latest.hs!=null) o.push({id:'gascogne',n:'Gascogne',sub:'Au large, Météo-France 62001',lat:+g.lat,lon:+g.lon,L:g.latest,large:true}); }
   return o;
 }
 function homeBuoyPos(key){ if(key==='gascogne') return {lat:+state.gascogne.lat,lon:+state.gascogne.lon}; const b=[...(state.coast||[]),...(state.offshore||[])].find(x=>x.id===key); return b?{lat:+b.lat,lon:+b.lon}:null; }
+function homeTimeLabel(t,short){ const d=new Date(t+':00:00'), n=new Date(), sd=d.toDateString()===n.toDateString(), tm=new Date(n); tm.setDate(n.getDate()+1);
+  const day=sd?'Aujourd’hui':d.toDateString()===tm.toDateString()?'Demain':`${hoDays[d.getDay()]} ${d.getDate()}`;
+  return short?`${sd?'Auj.':day.replace('Demain','Dem.')} · ${d.getHours()}h`:`${day} · ${d.getHours()}h`; }
+function homeIsNow(){ return HOME.ti===0; }
+
 async function homeOpen(fromSpot){
   const el=document.getElementById('home'); if(!el||!state.data) return;
   HOME.from=fromSpot===true?state.spot:null;
   HOME.on=true; document.body.classList.add('homeOn'); el.hidden=false;
-  homeClear(); HOME.q=''; HOME.sr=null; HOME.reg='Tous'; el.classList.remove('hm-search');
+  HOME.q=''; HOME.view='home'; HOME.sel=null;
   try{ history.replaceState(null,'','./'); document.title=HOME_TITLE; sessionStorage.setItem('homeOpen','1'); }catch(e){}
   if(!HOME.ready){
-    HOME.data=homeData(); HOME.bu=homeBuoys(); HOME.sea=null;
-    el.innerHTML=`<div class="hm-map" id="hmMap"></div><canvas class="hm-sw" id="hmSw"></canvas><div class="hm-vig"></div>
-      <div class="hm-top"><div class="hm-logo"><img src="brand/symbol.svg" alt="" height="24"><span class="lw">houlalah<small class="tg2">La houle vérifiée par les bouées</small></span></div><div class="hm-nav"><a href="comment-ca-marche/">Comment ça marche</a><button type="button" id="hmClose" aria-label="Ouvrir la prévision"></button></div></div>
-      <aside class="hm-panel" id="hmPanel" aria-live="polite"></aside>
-      <div class="hm-leg">Houle prévue (points)<i></i><div><span>0 m</span><span>3 m +</span></div><div class="hm-lg2"><b></b>Bouée : mesure réelle en mer</div></div>`;
-    el.setAttribute('role','dialog'); el.setAttribute('aria-label','La côte en ce moment');
+    HOME.data=homeData(); HOME.bu=homeBuoys(); HOME.T=homeTimes(); HOME.ti=0;
+    try{ HOME.v=localStorage.getItem('hoVar')||'H'; HOME.showBu=localStorage.getItem('hoBu')!=='0'; }catch(e){ HOME.v='H'; HOME.showBu=true; }
+    if(!HOME_VARS[HOME.v]) HOME.v='H';
+    el.className='ho'; el.dataset.v=HOME.v;
+    el.innerHTML=`<div class="ho-map" id="hmMap"></div>
+      <section class="ho-panel" id="hoPanel" data-snap="peek" aria-label="Explorer la côte">
+        <header class="ho-hd"><div class="ho-deco" aria-hidden="true">${pvDeco()}</div><button type="button" class="ho-grab" id="hoGrab" aria-label="Agrandir ou réduire le panneau"></button>
+          <div class="ho-brand"><a class="ho-logo" href="./" aria-label="Houlalah"><img src="brand/symbol.svg" alt="" width="28" height="26"><img class="ho-wm" src="brand/wordmark.svg" alt="houlalah" height="17"></a><span class="ho-tag">La houle prévue, <em>vérifiée par les bouées</em></span><a class="ho-how" href="comment-ca-marche/">Comment ça marche</a></div>
+          <p class="ho-k">${HOME.data.length} spots · ${HOME.bu.length} bouées en mer</p>
+          <h1 class="ho-h1">La houle prévue, <em>vérifiée par les bouées</em></h1>
+          <label class="ho-srch">${HO_I.srch}<input id="hmQ" type="search" placeholder="Un spot, une ville…" autocomplete="off" enterkeyhint="search" aria-label="Chercher un spot ou une ville"><button type="button" class="ho-qx" id="hmQx" aria-label="Effacer" hidden>${HO_I.x}</button></label>
+          <div class="ho-time" id="hoTime"></div>
+        </header>
+        <div class="ho-body" id="hoBody"></div>
+      </section>
+      <div class="ho-tools" role="toolbar" aria-label="Données affichées sur la carte">
+        <div class="ho-seg" id="hoVar">${Object.values(HOME_VARS).map(x=>`<button type="button" data-v="${x.k}" aria-pressed="${x.k===HOME.v}">${pvI(x.k==='H'?'wave':x.k==='T'?'period':'wind')}<span>${x.lab}</span></button>`).join('')}</div>
+        <button type="button" class="ho-rb" id="hoBuT" aria-pressed="${HOME.showBu}" title="Afficher ou masquer les bouées">${pvI('buoy')}<span>Bouées</span></button>
+        <button type="button" class="ho-rb ho-geo" id="hmGeo" title="Spots près de moi" aria-label="Spots près de moi">${HO_I.loc}</button>
+      </div>
+      <div class="ho-leg" id="hoLeg" aria-hidden="true"></div>
+      <div class="ho-tip" id="hoTip" hidden></div>
+      <button type="button" class="ho-back" id="hmClose"></button>`;
+    el.setAttribute('role','dialog'); el.setAttribute('aria-label','Houlalah : la côte en ce moment');
     document.getElementById('hmClose').onclick=()=>{ homeClose(); };
-    HOME.ready=true; homeHomePanel();
-    try{ await homeLoadLib(); homeInitMap(); }catch(e){ const m=document.getElementById('hmMap'); if(m) m.style.background='radial-gradient(ellipse at 70% 50%,#17303f,#09141a)'; }
-  } else { homeHomePanel(); if(HOME.map){ HOME.map.resize(); homeFit(); } }
-  homeFrameStart();
+    homeBindUi(); HOME.ready=true; homeTimeBar(); homeLegend(); homePanel();
+    try{ await homeLoadLib(); homeInitMap(); }catch(e){ const m=document.getElementById('hmMap'); if(m) m.classList.add('off'); }
+  } else { homePanel(); if(HOME.map){ HOME.map.resize(); homeFit(); } }
+  homeTopBtn(); homePlaceTime();
 }
 function homeClose(){
-  homeMark(); try{ sessionStorage.removeItem('homeOpen'); }catch(e){}
+  homeMark(); homePlay(false); try{ sessionStorage.removeItem('homeOpen'); }catch(e){}
   if(state.data){ try{ const sp=state.data[state.spot].spot; document.title=`Météo surf ${sp.name} : houle, vent, marée | Houlalah`; history.replaceState(null,'','?spot='+slugOf(sp.name)); }catch(e){} }
-  HOME.on=false; cancelAnimationFrame(HOME.raf); HOME.raf=0; HOME.ref=null;
+  HOME.on=false;
   const el=document.getElementById('home'); if(el) el.hidden=true; document.body.classList.remove('homeOn');
   if(typeof oceanKick==='function') oceanKick();
 }
-function homeInitMap(){
-  const mob=innerWidth<760, D=HOME.data;
-  const map=HOME.map=new maplibregl.Map({container:'hmMap',style:'https://tiles.openfreemap.org/styles/positron',center:[-1.5,44.2],zoom:6.5,pitch:0,bearing:0,attributionControl:{compact:true},dragRotate:false,pitchWithRotate:false});
-  attribFold(map);
-  map.once('load',homeIntroWatch);   /* la présentation s'efface au premier geste sur la carte */
-  D.forEach((s,i)=>{ const w=document.createElement('div'), e=document.createElement('div'); e.className='hm-pt'; e.style.setProperty('--c',hmCol(s.h)); e.style.setProperty('--d',(i%9)*.35+'s');
-    e.innerHTML=`<span class="hm-n">${hmF(s.h)}</span><div class="hm-tip"><b>${s.n}</b><small class="hm-rg">${s.r}</small><span class="hm-tv">${hmF(s.h)} m${s.p?` · ${s.p} s`:''}${s.d!=null?` · ${sector(s.d)}`:''}</span><span class="hm-tn">houle prévue</span></div>`; w.appendChild(e); w.onclick=()=>homeSpot(s,true);
-    HOME.pts[s.n]=new maplibregl.Marker({element:w}).setLngLat([s.lon,s.lat]).addTo(map); });
-  HOME.bu.forEach(b=>{ const w=document.createElement('div'), e=document.createElement('div'); e.className='hm-bu';
-    e.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15a7 7 0 0 1 14 0zM12 8V4M3 19c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/></svg><div class="hm-tip"><b>Bouée ${b.n}</b><span class="hm-tv">${hmF(b.L.hs)} m${b.L.tp?` · ${Math.round(b.L.tp)} s`:''}${b.L.dir!=null?` · ${sector(b.L.dir)}`:''}</span><span class="hm-tn">mesuré ${ageTxt((new Date()-new Date(b.L.time+':00'))/36e5)}</span></div>`; w.appendChild(e); w.onclick=()=>homeBuoy(b);
-    HOME.bms[b.id]=new maplibregl.Marker({element:w}).setLngLat([b.lon,b.lat]).addTo(map); });
-  homeFit(true);
-  map.on('moveend',homeDeclutter); map.on('move',homePlacePop); map.on('load',()=>{ homeDeclutter(); }); setTimeout(homeDeclutter,400);
-}
-/* mobile : une seule épingle par groupe de spots trop proches (on en voit plus en zoomant) */
-
-/* Halo de houle : un voile lumineux le long de la côte, dont la couleur suit la hauteur prévue de chaque spot */
-/* grand écran : la fiche se pose à côté du marqueur choisi (à sa gauche, sinon à sa droite), avec une pointe vers lui */
-function homePlacePop(){
-  const pop=document.querySelector('#home .hmb-dcard'); if(!pop||!HOME.map||!HOME.popAt||innerWidth<1200) return;
-  const q=HOME.map.project(HOME.popAt), w=pop.offsetWidth||400, h=pop.offsetHeight||360, gap=34;
-  let left=q.x-gap-w, side='r'; if(left<24){ left=q.x+gap; side='l'; }
-  left=Math.max(24,Math.min(innerWidth-24-w,left));
-  const top=Math.max(150,Math.min(innerHeight-h-24,q.y-100));
-  pop.style.left=left+'px'; pop.style.top=top+'px'; pop.style.bottom='auto';
-  pop.style.setProperty('--ay',Math.max(34,Math.min(h-34,q.y-top))+'px'); pop.dataset.side=side;
-}
-function homeDeclutter(){
-  if(!HOME.map||!HOME.data) return;
-  const sel=HOME.sel, vis=[], W=innerWidth, H=innerHeight;
-  [...HOME.data].sort((a,b)=>((b.i===sel)-(a.i===sel))||(b.h-a.h)).forEach(s=>{
-    const m=HOME.pts[s.n]; if(!m) return; const el=m.getElement(), p=HOME.map.project([s.lon,s.lat]);
-    let ok=homeRegOk(s)&&p.x>-20&&p.x<W+20&&p.y>-20&&p.y<H+20&&!vis.some(q=>Math.abs(q.x-p.x)<46&&Math.abs(q.y-p.y)<30);
-    if(s.i===sel) ok=true; if(ok) vis.push(p); el.style.display=ok?'':'none'; });
-}
-function homeFit(instant){
-  const map=HOME.map; if(!map) return; const mob=innerWidth<760;
-  const L=HOME.data.filter(homeRegOk); if(!L.length) return;
-  const lo=L.reduce((a,s)=>[Math.min(a[0],s.lon),Math.min(a[1],s.lat),Math.max(a[2],s.lon),Math.max(a[3],s.lat)],[9,99,-9,-99]);
-  map.fitBounds([[lo[0],lo[1]],[lo[2],lo[3]]],{padding:mob?{top:180,bottom:210,left:50,right:50}:{top:90,bottom:90,left:Math.min(470,innerWidth*.34),right:Math.min(150,innerWidth*.1)},duration:instant?0:1100,maxZoom:10,pitch:0,bearing:0});
-}
-function homeFrameStart(){
-  const cv=HOME.cv=document.getElementById('hmSw'); HOME.cx=cv.getContext('2d');
-  cancelAnimationFrame(HOME.raf);
-  const frame=t=>{
-    if(!HOME.on) return;
-    const cx=HOME.cx, map=HOME.map, dpr=devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight, lite=innerWidth<760;
-    if(cv.width!==Math.round(W*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
-    cx.setTransform(dpr,0,0,dpr,0,0); cx.clearRect(0,0,W,H);
-    if(map){
-      if(HOME.ref){ const a=map.project([HOME.ref.a.lon,HOME.ref.a.lat]), b=map.project([HOME.ref.b.lon,HOME.ref.b.lat]);
-        cx.save(); cx.setLineDash([3,7]); cx.lineDashOffset=-(t||0)*.02; cx.lineCap='round'; cx.strokeStyle=lite?'#c9972f':'rgba(244,226,184,.9)'; cx.lineWidth=2.2; cx.shadowColor='rgba(233,207,159,.6)'; cx.shadowBlur=lite?0:8;
-        cx.beginPath(); cx.moveTo(a.x,a.y); cx.lineTo(b.x,b.y); cx.stroke(); cx.restore();
-        const mx=(a.x+b.x)/2, my=(a.y+b.y)/2, lab=HOME.ref.k+' km'; cx.font='700 12.5px Manrope,system-ui,sans-serif'; const w=cx.measureText(lab).width+18;
-        cx.fillStyle=lite?'#fff':'rgba(11,24,32,.92)'; cx.strokeStyle=lite?'rgba(16,32,44,.18)':'rgba(255,255,255,.25)'; cx.lineWidth=1; cx.beginPath(); cx.roundRect?cx.roundRect(mx-w/2,my-12,w,24,12):cx.rect(mx-w/2,my-12,w,24); cx.fill(); cx.stroke();
-        cx.fillStyle=lite?'#10202c':'#f4e2b8'; cx.textAlign='center'; cx.textBaseline='middle'; cx.fillText(lab,mx,my+.5); }
-    }
-    HOME.raf=requestAnimationFrame(frame);
-  };
-  HOME.raf=requestAnimationFrame(frame);
-}
 function homeTopBtn(){ const b=document.getElementById('hmClose'); if(!b||!state.data) return;
-  if(HOME.from!=null&&state.data[HOME.from]){ b.style.display=''; b.textContent='← Retour à '+state.data[HOME.from].spot.name; } else b.style.display='none'; }
-function homeClear(){ HOME.sel=null; HOME.ref=null; document.querySelectorAll('#home .hm-pt,#home .hm-bu').forEach(e=>e.classList.remove('on')); }
-const HM_ICON={
-  srch:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
-  loc:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>',
-  go:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
-};
-function homeBindSearch(){
-  const qi=document.getElementById('hmQ'), hm=document.getElementById('home'); if(!qi) return;
-  qi.oninput=()=>{ HOME.q=qi.value; homeRes(); };
-  qi.onfocus=()=>{ hm.classList.add('hm-search'); homeRes(); };
-  qi.onblur=()=>{ setTimeout(()=>{ if(!qi.value.trim()&&!HOME.sr&&document.activeElement!==qi&&!(document.getElementById('hmRes')||{contains:()=>false}).contains(document.activeElement)){ hm.classList.remove('hm-search'); homeRes(); } },250); };
-  const x=document.getElementById('hmQx'); if(x) x.onmousedown=x.ontouchstart=e=>{ e.preventDefault(); HOME.q=''; HOME.sr=null; qi.value=''; qi.blur(); hm.classList.remove('hm-search'); homeRes(); };
+  if(HOME.from!=null&&state.data[HOME.from]){ b.hidden=false; b.innerHTML=`${HO_I.back}<span>${state.data[HOME.from].spot.name}</span>`; b.setAttribute('aria-label','Revenir à la prévision de '+state.data[HOME.from].spot.name); } else b.hidden=true; }
+
+/* ---------- carte ---------- */
+function homeMapTheme(map){
+  const set=(id,k,v)=>{ try{ map.setPaintProperty(id,k,v); }catch(e){} }, lay=(id,k,v)=>{ try{ map.setLayoutProperty(id,k,v); }catch(e){} };
+  map.getStyle().layers.forEach(l=>{ const id=l.id;
+    if(l.type==='background') set(id,'background-color','#ECE5D5');
+    else if(id==='water') set(id,'fill-color','#B4CCD8');
+    else if(l.type==='fill'&&/building/.test(id)) set(id,'fill-color','#E0D6C2');
+    else if(l.type==='fill'&&/park|landcover|landuse/.test(id)) { set(id,'fill-color','#E6DECB'); set(id,'fill-opacity',.6); }
+    else if(l.type==='line'&&/waterway/.test(id)) set(id,'line-color','#A6C2CF');
+    else if(l.type==='line'&&/highway|road|tunnel|railway|aeroway/.test(id)) { set(id,'line-color','#F6F1E6'); set(id,'line-opacity',.75); }
+    else if(l.type==='line'&&/boundary/.test(id)) { set(id,'line-color','rgba(11,27,38,.22)'); }
+    else if(l.type==='symbol'){
+      /* hiérarchie des noms : pays discrets en capitales, villes lisibles, le reste masqué (la côte et les spots d'abord) */
+      if(/highway|road_shield|airport|label_other|label_state|waterway_line_label/.test(id)) lay(id,'visibility','none');
+      else if(/label_country/.test(id)){ set(id,'text-color','rgba(11,27,38,.38)'); set(id,'text-halo-color','rgba(236,229,213,.8)'); lay(id,'text-transform','uppercase'); lay(id,'text-letter-spacing',.28); }
+      else if(/water_name/.test(id)){ set(id,'text-color','#55798B'); set(id,'text-halo-color','rgba(180,204,216,.6)'); lay(id,'text-letter-spacing',.12); }
+      else if(id==='label_village'){ lay(id,'visibility','none'); }
+      else if(id==='label_town'){ set(id,'text-color','#5A6870'); set(id,'text-halo-color','#ECE5D5'); try{ map.setLayerZoomRange(id,8,24); }catch(e){} }
+      else { set(id,'text-color','#33444D'); set(id,'text-halo-color','#ECE5D5'); set(id,'text-halo-width',1.4); }
+    } });
 }
-function homeGeo(btn){
-  const t0=btn.innerHTML;
-  const fail=()=>{ btn.textContent='Position indisponible'; setTimeout(()=>{ btn.innerHTML=t0; },2500); };
-  if(!navigator.geolocation) return fail();
-  navigator.geolocation.getCurrentPosition(pos=>{
-    const la=pos.coords.latitude, lo=pos.coords.longitude, k=Math.cos(la*Math.PI/180);
-    const d=s=>Math.hypot((s.lat-la)*111,(s.lon-lo)*111*k), near=[...HOME.data].sort((a,b)=>d(a)-d(b))[0];
-    if(near&&d(near)<150) homeSpot(near,true); else fail();
-  },fail,{timeout:8000,maximumAge:600000});
+function homeInitMap(){
+  const map=HOME.map=new maplibregl.Map({container:'hmMap',style:'https://tiles.openfreemap.org/styles/positron',center:[-2,44.5],zoom:5.6,attributionControl:{compact:true},dragRotate:false,pitchWithRotate:false,touchPitch:false});
+  try{ map.touchZoomRotate.disableRotation(); }catch(e){}
+  attribFold(map);
+  map.addControl(new maplibregl.NavigationControl({showCompass:false}),'bottom-right');
+  map.on('load',()=>{ homeMapTheme(map);
+    map.addSource('ho-ref',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+    map.addLayer({id:'ho-ref',type:'line',source:'ho-ref',paint:{'line-color':'#C99A3A','line-width':2,'line-dasharray':[1.2,2.2],'line-opacity':.9},layout:{'line-cap':'round'}});
+    homeRef(); });
+  HOME.mk={}; HOME.bm={}; HOME.cl=[];
+  HOME.data.forEach(s=>{ const w=document.createElement('div'); w.className='ho-mw'; w.innerHTML=`<button type="button" class="ho-m" aria-label="${s.n}"><span></span></button>`;
+    const b=w.firstChild; b.onclick=e=>{ e.stopPropagation(); homeSpot(s,true); }; homeHover(b,()=>homeSpotTip(s));
+    HOME.mk[s.i]=new maplibregl.Marker({element:w}).setLngLat([s.lon,s.lat]).addTo(map); });
+  HOME.bu.forEach(bu=>{ const w=document.createElement('div'); w.className='ho-bw';
+    w.innerHTML=`<button type="button" class="ho-b" aria-label="Bouée ${bu.n} : ${hmF(bu.L.hs)} m mesurés">${pvI('buoy')}<b>${hmF(bu.L.hs)}</b><i class="ho-lv"></i></button>`;
+    const b=w.firstChild; b.onclick=e=>{ e.stopPropagation(); homeBuoy(bu); }; homeHover(b,()=>homeBuoyTip(bu));
+    HOME.bm[bu.id]=new maplibregl.Marker({element:w}).setLngLat([bu.lon,bu.lat]).addTo(map); });
+  homeMarks(); homeFit(true,true);
+  map.on('moveend',homeCluster); map.on('zoom',()=>homeTipHide()); map.on('click',()=>{ if(HOME.view!=='home'&&innerWidth<760) homeSnap('peek'); });
+  setTimeout(homeCluster,60);
 }
+function homeHover(b,html){
+  if(!matchMedia('(hover:hover)').matches) return;
+  b.addEventListener('mouseenter',()=>{ const t=document.getElementById('hoTip'); if(!t) return; t.innerHTML=html(); t.hidden=false; const r=b.getBoundingClientRect(), w=t.offsetWidth, h=t.offsetHeight;
+    t.style.left=Math.round(clamp(r.left+r.width/2-w/2,8,innerWidth-w-8))+'px'; t.style.top=Math.round(r.top-h-10<8?r.bottom+10:r.top-h-10)+'px'; requestAnimationFrame(()=>t.classList.add('on')); });
+  b.addEventListener('mouseleave',homeTipHide);
+}
+function homeTipHide(){ const t=document.getElementById('hoTip'); if(t){ t.classList.remove('on'); t.hidden=true; } }
+function homeSpotTip(s){ const h=homeHour(s); if(!h) return `<b>${s.n}</b>`;
+  return `<b>${s.n}</b><small>${s.r}</small><span>${pvI('wave')}${h.H!=null?hmF(h.H)+' m':'—'}${h.T?` · ${Math.round(h.T)} s`:''}${h.D!=null?` · ${sector(h.D)}`:''}</span><span>${pvI('wind')}${h.v!=null?Math.round(h.v)+' km/h':'—'}${h.wd!=null?` · ${sector(h.wd)}`:''}${h.wind?` · <em style="color:${pvWindCol(h.wind)}">${windWord[h.wind]}</em>`:''}</span><i class="ho-tn">Prévision · ${homeTimeLabel(HOME.T[HOME.ti],true)}</i>`; }
+function homeBuoyTip(b){ const f=pvFresh(hoAge(b.L),b.L.time);
+  return `<b class="g">Bouée ${b.n}</b><small>${b.coast?'Bouée côtière':'Bouée du large'}</small><span class="g">${pvI('buoy')}${hmF(b.L.hs)} m${b.L.tp?` · ${Math.round(b.L.tp)} s`:b.L.tm?` · ${Math.round(b.L.tm)} s moy.`:''}${b.L.dir!=null?` · ${sector(b.L.dir)}`:''}</span><i class="ho-tn"><i class="ho-fd f-${f.c}"></i>Mesure réelle · ${f.t}</i>${homeIsNow()?'':'<i class="ho-tn">Mesure actuelle, pas une prévision</i>'}`; }
+/* couleur et texte des marqueurs pour la donnée et l'heure choisies (même échelle que le tableau des prévisions) */
+function homeMarks(){
+  const v=HOME.v;
+  HOME.data.forEach(s=>{ const m=HOME.mk[s.i]; if(!m) return; const b=m.getElement().firstChild, h=homeHour(s), x=homeVal(h,v);
+    b.querySelector('span').innerHTML=x==null?'—':v==='W'?`${h.wd!=null?pvArr(h.wd,'ho-wa'):''}${Math.round(x)}`:homeTxt(x,v);
+    b.style.cssText=x==null?'--c:#D8D2C4;--t:#5F6B71':pvCellCss(x,v);
+    b.classList.toggle('fav',state.fav.includes(s.n)); b.classList.toggle('sel',HOME.sel===s.i); b.dataset.na=x==null?'1':''; });
+  Object.entries(HOME.bm||{}).forEach(([id,m])=>{ const bu=HOME.bu.find(x=>x.id===id), b=m.getElement().firstChild, a=hoAge(bu.L);
+    b.classList.toggle('b-live',a<1); b.classList.toggle('b-old',a>=6); b.classList.toggle('b-fut',!homeIsNow()); m.getElement().hidden=!HOME.showBu; });
+  document.getElementById('home').classList.toggle('ho-fut',!homeIsNow());
+  homeCluster();
+}
+/* regroupement à l'écran : les spots trop proches à ce zoom se rangent derrière le plus haut (nombre en pastille) */
+function homeCluster(){
+  const map=HOME.map; if(!map||!HOME.data) return; const v=HOME.v, R=innerWidth<760?40:36, W=innerWidth, H=innerHeight;
+  document.getElementById('home').classList.toggle('ho-zlo',map.getZoom()<7.3);   /* vue large : bouées en simple pastille dorée */
+  (HOME.cl||[]).forEach(c=>c.remove()); HOME.cl=[];
+  const groups=[];
+  const order=[...HOME.data].sort((a,b)=>((b.i===HOME.sel)-(a.i===HOME.sel))||(state.fav.includes(b.n)-state.fav.includes(a.n))||((homeVal(homeHour(b),v)??-1)-(homeVal(homeHour(a),v)??-1)));
+  order.forEach(s=>{ const el=HOME.mk[s.i]&&HOME.mk[s.i].getElement(); if(!el) return;
+    if(!homeRegOk(s)){ el.hidden=true; return; }
+    const p=map.project([s.lon,s.lat]); if(p.x<-60||p.x>W+60||p.y<-60||p.y>H+60){ el.hidden=false; return; }
+    const g=s.i===HOME.sel?null:groups.find(q=>q.s.i!==HOME.sel&&Math.abs(q.p.x-p.x)<R&&Math.abs(q.p.y-p.y)<R*.62);
+    if(g){ g.m.push(s); el.hidden=true; } else { groups.push({s,p,m:[s]}); el.hidden=false; } });
+  { const lo=map.getZoom()<7.3; Object.entries(HOME.bm||{}).forEach(([id,m])=>{ const el=m.getElement(); if(!HOME.showBu){ el.hidden=true; return; }
+      if(!lo){ el.hidden=false; return; } const bu=HOME.bu.find(x=>x.id===id), p=map.project([bu.lon,bu.lat]); el.hidden=groups.some(g=>Math.abs(g.p.x-p.x)<30&&Math.abs(g.p.y-p.y)<22); }); }
+  groups.filter(g=>g.m.length>1).forEach(g=>{ const el=HOME.mk[g.s.i].getElement(); el.hidden=true;
+    const w=document.createElement('div'); w.className='ho-mw';
+    const x=homeVal(homeHour(g.s),v), h=homeHour(g.s);
+    w.innerHTML=`<button type="button" class="ho-m ho-c" style="${x==null?'--c:#D8D2C4;--t:#5F6B71':pvCellCss(x,v)}" aria-label="${g.m.length} spots, dont ${g.s.n} ; zoomer"><span>${x==null?'—':v==='W'?`${h&&h.wd!=null?pvArr(h.wd,'ho-wa'):''}${Math.round(x)}`:homeTxt(x,v)}</span><i>${g.m.length}</i></button>`;
+    const b=w.firstChild; b.onclick=e=>{ e.stopPropagation(); const lo=g.m.reduce((a,s)=>[Math.min(a[0],s.lon),Math.min(a[1],s.lat),Math.max(a[2],s.lon),Math.max(a[3],s.lat)],[999,99,-999,-99]);
+      map.fitBounds([[lo[0],lo[1]],[lo[2],lo[3]]],{padding:homePad(80),maxZoom:Math.max(map.getZoom()+1.6,10),duration:700}); };
+    homeHover(b,()=>`<b>${g.m.length} spots</b><small>${[...new Set(g.m.map(s=>s.r))].join(' · ')}</small><span>${v==='H'?'Jusqu’à '+hmF(Math.max(...g.m.map(s=>homeVal(homeHour(s),'H')??0)))+' m':v==='T'?'Jusqu’à '+Math.round(Math.max(...g.m.map(s=>homeVal(homeHour(s),'T')??0)))+' s':'Jusqu’à '+Math.round(Math.max(...g.m.map(s=>homeVal(homeHour(s),'W')??0)))+' km/h'}</span><i class="ho-tn">Zoomer pour les voir</i>`);
+    HOME.cl.push(new maplibregl.Marker({element:w}).setLngLat([g.s.lon,g.s.lat]).addTo(map)); });
+}
+function homePad(extra){ const mob=innerWidth<760, P=document.getElementById('hoPanel');
+  if(mob){ const sh=P?innerHeight-P.getBoundingClientRect().top:200; return {top:120,bottom:Math.min(innerHeight*.6,sh)+20,left:30,right:30}; }
+  const pw=P?P.getBoundingClientRect().right:420; return {top:90,bottom:130,left:pw+(extra||40),right:90}; }
+function homeFit(instant,first){
+  const map=HOME.map; if(!map) return;
+  const L=HOME.data.filter(first&&(HOME.reg||'Tous')==='Tous'?s=>homeCtry(s.r)==='France':homeRegOk); if(!L.length) return;
+  const lo=L.reduce((a,s)=>[Math.min(a[0],s.lon),Math.min(a[1],s.lat),Math.max(a[2],s.lon),Math.max(a[3],s.lat)],[999,99,-999,-99]);
+  map.fitBounds([[lo[0],lo[1]],[lo[2],lo[3]]],{padding:homePad(),duration:instant?0:900,maxZoom:10});
+}
+/* trait pointillé doré entre le spot choisi et sa bouée de référence */
+function homeRef(){
+  const src=HOME.map&&HOME.map.getSource&&HOME.map.getSource('ho-ref'); if(!src) return;
+  const r=HOME.ref; src.setData({type:'FeatureCollection',features:r?[{type:'Feature',geometry:{type:'LineString',coordinates:[[r.a.lon,r.a.lat],[r.b.lon,r.b.lat]]},properties:{}}]:[]});
+}
+
+/* ---------- légende et frise du temps ---------- */
+function homeLegend(){
+  const L=document.getElementById('hoLeg'); if(!L) return; const V=HOME_VARS[HOME.v], st=PV_PAL.a[HOME.v];
+  const lo=V.ticks[0], hi=V.ticks[V.ticks.length-1], g=st.filter(x=>x[0]<=hi+.01).map(x=>`${x[1]} ${((x[0]-lo)/(hi-lo)*100).toFixed(0)}%`).join(',');
+  L.innerHTML=`<div class="ho-lt"><b>${V.lab}</b> ${HOME.v==='W'?'prévu':'prévue'} <span>${V.u}</span></div><i class="ho-lg" style="background:linear-gradient(90deg,${g})"></i><div class="ho-lk">${V.ticks.map((t,i)=>`<span>${i===V.ticks.length-1?V.max:String(t).replace('.',',')}</span>`).join('')}</div>${HOME.showBu?`<div class="ho-lb"><i></i>Bouée : mesure réelle</div>`:''}`;
+}
+function homeTimeBar(){
+  const el=document.getElementById('hoTime'); if(!el) return; const T=HOME.T, n=T.length-1;
+  /* nuits en teinte plus sombre sur la piste (lever et coucher du soleil du premier spot affiché) */
+  const sunOf={}; (state.data[0].days||[]).forEach(d=>{ if(d.sun) sunOf[d.date]=[hDec(d.sun.rise),hDec(d.sun.set)]; });
+  const seg=T.map((t,i)=>{ const s=sunOf[t.slice(0,10)], h=+t.slice(11,13), night=s?(h<Math.floor(s[0])||h>Math.floor(s[1])):(h<8||h>18); return night; });
+  let grad=[], cur=null; seg.forEach((ng,i)=>{ if(ng!==cur){ const p=(i/Math.max(1,n)*100).toFixed(2); if(cur!==null) grad.push(`${cur?'var(--ho-night)':'var(--ho-day)'} ${p}%`); grad.push(`${ng?'var(--ho-night)':'var(--ho-day)'} ${p}%`); cur=ng; } }); grad.push(`${cur?'var(--ho-night)':'var(--ho-day)'} 100%`);
+  const days=[]; T.forEach((t,i)=>{ const d=t.slice(0,10); if(!days.length||days[days.length-1].d!==d) days.push({d,i}); });
+  if(days.length>1&&(days[1].i-days[0].i)/Math.max(1,n)<.09) days[0].hide=1;
+  el.innerHTML=`<div class="ho-tl"><button type="button" class="ho-play" id="hoPlay" aria-label="Faire défiler les prévisions">${HO_I.play}</button><output class="ho-tv" id="hoTv"></output><button type="button" class="ho-now" id="hoNow" hidden>${HO_I.now}Maintenant</button></div>
+    <div class="ho-tr"><input type="range" id="hoRange" min="0" max="${n}" step="1" value="${HOME.ti}" aria-label="Heure de la prévision affichée" style="--trk:linear-gradient(90deg,${grad.join(',')})">
+    <div class="ho-td">${days.map((x,k)=>{ const d=new Date(x.d+'T12:00:00'), p=x.i/Math.max(1,n)*100; return `<button type="button" data-i="${k===0?0:Math.min(n,x.i+Math.max(0,12-+T[x.i].slice(11,13)))}" style="left:${p.toFixed(2)}%"${x.hide?' class="ho-dh" tabindex="-1"':''}>${k===0?'Auj.':hoDays[d.getDay()].replace('.','')+' '+d.getDate()}</button>`; }).join('')}</div></div>`;
+  const r=document.getElementById('hoRange');
+  let raf=0; r.oninput=()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>homeSetTime(+r.value)); };
+  el.querySelectorAll('.ho-td button').forEach(b=>b.onclick=()=>{ homePlay(false); homeSetTime(+b.dataset.i); });
+  document.getElementById('hoNow').onclick=()=>{ homePlay(false); homeSetTime(0); };
+  document.getElementById('hoPlay').onclick=()=>homePlay(!HOME.play);
+  homeTimeUi();
+}
+function homeTimeUi(){
+  const r=document.getElementById('hoRange'), tv=document.getElementById('hoTv'), nb=document.getElementById('hoNow'); if(!r) return;
+  r.value=HOME.ti; r.style.setProperty('--p',(HOME.ti/Math.max(1,HOME.T.length-1)*100).toFixed(2)+'%');
+  tv.innerHTML=homeIsNow()?`<b>Maintenant</b><span>prévision de ${+HOME.T[0].slice(11,13)}h</span>`:`<b>${homeTimeLabel(HOME.T[HOME.ti])}</b><span>prévision</span>`;
+  nb.hidden=homeIsNow();
+  document.querySelectorAll('#hoTime .ho-td button').forEach((b,k,all)=>{ const nx=all[k+1]; const a=+b.style.left.replace('%',''), z=nx?+nx.style.left.replace('%',''):101, p=HOME.ti/Math.max(1,HOME.T.length-1)*100; b.classList.toggle('on',p>=a-.01&&p<z-.01); });
+}
+function homeSetTime(i){
+  HOME.ti=clamp(i,0,HOME.T.length-1); homeTimeUi(); homeMarks();
+  if(HOME.view==='spot'&&HOME.sel!=null){ const s=HOME.data.find(x=>x.i===HOME.sel); if(s) homeSpotNums(s); }
+  if(HOME.view==='home') homeFavs();
+}
+function homePlay(on){
+  HOME.play=!!on; clearInterval(HOME.pt); const b=document.getElementById('hoPlay'); if(b){ b.innerHTML=on?HO_I.pause:HO_I.play; b.setAttribute('aria-pressed',String(!!on)); b.setAttribute('aria-label',on?'Arrêter le défilement':'Faire défiler les prévisions'); }
+  if(!on) return; if(HOME.ti>=HOME.T.length-1) homeSetTime(0);
+  HOME.pt=setInterval(()=>{ if(!HOME.on||HOME.ti>=HOME.T.length-1){ homePlay(false); return; } homeSetTime(Math.min(HOME.T.length-1,HOME.ti+3)); },650);
+}
+/* téléphone : la frise vit dans le panneau (sous la recherche) ; grand écran : posée en bas de la carte */
+function homePlaceTime(){
+  const t=document.getElementById('hoTime'), hd=document.querySelector('#home .ho-hd'), el=document.getElementById('home'); if(!t||!hd) return;
+  if(innerWidth<760){ if(t.parentElement!==hd) hd.appendChild(t); } else if(t.parentElement!==el){ el.appendChild(t); }
+}
+
+/* ---------- panneau ---------- */
 function homeCtry(r){ return /^Portugal/.test(r)?'Portugal':(r==='Espagne Nord'||r==='Galice')?'Espagne':'France'; }
-function homeRegOk(s){ const g=HOME.reg; return g==='Tous'||(g.startsWith('c:')?homeCtry(s.r)===g.slice(2):s.r===g); }
-function homeChipsHtml(D){
-  const regs=Array.from(new Set(D.map(s=>s.r))), g=HOME.reg, cur=g.startsWith('c:')?g.slice(2):(regs.includes(g)?homeCtry(g):null);
-  const b=(v,l,on)=>`<button type="button" class="${on?'on':''}" data-g="${v}">${l}</button>`;
-  const nm=r=>r.replace('Pays Basque','Pays basque').replace('Espagne Nord','Espagne du Nord');
-  return b('Tous','Tous',g==='Tous')+['France','Espagne','Portugal'].filter(c=>regs.some(r=>homeCtry(r)===c)).map(c=>b('c:'+c,c,cur===c)).join('')
-    +`<button type="button" id="hmGeo">${HM_ICON.loc}Près de moi</button>`
-    +`</div><div class="hmb-chips hmb-sub"${cur?'':' style="display:none"'}>`+(cur?b('c:'+cur,'Toute la zone',g==='c:'+cur)+regs.filter(r=>homeCtry(r)===cur).map(r=>b(r,nm(r),g===r)).join(''):'');
-}
-function homeHomePanelM(){
-  const P=document.getElementById('hmPanel'), D=HOME.data, n=new Date().getHours();
-  const order=['Cap Ferret','Anglet','Saint-Jean-de-Luz','Donostia','Bilbao-Vizcaya','Gascogne'];
-  const bu0=[...HOME.bu].sort((a,b)=>{ const x=order.indexOf(a.n), y=order.indexOf(b.n); return (x<0?99:x)-(y<0?99:y); });
-  const bu=[...bu0.slice(0,4),...bu0.slice(4).sort((a,b)=>b.lat-a.lat)];   /* Sud-Ouest d'abord, puis la côte du nord au sud */
-  const ageH=b=>(new Date()-new Date(b.L.time+':00'))/36e5;
-  const live=bu.filter(b=>ageH(b)<2), rest=[...bu.filter(b=>ageH(b)>=2&&ageH(b)<6),...bu.filter(b=>ageH(b)>=6)];   /* en direct d'abord, les anciennes et les muettes à la fin */
-  const per=L=>L.tp?`${Math.round(L.tp)} s`:L.tm?`${Math.round(L.tm)} s moy.`:'';
-  /* pastille d'une bouée : feu (vert = mesure de moins de 2 h), nom, période mesurée, hauteur avec son unité */
-  const buRow=(b,cl)=>`<button type="button" data-b="${b.id}"${cl?' class="cl" tabindex="-1" aria-hidden="true"':''}${ageH(b)>=6?' data-old="1"':''} title="${b.n} · ${ageTxt(ageH(b))}"><i class="lv${ageH(b)<2?'':' old'}"></i><span class="nm">${b.n}</span>${per(b.L)?`<small>${per(b.L)}</small>`:''}<b>${hmF(b.L.hs)}<u>m</u></b></button>`;
-  const seq=[...live,...rest];
-  /* téléphone : liste des bouées classée par zone, du nord au sud (même découpage que la page des bouées) */
-  const zoneOf=b=>b.lat<42?'Portugal':(b.lat<44.5&&b.lon<-1.8)?'Espagne':b.lat>47?'Bretagne':'Golfe de Gascogne';
-  const along=b=>zoneOf(b)==='Espagne'?(b.lat>=43?-b.lon:100-b.lat):-b.lat;
-  const blRow=b=>`<button type="button" class="bl" data-b="${b.id}"${ageH(b)>=6?' data-old="1"':''}><i class="lv${ageH(b)<2?'':' old'}"></i><span><b>${b.n}</b><small>${b.large?'au large · ':''}${ageTxt(ageH(b))}${per(b.L)?' · '+per(b.L):''}</small></span><em>${hmF(b.L.hs)}<u>m</u></em></button>`;
-  const buList=['Bretagne','Golfe de Gascogne','Espagne','Portugal'].map(z=>{ const l=bu.filter(b=>zoneOf(b)===z).sort((a,b)=>along(a)-along(b)); return l.length?`<h3>${z}<small>${l.length} bouée${l.length>1?'s':''}</small></h3><div class="blg">${l.map(blRow).join('')}</div>`:''; }).join('')+'<a class="all" href="bouees/">Pages détaillées des bouées →</a>';
-  document.getElementById('home').classList.remove('hm-sel'); HOME.popAt=null;
-  /* texte d'accueil : toujours dans la carte du grand écran ; ailleurs, petit bandeau refermable montré tant qu'on ne l'a pas fermé */
-  const intro=`<div class="hmb-intro${HOME.introGone?' gone':''}" id="hmIntro"><p class="k">Prévisions surf · ${D.length} spots</p><h2>La houle prévue, <em>vérifiée par les bouées</em></h2><p class="lg">Prévisions surf pour ${D.length} spots, de la Bretagne au Portugal, comparées en direct aux mesures des bouées en mer. Mis à jour toutes les heures.</p><p class="go">Touchez la carte pour commencer</p></div>`;
-  P.innerHTML=`<div class="hmb-col hmb-home">${intro}<div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<input id="hmQ" placeholder="Chercher un spot…" autocomplete="off" aria-label="Chercher un spot" value="${HOME.q.replace(/"/g,'')}"><button type="button" class="hmb-x" id="hmQx">Annuler</button></div>
-    <div class="hmb-chips">${homeChipsHtml(D)}</div></div>
-    <div class="hmb-res" id="hmRes" hidden></div>
-    <div class="hmb-bulist" id="hmBuList">${buList}</div>
-    <div class="hmb-seg" id="hmSeg" role="tablist"><button type="button" role="tab" data-v="map" class="${HOME.buv?'':'on'}">Carte</button><button type="button" role="tab" data-v="bu" class="${HOME.buv?'on':''}"><i class="lv"></i>Bouées <b>${live.length}</b></button></div>
-    <div class="hmb-card hmb-v2 fl" id="hmSheet"><button type="button" class="shh" aria-label="Agrandir ou réduire la liste des bouées"></button><p class="sht">La houle prévue, <em>vérifiée par les bouées</em></p><div class="bcap"><span><i></i>Bouées en direct</span><b>${live.length}<small> / ${bu.length}</small></b><a class="ball" href="bouees/">Toutes les bouées →</a></div>
-      <div class="hmb-tick2" id="hmTick"><div class="hmb-row2" style="--mq:${Math.max(30,Math.round(seq.length*5))}s">${seq.map(b=>buRow(b)).join('')}${seq.map(b=>buRow(b,true)).join('')}</div></div></div>
-    </div>`;
-  P.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>homeBuoy(HOME.bu.find(x=>x.id===b.dataset.b)));
-  { const hm=document.getElementById('home'), sg=document.getElementById('hmSeg');
-    const view=v=>{ HOME.buv=v==='bu'; hm.classList.toggle('hm-buv',HOME.buv); sg&&sg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',(b.dataset.v==='bu')===HOME.buv)); };
-    if(sg){ sg.querySelectorAll('button').forEach(b=>b.onclick=()=>view(b.dataset.v)); view(HOME.buv?'bu':'map'); }
-    document.querySelectorAll('#hmBuList [data-b]').forEach(e=>e.addEventListener('click',()=>view('map'))); }
-  homeIntroWatch();
-  /* téléphone : la carte des bouées devient un tiroir à 3 positions (réduit, normal, ouvert), qu'on tire du doigt ou qu'on ouvre
-     en touchant la poignée ; le bouton ⓘ des crédits de la carte se cale juste au-dessus */
-  { const sh=document.getElementById('hmSheet'), hm=document.getElementById('home');
-    if(sh){ const place=()=>{ if(innerWidth<760) hm.style.setProperty('--shH',Math.round(sh.getBoundingClientRect().height)+'px'); };
-      const set=c=>{ sh.classList.remove('sh-min','sh-open'); if(c) sh.classList.add(c); setTimeout(place,280); };
-      sh.querySelector('.shh').onclick=()=>set(sh.classList.contains('sh-open')?'':sh.classList.contains('sh-min')?'':'sh-open');
-      let y0=null;
-      sh.addEventListener('touchstart',e=>{ if(innerWidth>=760||e.target.closest('a,[data-b]')||(sh.classList.contains('sh-open')&&e.target.closest('.hmb-tick2'))){ y0=null; return; } y0=e.touches[0].clientY; },{passive:true});
-      sh.addEventListener('touchend',e=>{ if(y0==null) return; const dy=e.changedTouches[0].clientY-y0; y0=null;
-        if(dy<-30) set(sh.classList.contains('sh-min')?'':'sh-open'); else if(dy>30) set(sh.classList.contains('sh-open')?'':'sh-min'); },{passive:true});
-      requestAnimationFrame(place); } }
-  { const t=document.getElementById('hmTick'); if(t){ let k; t.addEventListener('touchstart',()=>{ clearTimeout(k); t.classList.add('hold'); },{passive:true}); t.addEventListener('touchend',()=>{ k=setTimeout(()=>t.classList.remove('hold'),2500); },{passive:true}); } }   /* au toucher, le bandeau s'arrête le temps de choisir */
-  P.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ HOME.reg=b.dataset.g; homeFit(); homeHomePanelM(); homeDeclutter(); });
+function homeRegOk(s){ const g=HOME.reg||'Tous'; return g==='Tous'||(g.startsWith('c:')?homeCtry(s.r)===g.slice(2):s.r===g); }
+const hoNz=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[-'’]/g,' ');
+function homeBindUi(){
+  const qi=document.getElementById('hmQ'), qx=document.getElementById('hmQx');
+  qi.oninput=()=>{ HOME.q=qi.value; qx.hidden=!qi.value; if(HOME.q.trim()){ HOME.view='search'; homePanel(); } else { HOME.view=HOME.sel!=null?'spot':'home'; homePanel(); } };
+  qi.onfocus=()=>{ if(innerWidth<760) homeSnap('full'); };
+  qi.onkeydown=e=>{ if(e.key==='Enter'){ const f=document.querySelector('#hoBody .ho-it'); if(f) f.click(); } if(e.key==='Escape'){ qx.click(); } };
+  qx.onclick=()=>{ qi.value=''; HOME.q=''; qx.hidden=true; HOME.view=HOME.sel!=null?'spot':'home'; homePanel(); qi.blur(); };
+  document.querySelectorAll('#hoVar [data-v]').forEach(b=>b.onclick=()=>{ HOME.v=b.dataset.v; try{ localStorage.setItem('hoVar',HOME.v); }catch(e){}
+    document.getElementById('home').dataset.v=HOME.v; document.querySelectorAll('#hoVar [data-v]').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); homeLegend(); homeMarks(); if(HOME.view==='home') homeFavs(); });
+  document.getElementById('hoBuT').onclick=e=>{ HOME.showBu=!HOME.showBu; try{ localStorage.setItem('hoBu',HOME.showBu?'1':'0'); }catch(er){} e.currentTarget.setAttribute('aria-pressed',String(HOME.showBu)); homeLegend(); homeMarks(); };
   document.getElementById('hmGeo').onclick=e=>homeGeo(e.currentTarget);
-  homeBindSearch(); homeRes(); homeTopBtn();
-  requestAnimationFrame(()=>{ const c=document.querySelector('#home .hmb-col'); if(c&&innerWidth>=760&&!document.getElementById('home').classList.contains('hm-sel')){ const t=Math.round(c.getBoundingClientRect().top); if(t>0) HOME.colTop=t; } });
+  /* panneau inférieur du téléphone : trois crans, on le tire par l'en-tête ou on touche la poignée */
+  const P=document.getElementById('hoPanel'), hd=P.querySelector('.ho-hd'); let y0=null, t0=0, base=0;
+  document.getElementById('hoGrab').onclick=()=>homeSnap(P.dataset.snap==='peek'?'mid':P.dataset.snap==='mid'?'full':'peek');
+  hd.addEventListener('pointerdown',e=>{ if(innerWidth>=760||e.target.closest('input,button:not(.ho-grab),a')) return; y0=e.clientY; t0=Date.now(); base=P.getBoundingClientRect().top; P.classList.add('drag'); hd.setPointerCapture(e.pointerId); });
+  hd.addEventListener('pointermove',e=>{ if(y0==null) return; const top=clamp(base+e.clientY-y0,innerHeight*.08,innerHeight-120); P.style.transform=`translateY(${top-(innerHeight-P.offsetHeight)}px)`; });
+  const end=e=>{ if(y0==null) return; const dy=e.clientY-y0, v=dy/Math.max(1,Date.now()-t0); y0=null; P.classList.remove('drag'); P.style.transform='';
+    const order=['full','mid','peek'], k=order.indexOf(P.dataset.snap);
+    if(Math.abs(dy)<6) return; if(v>.5||dy>80) homeSnap(order[Math.min(2,k+1)]); else if(v<-.5||dy<-80) homeSnap(order[Math.max(0,k-1)]); else homeSnap(P.dataset.snap); };
+  hd.addEventListener('pointerup',end); hd.addEventListener('pointercancel',end);
 }
-function homeHomePanel(){ homeHomePanelM(); }
-function homeRes(){
-  const r=document.getElementById('hmRes'); if(!r) return;
-  /* recherche sans accents, sur le nom du spot ET sa commune (« hossegor » trouve La Gravière, La Nord…) */
-  const nz=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[-'’]/g,' ');   /* « saint jean » trouve Saint-Jean-de-Luz */
-  const t=nz(HOME.q.trim()), hm=document.getElementById('home'), searching=hm.classList.contains('hm-search');
-  const row=s=>`<button type="button" class="hm-it" data-i="${s.i}"><span class="bd" style="background:${hmCol(s.h)}">${hmF(s.h)}</span><span><b>${s.n}</b><small>${s.c&&nz(s.c)!==nz(s.n)?s.c+' · ':''}${s.r}</small></span></button>`;
-  const bind=()=>{ r.querySelectorAll('.hm-it').forEach(e=>e.onclick=()=>homeSpot(HOME.data.find(s=>s.i===+e.dataset.i),true)); r.querySelectorAll('[data-sr]').forEach(e=>e.onclick=()=>{ HOME.sr=e.dataset.sr||null; homeRes(); }); };
-  if(!t&&!HOME.sr&&!searching){ r.hidden=true; r.innerHTML=''; return; }
-  r.hidden=false;
-  if(!t&&!HOME.sr){
-    const regs=[...new Set(HOME.data.map(s=>s.r))];
-    const nm=g=>g.replace('Pays Basque','Pays basque').replace('Espagne Nord','Espagne du Nord');
-    r.innerHTML=['France','Espagne','Portugal'].map(c=>{ const rs=regs.filter(g=>homeCtry(g)===c); if(!rs.length) return '';
-      const n=HOME.data.filter(s=>homeCtry(s.r)===c).length;
-      return `<button type="button" class="hmb-cty" data-sr="c:${c}"><span>${c}</span><small>Tous les spots · ${n}</small></button>`
-        +rs.map(g=>`<button type="button" class="hmb-reg" data-sr="${g}"><span><b>${nm(g)}</b><small>${HOME.data.filter(s=>s.r===g).length} spots</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>`).join(''); }).join('');
-    bind(); return;
-  }
-  const inSr=s=>!HOME.sr||(HOME.sr.startsWith('c:')?homeCtry(s.r)===HOME.sr.slice(2):s.r===HOME.sr);
-  const L=HOME.data.filter(s=>inSr(s)&&(!t||nz(s.n).includes(t)||nz(s.c).includes(t)));
-  r.innerHTML=(HOME.sr?`<button type="button" class="hmb-hd back" data-sr="">← Zones<b>${HOME.sr.replace(/^c:/,'').replace('Pays Basque','Pays basque').replace('Espagne Nord','Espagne du Nord')}</b></button>`:'')+(L.map(row).join('')||'<p class="hmb-none">Aucun spot trouvé.</p>');
-  bind();
+function homeSnap(s){ const P=document.getElementById('hoPanel'); if(!P) return; P.dataset.snap=s; document.getElementById('home').dataset.snap=s; if(s!=='full'){ const q=document.getElementById('hmQ'); if(q&&document.activeElement===q&&!HOME.q) q.blur(); } }
+function homePanel(){
+  const B=document.getElementById('hoBody'); if(!B) return; const D=HOME.data;
+  document.getElementById('home').dataset.view=(HOME.view==='spot'&&HOME.sel!=null)?'spot':(HOME.view==='buoy'&&HOME.selB)?'buoy':HOME.view==='search'?'search':'home';
+  if(HOME.view==='search'){ homeSearch(); return; }
+  if(HOME.view==='spot'&&HOME.sel!=null){ const s=D.find(x=>x.i===HOME.sel); if(s){ homeSpotPanel(s); return; } }
+  if(HOME.view==='buoy'&&HOME.selB){ homeBuoyPanel(HOME.selB); return; }
+  HOME.view='home';
+  const regs=[...new Set(D.map(s=>s.r))], g=HOME.reg||'Tous', cur=g.startsWith('c:')?g.slice(2):(regs.includes(g)?homeCtry(g):null);
+  const chip=(v,l,on)=>`<button type="button" class="ho-chip${on?' on':''}" data-g="${v}" aria-pressed="${on}">${l}</button>`;
+  const nm=r=>r.replace('Pays Basque','Pays basque').replace('Espagne Nord','Espagne du Nord');
+  const ctrys=['France','Espagne','Portugal'].filter(c=>regs.some(r=>homeCtry(r)===c));
+  const bu=[...HOME.bu].sort((a,b)=>hoAge(a.L)-hoAge(b.L)), fresh=bu.filter(b=>hoAge(b.L)<3).length;
+  B.innerHTML=`<div class="ho-sec ho-zones"><div class="ho-chips" role="group" aria-label="Zone">${chip('Tous','Toute la côte',g==='Tous')}${ctrys.map(c=>chip('c:'+c,c,cur===c)).join('')}</div>
+      ${cur?`<div class="ho-chips ho-sub" role="group" aria-label="Région">${regs.filter(r=>homeCtry(r)===cur).map(r=>chip(r,nm(r),g===r)).join('')}</div>`:''}</div>
+    <div class="ho-sec" id="hoFav"></div>
+    <div class="ho-sec ho-bus"><div class="ho-sh"><h2>${pvI('buoy')}Mesures en mer</h2><span>${fresh} à jour sur ${bu.length}</span></div>
+      <p class="ho-note">Ce que mesurent les bouées en ce moment. Pas une prévision, et pas la taille des vagues au bord.</p>
+      <div class="ho-bl">${bu.map(b=>{ const a=hoAge(b.L), f=pvFresh(a,b.L.time); return `<button type="button" class="ho-br${a>=6?' ho-old':''}" data-b="${b.id}"><i class="ho-fd f-${f.c}"></i><span class="ho-bn"><b>${b.n}</b><small>${b.coast?'Côtière':'Large'} · ${f.t}</small></span><span class="ho-bv"><b>${hmF(b.L.hs)}<u>m</u></b><small>${b.L.tp?Math.round(b.L.tp)+' s':b.L.tm?Math.round(b.L.tm)+' s moy.':''}${b.L.dir!=null?' · '+sector(b.L.dir):''}</small></span></button>`; }).join('')}</div>
+      <a class="ho-more" href="bouees/">Toutes les pages des bouées ${pvI('go')}</a></div>
+    <nav class="ho-sec ho-links" aria-label="Plus"><a href="spots/">Tous les spots</a><a href="comment-ca-marche/">Comment ça marche</a><a href="a-propos/">À propos</a></nav>`;
+  B.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ HOME.reg=b.dataset.g; homePanel(); homeFit(); homeCluster(); });
+  B.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>homeBuoy(HOME.bu.find(x=>x.id===b.dataset.b)));
+  homeFavs(); homeTopBtn();
 }
+function homeFavs(){
+  const F=document.getElementById('hoFav'); if(!F) return; const fav=HOME.data.filter(s=>state.fav.includes(s.n)); const v=HOME.v;
+  if(!fav.length){ F.innerHTML=`<div class="ho-sh"><h2>${HO_I.star}Mes spots</h2></div><p class="ho-note">Touchez l’étoile d’un spot pour le retrouver ici.</p>`; return; }
+  F.innerHTML=`<div class="ho-sh"><h2>${HO_I.star}Mes spots</h2><span>${homeIsNow()?'maintenant':homeTimeLabel(HOME.T[HOME.ti],true)}</span></div><div class="ho-fl">${fav.map(s=>{ const h=homeHour(s), x=homeVal(h,v); return `<button type="button" class="ho-fc" data-i="${s.i}"><span class="ho-pill" style="${x==null?'':pvCellCss(x,v)}">${x==null?'—':homeTxt(x,v)}<u>${HOME_VARS[v].u}</u></span><b>${s.n}</b><small>${h&&h.T&&v!=='T'?Math.round(h.T)+' s · ':''}${h&&h.v!=null&&v!=='W'?Math.round(h.v)+' km/h':''}</small></button>`; }).join('')}</div>`;
+  F.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>homeSpot(HOME.data.find(s=>s.i===+b.dataset.i),true));
+}
+function homeSearch(){
+  const B=document.getElementById('hoBody'), t=hoNz(HOME.q.trim()), v=HOME.v;
+  const sc=s=>{ const n=hoNz(s.n), c=hoNz(s.c), r=hoNz(s.r); return n.startsWith(t)?0:n.includes(t)?1:c.startsWith(t)?2:c.includes(t)?3:r.includes(t)?4:9; };
+  const L=HOME.data.map(s=>[s,sc(s)]).filter(x=>x[1]<9).sort((a,b)=>a[1]-b[1]||a[0].n.localeCompare(b[0].n,'fr')).slice(0,40).map(x=>x[0]);
+  const Bs=HOME.bu.filter(b=>hoNz(b.n).includes(t));
+  B.innerHTML=`<div class="ho-sec"><div class="ho-sh"><h2>${L.length?`${L.length} spot${L.length>1?'s':''}`:'Aucun spot'}</h2><span>${homeIsNow()?'maintenant':homeTimeLabel(HOME.T[HOME.ti],true)}</span></div>
+    <div class="ho-rl">${L.map(s=>{ const h=homeHour(s), x=homeVal(h,v); return `<button type="button" class="ho-it" data-i="${s.i}"><span class="ho-pill" style="${x==null?'':pvCellCss(x,v)}">${x==null?'—':homeTxt(x,v)}</span><span class="ho-rn"><b>${s.n}</b><small>${s.c&&hoNz(s.c)!==hoNz(s.n)?s.c+' · ':''}${s.r}</small></span>${state.fav.includes(s.n)?`<i class="ho-fs">${HO_I.star}</i>`:''}</button>`; }).join('')||'<p class="ho-note">Essayez un autre nom de spot, de ville ou de région.</p>'}</div>
+    ${Bs.length?`<div class="ho-sh" style="margin-top:14px"><h2>${pvI('buoy')}Bouées</h2></div><div class="ho-bl">${Bs.map(b=>{ const f=pvFresh(hoAge(b.L),b.L.time); return `<button type="button" class="ho-br" data-b="${b.id}"><i class="ho-fd f-${f.c}"></i><span class="ho-bn"><b>${b.n}</b><small>${f.t}</small></span><span class="ho-bv"><b>${hmF(b.L.hs)}<u>m</u></b></span></button>`; }).join('')}</div>`:''}</div>`;
+  B.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>homeSpot(HOME.data.find(s=>s.i===+b.dataset.i),true));
+  B.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>homeBuoy(HOME.bu.find(x=>x.id===b.dataset.b)));
+}
+function homeClearQ(){ const qi=document.getElementById('hmQ'), qx=document.getElementById('hmQx'); HOME.q=''; if(qi){ qi.value=''; qi.blur(); } if(qx) qx.hidden=true; }
 function homeSpot(s,fly){
-  HOME.sr=null; document.getElementById('home').classList.remove('hm-search'); if(document.activeElement&&document.activeElement.blur) document.activeElement.blur();
-  homeClear(); const pt=HOME.pts[s.n]; if(pt) pt.getElement().querySelector('.hm-pt').classList.add('on');
-  HOME.sel=s.i; homeTopBtn();
-  const spot=state.data[s.i].spot, cur=pickBuoy(buoyChoices(spot)), P=document.getElementById('hmPanel');
-  let measured='', txt='', ref='';
-  if(cur){ const dif=s.h-cur.L.hs, old=cur.ageH>6;
-    txt=Math.abs(dif)<.05?'La bouée mesure la même hauteur que la prévision.':`La bouée mesure <b>${hmF(Math.abs(dif))} m de ${dif>0?'moins':'plus'}</b> que la prévision.`;
-    ref=`${cur.kind==='coast'?'Bouée ':'Bouée '}${cur.name}, à ${Math.round(cur.km)} km du spot${old?` · mesure ${ageTxt(cur.ageH)}`:''}.`;
-    measured=`<div class="hm-b${old?' old':''}"><small>Mesuré</small><b>${hmF(cur.L.hs)}<i> m</i></b></div>`; }
-  if(innerWidth<760){
-    const line=cur?`<i></i>Mesuré ${hmF(cur.L.hs)} m · ${cur.name}${cur.ageH>6?' · '+ageTxt(cur.ageH):''}`:`<i class="live"></i>Prévision de ${new Date().getHours()} h`;
-    P.innerHTML=`<div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<span class="nm">${s.n}</span></div><div class="hmb-chips"><button type="button" id="hmBk">← Toute la côte</button></div></div>
-      <div class="hmb-pill" id="hmGo" role="button" tabindex="0" aria-label="Ouvrir la prévision de ${s.n}"><span class="bd" style="background:${hmCol(s.h)}">${hmF(s.h)}</span><span class="t"><b>${s.n}</b><span>${line}</span></span><span class="rd">${HM_ICON.go}</span></div>`;
-    document.getElementById('hmBk').onclick=()=>{ HOME.q=''; homeClear(); homeHomePanel(); homeFit(); homeDeclutter(); };
-    document.getElementById('hmGo').onclick=()=>{ homeClose(); go(s.i); };
-  } else {
-    document.getElementById('home').classList.remove('hm-sel'); HOME.popAt=null;
-    P.innerHTML=`<div class="hmb-col"><div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<span class="nm">${s.n}</span></div><div class="hmb-chips"><button type="button" id="hmBk">← Toute la côte</button></div></div>
-      <div class="hmb-dcard"><div class="hd"><span class="bd" style="background:${hmCol(s.h)}">${hmF(s.h)}</span><div><h3>${s.n}</h3><div class="sub">${s.r}</div></div></div>
-       <div class="nums"><div class="a"><small>Prévu</small><b>${hmF(s.h)}<i> m</i></b></div>${cur?`<div class="m${cur.ageH>6?' old':''}"><small><i class="dt"></i>Mesuré</small><b>${hmF(cur.L.hs)}<i> m</i></b></div>`:''}</div>
-       ${cur?`<p class="cmp">${txt} <span>${ref}</span></p>`:''}
-       <button type="button" class="go" id="hmGo">Ouvrir la prévision complète ${HM_ICON.go}</button></div></div>`;
-    document.getElementById('hmBk').onclick=()=>{ HOME.q=''; homeClear(); homeHomePanel(); homeFit(); homeDeclutter(); };
-    document.getElementById('hmGo').onclick=()=>{ homeClose(); go(s.i); };
-  }
-  const bp=cur&&homeBuoyPos(cur.key);
-  if(bp&&cur){ HOME.ref={a:spot,b:bp,k:Math.round(cur.km)}; }
-  if(fly&&HOME.map){ const mob=innerWidth<760, b=bp||spot;
-    HOME.map.fitBounds([[Math.min(spot.lon,b.lon),Math.min(spot.lat,b.lat)],[Math.max(spot.lon,b.lon),Math.max(spot.lat,b.lat)]],{padding:mob?{top:190,bottom:130,left:60,right:60}:{top:120,bottom:120,left:Math.min(480,innerWidth*.36),right:110},pitch:0,bearing:0,maxZoom:10.2,duration:1200}); }
+  if(!s) return; homeClearQ(); HOME.view='spot'; HOME.sel=s.i; HOME.selB=null;
+  const spot=state.data[s.i].spot, cur=pickBuoy(buoyChoices(spot)), bp=cur&&homeBuoyPos(cur.key);
+  HOME.ref=bp?{a:{lat:s.lat,lon:s.lon},b:bp}:null; homeRef();
+  homePanel(); homeMarks(); if(innerWidth<760) homeSnap('mid');
+  if(fly&&HOME.map){ const b=bp&&cur.km<60?bp:s; HOME.map.fitBounds([[Math.min(s.lon,b.lon),Math.min(s.lat,b.lat)],[Math.max(s.lon,b.lon),Math.max(s.lat,b.lat)]],{padding:homePad(60),maxZoom:10.5,duration:1000}); }
+}
+function homeSpotPanel(s){
+  const B=document.getElementById('hoBody'), d=state.data[s.i], spot=d.spot, cur=pickBuoy(buoyChoices(spot)), fav=state.fav.includes(s.n);
+  /* les 7 jours en barres : la plus haute houle prévue de chaque jour (6 h à 21 h) */
+  const days=d.days.filter(x=>x.tag!=='—').map(x=>{ const l=x.list.filter(h=>h.hour>=6&&h.hour<=21&&h.H!=null); return {date:x.date,mx:l.length?Math.max(...l.map(h=>h.H)):null}; });
+  const top=Math.max(.5,...days.map(x=>x.mx||0));
+  B.innerHTML=`<div class="ho-sec ho-spot">
+    <div class="ho-sp-hd"><button type="button" class="ho-bk" id="hoBk">${HO_I.back}<span>Toute la côte</span></button><button type="button" class="ho-fv${fav?' on':''}" id="hoFv" aria-pressed="${fav}" aria-label="${fav?'Retirer de mes spots':'Ajouter à mes spots'}">${HO_I.star}</button></div>
+    <h2 class="ho-sp-n">${s.n}</h2><p class="ho-sp-r">${pvI('pin')}${s.c&&hoNz(s.c)!==hoNz(s.n)?s.c+' · ':''}${s.r}${!spot.generic&&spot.type?` · ${spot.type}`:''}</p>
+    <div id="hoNums"></div>
+    <div class="ho-wk" role="group" aria-label="Houle maximale prévue par jour">${days.map((x,k)=>{ const dd=new Date(x.date+'T12:00:00'); return `<button type="button" data-d="${x.date}" title="${x.mx!=null?'Jusqu’à '+hmF(x.mx)+' m':'—'}"><i style="height:${x.mx!=null?Math.max(8,x.mx/top*100).toFixed(0):4}%;${x.mx!=null?pvCellCss(x.mx,'H'):''}"></i><span>${k===0?'Auj.':hoDays[dd.getDay()].replace('.','')}</span></button>`; }).join('')}</div>
+    ${cur?`<a class="ho-ms" href="#" id="hoMs"><span class="ho-mk">${pvI('buoy')}Mesuré · bouée ${cur.name}</span><span class="ho-mv"><b>${hmF(cur.L.hs)}<u>m</u></b>${(cur.L.tp||cur.Tm)?`<em>${Math.round(cur.L.tp||cur.Tm)} s</em>`:''}${cur.L.dir!=null?`<em>${sector(cur.L.dir)}</em>`:''}</span><span class="ho-mf"><i class="ho-fd f-${pvFresh(cur.ageH,cur.L.time).c}"></i>${pvFresh(cur.ageH,cur.L.time).t} · à ${Math.round(cur.km)} km · mesure réelle, pas la taille au spot</span></a>`:''}
+    <button type="button" class="ho-go" id="hoGo">Voir la prévision complète ${pvI('go')}</button></div>`;
+  homeSpotNums(s);
+  document.getElementById('hoBk').onclick=()=>{ HOME.view='home'; HOME.sel=null; HOME.ref=null; homeRef(); homePanel(); homeMarks(); homeFit(); };
+  document.getElementById('hoFv').onclick=e=>{ const on=!state.fav.includes(s.n); state.fav=on?[...state.fav,s.n]:state.fav.filter(x=>x!==s.n); saveFav(); const b=e.currentTarget; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.setAttribute('aria-label',on?'Retirer de mes spots':'Ajouter à mes spots'); homeMarks(); };
+  document.getElementById('hoGo').onclick=()=>{ const t=HOME.T[HOME.ti], di=d.days.findIndex(x=>x.date===t.slice(0,10)); homeClose(); go(s.i); if(!homeIsNow()&&di>0){ state.day=di; render(); state.hour=+t.slice(11,13); updateLive(); } };
+  B.querySelectorAll('.ho-wk [data-d]').forEach(b=>b.onclick=()=>{ const i=HOME.T.findIndex(t=>t.startsWith(b.dataset.d+'T12')), j=i>=0?i:HOME.T.findIndex(t=>t.startsWith(b.dataset.d)); if(j>=0){ homePlay(false); homeSetTime(j); } });
+  { const m=document.getElementById('hoMs'); if(m&&cur) m.onclick=e=>{ e.preventDefault(); const b=HOME.bu.find(x=>x.id===cur.key)||HOME.bu.find(x=>x.n===cur.name); if(b) homeBuoy(b); }; }
+}
+function homeSpotNums(s){
+  const N=document.getElementById('hoNums'); if(!N) return; const h=homeHour(s), t=HOME.T[HOME.ti];
+  document.querySelectorAll('#hoBody .ho-wk [data-d]').forEach(b=>b.classList.toggle('on',b.dataset.d===t.slice(0,10)));
+  if(!h){ N.innerHTML='<p class="ho-note">Pas de prévision pour cette heure.</p>'; return; }
+  N.innerHTML=`<p class="ho-when">${homeIsNow()?'<i class="ho-nd"></i>Maintenant':homeTimeLabel(t)} · prévision</p>
+    <div class="ho-nums"><div><small>${pvI('wave')}Houle</small><b>${h.H!=null?hmF(h.H):'—'}<u>m</u></b><span>${h.T?Math.round(h.T)+' s':''}${h.D!=null?pvDir(h.D):''}</span></div>
+    <div><small>${pvI('wind')}Vent</small><b>${h.v!=null?Math.round(h.v):'—'}<u>km/h</u></b><span>${h.wd!=null?pvDir(h.wd):''}${h.gust!=null?`<em>raf. ${Math.round(h.gust)}</em>`:''}</span>${h.wind?`<span class="ho-or" style="color:${pvWindCol(h.wind)}"><i class="pv-wdot" style="background:${pvWindCol(h.wind)}"></i>${windWord[h.wind]}</span>`:''}</div></div>`;
 }
 function homeBuoy(b){
-  homeClear(); homeTopBtn(); const e=HOME.bms[b.id]; if(e) e.getElement().querySelector('.hm-bu').classList.add('on');
-  const L=b.L, P=document.getElementById('hmPanel'), ageH=(new Date()-new Date(L.time+':00'))/36e5;
-  if(innerWidth<760){
-    const link=`bouees/${slugOf(b.n)}/`;
-    P.innerHTML=`<div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<span class="nm">Bouée ${b.n}</span></div><div class="hmb-chips"><button type="button" id="hmBk">← Toute la côte</button></div></div>
-      <${link?'a':'div'} class="hmb-pill${link?'':' off'}"${link?` href="${link}"`:''}><span class="bd" style="background:linear-gradient(135deg,#f6e6bf,#e0bd7a)">${hmF(L.hs)}</span><span class="t"><b>Bouée ${b.n}</b><span><i></i>Mesure réelle · ${ageTxt(ageH)}${L.tp?' · '+String(L.tp).replace('.',',')+' s':''}</span></span><span class="rd">${HM_ICON.go}</span></${link?'a':'div'}>`;
-    document.getElementById('hmBk').onclick=()=>{ homeClear(); homeHomePanel(); homeFit(); homeDeclutter(); };
-  } else {
-    const link=`bouees/${slugOf(b.n)}/`, tp=L.tp?`Période ${String(L.tp).replace('.',',')} s · `:'', dr=L.dir!=null?`Direction ${hmDn(L.dir)} · `:'', sst=L.sst!=null?`Eau ${String(L.sst).replace('.',',')} °C · `:'';
-    { const hm=document.getElementById('home'); if(HOME.colTop) hm.style.setProperty('--coltop',HOME.colTop+'px'); hm.classList.add('hm-sel'); } HOME.popAt=[b.lon,b.lat];
-    P.innerHTML=`<div class="hmb-col"><div class="hmb-top"><div class="hmb-srch">${HM_ICON.srch}<span class="nm">Bouée ${b.n}</span></div><div class="hmb-chips"><button type="button" id="hmBk">← Toute la côte</button></div></div></div>
-      <div class="hmb-dcard"><div class="hd"><span class="bd" style="background:linear-gradient(135deg,#f6e6bf,#e0bd7a)">${hmF(L.hs)}</span><div><h3>Bouée ${b.n}</h3><div class="sub">${b.sub}</div></div></div>
-       <div class="nums"><div class="m${ageH>6?' old':''}"><small><i class="dt"></i>Hauteur mesurée</small><b>${hmF(L.hs)}<i> m</i></b></div>${L.hmax!=null?`<div class="a"><small>Vague max</small><b>${hmF(L.hmax)}<i> m</i></b></div>`:''}</div>
-       <p class="cmp"><b>${tp}${dr}${sst}${ageTxt(ageH)}.</b> <span>Cette bouée mesure la mer en continu. Ce n’est pas la taille des vagues sur un spot précis.</span></p>
-       ${link?`<a class="go" href="${link}">Voir la page de la bouée ${HM_ICON.go}</a>`:''}</div>`;
-    document.getElementById('hmBk').onclick=()=>{ homeClear(); homeHomePanel(); homeFit(); homeDeclutter(); };
-    homePlacePop();
-  }
-  if(HOME.map){ const mob=innerWidth<760; HOME.map.easeTo({center:[b.lon-(mob?0:.5),b.lat],zoom:9,pitch:0,duration:1000,offset:mob?[0,30]:[0,0]}); }
+  if(!b) return; homeClearQ(); HOME.view='buoy'; HOME.selB=b; HOME.sel=null; HOME.ref=null; homeRef(); homePanel(); homeMarks();
+  if(innerWidth<760) homeSnap('mid');
+  if(HOME.map) HOME.map.easeTo({center:[b.lon,b.lat],zoom:Math.max(HOME.map.getZoom(),8.5),padding:homePad(60),duration:900});
 }
+function homeBuoyPanel(b){
+  const B=document.getElementById('hoBody'), L=b.L, a=hoAge(L), f=pvFresh(a,L.time);
+  B.innerHTML=`<div class="ho-sec ho-spot ho-buoy"><div class="ho-sp-hd"><button type="button" class="ho-bk" id="hoBk">${HO_I.back}<span>Toute la côte</span></button></div>
+    <p class="ho-gk">${pvI('buoy')}${b.coast?'Bouée côtière':'Bouée du large'}</p><h2 class="ho-sp-n">${b.n}</h2><p class="ho-sp-r">${b.sub}</p>
+    <div class="ho-gold"><div class="ho-gt"><span class="ho-fp f-${f.c}"><i class="ho-fd f-${f.c}"></i>${f.t}</span><span>Mesure réelle</span></div>
+      <b class="ho-gv">${hmF(L.hs)}<u>m</u></b>
+      <dl>${L.tp||L.tm?`<div><dt>${pvI('period')}${L.tp?'Période':'Période moy.'}</dt><dd>${Math.round(L.tp||L.tm)} s</dd></div>`:''}${L.dir!=null?`<div><dt>${pvI('dir')}Direction</dt><dd>${pvDir(L.dir)}</dd></div>`:''}${L.sst!=null?`<div><dt>${pvI('temp')}Eau</dt><dd>${hmF(L.sst)} °C</dd></div>`:''}${L.hmax!=null?`<div><dt>${pvI('wave')}Vague max</dt><dd>${hmF(L.hmax)} m</dd></div>`:''}</dl></div>
+    <p class="ho-note">Hauteur de la houle à la bouée${b.coast?', près de la côte':', au large'}. Ce n’est pas la taille des vagues sur un spot.${homeIsNow()?'':' La frise des prévisions ne change pas cette mesure.'}</p>
+    <a class="ho-go" href="bouees/${slugOf(b.n)}/">Page de la bouée ${pvI('go')}</a></div>`;
+  document.getElementById('hoBk').onclick=()=>{ HOME.view='home'; HOME.selB=null; homePanel(); homeMarks(); homeFit(); };
+}
+function homeGeo(btn){
+  btn.classList.add('wait');
+  const fail=m=>{ btn.classList.remove('wait'); const t=document.getElementById('hoTip'); btn.title=m; btn.classList.add('err'); setTimeout(()=>{ btn.classList.remove('err'); btn.title='Spots près de moi'; },2600); };
+  if(!navigator.geolocation) return fail('Position indisponible');
+  navigator.geolocation.getCurrentPosition(pos=>{ btn.classList.remove('wait');
+    const la=pos.coords.latitude, lo=pos.coords.longitude, k=Math.cos(la*Math.PI/180), d=s=>Math.hypot((s.lat-la)*111,(s.lon-lo)*111*k);
+    const near=[...HOME.data].sort((a,b)=>d(a)-d(b)).slice(0,6); if(!near.length||d(near[0])>150) return fail('Aucun spot à moins de 150 km');
+    HOME.reg='Tous'; HOME.view='search'; HOME.q=''; homeNear(near,d); },()=>fail('Position refusée ou indisponible'),{timeout:8000,maximumAge:600000});
+}
+function homeNear(near,d){
+  const B=document.getElementById('hoBody'), v=HOME.v; HOME.view='near'; document.getElementById('home').dataset.view='near';
+  B.innerHTML=`<div class="ho-sec"><div class="ho-sp-hd"><button type="button" class="ho-bk" id="hoBk">${HO_I.back}<span>Toute la côte</span></button></div><div class="ho-sh"><h2>${HO_I.loc}Près de vous</h2><span>${homeIsNow()?'maintenant':homeTimeLabel(HOME.T[HOME.ti],true)}</span></div>
+    <div class="ho-rl">${near.map(s=>{ const h=homeHour(s), x=homeVal(h,v); return `<button type="button" class="ho-it" data-i="${s.i}"><span class="ho-pill" style="${x==null?'':pvCellCss(x,v)}">${x==null?'—':homeTxt(x,v)}</span><span class="ho-rn"><b>${s.n}</b><small>${Math.round(d(s))} km · ${s.r}</small></span></button>`; }).join('')}</div></div>`;
+  B.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>homeSpot(HOME.data.find(s=>s.i===+b.dataset.i),true));
+  document.getElementById('hoBk').onclick=()=>{ HOME.view='home'; homePanel(); homeFit(); };
+  if(innerWidth<760) homeSnap('mid');
+  if(HOME.map){ const lo=near.reduce((a,s)=>[Math.min(a[0],s.lon),Math.min(a[1],s.lat),Math.max(a[2],s.lon),Math.max(a[3],s.lat)],[999,99,-999,-99]); HOME.map.fitBounds([[lo[0],lo[1]],[lo[2],lo[3]]],{padding:homePad(60),maxZoom:10.5,duration:900}); }
+}
+
 document.addEventListener('click',e=>{ const a=e.target.closest&&e.target.closest('.hero .brand'); if(a&&state.data){ e.preventDefault(); homeOpen(true); } });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&HOME.on) homeClose(); });
 if(window.visualViewport){ const vv=()=>document.documentElement.style.setProperty('--hmvh',visualViewport.height+'px'); visualViewport.addEventListener('resize',vv); visualViewport.addEventListener('scroll',vv); vv(); }
-addEventListener('resize',()=>{ if(!HOME.on||!HOME.map) return; clearTimeout(HOME.rt); HOME.rt=setTimeout(()=>{ HOME.map.resize(); if(!document.querySelector('#home .hm-card')) homeFit(); },200); });
+addEventListener('resize',()=>{ if(!HOME.on) return; homePlaceTime(); if(!HOME.map) return; clearTimeout(HOME.rt); HOME.rt=setTimeout(()=>{ HOME.map.resize(); homeCluster(); },200); });
 
 async function start(){
   oceanInit();

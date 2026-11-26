@@ -216,3 +216,10 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
 - Haut de page : `data-sky` (aube, jour, crépuscule, nuit) selon l'heure de Paris et le soleil du spot (`pvSky`), très léger.
 - Pages générées (`seo.py`, `bouees.py`, `pages.py`) : même identité (bande nuit marine, sable, Unbounded + Manrope).
 - Repères : tags `avant-finition-ocean`, `avant-retouches-ocean`, `avant-finition-mobile`.
+
+## Accueil Premium Ocean (branche `accueil-ocean`, 26/11/2026, PAS publiée ; repère `avant-accueil-ocean`)
+- Module réécrit dans `web/index.html` (bloc « ACCUEIL « PREMIUM OCEAN » », classes `ho-` ; l'ancien CSS `hm-`/`hmb-` reste mais ne sert plus, à nettoyer). Points d'entrée gardés : `homeOpen`, `homeClose`, `homeWanted`, `HOME.on`, `#hmClose`, `#hmMap`, `homeLoadLib` (aussi utilisé par la carte des pages de prévisions).
+- Carte : positron recoloré par `homeMapTheme` (mer #B4CCD8, terre sable #ECE5D5, noms secondaires masqués, pays en capitales discrètes). Marqueurs = échelle `PV_PAL.a` du tableau (`pvCellCss`). Regroupement à l'écran (`homeCluster`, au `moveend`) ; le spot choisi n'est jamais regroupé. Bouées bleu nuit et or, vert animé seulement < 1 h, pastille seule et effacée si elle tombe sur un spot en vue large (zoom < 7,3).
+- Donnée affichée : houle / période / vent (`HOME.v`, `localStorage.hoVar`) ; bouées masquables (`hoBu`). Frise des heures à venir (`HOME.T`, prévisions DÉJÀ chargées : aucun appel en plus), lecture automatique par pas de 3 h. Les bouées restent la mesure actuelle (grisées et signalées quand l'heure choisie est dans le futur).
+- Première vue : côte française ; « Toute la côte » reste le filtre. Fiche spot dans le panneau (houle, vent, orientation, 7 jours en barres, bouée de référence `pickBuoy` en doré, « Voir la prévision complète » ouvre le jour et l'heure choisis). Le trait vers la bouée est une couche MapLibre (`ho-ref`) : plus de boucle d'animation canvas.
+- Téléphone (< 760 px) : panneau inférieur à trois crans (`data-snap` peek/mid/full, glisser l'en-tête ou toucher la poignée), frise dans l'en-tête du panneau, outils en haut, recherche masquée quand une fiche est ouverte.
