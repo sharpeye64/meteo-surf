@@ -2311,7 +2311,7 @@ html[data-da="a"] .pv-pick{background:rgba(243,239,230,.07);color:#F3EFE6;box-sh
 html[data-da="a"] .pv-pick small,html[data-da="a"] .pv-pick>svg{color:rgba(243,239,230,.5)}
 html[data-da="a"] .pv-ib{background:rgba(243,239,230,.07);color:#F3EFE6;box-shadow:inset 0 0 0 1px rgba(243,239,230,.14)}
 html[data-da="a"] .pv-fav[aria-pressed="true"]{background:#F3EFE6;color:#0B1B26}
-html[data-da="a"] .pv-hero{padding-top:46px;padding-bottom:34px;align-items:flex-end}
+html[data-da="a"] .pv-hero{padding-top:46px;padding-bottom:34px}
 html[data-da="a"] .pv-hero h1{color:#F3EFE6;font-weight:800;font-size:clamp(46px,7.4vw,112px);letter-spacing:-.06em;line-height:.92}
 html[data-da="a"] .pv-meta{color:rgba(243,239,230,.6);margin-top:18px}
 html[data-da="a"] .pv-meta>*+*:before{color:rgba(243,239,230,.35)}
@@ -2637,6 +2637,137 @@ html[data-da="b"] .pv-top{border-bottom:0;background:linear-gradient(var(--pv-in
 html[data-da="b"] .pv-sh{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 22px}
 html[data-da="b"] .pv-sh h2{flex:1 1 auto}
 @media (prefers-reduced-motion:reduce){ .pv-tick,.pv-grid,.pv-chart,.pv-deco svg,.pv-live{animation:none!important} html[data-da] .pv-day:hover,html[data-da] .pv-cl:hover{transform:none} }
+/* =====================================================================================================
+   FINITIONS (26/11/2026) — micro-icônes, fraîcheur des mesures, directions, unités, survols. Valables pour A, B, C.
+   ===================================================================================================== */
+.pv-i{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px}
+.pv-k{display:flex;align-items:center;gap:7px}
+.pv-k .pv-i{width:15px;height:15px;opacity:.75}
+.pv-k .pv-kt{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.pv-k .pv-fresh{margin-left:auto}
+.pv-s{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+.pv-mt{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.pv-mt .pv-i{opacity:.6}
+.pv-mt b,.pv-gst b{font-weight:800}
+.pv-mt u,.pv-gst u{text-decoration:none;font-size:.8em;font-weight:700;opacity:.65;margin-left:2px}
+.pv-dir{display:inline-flex;align-items:center;gap:6px;font-weight:800;white-space:nowrap;letter-spacing:.02em}
+.pv-dir i{display:grid;place-items:center;width:19px;height:19px;border-radius:50%;box-shadow:inset 0 0 0 1.3px currentColor}
+.pv-dir svg{width:9px;height:9px;fill:currentColor;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.pv-ww{font-weight:700}
+/* fraîcheur des mesures */
+.pv-fresh{word-spacing:.12em;display:inline-flex;align-items:center;gap:7px;padding:3px 10px 3px 8px;border-radius:999px;font:700 11.5px Manrope,system-ui,sans-serif;letter-spacing:0;text-transform:none;white-space:nowrap;background:color-mix(in srgb,currentColor 11%,transparent)}
+.pv-fresh i{position:relative;width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.pv-fresh.live{color:#12925A}
+.pv-fresh.live i:after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1.5px solid currentColor;animation:pvRing 2.2s ease-out infinite}
+@keyframes pvRing{0%{transform:scale(.45);opacity:.95}100%{transform:scale(1.7);opacity:0}}
+.pv-fresh.recent{color:#4F6270}
+.pv-fresh.old{color:#8A867C}
+.pv-fresh.old i{background:none;box-shadow:inset 0 0 0 1.5px currentColor}
+.pv-fresh.off{color:#B0563A}
+.pv-fresh.off i{background:none;box-shadow:inset 0 0 0 1.5px currentColor}
+.pv-upd{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font:600 12px Manrope,system-ui,sans-serif;color:var(--pv-ink3);letter-spacing:0;text-transform:none}
+.pv-upd .pv-i{width:13px;height:13px;opacity:.7}
+.pv-upd~.pv-nowb{margin-left:16px}
+.pv-meta .pv-i{width:14px;height:14px;margin-right:5px;opacity:.6}
+.pv-lab span{display:flex;align-items:center;gap:6px}
+.pv-lab .pv-i{width:14px;height:14px;opacity:.5}
+/* mesures en mer */
+.pv-gk{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.pv-gk .pv-i{width:18px;height:18px}
+.pv-gsub{margin:6px 0 0;font:600 12.5px Manrope,system-ui,sans-serif;color:var(--pv-gold-ink);opacity:.75}
+.pv-gsts{display:flex;flex-wrap:wrap;gap:14px 30px;margin:20px 0 0}
+.pv-gst dt{display:flex;align-items:center;gap:6px;font:800 10.5px Manrope,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;opacity:.65}
+.pv-gst dt .pv-i{width:13px;height:13px}
+.pv-gst dd{margin:6px 0 0;font:800 19px Manrope,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.pv-gst .pv-dir i{width:21px;height:21px}
+.pv-ga{display:inline-flex;align-items:center;gap:6px}
+.pv-ga .pv-i{transition:transform .2s}
+.pv-ga:hover .pv-i{transform:translateX(3px)}
+.pv-goldc{--pv-bline:#B48A3C}
+.pv-bleg{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;margin:0 0 14px 40px;font:700 12px Manrope,system-ui,sans-serif;color:var(--pv-gold-ink)}
+.pv-bleg span:not(.pv-bmax):before{content:"";display:inline-block;width:16px;height:2.5px;border-radius:2px;margin-right:7px;vertical-align:middle}
+.pv-bleg .o:before{background:var(--pv-bline)}
+.pv-bleg .f:before{background:repeating-linear-gradient(90deg,currentColor 0 4px,transparent 4px 7px);opacity:.6}
+.pv-bmax{margin-left:auto;font-weight:600;opacity:.85}
+.pv-bmax b{font-weight:800}
+.pv-b-o{stroke:var(--pv-bline)!important}
+.pv-bdot{border-color:var(--pv-bline)!important}
+.pv-bsel button.lv:after{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#12925A;margin-left:6px;vertical-align:2px}
+/* onglets : soulignement qui glisse */
+.pv-tabs button{position:relative;border-bottom-color:transparent!important}
+.pv-tabs button:after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;border-radius:2px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.pv-tabs button:hover:after{transform:scaleX(.3)}
+.pv-tabs button[aria-pressed="true"]:after{transform:scaleX(1)}
+.pv-tbtn{transition:color .15s,border-color .2s}
+/* tableau : la colonne survolée se soulève d'un bloc */
+html[data-da] .pv-cl:hover{transform:none}
+.pv-grid .hov:is(.pv-wv,.pv-pe,.pv-wi){transform:translateY(-2px);filter:saturate(1.08) brightness(1.03)}
+.pv-grid .pv-hh.hov{color:var(--pv-ink)}
+.pv-cl{transition:transform .2s cubic-bezier(.2,.8,.2,1),filter .2s}
+.pv :focus-visible,.pv-band :focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:10px}
+/* spots alentour */
+.pv-nhd2{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:10px 14px 6px}
+.pv-nhd2 .pv-nwhen{margin:0}
+.pv-nhd2>span{font:700 10.5px Manrope,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--pv-ink3)}
+.pv-nn small .pv-i{width:12px;height:12px;margin-right:3px;opacity:.6}
+.pv-nv>small{display:inline-flex;align-items:center;gap:4px}
+.pv-nv>small .pv-i{width:12px;height:12px;opacity:.6}
+.pv-ngo{display:grid;place-items:center;width:22px;flex:none;color:var(--pv-ink3);opacity:0;transform:translateX(-5px);transition:opacity .18s,transform .22s cubic-bezier(.2,.8,.2,1)}
+.pv-ngo .pv-i{width:16px;height:16px}
+.pv-nr:hover .pv-ngo,.pv-nr.hl .pv-ngo,.pv-ng:focus-visible .pv-ngo{opacity:1;transform:none}
+.pv-sort select{border-bottom:1.5px solid transparent;transition:border-color .15s}
+.pv-sort select:hover{border-bottom-color:currentColor}
+/* fiabilité */
+.pv-rs{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.pv-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 11px 4px 9px;border-radius:999px;background:color-mix(in srgb,var(--pv-ink) 6%,transparent);font:700 12px Manrope,system-ui,sans-serif;color:var(--pv-ink2);font-style:normal}
+.pv-chip .pv-i{width:13px;height:13px;opacity:.7}
+.pv-agr{display:inline-flex;align-items:center;gap:3px;font:700 12.5px Manrope,system-ui,sans-serif;color:var(--pv-ink2);font-style:normal}
+.pv-agr i{width:6px;height:6px;border-radius:50%;background:color-mix(in srgb,var(--pv-ink) 18%,transparent)}
+.pv-agr i:nth-child(3){margin-right:6px}
+.pv-agr.l3 i,.pv-agr.l2 i:nth-child(-n+2),.pv-agr.l1 i:first-child{background:var(--pv-ink2)}
+.pv-strk .pv-ret{position:absolute;top:-6px;bottom:-6px;width:2.5px;margin-left:-1.25px;border-radius:2px;background:var(--pv-ink)}
+.pv-md{transition:transform .2s}
+.pv-md:hover{transform:scale(1.35)}
+.pv-sax{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:9px;font:600 11.5px Manrope,system-ui,sans-serif;color:var(--pv-ink3);font-variant-numeric:tabular-nums}
+.pv-sleg{display:inline-flex;align-items:center;gap:6px}
+.pv-sleg .pv-mdk{width:8px;height:8px;border-radius:50%;border:2px solid var(--pv-ink)}
+.pv-sleg .pv-retk{width:2.5px;height:11px;border-radius:2px;background:var(--pv-ink);margin-left:10px}
+.pv-more summary{transition:color .15s}
+/* direction A : sur le bleu nuit, les états se lisent en clair */
+html[data-da="a"] :is(.pv-head2,.pv-goldc) .pv-fresh.live{color:#4BE3A4}
+html[data-da="a"] :is(.pv-head2,.pv-goldc) .pv-fresh:is(.recent,.old){color:rgba(243,239,230,.72)}
+html[data-da="a"] .pv-upd{color:rgba(243,239,230,.55)}
+html[data-da="a"] .pv-goldc{--pv-bline:#F2C66B}
+html[data-da="a"] .pv-gsub{color:rgba(243,239,230,.55);opacity:1}
+html[data-da="a"] .pv-gst dd{color:#F3EFE6}
+html[data-da="a"] .pv-gst dt{color:#E6B95E;opacity:.85}
+html[data-da="a"] .pv-bleg{color:rgba(243,239,230,.7)}
+html[data-da="a"] .pv-head2 .pv-mt .pv-i{opacity:.55}
+/* direction B : encre sur papier */
+html[data-da="b"] .pv-goldc{--pv-bline:#111A20}
+html[data-da="b"] .pv-gsub,html[data-da="b"] .pv-bleg{color:#4E3A10}
+html[data-da="b"] .pv-gst dd{color:#111A20}
+html[data-da="b"] .pv-gst dt{color:#4E3A10}
+html[data-da="b"] .pv-fresh.live{color:#0E7F4C}
+/* direction C : mono, et vert foncé lisible sur l'or */
+html[data-da="c"] .pv-goldc{--pv-bline:#0E1418}
+html[data-da="c"] :is(.pv-fresh,.pv-upd,.pv-gst dt,.pv-gsub,.pv-bleg,.pv-chip,.pv-agr,.pv-sax,.pv-nhd2>span){font-family:'JetBrains Mono',ui-monospace,monospace}
+html[data-da="c"] .pv-gold .pv-fresh.live,html[data-da="c"] .pv-goldc .pv-fresh.live{color:#0B5E37}
+html[data-da="c"] :is(.pv-gold,.pv-goldc) .pv-fresh{background:rgba(14,20,24,.1)}
+html[data-da="c"] .pv-gsub,html[data-da="c"] .pv-bleg,html[data-da="c"] .pv-gst dt{color:#3D2B06}
+html[data-da="c"] .pv-gst dd{color:#0E1418}
+html[data-da="c"] .pv-bh .pv-mt .pv-i,html[data-da="c"] .pv-bh .pv-k .pv-i{opacity:.6}
+@media (max-width:640px){
+  .pv-lab .pv-i,.pv-upd{display:none}
+  .pv-k .pv-fresh{padding:2px 8px 2px 6px;font-size:10.5px}
+  .pv-s{gap:5px 10px}
+  .pv-gsts{gap:12px 22px}
+  .pv-gst dd{font-size:17px}
+  .pv-bleg{margin-left:0}
+  .pv-nhd2>span{display:none}
+  .pv-ngo{display:none}
+}
+@media (prefers-reduced-motion:reduce){ .pv-fresh.live i:after{animation:none;display:none} .pv-tabs button:after,.pv-cl,.pv-ngo,.pv-dir svg{transition:none} }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -4082,11 +4213,10 @@ function pvObsCell(s){
   try{
     const cur=pickBuoy(buoyChoices(s)); if(!cur) return '';
     const L=cur.L, a=cur.ageH, per=L.tp||cur.Tm;
-    const when=a>=48?`aucune mesure depuis le ${dmy(L.time)}`:a<1?'à l’instant':ageTxt(a);
     return `<a class="pv-b pv-gold${a>6?' old':''}" href="#sRadar" title="Mesure réelle de la bouée ${cur.name} (${cur.kind==='coast'?'près de la côte':'au large'}). Ce n’est pas la taille des vagues sur le spot.">
-      <div class="pv-k">${a<2?'<i class="pv-live"></i>':''}Bouée ${cur.name}</div>
+      <div class="pv-k">${pvI('buoy')}<span class="pv-kt">Bouée ${cur.name}</span>${pvFreshHtml(a,L.time)}</div>
       <div class="pv-gw"><div class="pv-v">${fmt(L.hs)}<small>m</small></div>${pvSparkObs(cur)}</div>
-      <div class="pv-s">${per?`${L.tp?'':'≈ '}${Math.round(per)} s`:''}${L.dir!=null?` · ${pvArr(L.dir)}${sector(L.dir)}`:''} · ${when}</div></a>`;
+      <div class="pv-s">${per?`<span class="pv-mt">${pvI('period')}${pvNum((L.tp?'':'≈ ')+Math.round(per),'s')}</span>`:''}${L.dir!=null?pvDir(L.dir):''}${L.sst!=null?`<span class="pv-mt">${pvI('temp')}${pvNum(fmt(L.sst),'°C')}</span>`:''}</div></a>`;
   }catch(e){ return ''; }
 }
 
@@ -4114,7 +4244,7 @@ function pvTable(day,hrs){
   const rise=day.sun?hDec(day.sun.rise):8, set=day.sun?hDec(day.sun.set):18, n=hrs.length;
   const liveH=state.live&&state.day===0?Math.round(state.liveHour):null, cf=state.coef&&state.coef[day.date];
   const L=(row,txt,unit,cls)=>`<div class="pv-lab${cls?' '+cls:''}" style="grid-row:${row}"><span>${txt}</span>${unit?`<small>${unit}</small>`:''}</div>`;
-  let c=L(1,'')+L(2,'Vagues','m')+L(3,'Période','s')+L(4,'Accord','')+L(5,'Vent','km/h')+L(6,'Marée',cf&&cf.length?'coef '+Math.max(...cf):'');
+  let c=L(1,'')+L(2,pvI('wave')+'Vagues','m')+L(3,pvI('period')+'Période','s')+L(4,pvI('models')+'Accord','')+L(5,pvI('wind')+'Vent','km/h')+L(6,pvI('tide')+'Marée',cf&&cf.length?'coef '+Math.max(...cf):'');
   hrs.forEach((h,i)=>{
     const col=i+2, nt=(h.hour<Math.floor(rise)||h.hour>Math.floor(set))?' pv-night':'', at=r=>`data-h="${h.hour}" style="grid-column:${col};grid-row:${r}`;
     const tag=h.hour===liveH?'<i class="pv-hn">maint.</i>':h.hour===Math.floor(rise)?'<i>lever</i>':h.hour===Math.floor(set)?'<i>coucher</i>':'';
@@ -4206,10 +4336,11 @@ function pvBuoyChart(obs,fc,label){
   const t0=new Date(obs[0].t).getTime(), t1=new Date(obs[obs.length-1].t).getTime(), span=Math.round((t1-t0)/36e5);
   const X=t=>((new Date(t).getTime()-t0)/(t1-t0||1)*1000).toFixed(1), Y=v=>(150-(v/top)*138).toFixed(1);
   const P=a=>a.map((o,i)=>(i?'L':'M')+X(o.t)+' '+Y(o.hs)).join('');
-  const ly=+Y(obs[obs.length-1].hs);
-  return `<div class="pv-bch"><div class="pv-bys"><span style="top:${(+Y(top)/152*100).toFixed(1)}%">${fmt(top)} m</span><span style="top:${(150/152*100).toFixed(1)}%">0</span></div>
-    <div class="pv-bpl"><svg viewBox="0 0 1000 152" preserveAspectRatio="none" role="img" aria-label="Hauteur mesurée par la bouée sur ${span} heures, comparée à la prévision"><line class="pv-b-g" x1="0" x2="1000" y1="${Y(top/2)}" y2="${Y(top/2)}"/><path class="pv-b-a" d="${P(obs)}L1000 150L0 150Z"/>${fc.length>1?`<path class="pv-b-f" d="${P(fc)}"/>`:''}<path class="pv-b-o" d="${P(obs)}"/></svg><span class="pv-bdot" style="top:${(ly/152*100).toFixed(1)}%"></span></div></div>
-    <div class="pv-bx"><span>il y a ${span} h</span><span><i class="o"></i>mesuré · <i class="f"></i>${label}</span><span>maintenant</span></div>`;
+  const last=obs[obs.length-1], ly=+Y(last.hs), mx=obs.reduce((a,o)=>o.hs>a.hs?o:a,obs[0]);
+  return `<div class="pv-bleg"><span class="o">Mesuré</span>${fc.length>1?`<span class="f">${label}</span>`:''}<span class="pv-bmax">max ${span} h : <b>${fmt(mx.hs)} m</b></span></div>
+    <div class="pv-bch"><div class="pv-bys"><span style="top:${(+Y(top)/152*100).toFixed(1)}%">${fmt(top)}</span><span style="top:${(+Y(top/2)/152*100).toFixed(1)}%">${fmt(top/2)}</span><span style="top:${(150/152*100).toFixed(1)}%">0 m</span></div>
+    <div class="pv-bpl"><svg viewBox="0 0 1000 152" preserveAspectRatio="none" role="img" aria-label="Hauteur mesurée par la bouée sur ${span} heures, comparée à la prévision"><line class="pv-b-g" x1="0" x2="1000" y1="${Y(top)}" y2="${Y(top)}"/><line class="pv-b-g" x1="0" x2="1000" y1="${Y(top/2)}" y2="${Y(top/2)}"/><path class="pv-b-a" d="${P(obs)}L1000 150L0 150Z"/>${fc.length>1?`<path class="pv-b-f" d="${P(fc)}"/>`:''}<path class="pv-b-o" d="${P(obs)}"/></svg><span class="pv-bdot" style="top:${(ly/152*100).toFixed(1)}%"></span></div></div>
+    <div class="pv-bx"><span>−${span} h</span><span>−${Math.round(span/2)} h</span><span>${last.t.slice(11,16).replace(':','h')}</span></div>`;
 }
 function radarHtml(s){
   const list=buoyChoices(s), cur=pickBuoy(list); if(!cur) return '';
@@ -4217,23 +4348,24 @@ function radarHtml(s){
   let obs=cur.obs, fc, fLabel;
   if(cur.kind==='coast'){
     const d=state.data[state.spot], byT={}; d.hours.forEach(h=>{ if(h.H!=null) byT[h.time.slice(0,13)]=h.H; });
-    fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null); fLabel=`prévu à ${s.name}`;
+    fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null); fLabel=`Prévu à ${s.name}`;
   } else {
     const byT={}; (cur.model||[]).forEach(m=>byT[m.t.slice(0,13)]=m.hs);
-    fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null); fLabel='prévu à la bouée';
+    fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null); fLabel='Prévu à la bouée';
   }
-  const a=cur.ageH, fr=a<1?'à l’instant':a<6?ageTxt(a):a>=48?`aucune mesure depuis le ${dmy(L.time)}`:stampTxt(L.time);
-  const tog=list.length>1?`<div class="pv-tabs pv-bsel" role="group" aria-label="Choisir la bouée">${list.map(o=>`<button type="button" data-rv="${o.key}" aria-pressed="${o.key===cur.key}">${o.name}</button>`).join('')}</div>`:'';
-  const per=L.tp?`${Math.round(L.tp)} s`:(Tm?`≈ ${Math.round(Tm)} s`:null);
+  const tog=list.length>1?`<div class="pv-tabs pv-bsel" role="group" aria-label="Choisir la bouée">${list.map(o=>`<button type="button" data-rv="${o.key}" aria-pressed="${o.key===cur.key}"${o.ageH<1?' class="lv"':''}>${o.name}</button>`).join('')}</div>`:'';
+  const per=L.tp?Math.round(L.tp):(Tm?Math.round(Tm):null);
+  const st=(ic,lab,val)=>`<div class="pv-gst"><dt>${pvI(ic)}${lab}</dt><dd>${val}</dd></div>`;
   return `<section class="pv-sec radar" id="sRadar" aria-labelledby="sRadarT">
     <div class="pv-sh"><h2 id="sRadarT"><span class="pv-no">02</span>Mesure en mer</h2>${tog}</div>
     <div class="pv-goldc">
       <div class="pv-gl">
-        <div class="pv-gk">${a<2?'<i class="pv-live"></i>':''}Bouée ${cur.name} <span>${cur.sub}</span></div>
+        <div class="pv-gk">${pvI('buoy')}<span>Bouée ${cur.name}</span>${pvFreshHtml(cur.ageH,L.time)}</div>
+        <p class="pv-gsub">${cur.kind==='coast'?'Bouée côtière':'Bouée du large'} · ${cur.sub.replace(/^au large, /,'')}</p>
         <div class="pv-gv">${fmt(L.hs)}<small>m</small></div>
-        <div class="pv-gs">${[per,L.dir!=null?pvArr(L.dir)+sector(L.dir):null,L.sst!=null?`eau ${fmt(L.sst)} °C`:null,fr].filter(Boolean).join('<span class="pv-dot"></span>')}</div>
+        <dl class="pv-gsts">${st('period',L.tp?'Période':'Période est.',per!=null?pvNum((L.tp?'':'≈ ')+per,'s'):'—')}${st('wind','Vient du',L.dir!=null?pvDir(L.dir):'—')}${st('temp','Eau',L.sst!=null?pvNum(fmt(L.sst),'°C'):'—')}</dl>
         <p class="pv-gn">Hauteur de la houle ${cur.kind==='coast'?'à la bouée, près de la côte':'au large'} : ce n’est pas la taille des vagues sur le spot.</p>
-        <a class="pv-ga" href="bouees/${slugOf(cur.name)}/">Page de la bouée →</a>
+        <a class="pv-ga" href="bouees/${slugOf(cur.name)}/">Page de la bouée ${pvI('go')}</a>
       </div>
       <div class="pv-gr">${pvBuoyChart(obs,fc,fLabel)}</div>
     </div>
@@ -4249,7 +4381,7 @@ function pvNearRows(){
   if(PV.sort==='H') rows.sort((a,b)=>((b.h&&b.h.H)??-1)-((a.h&&a.h.H)??-1));
   else if(PV.sort==='v') rows.sort((a,b)=>((a.h&&a.h.v)??999)-((b.h&&b.h.v)??999));
   return rows.map(o=>{ const x=state.data[o.i].spot, h=o.h, on=PV.cmp.includes(o.i);
-    return `<div class="pv-nr" data-i="${o.i}">${PV.cmpOn?`<button type="button" class="pv-nc" data-c="${o.i}" aria-pressed="${on}" aria-label="${on?'Retirer de':'Ajouter à'} la comparaison : ${x.name}"><i></i></button>`:''}<button type="button" class="pv-ng" data-i="${o.i}"><span class="pv-nn"><b>${x.name}</b><small>${o.km<1?'< 1':Math.round(o.km)} km · ${x.commune}</small></span><span class="pv-nv"><b>${h&&h.H!=null?fmt(h.H):'—'}<small> m</small></b><small>${h&&h.T?Math.round(h.T)+' s':''}${h&&h.v!=null?` · vent ${Math.round(h.v)}`:''}</small></span></button></div>`; }).join('');
+    return `<div class="pv-nr" data-i="${o.i}">${PV.cmpOn?`<button type="button" class="pv-nc" data-c="${o.i}" aria-pressed="${on}" aria-label="${on?'Retirer de':'Ajouter à'} la comparaison : ${x.name}"><i></i></button>`:''}<button type="button" class="pv-ng" data-i="${o.i}" aria-label="Ouvrir ${x.name}"><span class="pv-nn"><b>${x.name}</b><small>${pvI('pin')}${o.km<1?'< 1':Math.round(o.km)} km · ${x.commune}</small></span><span class="pv-nv"><b>${h&&h.H!=null?fmt(h.H):'—'}<small> m</small></b><small>${h&&h.T?`${Math.round(h.T)} s`:''}${h&&h.v!=null?` · ${pvI('wind')}${Math.round(h.v)}`:''}</small></span><span class="pv-ngo">${pvI('go')}</span></button></div>`; }).join('');
 }
 function pvCmpHtml(){
   PV.cmp=PV.cmp.filter(i=>nearOf(state.spot,7).some(o=>o.i===i));
@@ -4264,7 +4396,7 @@ function pvNearHtml(s,k){
       <button type="button" class="pv-tbtn" id="pvCmpT" aria-pressed="${PV.cmpOn}">Comparer</button></div>
     <div class="pv-near">
       <div class="pv-nmap"><div id="lmap" role="region" aria-label="Carte des spots autour de ${s.name}"></div></div>
-      <div class="pv-nside"><p class="pv-nwhen" id="pvNearWhen"></p><div class="pv-nlist${PV.cmpOn?' cmp':''}" id="pvNList">${pvNearRows()}</div></div>
+      <div class="pv-nside"><div class="pv-nhd2"><p class="pv-nwhen" id="pvNearWhen"></p><span>houle · période · vent km/h</span></div><div class="pv-nlist${PV.cmpOn?' cmp':''}" id="pvNList">${pvNearRows()}</div></div>
     </div>
     <div id="pvCmp">${pvCmpHtml()}</div>
   </section>`;
@@ -4300,8 +4432,9 @@ function relUpdate(h){
   const li=document.getElementById('relList');
   if(rows.length<2){ el.innerHTML='<p class="pv-rs">Pas assez de modèles disponibles à cette heure.</p>'; if(li) li.innerHTML=''; return; }
   const vs=rows.map(r=>r.v), mn=Math.min(...vs), mx=Math.max(...vs), lo=Math.max(0,Math.floor((mn-.3)*2)/2), hi=Math.ceil((mx+.3)*2)/2, P=v=>((v-lo)/(hi-lo)*100).toFixed(1), ag=agreeOf(h);
-  el.innerHTML=`<div class="pv-rv">${fmt(mn)}<span class="pv-rto">à</span>${fmt(mx)}<small> m</small></div><p class="pv-rs">${rows.length} modèles${ag?` · accord ${AGREE_TXT[ag.lvl]}`:''}</p>
-    <div class="pv-strk" aria-hidden="true"><i class="pv-rng" style="left:${P(mn)}%;width:${(P(mx)-P(mn)).toFixed(1)}%"></i>${rows.map(r=>`<i class="pv-md" style="left:${P(r.v)}%"></i>`).join('')}</div>`;
+  el.innerHTML=`<div class="pv-rv">${fmt(mn)}<span class="pv-rto">à</span>${fmt(mx)}<small> m</small></div><p class="pv-rs"><span class="pv-chip">${pvI('models')}${rows.length} modèles</span>${ag?`<span class="pv-agr l${ag.lvl}"><i></i><i></i><i></i>accord ${AGREE_TXT[ag.lvl]}</span>`:''}</p>
+    <div class="pv-strk" aria-hidden="true"><i class="pv-rng" style="left:${P(mn)}%;width:${(P(mx)-P(mn)).toFixed(1)}%"></i>${rows.map(r=>`<i class="pv-md" style="left:${P(r.v)}%" title="${r.l} : ${fmt(r.v)} m"></i>`).join('')}${h.H!=null?`<i class="pv-ret" style="left:${P(h.H)}%" title="Valeur affichée : ${fmt(h.H)} m"></i>`:''}</div>
+    <div class="pv-sax"><span>${fmt(lo)} m</span><span class="pv-sleg"><i class="pv-mdk"></i>un modèle<i class="pv-retk"></i>valeur affichée</span><span>${fmt(hi)} m</span></div>`;
   if(li) li.innerHTML=rows.map(r=>`<li><span>${r.l}</span><b>${fmt(r.v)} m</b></li>`).join('')+`<li class="ret"><span>Valeur affichée (moyenne pondérée)</span><b>${h.H!=null?fmt(h.H)+' m':'—'}</b></li>`;
 }
 
@@ -4343,6 +4476,35 @@ function pvDaSwitch(){ const da=document.documentElement.dataset.da;
 document.addEventListener('click',e=>{ const b=e.target.closest('.pv-daswitch [data-da]'); if(!b||!state.data) return;
   document.documentElement.dataset.da=b.dataset.da; try{ localStorage.setItem('pvDA',b.dataset.da); }catch(e){} const y=scrollY, h=state.hour; render(); state.hour=h; updateLive(); scrollTo(0,y); });
 
+/* ---------- finitions (26/11/2026) : micro-icônes techniques, fraîcheur des mesures, directions lisibles ---------- */
+const PV_I={
+  wave:'<path d="M2.5 15c2.1-2.6 4.3-2.6 6.4 0s4.3 2.6 6.4 0 4.3-2.6 6.2 0"/><path d="M2.5 9.5c2.1-2.6 4.3-2.6 6.4 0s4.3 2.6 6.4 0 4.3-2.6 6.2 0" opacity=".45"/>',
+  period:'<circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.4 1.5M9.6 3h4.8"/>',
+  wind:'<path d="M3 9h10.5a2.8 2.8 0 1 0-2.8-2.8"/><path d="M3 13.5h15.2a2.8 2.8 0 1 1-2.8 2.8"/><path d="M3 18h6" opacity=".5"/>',
+  temp:'<path d="M10 14.4V5.2a2 2 0 1 1 4 0v9.2a4 4 0 1 1-4 0z"/><path d="M12 9.5v6.5"/>',
+  tide:'<path d="M2.5 18c2.1-1.8 4.3-1.8 6.4 0s4.3 1.8 6.4 0 4.3-1.8 6.2 0"/><path d="M12 3.5v9m-3-3 3 3 3-3"/>',
+  sun:'<circle cx="12" cy="12" r="3.8"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M5.6 18.4l1.6-1.6M16.8 7.2l1.6-1.6"/>',
+  buoy:'<path d="M5.5 15.5h13l-1.6 4h-9.8z"/><path d="M12 15.5V7M9 7h6M12 3.5V7"/><path d="M2.5 21.5c1.6-1 3.2-1 4.8 0" opacity=".5"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/>',
+  models:'<rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/>',
+  pin:'<path d="M12 21s-6.5-5.6-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/>',
+  go:'<path d="M5 12h13M13 6.5l5.5 5.5-5.5 5.5"/>'
+};
+const pvI=k=>`<svg class="pv-i" viewBox="0 0 24 24" aria-hidden="true">${PV_I[k]}</svg>`;
+/* direction : flèche dans un petit cercle (sens où va la houle ou le vent) + secteur d'où ça vient */
+const pvDir=(deg,col)=>deg==null?'':`<span class="pv-dir" title="Vient du ${sector(deg)} (${Math.round(deg)}°)"><i${col?` style="color:${col}"`:''}><svg viewBox="-6 -6 12 12" aria-hidden="true" style="transform:rotate(${Math.round((deg+180)%360)}deg)"><path d="M0 -4.6L3.2 3.6L0 2L-3.2 3.6Z"/></svg></i>${sector(deg)}</span>`;
+/* fraîcheur d'une mesure : en direct (moins d'1 h, pastille verte animée), récente (1 à 3 h), ancienne, muette */
+function pvFresh(ageH,t){
+  const m=Math.max(1,Math.round(ageH*60));
+  if(ageH<0.2) return {c:'live',t:'En direct'};
+  if(ageH<1) return {c:'live',t:`il y a ${m} min`};
+  if(ageH<3) return {c:'recent',t:`il y a ${Math.round(ageH)} h`};
+  if(ageH<48) return {c:'old',t:ageH<6?`il y a ${Math.round(ageH)} h`:stampTxt(t)};
+  return {c:'off',t:`aucune mesure depuis le ${dmy(t)}`};
+}
+const pvFreshHtml=(ageH,t)=>{ const f=pvFresh(ageH,t); return `<span class="pv-fresh ${f.c}" title="Mesure en temps réel, non validée"><i></i>${f.t}</span>`; };
+const pvNum=(v,u)=>`<b>${v}</b><u>${u}</u>`;
+
 /* ======================================== rendu ======================================== */
 function render(){
   const d=state.data[state.spot], s=d.spot, k=state.day, day=d.days[k];
@@ -4355,7 +4517,7 @@ function render(){
   if(day.sun){ ocean.rise=hDec(day.sun.rise); ocean.set=hDec(day.sun.set); }
   const hrs=day.list.filter(h=>h.hour>=6&&h.hour<=21), cam=camFor(s), dark=document.documentElement.dataset.theme==='dark';
   const kind=!s.generic&&s.type?[s.type,s.bottom?'fond '+s.bottom.toLowerCase():null].filter(Boolean).join(', '):null;
-  const meta=[s.region, kind, sst!=null?`eau ${Math.round(sst)} °C`:null, day.sun?`soleil ${day.sun.rise.replace(':','h').replace(/^0/,'')} – ${day.sun.set.replace(':','h').replace(/^0/,'')}`:null].filter(Boolean);
+  const meta=[s.region, kind, sst!=null?`${pvI('temp')}eau ${Math.round(sst)} °C`:null, day.sun?`${pvI('sun')}${day.sun.rise.replace(':','h').replace(/^0/,'')} – ${day.sun.set.replace(':','h').replace(/^0/,'')}`:null].filter(Boolean);
   const wn=windNote(hrs);
   document.getElementById('app').innerHTML=`
   <nav class="tbar" id="tbar" aria-label="Navigation rapide">
@@ -4379,10 +4541,10 @@ function render(){
     <section class="pv-card pv-hours" aria-labelledby="sHour">
       <h2 class="sr" id="sHour">${pvDayLong(day,k)}, heure par heure</h2>
       <div class="pv-head2">
-      <div class="pv-when"><span class="pv-wt"><i class="pv-ld" id="pvLd"></i><b id="pvWhen">—</b></span><button type="button" class="pv-tbtn pv-nowb" id="pvNow" hidden>Revenir à maintenant</button></div>
+      <div class="pv-when"><span class="pv-wt"><i class="pv-ld" id="pvLd"></i><b id="pvWhen">—</b></span>${state.mode==='server'&&state.meta?`<span class="pv-upd" title="Heure du dernier calcul des prévisions">${pvI('clock')}Prévisions de ${state.meta.generated.slice(11,16).replace(':','h')}</span>`:''}<button type="button" class="pv-tbtn pv-nowb" id="pvNow" hidden>Revenir à maintenant</button></div>
       <div class="pv-sum" aria-live="polite">
-        <div class="pv-b pv-bh"><div class="pv-k">Houle</div><div class="pv-v" id="pvS">—</div><div class="pv-s" id="pvSd"></div>${pvEq(day)}</div>
-        <div class="pv-b pv-bw2"><div class="pv-k">Vent</div><div class="pv-v" id="pvW">—</div><div class="pv-s" id="pvWd"></div></div>
+        <div class="pv-b pv-bh"><div class="pv-k">${pvI('wave')}Houle</div><div class="pv-v" id="pvS">—</div><div class="pv-s" id="pvSd"></div>${pvEq(day)}</div>
+        <div class="pv-b pv-bw2"><div class="pv-k">${pvI('wind')}Vent</div><div class="pv-v" id="pvW">—</div><div class="pv-s" id="pvWd"></div></div>
         ${pvObsCell(s)}
       </div>
       </div>
@@ -4431,9 +4593,9 @@ function updateLive(){
   $('pvNow').hidden=isNow||!(state.day!==0||state.live);
   if(h.H==null){ $('pvS').textContent='—'; $('pvSd').textContent='pas de prévision de houle'; }
   else { $('pvS').innerHTML=`${fmt(h.H)}<small>m</small>`;
-    $('pvSd').innerHTML=[h.T?`${Math.round(h.T)} s`:null, h.D!=null?`${pvArr(h.D)}${sector(h.D)}`:null].filter(Boolean).join(' · '); }
+    $('pvSd').innerHTML=`${h.T?`<span class="pv-mt">${pvI('period')}${pvNum(Math.round(h.T),'s')}</span>`:''}${pvDir(h.D)}`; }
   $('pvW').innerHTML=h.v!=null?`${Math.round(h.v)}<small>km/h</small>`:'—';
-  $('pvWd').innerHTML=[h.wd!=null?`${pvArr(h.wd)}${sector(h.wd)}`:null, h.wind?`<span style="color:${pvWindCol(h.wind)}">${(windWord[h.wind]||'').toLowerCase()}</span>`:null, h.gust!=null&&h.gust-(h.v||0)>=8?`rafales ${Math.round(h.gust)}`:null].filter(Boolean).join(' · ');
+  $('pvWd').innerHTML=`${pvDir(h.wd)}${h.wind?`<span class="pv-ww" style="color:${pvWindCol(h.wind)}">${windWord[h.wind]||''}</span>`:''}${h.gust!=null&&h.gust-(h.v||0)>=8?`<span class="pv-mt">raf. ${pvNum(Math.round(h.gust),'km/h')}</span>`:''}`;
   document.querySelectorAll('.pv-eq i').forEach(i=>i.classList.toggle('on',+i.dataset.h===h.hour));
   ['pvS','pvW'].forEach(id=>{ const e=$(id); if(e){ e.classList.remove('pv-tick'); void e.offsetWidth; e.classList.add('pv-tick'); } });
   if(PV.comp){ const c=$('pvComp'); if(c) c.innerHTML=pvCompHtml(h); }
@@ -4452,6 +4614,8 @@ function pvSetView(v){
   pvBindBody(); updateLive();
 }
 function pvBindBody(){
+  { const g=document.querySelector('.pv-grid'); if(g){ const set=h=>{ if(g._h===h) return; g._h=h; g.querySelectorAll('.hov').forEach(x=>x.classList.remove('hov')); if(h!=null) g.querySelectorAll(`[data-h="${h}"]`).forEach(x=>x.classList.add('hov')); };
+    g.addEventListener('mouseover',e=>{ const c=e.target.closest('[data-h]'); set(c?c.dataset.h:null); }); g.addEventListener('mouseleave',()=>set(null)); } }
   document.querySelectorAll('.pv-grid [data-h]').forEach(c=>c.addEventListener('click',()=>{ state.hour=+c.dataset.h; updateLive(); }));
   pvChartBind();
 }
