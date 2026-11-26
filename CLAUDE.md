@@ -1,3 +1,5 @@
+> Documentation commune à tous les agents : `AGENTS.md` et `docs/` (PROJECT_CONTEXT, ARCHITECTURE, DATA_SOURCES, PRODUCT, DESIGN_SYSTEM, MOBILE_APP, SEO, DECISIONS, ROADMAP, CHANGELOG, COLLABORATION, HANDOFF). Ce fichier reste le carnet de bord technique détaillé de Claude Code. Après une évolution significative, mettre aussi à jour `docs/CHANGELOG.md`, `docs/HANDOFF.md` et le document concerné.
+
 # Contexte pour Claude Code — le site s’appelle Houlalah (nom de domaine disponible avec le h final) (wordmark minuscule « houlalah » + trait de vague)
 
 Prototype de site de prévisions surf (côte Lacanau → Hendaye) pour concurrencer Yadusurf. L'utilisateur

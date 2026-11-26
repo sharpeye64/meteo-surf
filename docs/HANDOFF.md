@@ -12,13 +12,14 @@ _Dernière mise à jour : 26/11/2026, par Claude Code._
   - pages de spots avec l'heure par heure et les marées ;
   - canonique de `/?spot=x` vers `/spots/x/` ;
   - génération en heure de Paris.
-- **À vérifier** : que ce dernier déploiement est bien en ligne (le contrôle automatique était en cours quand la session s'est arrêtée).
+- **Vérifié en ligne** : le titre « Bouée houlographe Anglet : dernières mesures » et les marées sur `/spots/lacanau/`.
 
 ## En cours
 
-- **Branche `docs-onboarding`** (non publiée) : documentation commune.
-  - **Fait** : `AGENTS.md`, `PROJECT_CONTEXT.md`, `ARCHITECTURE.md`, `DATA_SOURCES.md` et ce `HANDOFF.md`.
-  - **Reste à écrire** : `PRODUCT.md`, `DESIGN_SYSTEM.md`, `MOBILE_APP.md`, `SEO.md`, `DECISIONS.md`, `ROADMAP.md`, `CHANGELOG.md`, `COLLABORATION.md`, `ONBOARDING_CHATGPT.md`. Leur matière se trouve dans `CLAUDE.md` et les documents SEO de `docs/`.
+- **Branche `docs-onboarding`** (non publiée, non poussée) : documentation commune complète. Elle comprend :
+  - `AGENTS.md` ;
+  - dans `docs/` : PROJECT_CONTEXT, ARCHITECTURE, DATA_SOURCES, PRODUCT, DESIGN_SYSTEM, MOBILE_APP, SEO, DECISIONS, ROADMAP, CHANGELOG, COLLABORATION, ONBOARDING_CHATGPT et ce HANDOFF.
+- **Pour que ChatGPT y accède** : pousser cette branche sur GitHub (sans toucher `main`), puis la fusionner dans `main` quand le porteur valide. La documentation ne change pas le site, mais un push sur `main` relance le robot et le déploiement.
 
 ## Problèmes ouverts
 
@@ -32,7 +33,7 @@ _Dernière mise à jour : 26/11/2026, par Claude Code._
 
 ## Prochaines étapes proposées (à valider par le porteur)
 
-- **Documentation** : terminer la base documentaire, puis la pousser sur GitHub (branche, sans toucher `main`) pour que ChatGPT y accède.
+- **Documentation** : la pousser sur GitHub pour que ChatGPT y accède, avec l'accord du porteur.
 - **Search Console** : suivre l'effet du lot SEO (`docs/seo-suivi-search-console.md`) et récupérer l'export des pages non indexées.
 - **Archive** : fiabilité par bouée à partir de l'archive (`docs/archives-bouees-potentiel.md`).
 - **Application** : compte Apple développeur, puis une vraie version sur iPhone, puis les stores.
