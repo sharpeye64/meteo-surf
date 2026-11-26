@@ -5,12 +5,13 @@ Chaque source est optionnelle sauf Open-Meteo : si MARC, la bouée ou les marée
 le fichier est quand même produit et le site affiche ce qui est disponible.
 """
 import json
+import sys
 import traceback
 from datetime import datetime
 
 import pandas as pd
 
-from . import appdata, buoy, candhis, config, ibi_buoys, seo, history, marc, openmeteo, tides
+from . import appdata, buoy, candhis, config, ibi_buoys, safe, seo, history, marc, openmeteo, tides
 
 
 def log(msg):
@@ -61,10 +62,30 @@ def keep_silent(coast, offshore, meta, d=None):
         meta["errors"]["silent_buoys"] = str(e)[:300]
 
 
+def write_health(payload, spots):
+    """health.json : état de la génération, SANS secret ni adresse d'API. Lu par une surveillance externe (un fichier figé
+    ne peut pas signaler sa propre panne : c'est l'ancienneté de « generated », vue de l'extérieur, qui alerte)."""
+    meta = payload["meta"]
+    clean = lambda m: safe.public_error(m, 160)
+    now = pd.Timestamp(meta["generated"])
+    buoys = []
+    for b in (payload.get("coast") or []) + (payload.get("offshore") or []) + ([dict(payload["gascogne"], id="gascogne", name="Gascogne")] if payload.get("gascogne") else []):
+        t = (b.get("latest") or {}).get("time")
+        buoys.append({"id": str(b.get("id")), "name": b.get("name"), "last": t, "age_h": round((now - pd.Timestamp(t)) / pd.Timedelta("1h"), 1) if t else None,
+                      "silent": bool(b.get("silent"))})
+    health = {"generated": meta["generated"], "site": config.SITE_URL, "spots_expected": len(spots), "spots": len(payload.get("spots") or []),
+              "errors": {k: clean(v) for k, v in (meta.get("errors") or {}).items()}, "buoys": buoys}
+    if meta.get("_test"):
+        health["_test"] = True
+    (config.OUT_DIR / "health.json").write_text(json.dumps(health, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
 def main():
     spots = json.loads(config.SPOTS_FILE.read_text())
     # heure de Paris (le robot GitHub tourne en UTC) : le site et l'appli affichent « mis à jour à… » sans conversion
     meta = {"generated": pd.Timestamp.now(tz=config.TIMEZONE).strftime("%Y-%m-%dT%H:%M"), "sources": {}, "errors": {}}
+    if config.TEST_RUN:
+        meta["_test"] = True   # sources simulées : le contrôle de publication refuse ces données
 
     log("Open-Meteo : vagues, vent, eau, soleil")
     om, wave_labels = openmeteo.fetch(spots)
@@ -241,18 +262,26 @@ def main():
     except Exception as e:
         meta["errors"]["appdata"] = str(e)[:300]
         log(f"  données de l'appli non générées : {e}")
+    meta["errors"] = {k: safe.public_error(v) for k, v in meta["errors"].items()}   # fichier public : jamais d'adresse complète ni de clé
     config.OUTPUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
     try:
         n = seo.generate(payload)
         log(f"SEO : {n} pages de spots + sitemap.xml + robots.txt ({config.SITE_URL})")
-    except Exception as e:  # le référencement ne doit jamais empêcher la publication des prévisions
+    except Exception as e:  # signalé dans forecast.json et health.json ; le contrôle de publication décide (tools/check_site.py)
         meta["errors"]["seo"] = str(e)[:300]
         log(f"  pages SEO non générées : {e}")
+    meta["errors"].update(seo.LAST_ERRORS)
+    # forecast.json réécrit avec les erreurs de génération (avant, l'erreur SEO n'y figurait jamais : le fichier était déjà écrit)
+    meta["errors"] = {k: safe.public_error(v) for k, v in meta["errors"].items()}   # fichier public : jamais d'adresse complète ni de clé
+    config.OUTPUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+    write_health(payload, spots)
     size = config.OUTPUT_FILE.stat().st_size / 1024
-    log(f"OK : {config.OUTPUT_FILE.relative_to(config.ROOT)} ({size:.0f} Ko) · erreurs : {list(meta['errors']) or 'aucune'}")
+    log(f"OK : {config.OUTPUT_FILE} ({size:.0f} Ko) · erreurs : {list(meta['errors']) or 'aucune'}")
 
 
 if __name__ == "__main__":
+    # tout ce que le robot affiche (journaux GitHub) passe par safe.redact : clés, en-têtes, identifiants masqués
+    sys.stdout, sys.stderr = safe.RedactingStream(sys.stdout), safe.RedactingStream(sys.stderr)
     try:
         main()
     except Exception:

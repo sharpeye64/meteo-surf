@@ -1,5 +1,7 @@
 # Houlalah · prévisions surf (prototype)
 
+> **Documentation du projet** : commencer par [AGENTS.md](AGENTS.md) (règles communes aux agents IA), puis [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md) et [docs/HANDOFF.md](docs/HANDOFF.md).
+
 Site de prévisions surf de la Bretagne au Portugal (214 spots, 22 bouées en direct).
 
 Environ toutes les 30 minutes (déclenché par cron-job.org, avec les passages programmés de GitHub en secours), un robot (GitHub Actions) récupère les données, les croise et publie le site.

@@ -168,6 +168,12 @@ def org(site):
             "description": "Prévisions surf de la Bretagne au Portugal, vérifiées avec les mesures des bouées en mer."}
 
 
+# erreurs de la dernière génération (pages bouées, zones) : build.py les ajoute à meta.errors et à health.json
+LAST_ERRORS = {}
+# marque des pages générées par les tests : le contrôle de publication refuse tout site qui la contient
+TEST_MARK = '<meta name="robots" content="noindex"><meta name="houlalah-test" content="1">'
+
+
 def page(site, title, desc, canonical, body, jsonld, base="../../", extra_css="", top=None, og_image=None):
     og = f"{site}/{og_image}" if og_image else f"{site}/og.png"
     top = top or ("Tous les spots", "spots/")
@@ -180,7 +186,7 @@ def page(site, title, desc, canonical, body, jsonld, base="../../", extra_css=""
     return f"""<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)}</title><meta name="description" content="{esc(desc)}">
-<link rel="canonical" href="{esc(canonical)}"><meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="{esc(canonical)}">{TEST_MARK if config.TEST_RUN else '<meta name="robots" content="index,follow,max-image-preview:large">'}
 <meta property="og:type" content="website"><meta property="og:site_name" content="{BRAND}"><meta property="og:locale" content="fr_FR">
 <meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}"><meta property="og:url" content="{esc(canonical)}"><meta property="og:image" content="{og}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{og}"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc)}">
@@ -394,7 +400,8 @@ def index_page(site, spots_meta, now):
 def generate(payload, out_dir=None, site=None):
     """Écrit web/spots/…, web/sitemap.xml et web/robots.txt. Retourne le nombre de pages créées."""
     site = (site or config.SITE_URL).rstrip("/")
-    root = out_dir or (config.ROOT / "web")
+    root = out_dir or config.OUT_DIR
+    LAST_ERRORS.clear()
     now = paris_now()   # heure de Paris, comme les mesures et les prévisions (le robot GitHub tourne en UTC)
     meta = {s["name"]: s for s in json.loads(config.SPOTS_FILE.read_text(encoding="utf-8"))}
     coef = payload.get("tide_coef") or {}
@@ -427,14 +434,16 @@ def generate(payload, out_dir=None, site=None):
     try:
         from . import bouees
         burls = bouees.generate(payload, root, site, now)
-    except Exception as e:  # jamais bloquant : les pages de spots restent publiées
+    except Exception as e:  # pas bloquant ici, mais signalé : le contrôle de publication refusera un site sans pages de bouées
         print(f"  pages bouées non générées : {e}")
+        LAST_ERRORS["seo_bouees"] = str(e)[:300]
         burls = []
     try:
         from . import zones
         zurls = zones.generate(spots, payload, root, site, now)
-    except Exception as e:  # jamais bloquant
+    except Exception as e:  # pas bloquant ici, mais signalé (voir ci-dessus)
         print(f"  pages par zone non générées : {e}")
+        LAST_ERRORS["seo_zones"] = str(e)[:300]
         zurls = []
     day = now.strftime("%Y-%m-%d")
     urls = [(f"{site}/", "hourly", "1.0"), (f"{site}/spots/", "daily", "0.8")] + [(u, "hourly", "0.9") for u in zurls] + [(f"{site}/{c['slug']}/", "monthly", "0.5") for c in pages.ALL] + [(u, "hourly", "0.7") for u in burls] + [(f"{site}/spots/{s['slug']}/", "hourly", "0.7") for s in spots]
