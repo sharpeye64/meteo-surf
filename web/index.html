@@ -3327,6 +3327,9 @@ async function initMap(){
   });
   const fit=d=>{ if(lmap) lmap.fitBounds(nearBounds(),{padding:{top:60,bottom:60,left:70,right:70},maxZoom:12,duration:d||0}); };
   map.on('load',()=>{ fit(0); pvMapVals(); }); map.on('moveend',nearDeclutter); setTimeout(()=>{ if(lmap){ lmap.resize(); fit(0); } },300);
+  /* la carte se recadre quand sa boîte change de taille (mise en page qui s'installe, rotation du téléphone), tant qu'on n'y a pas touché */
+  { let touched=false; map.on('dragstart',()=>touched=true); map.on('zoomstart',e=>{ if(e.originalEvent) touched=true; });
+    if(window.ResizeObserver){ const ro=new ResizeObserver(()=>{ if(lmap!==map){ ro.disconnect(); return; } map.resize(); if(!touched) fit(0); }); ro.observe(box); } }
 }
 function sectorRange(txt){ const c={'N':0,'NNE':22.5,'NE':45,'ENE':67.5,'E':90,'ESE':112.5,'SE':135,'SSE':157.5,'S':180,'SSO':202.5,'SO':225,'OSO':247.5,'O':270,'ONO':292.5,'NO':315,'NNO':337.5};
   if(!txt) return null; const m=txt.split(' à '); if(m.length===2) return [c[m[0]]-22.5,c[m[1]]+22.5]; return [c[txt]-22.5,c[txt]+22.5]; }
