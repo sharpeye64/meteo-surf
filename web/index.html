@@ -2110,8 +2110,8 @@ html.v2 :focus-visible{outline:2px solid var(--pv-ink);outline-offset:2px;border
 .pv-chp .gl{stroke:var(--pv-line);stroke-width:1;vector-effect:non-scaling-stroke}
 .pv-chp .band{fill:color-mix(in srgb,#5A7FB8 24%,transparent)}
 .pv-chp .ha{fill:color-mix(in srgb,var(--pv-ink) 5%,transparent)}
-.pv-chp .hl{fill:none;stroke:var(--pv-ink);stroke-width:2.2;vector-effect:non-scaling-stroke;stroke-linejoin:round}
-.pv-chp .tl{fill:none;stroke:var(--pv-per);stroke-width:1.6;stroke-dasharray:5 3;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.pv-chp .c-h{fill:none;stroke:var(--pv-ink);stroke-width:2.2;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.pv-chp .c-t{fill:none;stroke:var(--pv-per);stroke-width:1.6;stroke-dasharray:5 3;vector-effect:non-scaling-stroke;stroke-linejoin:round}
 .pv-chp .gu{fill:none;stroke:var(--pv-ink3);stroke-width:1;vector-effect:non-scaling-stroke;opacity:.8}
 .pv-chp .cur{stroke:var(--pv-ink);stroke-width:1.5;vector-effect:non-scaling-stroke}
 .pv-chax{position:relative;font:700 10.5px Manrope,system-ui,sans-serif;color:var(--pv-ink3);font-variant-numeric:tabular-nums}
@@ -2121,6 +2121,7 @@ html.v2 :focus-visible{outline:2px solid var(--pv-ink);outline-offset:2px;border
 .pv-chax .w{color:var(--pv-ink4)}
 .pv-chtip{position:absolute;top:6px;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;gap:1px;padding:8px 10px;border-radius:10px;background:var(--pv-surface);border:1px solid var(--pv-line2);box-shadow:0 6px 18px rgba(16,32,44,.12);font:600 12px Manrope,system-ui,sans-serif;color:var(--pv-ink2);white-space:nowrap;pointer-events:none;font-variant-numeric:tabular-nums}
 .pv-chtip b{color:var(--pv-ink);font-weight:800}
+.pv-chtip[hidden],.pv [hidden]{display:none!important}
 .pv-chleg{display:flex;flex-wrap:wrap;gap:6px 16px;margin:10px 0 0 34px;font:600 12px Manrope,system-ui,sans-serif;color:var(--pv-ink3)}
 .pv-chleg span{display:inline-flex;align-items:center;gap:6px}
 .pv-chleg span:before{content:"";width:14px;height:3px;border-radius:2px}
@@ -3890,7 +3891,7 @@ function pvChart(d,k){
   return `<div class="pv-chart" id="pvChart" data-n="${N}">
     <div class="pv-chdays">${dl}</div>
     <div class="pv-chwrap"><div class="pv-chax l">${yt.map(v=>`<span style="top:${pct(yH(v))}%">${fmt(v).replace(',0','')}</span>`).join('')}<span class="u" style="top:${pct(yH(top))}%">m</span><span class="w" style="top:${pct(yW(vmax))}%">${Math.round(vmax)}</span><span class="w u" style="top:${pct(yW(vmax))}%">km/h</span><span class="w" style="top:${pct(206)}%">0</span></div>
-      <div class="pv-chp" id="pvChP"><svg viewBox="0 0 ${W} 210" preserveAspectRatio="none" aria-hidden="true">${night}${seps}${grid}<line class="gl" x1="0" x2="${W}" y1="150" y2="150"/>${band}${area}<path class="hl" d="${hp}"/><path class="tl" d="${seg(h=>h.T?yT(h.T):null)}"/>${wind}<path class="gu" d="${gust}"/><line class="cur" id="pvChLine" x1="0" x2="0" y1="0" y2="210"/></svg><div class="pv-chtip" id="pvChTip" hidden></div></div>
+      <div class="pv-chp" id="pvChP"><svg viewBox="0 0 ${W} 210" preserveAspectRatio="none" aria-hidden="true">${night}${seps}${grid}<line class="gl" x1="0" x2="${W}" y1="150" y2="150"/>${band}${area}<path class="c-h" d="${hp}"/><path class="c-t" d="${seg(h=>h.T?yT(h.T):null)}"/>${wind}<path class="gu" d="${gust}"/><line class="cur" id="pvChLine" x1="0" x2="0" y1="0" y2="210"/></svg><div class="pv-chtip" id="pvChTip" hidden></div></div>
       <div class="pv-chax r">${[0,5,10,15,20].map(v=>`<span style="top:${pct(yT(v))}%">${v}</span>`).join('')}<span class="u" style="top:${pct(yT(TT))}%">s</span></div></div>
     <div class="pv-chleg"><span class="k-h">Houle (m)</span>${band?'<span class="k-b">Fourchette des modèles</span>':''}<span class="k-t">Période (s)</span><span class="k-w">Vent moyen (km/h)</span><span class="k-g">Rafales</span><span class="k-n">Nuit</span></div>
   </div>`;
