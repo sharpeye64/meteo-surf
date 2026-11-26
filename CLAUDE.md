@@ -205,3 +205,14 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
 ## Trois directions artistiques (branche `directions-previsions`, 26/11/2026, PAS publiée)
 - Même page V3, trois habillages pour comparer la direction artistique seulement : `?da=a` Premium Ocean (haut de page nuit marine avec lignes de houle qui dérivent, carte des prévisions qui en émerge avec un bord en vague, chiffres crème, bouée en or sur nuit), `?da=b` Surf Editorial (papier chaud, filets, titres géants, Instrument Serif italique pour la voix, sections numérotées, bandeau bouée doré pleine largeur), `?da=c` Modern Weather (grille pointillée, mono JetBrains Mono, tuiles : houle bleu nuit avec la journée en barres, bouée or plein). `?da=v3` = V3. Choix mémorisé (`localStorage.pvDA`).
 - Code : bloc « DIRECTIONS ARTISTIQUES » (JS : `PV_PAL` couleurs de prévision par direction, `pvCellCss`, `pvDeco`, `pvEq`, `pvDaSwitch`) et CSS `html[data-da=...]` en fin de `<style>`. Le sélecteur flottant « Direction » est un OUTIL DE TEST à retirer avant publication, comme les polices non retenues. Le mode sombre n'a pas été redessiné pour ces directions.
+
+## Premium Ocean retenue et publiée (26/11/2026)
+- Direction A « Premium Ocean » = direction de référence de Houlalah (demande de l'utilisateur) : ne plus changer la direction artistique générale, seulement des finitions.
+  `html[data-da="a"]` par défaut. B, C et V3 restent accessibles par `?da=` (outil de test, polices Instrument Serif / JetBrains Mono retirées) ; code mort `*_v1` et CSS B/C à supprimer un jour.
+- Couches CSS en fin de `<style>`, dans l'ordre : V3, DIRECTIONS, FINITIONS, PREMIUM OCEAN FINITION, RETOUCHES, DÉTAILS ET MOBILE.
+- Téléphone (≤ 640 px) : frise horaire bord à bord (`.pv-scw` autour de `#pvScroll`), colonne fixe de pictogrammes de 28 px (texte masqué, unité dessous, bulle au toucher `.pv-ltip`, `aria-label`), barre de défilement masquée, fondus aux bords (`pvScrollEdges`), centrage sur l'heure à l'ouverture (`pvCenterHour`, la position est gardée quand on change d'affichage). Sept jours sur toute la largeur. Bureau inchangé.
+- Sélection horaire : `#pvSel` glisse par `transform` (`markHour`), pastille sur l'heure ; point de marée `#pvTdot` ; pleine/basse mer marquées (`.pv-tp`).
+- Vert animé = UNIQUEMENT une mesure de bouée de moins d'1 h (site `pvFresh`, pages bouées `is_fresh` dans `pipeline/bouees.py`). Le point « Maintenant » est crème.
+- Haut de page : `data-sky` (aube, jour, crépuscule, nuit) selon l'heure de Paris et le soleil du spot (`pvSky`), très léger.
+- Pages générées (`seo.py`, `bouees.py`, `pages.py`) : même identité (bande nuit marine, sable, Unbounded + Manrope).
+- Repères : tags `avant-finition-ocean`, `avant-retouches-ocean`, `avant-finition-mobile`.
