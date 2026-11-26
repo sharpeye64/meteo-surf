@@ -3277,7 +3277,7 @@ html[data-da="a"] .pv-band[data-sky="night"]{background:radial-gradient(1000px 4
 @keyframes hoPop{from{transform:scale(.6);opacity:0}}
 @media (prefers-reduced-motion:reduce){ .ho-m{animation:none} }
 /* bouées : bleu nuit et or ; vert animé seulement si la mesure a moins d'une heure */
-.ho-bw{line-height:0;z-index:3}
+.ho-bw{line-height:0;z-index:5}
 .ho-b{position:relative;display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 9px 0 6px;border:0;border-radius:999px;background:var(--n);color:var(--g);font:800 12px Unbounded,system-ui,sans-serif;letter-spacing:-.03em;cursor:pointer;box-shadow:0 0 0 1.5px rgba(242,198,107,.75),0 6px 14px -5px rgba(11,27,38,.55);transition:transform .2s,opacity .2s}
 .ho-b:hover{transform:scale(1.1)}
 .ho-b.sel{transform:scale(1.15);box-shadow:0 0 0 2px var(--g),0 0 0 5px rgba(255,253,248,.9)}
@@ -5631,7 +5631,7 @@ function homeCluster(){
     const g=s.i===HOME.sel?null:groups.find(q=>q.s.i!==HOME.sel&&Math.abs(q.p.x-p.x)<R&&Math.abs(q.p.y-p.y)<R*.6);
     if(g){ g.m.push(s); el.hidden=true; } else { groups.push({s,p,m:[s]}); el.hidden=false; } });
   Object.entries(HOME.bm||{}).forEach(([id,m])=>{ const el=m.getElement(); if(!HOME.showBu){ el.hidden=true; return; }
-    if(!lo){ el.hidden=false; return; } const bu=HOME.bu.find(x=>x.id===id), p=map.project([bu.lon,bu.lat]); el.hidden=groups.some(g=>Math.abs(g.p.x-p.x)<30&&Math.abs(g.p.y-p.y)<22); });
+    el.hidden=false; });   /* bouées toujours visibles (demande de l'utilisateur), au-dessus des spots */
   groups.forEach(g=>{ HOME.mk[g.s.i].getElement().firstChild.classList.toggle('ho-st',g.m.length>1); g.el=HOME.mk[g.s.i].getElement(); });
   groups.filter(g=>g.m.length>1).forEach(g=>{ const b=g.el.firstChild;
     b.dataset.n=g.m.length; b.onmouseenter=null;
