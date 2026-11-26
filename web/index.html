@@ -2050,7 +2050,7 @@ html.v2 :focus-visible{outline:2px solid var(--pv-ink);outline-offset:2px;border
 .pv-tl{fill:none;stroke:var(--pv-tide);stroke-width:2;vector-effect:non-scaling-stroke}
 .pv-tx{position:absolute;transform:translateX(-50%);font:800 11px Manrope,system-ui,sans-serif;color:var(--pv-ink2);white-space:nowrap}
 .pv-tx small{font-weight:600;color:var(--pv-ink3);font-size:10.5px}
-.pv-tx.hi{top:4px} .pv-tx.lo{bottom:4px}
+.pv-tx.hi{top:4px}.pv-tx.st{transform:none}.pv-tx.en{transform:translateX(-100%)} .pv-tx.lo{bottom:4px}
 .pv-tnone{display:flex;align-items:center;justify-content:center;font:600 12px Manrope,system-ui,sans-serif;color:var(--pv-ink3)}
 .pv-wn{margin-top:8px}
 
@@ -2977,6 +2977,120 @@ html[data-da="a"] .pv-foot footer .fgen{color:#4C585E}
   html[data-da="a"] .pv-dbar{margin-top:5px}
   html[data-da="a"] .pv-nv b{font-size:21px}
   html[data-da="a"] .pv-bw2 .pv-sf{display:flex}
+}
+
+/* =====================================================================================================
+   PREMIUM OCEAN — DÉTAILS ET MOBILE (26/11/2026) : sélection horaire qui glisse, courbe de marée, info-bulles,
+   fraîcheur, lumière du haut de page selon l'heure du spot ; sur téléphone, frise horaire bord à bord.
+   ===================================================================================================== */
+.pv-lt{font-style:normal}
+.pv-ab{display:none}
+.pv-hh b{font-weight:inherit;display:inline-block;padding:3px 8px;border-radius:999px;transition:background .25s,color .25s}
+html[data-da="a"] .pv-hh.sel b{background:#0B1B26;color:#F3EFE6}
+html[data-da="a"][data-theme="dark"] .pv-hh.sel b{background:#F3EFE6;color:#0B1B26}
+html[data-da="a"][data-theme="dark"] .pv-selc{border-color:rgba(243,239,230,.75);box-shadow:none}
+html[data-da="a"] .pv-hh i{font-size:11px}
+/* sélection : un cadre fin qui glisse d'une heure à l'autre */
+html[data-da="a"] .pv-selc{border:1.5px solid rgba(11,27,38,.82);border-radius:16px;box-shadow:0 12px 26px -14px rgba(11,27,38,.3)}
+.pv-selc.rd{transition:transform .32s cubic-bezier(.22,.8,.24,1)}
+@media (prefers-reduced-motion:reduce){ .pv-selc.rd,.pv-hh b{transition:none} }
+/* toucher : petit retour visuel */
+@media (hover:none){
+  .pv-grid [data-h]:active{filter:brightness(.95)}
+  html[data-da="a"] .pv-day:active{transform:scale(.97)}
+  .pv-tbtn:active,.pv-tabs button:active{opacity:.7}
+}
+/* marée : dégradé d'eau, pleine et basse mer marquées sur la courbe, point à l'heure choisie */
+html[data-da="a"]:not([data-theme="dark"]) .pv-tide{background:linear-gradient(#F6F1E6,#F1EADC)}
+html[data-da="a"][data-theme="dark"] .pv-tide{background:rgba(243,239,230,.05)}
+.pv-ta{fill:url(#pvTg)}
+html[data-da="a"] .pv-tl{stroke-width:2.2;stroke-linecap:round}
+.pv-tp{position:absolute;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:var(--pv-tide);box-shadow:0 0 0 2px var(--pv-card);pointer-events:none}
+.pv-tp.lo{background:var(--pv-card);box-shadow:inset 0 0 0 2px var(--pv-tide)}
+.pv-tdot{position:absolute;z-index:2;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;background:#0B1B26;box-shadow:0 0 0 2.5px #FFFDF8,0 3px 8px rgba(11,27,38,.35);pointer-events:none;transition:left .32s cubic-bezier(.22,.8,.24,1),top .32s cubic-bezier(.22,.8,.24,1)}
+html[data-theme="dark"] .pv-tdot{background:#F3EFE6;box-shadow:0 0 0 2.5px #0F222E}
+@media (prefers-reduced-motion:reduce){ .pv-tdot{transition:none} }
+html[data-da="a"] .pv-tx{font-weight:800;letter-spacing:.01em}
+/* « maintenant » n'est pas une mesure : point crème, pas vert */
+html[data-da="a"] .pv-ld.on{background:#F3EFE6;border-color:#F3EFE6;box-shadow:0 0 0 3px rgba(243,239,230,.16)}
+/* info-bulles des graphiques : même habit que celle du tableau */
+.pv-chtip{padding:10px 13px 11px;border-radius:14px;background:#0B1B26;color:#F3EFE6;gap:3px;font:600 12.5px Manrope,system-ui,sans-serif;box-shadow:0 14px 34px -12px rgba(11,27,38,.55);opacity:1;transition:left .08s linear}
+.pv-chtip b{font:800 12.5px Unbounded,system-ui,sans-serif;letter-spacing:-.02em;margin-bottom:2px}
+.pv-chtip span{display:flex;align-items:center;gap:7px;color:rgba(243,239,230,.88)}
+.pv-chtip .pv-i{width:13px;height:13px;opacity:.7}
+.pv-bpl{position:relative;touch-action:pan-y}
+.pv-btip{position:absolute;top:-6px;z-index:5;transform:translate(-50%,-100%);display:flex;flex-direction:column;gap:2px;padding:9px 12px 10px;border-radius:13px;background:#F3EFE6;color:#0B1B26;font:600 12px Manrope,system-ui,sans-serif;white-space:nowrap;pointer-events:none;box-shadow:0 14px 30px -12px rgba(0,0,0,.6);opacity:0;transition:opacity .15s}
+.pv-btip.on{opacity:1}
+.pv-btip b{font:800 13px Manrope,system-ui,sans-serif}
+.pv-btip span{display:flex;align-items:center;gap:6px}
+.pv-btip span:before{content:"";width:9px;height:2.5px;border-radius:2px;background:#B98A2E}
+.pv-btip span.f:before{background:none;border-top:2px dashed #6A7780;height:0}
+.pv-btip em{font-style:normal;font-weight:800;margin-left:auto;padding-left:10px}
+.pv-bguide{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed rgba(242,198,107,.55);pointer-events:none;opacity:0;transition:opacity .15s}
+.pv-bguide:after{content:"";position:absolute;left:-5.5px;top:var(--y);width:9px;height:9px;margin-top:-5px;border-radius:50%;background:#F2C66B;box-shadow:0 0 0 2.5px #0B1B26}
+.pv-bguide.on{opacity:1}
+/* carte ↔ liste : le spot survolé ressort des deux côtés, en douceur */
+html[data-da="a"] .pv-nmap .mkp{transition:transform .2s cubic-bezier(.22,.8,.24,1),background .2s,color .2s,box-shadow .2s}
+html[data-da="a"] .pv-nmap .pv-hl .mkp{background:#0B1B26;color:#F3EFE6;box-shadow:0 8px 20px -8px rgba(11,27,38,.5)}
+html[data-da="a"] .pv-nr.hl{box-shadow:inset 3px 0 0 #0B1B26}
+/* lumière du haut de page selon l'heure du spot : très légère */
+html[data-da="a"] .pv-band[data-sky="dawn"]{background:radial-gradient(1000px 460px at 88% -10%,rgba(82,128,160,.48),transparent 62%),radial-gradient(900px 420px at 12% -20%,rgba(226,150,96,.16),transparent 60%),radial-gradient(800px 380px at -10% 110%,rgba(217,164,65,.12),transparent 60%),#0B1B26}
+html[data-da="a"] .pv-band[data-sky="dusk"]{background:radial-gradient(1000px 460px at 88% -10%,rgba(48,118,160,.42),transparent 62%),radial-gradient(700px 360px at 100% -15%,rgba(200,124,84,.22),transparent 60%),radial-gradient(800px 380px at -10% 110%,rgba(217,164,65,.14),transparent 60%),#0B1B26}
+html[data-da="a"] .pv-band[data-sky="night"]{background:radial-gradient(1000px 460px at 88% -10%,rgba(36,74,112,.42),transparent 62%),radial-gradient(800px 380px at -10% 110%,rgba(217,164,65,.08),transparent 60%),#0A1822}
+/* petites bulles des pictogrammes de ligne (téléphone) */
+.pv-ltip{position:fixed;z-index:85;left:0;top:0;max-width:220px;padding:8px 12px;border-radius:12px;background:#0B1B26;color:#F3EFE6;font:600 12.5px/1.35 Manrope,system-ui,sans-serif;box-shadow:0 12px 28px -10px rgba(11,27,38,.55);opacity:0;transform:translateX(-4px);transition:opacity .15s,transform .2s;pointer-events:none}
+.pv-ltip.on{opacity:1;transform:none}
+.pv-scw{position:relative}
+
+/* ---------- téléphone : frise bord à bord, pictogrammes à gauche, sept jours sur toute la largeur ---------- */
+@media (max-width:640px){
+  html[data-da="a"] .pv-hours{margin:0 -16px;border-radius:24px 24px 0 0}
+  html[data-da="a"] .pv-bar{margin-left:16px;margin-right:16px}
+  html[data-da="a"] .pv-scw{margin:0 -14px}
+  html[data-da="a"] .pv-lab .pv-i{display:block}
+  html[data-da="a"] .pv-lab:before{content:"";position:absolute;z-index:-1;top:-2px;bottom:-2px;left:0;right:0;background:var(--pv-card);transition:box-shadow .2s}
+  html[data-da="a"] .pv-lab:first-child:before{top:-4px}
+  html[data-da="a"] .pv-scroll{margin:0;padding:4px 10px 6px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-padding-left:30px}
+  html[data-da="a"] .pv-scroll::-webkit-scrollbar{display:none}
+  html[data-da="a"] .pv-grid{--cw:clamp(58px,calc((100vw - 34px)/5.4),74px);grid-template-columns:28px repeat(var(--n),var(--cw));gap:3px}
+  html[data-da="a"] .pv-lab{align-items:center;justify-content:center;gap:3px;padding:0;background:var(--pv-card);box-shadow:none;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:box-shadow .2s}
+  html[data-da="a"] .pv-lab span{gap:0}
+  html[data-da="a"] .pv-lab .pv-i{width:17px;height:17px;opacity:.78;color:var(--pv-ink)}
+  html[data-da="a"] .pv-lt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  html[data-da="a"] .pv-lab small{font:800 9.5px Manrope,system-ui,sans-serif;letter-spacing:.01em;color:var(--pv-ink2);white-space:nowrap}
+  html[data-da="a"] .pv-lab small[data-m]{font-size:0}
+  html[data-da="a"] .pv-lab small[data-m]:after{content:"coef\A" attr(data-m);white-space:pre;display:block;text-align:center;line-height:1.15;font-size:9px}
+  html[data-da="a"] .pv-ab{display:flex;flex-direction:column;align-items:center;gap:1px;font:800 8.5px Manrope,system-ui,sans-serif;letter-spacing:.02em;color:var(--pv-ink2)}
+  html[data-da="a"] .pv-ab .pv-i{width:10px;height:10px;opacity:.6}
+  html[data-da="a"] .pv-lab.pv-ml span{font-size:0}
+  /* le bord gauche s'ombre quand des heures passent dessous ; un fondu à droite annonce la suite */
+  html[data-da="a"] .pv-scw.l .pv-lab:before{box-shadow:8px 0 10px -9px rgba(11,27,38,.28)}
+  html[data-da="a"] .pv-scw:after{content:"";position:absolute;z-index:5;top:0;right:0;bottom:6px;width:26px;background:linear-gradient(90deg,color-mix(in srgb,var(--pv-card) 0%,transparent),var(--pv-card));pointer-events:none;opacity:0;transition:opacity .25s}
+  html[data-da="a"] .pv-scw.r:after{opacity:1}
+  html[data-da="a"] .pv-wv b{font-size:25px}
+  html[data-da="a"] .pv-hh{font-size:13.5px}
+  html[data-da="a"] .pv-hh b{padding:3px 7px}
+  html[data-da="a"] .pv-tx{font-size:11.5px}
+  html[data-da="a"] .pv-tx small{font-size:11px}
+  html[data-da="a"] .pv-fn{margin-left:16px;margin-right:16px}
+  html[data-da="a"] .pv-comp{margin-left:16px;margin-right:16px}
+  /* sept jours visibles d'un coup, sur toute la largeur */
+  html[data-da="a"] .pv-days{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:5px;margin:0 -10px;padding:0;overflow:visible}
+  html[data-da="a"] .pv-day{width:auto;min-width:0;height:84px;padding:0;border-radius:15px}
+  html[data-da="a"] .pv-dn{font-size:10px;letter-spacing:.08em}
+  html[data-da="a"] .pv-dd{font-size:22px;margin:3px 0 4px}
+  html[data-da="a"] .pv-day .pv-dm{font-size:11.5px;white-space:nowrap}
+  html[data-da="a"] .pv-day .pv-dm small{font-size:10px}
+  html[data-da="a"] .pv-dbar{max-width:70%}
+  html[data-da="a"] .pv-bx{flex-wrap:nowrap}
+  html[data-da="a"] .pv-bx>span:nth-child(2){order:0;width:auto;text-align:center}
+  html[data-da="a"] .pv-chday{padding:0 7px;font-size:11.5px}
+}
+@media (max-width:370px){
+  html[data-da="a"] .pv-days{gap:4px;margin:0 -12px}
+  html[data-da="a"] .pv-dd{font-size:20px}
+  html[data-da="a"] .pv-dn{letter-spacing:.04em}
+  html[data-da="a"] .pv-day .pv-dm{font-size:11px}
 }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
@@ -4454,14 +4568,15 @@ function pvCompHtml(h){
 /* ---------- tableau horaire : contrasté comme la V1 ---------- */
 function pvTable(day,hrs){
   const rise=day.sun?hDec(day.sun.rise):8, set=day.sun?hDec(day.sun.set):18, n=hrs.length;
-  const liveH=state.live&&state.day===0?Math.round(state.liveHour):null, cf=state.coef&&state.coef[day.date];
-  const L=(row,txt,unit,cls)=>`<div class="pv-lab${cls?' '+cls:''}" style="grid-row:${row}"><span>${txt}</span>${unit?`<small>${unit}</small>`:''}</div>`;
-  let c=L(1,'')+L(2,pvI('wave')+'Vagues','m')+L(3,pvI('period')+'Période','s')+L(4,pvI('models')+'Accord','')+L(5,pvI('wind')+'Vent','km/h')+L(6,pvI('tide')+'Marée',cf&&cf.length?'coef '+Math.max(...cf):'');
+  const liveH=state.live&&state.day===0?Math.round(state.liveHour):null, cf=state.coef&&state.coef[day.date], cmax=cf&&cf.length?Math.max(...cf):null;
+  /* libellé de ligne : pictogramme + texte (texte masqué sur téléphone, unité sous le pictogramme) ; un toucher affiche le nom complet */
+  const L=(row,ic,txt,unit,full,cls,mu,abbr)=>`<div class="pv-lab${cls?' '+cls:''}" style="grid-row:${row}"${full?` role="button" tabindex="0" aria-label="${full}" data-tip="${full}"`:''}><span>${ic?pvI(ic):''}<em class="pv-lt">${txt}</em>${abbr?`<b class="pv-ab" aria-hidden="true">${abbr}</b>`:''}</span>${unit?`<small${mu?` data-m="${mu}"`:''}>${unit}</small>`:''}</div>`;
+  let c=L(1,'','','','')+L(2,'wave','Vagues','m','Hauteur de la houle, en mètres')+L(3,'period','Période','s','Période et direction de la houle')+L(4,'models','Accord','','Accord des modèles de vagues')+L(5,'wind','Vent','km/h','Vent moyen, en km/h, et sa direction')+L(6,'tide','Marée',cmax?'coef '+cmax:'',cmax?`Marée, coefficient ${cmax}`:'Marée','',cmax||'');
   hrs.forEach((h,i)=>{
     const col=i+2, nt=(h.hour<Math.floor(rise)||h.hour>Math.floor(set))?' pv-night':'', at=r=>`data-h="${h.hour}" style="grid-column:${col};grid-row:${r}`;
     const tag=h.hour===liveH?'<i class="pv-hn">maint.</i>':h.hour===Math.floor(rise)?'<i>lever</i>':h.hour===Math.floor(set)?'<i>coucher</i>':'';
     const ag=agreeOf(h);
-    c+=`<button type="button" class="pv-hh${nt}" ${at(1)}" aria-pressed="false" aria-label="${h.hour} h : ${h.H!=null?`houle ${fmt(h.H)} m, ${Math.round(h.T||0)} s${h.D!=null?' du '+sector(h.D):''}, vent ${Math.round(h.v)} km/h ${windWord[h.wind]||''}${h.gust!=null?', rafales '+Math.round(h.gust):''}`:'pas de données'}">${h.hour}h${tag}</button>`;
+    c+=`<button type="button" class="pv-hh${nt}" ${at(1)}" aria-pressed="false" aria-label="${h.hour} h : ${h.H!=null?`houle ${fmt(h.H)} m, ${Math.round(h.T||0)} s${h.D!=null?' du '+sector(h.D):''}, vent ${Math.round(h.v)} km/h ${windWord[h.wind]||''}${h.gust!=null?', rafales '+Math.round(h.gust):''}`:'pas de données'}"><b>${h.hour}h</b>${tag}</button>`;
     c+=`<div class="pv-cl pv-wv${nt}" ${at(2)};${pvCellCss(h.H,'H')}"><b>${h.H!=null?fmt(h.H):'—'}</b></div>`;
     c+=`<div class="pv-cl pv-pe${nt}" ${at(3)};${pvCellCss(h.T,'T')}"><b>${h.T?Math.round(h.T)+' s':'—'}</b>${h.D!=null?`<span>${pvArr(h.D)}${sector(h.D)}</span>`:''}</div>`;
     c+=`<div class="pv-cl pv-ag${nt}" ${at(4)}"${ag?` title="Modèles : de ${fmt(ag.mn)} à ${fmt(ag.mx)} m"`:''}>${ag?`<span class="pv-dots l${ag.lvl}" role="img" aria-label="Accord des modèles : ${AGREE_TXT[ag.lvl]}"><i></i><i></i><i></i></span>`:''}</div>`;
@@ -4469,28 +4584,38 @@ function pvTable(day,hrs){
   });
   const tl=hrs.filter(h=>h.tideN!=null);
   if(tl.length>2){
-    const X=i=>((i+.5)/n*1000), Y=v=>(18+(1-v)*40);
+    /* courbe de marée : x = centre de chaque colonne horaire, y en % de la hauteur de la ligne */
+    const X=i=>((i+.5)/n*1000), Y=v=>(22+(1-v)*30);
     const pts=hrs.map((h,i)=>h.tideN!=null?[+X(i).toFixed(1),+Y(h.tideN).toFixed(1)]:null).filter(Boolean), d=smooth(pts);
     const step=n>1?hrs[1].hour-hrs[0].hour:1;
+    const nAt=hd=>{ const f=(hd-hrs[0].hour)/step, a=hrs[clamp(Math.floor(f),0,n-1)], b=hrs[clamp(Math.ceil(f),0,n-1)]; if(!a||!b||a.tideN==null||b.tideN==null) return null; const t=f-Math.floor(f); return a.tideN+(b.tideN-a.tideN)*t; };
     const ex=(exactTides(state.spot,day.date)||extremes(day.list).map(x=>({type:x.t==='Pleine mer'?'PM':'BM',hm:x.h+'h',hd:x.h,h:null}))).filter(x=>x.hd>=hrs[0].hour-.5&&x.hd<=hrs[n-1].hour+.5);
-    c+=`<div class="pv-tide" style="grid-column:2/-1;grid-row:6"><svg viewBox="0 0 1000 72" preserveAspectRatio="none" aria-hidden="true"><path class="pv-ta" d="${d}L${pts[pts.length-1][0]} 72L${pts[0][0]} 72Z"/><path class="pv-tl" d="${d}"/></svg>${ex.map(x=>{ const p=clamp(((x.hd-hrs[0].hour)/step+.5)/n*100,5,95); return `<span class="pv-tx ${x.type==='PM'?'hi':'lo'}" style="left:${p.toFixed(2)}%">${x.type} ${x.hm}${x.h!=null?` <small>${fmt(x.h)} m</small>`:''}</span>`; }).join('')}</div>`;
+    c+=`<div class="pv-tide" style="grid-column:2/-1;grid-row:6"><svg viewBox="0 0 1000 72" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="pvTg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--pv-tide);stop-opacity:.34"/><stop offset="1" style="stop-color:var(--pv-tide);stop-opacity:.04"/></linearGradient></defs><path class="pv-ta" fill="url(#pvTg)" d="${d}L${pts[pts.length-1][0]} 72L${pts[0][0]} 72Z"/><path class="pv-tl" d="${d}"/></svg>${ex.map(x=>{ const f=((x.hd-hrs[0].hour)/step+.5)/n, p=clamp(f*100,1,99), v=nAt(x.hd), hi=x.type==='PM', ed=f<.1?' st':f>.9?' en':'';
+      return `${v!=null?`<i class="pv-tp ${hi?'hi':'lo'}" style="left:${(f*100).toFixed(2)}%;top:${(Y(v)/72*100).toFixed(1)}%"></i>`:''}<span class="pv-tx ${hi?'hi':'lo'}${ed}" style="left:${(ed===' st'?Math.max(0,f*100-2):ed===' en'?Math.min(100,f*100+2):p).toFixed(2)}%">${x.type} ${x.hm}${x.h!=null?` <small>${fmt(x.h)} m</small>`:''}</span>`; }).join('')}<i class="pv-tdot" id="pvTdot" hidden></i></div>`;
   } else c+=`<div class="pv-tide pv-tnone" style="grid-column:2/-1;grid-row:6">Marée indisponible</div>`;
   let row=7;
   if(state.cmp){
-    (state.models||[]).forEach(md=>{ c+=L(row,shortModel(md.label),'','pv-ml'); hrs.forEach((h,i)=>{ const v=h.models?.[md.key]; c+=`<div class="pv-cl pv-m" data-h="${h.hour}" style="grid-column:${i+2};grid-row:${row}">${v!=null?fmt(v):'—'}</div>`; }); row++; });
-    (state.windModels||[]).forEach(md=>{ c+=L(row,'Vent '+shortModel(md.label),'','pv-ml'); hrs.forEach((h,i)=>{ const v=h.wmodels?.[md.key]; c+=`<div class="pv-cl pv-m" data-h="${h.hour}" style="grid-column:${i+2};grid-row:${row}">${v!=null?Math.round(v):'—'}</div>`; }); row++; });
+    const ab=l=>(shortModel(l).replace(/[^A-Za-zÀ-ÿ ]/g,' ').trim().split(/\s+/)[0]||'').slice(0,3).toUpperCase();
+    (state.models||[]).forEach(md=>{ c+=L(row,'',shortModel(md.label),'',`Modèle de vagues ${shortModel(md.label)}, hauteur en mètres`,'pv-ml','',ab(md.label)); hrs.forEach((h,i)=>{ const v=h.models?.[md.key]; c+=`<div class="pv-cl pv-m" data-h="${h.hour}" style="grid-column:${i+2};grid-row:${row}">${v!=null?fmt(v):'—'}</div>`; }); row++; });
+    (state.windModels||[]).forEach(md=>{ c+=L(row,'','Vent '+shortModel(md.label),'',`Modèle de vent ${shortModel(md.label)}, en km/h`,'pv-ml pv-mlw','',pvI('wind')+ab(md.label)); hrs.forEach((h,i)=>{ const v=h.wmodels?.[md.key]; c+=`<div class="pv-cl pv-m" data-h="${h.hour}" style="grid-column:${i+2};grid-row:${row}">${v!=null?Math.round(v):'—'}</div>`; }); row++; });
   }
   c+=`<div class="pv-selc" id="pvSel" style="grid-row:1/${row}" aria-hidden="true"></div>`;
   const rows=`40px 62px 56px 22px 62px 76px${state.cmp?' '+'30px '.repeat(row-7):''}`;
-  return `<div class="pv-scroll" id="pvScroll"><div class="pv-grid" style="--n:${n};grid-template-rows:${rows}">${c}</div></div>`;
+  return `<div class="pv-scw"><div class="pv-scroll" id="pvScroll"><div class="pv-grid" style="--n:${n};grid-template-rows:${rows}">${c}</div></div></div>`;
 }
 function markHour(){
   const g=document.querySelector('.pv-grid'); if(!g){ pvChartMark(); return; }
-  const avail=[...g.querySelectorAll('.pv-hh')].map(x=>+x.dataset.h); if(!avail.length) return;
+  const hh=[...g.querySelectorAll('.pv-hh')], avail=hh.map(x=>+x.dataset.h); if(!avail.length) return;
   const tg=Math.round(state.hour), hr=avail.reduce((b,x)=>Math.abs(x-tg)<Math.abs(b-tg)?x:b,avail[0]);
   g.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel')); g.querySelectorAll(`[data-h="${hr}"]`).forEach(x=>x.classList.add('sel'));
-  g.querySelectorAll('.pv-hh').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.h===hr)));
-  const f=g.querySelector(`.pv-hh[data-h="${hr}"]`), s=document.getElementById('pvSel'); if(f&&s) s.style.gridColumn=f.style.gridColumn;
+  hh.forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.h===hr)));
+  /* le cadre de sélection glisse d'une colonne à l'autre (transform) au lieu de sauter */
+  const f=g.querySelector(`.pv-hh[data-h="${hr}"]`), s=document.getElementById('pvSel');
+  if(f&&s){ s.style.transform=`translateX(${f.offsetLeft-hh[0].offsetLeft}px)`; if(!s.classList.contains('rd')) requestAnimationFrame(()=>requestAnimationFrame(()=>s.classList.add('rd'))); }
+  /* point sur la courbe de marée à l'heure choisie */
+  const dot=document.getElementById('pvTdot'), day=state.data[state.spot].days[state.day];
+  if(dot&&day){ const hrs=day.list.filter(h=>h.hour>=6&&h.hour<=21), i=hrs.findIndex(h=>h.hour===hr), h=hrs[i];
+    if(h&&h.tideN!=null){ dot.hidden=false; dot.style.left=((i+.5)/hrs.length*100).toFixed(2)+'%'; dot.style.top=((22+(1-h.tideN)*30)/72*100).toFixed(1)+'%'; } else dot.hidden=true; }
 }
 
 /* ---------- graphique 7 jours (à la demande) : houle, fourchette des modèles, période, vent ---------- */
@@ -4532,7 +4657,7 @@ function pvChartBind(){
   const H=pvChartData(), d=state.data[state.spot];
   const at=e=>{ const r=p.getBoundingClientRect(); return clamp(Math.round((e.clientX-r.left)/r.width*(H.length-1)),0,H.length-1); };
   p.addEventListener('pointermove',e=>{ const i=at(e), h=H[i], j=d.days.findIndex(x=>x.date===h.date), r=p.getBoundingClientRect();
-    tip.hidden=false; tip.innerHTML=`<b>${pvDayLong(d.days[j],j)} · ${h.hour}h</b><span>${h.H!=null?fmt(h.H)+' m':'—'} · ${h.T?Math.round(h.T)+' s':'—'}${h.D!=null?' '+sector(h.D):''}</span><span>Vent ${h.v!=null?Math.round(h.v):'—'} km/h${h.wd!=null?' '+sector(h.wd):''}</span>`;
+    tip.hidden=false; tip.innerHTML=`<b>${pvDayLong(d.days[j],j)} · ${h.hour}h</b><span>${pvI('wave')}${h.H!=null?fmt(h.H)+' m':'—'} · ${h.T?Math.round(h.T)+' s':'—'}${h.D!=null?' '+sector(h.D):''}</span><span>${pvI('wind')}${h.v!=null?Math.round(h.v):'—'} km/h${h.wd!=null?' '+sector(h.wd):''}${h.gust!=null?` · raf. ${Math.round(h.gust)}`:''}</span>${h.wind?`<span><i class="pv-wdot" style="background:${pvWindCol(h.wind)}"></i>${windWord[h.wind]}</span>`:''}`;
     tip.style.left=clamp(e.clientX-r.left,70,r.width-70)+'px'; });
   p.addEventListener('pointerleave',()=>{ tip.hidden=true; });
   p.addEventListener('click',e=>{ const h=H[at(e)], j=d.days.findIndex(x=>x.date===h.date); if(j<0) return;
@@ -4549,6 +4674,7 @@ function pvBuoyChart(obs,fc,label){
   const X=t=>((new Date(t).getTime()-t0)/(t1-t0||1)*1000).toFixed(1), Y=v=>(150-(v/top)*138).toFixed(1);
   const P=a=>a.map((o,i)=>(i?'L':'M')+X(o.t)+' '+Y(o.hs)).join('');
   const last=obs[obs.length-1], ly=+Y(last.hs), mx=obs.reduce((a,o)=>o.hs>a.hs?o:a,obs[0]);
+  PV.bch={obs,fc,t0,t1,Y};
   return `<div class="pv-bleg"><span class="o">Mesuré</span>${fc.length>1?`<span class="f">${label}</span>`:''}<span class="pv-bmax">max ${span} h : <b>${fmt(mx.hs)} m</b></span></div>
     <div class="pv-bch"><div class="pv-bys"><span style="top:${(+Y(top)/152*100).toFixed(1)}%">${fmt(top)}</span><span style="top:${(+Y(top/2)/152*100).toFixed(1)}%">${fmt(top/2)}</span><span style="top:${(150/152*100).toFixed(1)}%">0 m</span></div>
     <div class="pv-bpl"><svg viewBox="0 0 1000 152" preserveAspectRatio="none" role="img" aria-label="Hauteur mesurée par la bouée sur ${span} heures, comparée à la prévision"><line class="pv-b-g" x1="0" x2="1000" y1="${Y(top)}" y2="${Y(top)}"/><line class="pv-b-g" x1="0" x2="1000" y1="${Y(top/2)}" y2="${Y(top/2)}"/><path class="pv-b-a" d="${P(obs)}L1000 150L0 150Z"/>${fc.length>1?`<path class="pv-b-f" d="${P(fc)}"/>`:''}<path class="pv-b-o" d="${P(obs)}"/></svg><span class="pv-bdot" style="top:${(ly/152*100).toFixed(1)}%"></span></div></div>
@@ -4738,6 +4864,63 @@ const pvNum=(v,u)=>`<b>${v}</b><u>${u}</u>`;
 /* une mesure du résumé : pictogramme + petite étiquette, valeur en dessous */
 const pvSt=(ic,lab,val)=>`<div class="pv-st" title="${lab}"><span>${pvI(ic)}<i class="pv-stl">${lab}</i></span><em>${val}</em></div>`;
 
+/* ---------- finition mobile et détails (26/11/2026) ---------- */
+/* centre la frise sur l'heure choisie, en tenant compte de la colonne fixe des pictogrammes */
+function pvCenterHour(){
+  const sc=document.getElementById('pvScroll'), c=sc&&sc.querySelector('.pv-hh.sel'), lab=sc&&sc.querySelector('.pv-lab'); if(!sc||!c||sc.scrollWidth<=sc.clientWidth) return;
+  const r=sc.getBoundingClientRect(), cr=c.getBoundingClientRect(), lw=lab?lab.getBoundingClientRect().right-r.left:0;
+  sc.scrollLeft=Math.max(0,sc.scrollLeft+(cr.left+cr.width/2)-(r.left+lw+(r.width-lw)/2));
+}
+/* fondus aux bords de la frise : indiquent qu'il reste des heures à gauche ou à droite */
+function pvScrollEdges(){
+  const sc=document.getElementById('pvScroll'), w=sc&&sc.parentElement; if(!sc||!w||!w.classList.contains('pv-scw')) return;
+  const upd=()=>{ const m=sc.scrollWidth-sc.clientWidth; w.classList.toggle('l',sc.scrollLeft>2); w.classList.toggle('r',sc.scrollLeft<m-2); };
+  upd(); if(!sc._e){ sc._e=1; sc.addEventListener('scroll',upd,{passive:true}); }
+}
+/* toucher un pictogramme de ligne : son nom complet dans une petite bulle */
+(function(){
+  let tip=null, tm=0;
+  const hide=()=>{ if(tip) tip.classList.remove('on'); };
+  const show=el=>{
+    if(!tip){ tip=document.createElement('div'); tip.className='pv-ltip'; tip.setAttribute('role','status'); document.body.appendChild(tip); }
+    tip.textContent=el.dataset.tip; const r=el.getBoundingClientRect(); tip.classList.add('on');
+    tip.style.left=Math.round(r.right+6)+'px'; tip.style.top=Math.round(r.top+r.height/2-tip.offsetHeight/2)+'px';
+    clearTimeout(tm); tm=setTimeout(hide,2600);
+  };
+  document.addEventListener('click',e=>{ const l=e.target.closest('.pv-lab[data-tip]'); if(l&&getComputedStyle(l.querySelector('.pv-lt')).position==='absolute'){ show(l); } else hide(); });
+  document.addEventListener('mousedown',e=>{ if(e.target.closest&&e.target.closest('.pv-lab[data-tip]')) e.preventDefault(); });
+  document.addEventListener('keydown',e=>{ const l=e.target.closest&&e.target.closest('.pv-lab[data-tip]'); if(l&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); show(l); } });
+  addEventListener('scroll',hide,{passive:true});
+})();
+/* courbe de la bouée : info-bulle au survol ou au doigt (mesuré, prévu, heure) */
+(function(){
+  const fm=t=>t.slice(11,16).replace(':','h');
+  const move=e=>{
+    const p=e.target.closest&&e.target.closest('.pv-bpl'), B=PV.bch; if(!p||!B||!B.obs.length) return;
+    const r=p.getBoundingClientRect(), x=clamp((e.clientX-r.left)/r.width,0,1), tt=B.t0+x*(B.t1-B.t0);
+    const o=B.obs.reduce((a,b)=>Math.abs(new Date(b.t)-tt)<Math.abs(new Date(a.t)-tt)?b:a,B.obs[0]), f=B.fc.find(z=>z.t===o.t);
+    let tip=p.querySelector('.pv-btip'), g=p.querySelector('.pv-bguide');
+    if(!tip){ tip=document.createElement('div'); tip.className='pv-btip'; p.appendChild(tip); g=document.createElement('i'); g.className='pv-bguide'; p.appendChild(g); }
+    const px=(new Date(o.t)-B.t0)/(B.t1-B.t0||1);
+    tip.innerHTML=`<b>${fm(o.t)}</b><span class="o">Mesuré <em>${fmt(o.hs)} m</em></span>${f?`<span class="f">Prévu <em>${fmt(f.hs)} m</em></span>`:''}`;
+    tip.classList.add('on'); g.classList.add('on'); g.style.left=(px*100).toFixed(2)+'%'; g.style.setProperty('--y',(+B.Y(o.hs)/152*100).toFixed(1)+'%');
+    tip.style.left=clamp(px*r.width,tip.offsetWidth/2+4,r.width-tip.offsetWidth/2-4)+'px';
+  };
+  document.addEventListener('pointermove',move,{passive:true});
+  document.addEventListener('pointerdown',move,{passive:true});
+  document.addEventListener('pointerout',e=>{ const p=e.target.closest&&e.target.closest('.pv-bpl'); if(p&&!p.contains(e.relatedTarget)) p.querySelectorAll('.pv-btip,.pv-bguide').forEach(x=>x.classList.remove('on')); });
+})();
+/* haut de page : la lumière suit très légèrement l'heure du spot (aube, jour, crépuscule, nuit) */
+function pvSky(){
+  const d=state.data&&state.data[state.spot], sun=d&&d.days[0]&&d.days[0].sun; if(!sun) return 'day';
+  let h; try{ const p=new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'numeric',minute:'numeric',hourCycle:'h23'}).formatToParts(new Date()); h=+p.find(x=>x.type==='hour').value+(+p.find(x=>x.type==='minute').value)/60; }catch(e){ const n=new Date(); h=n.getHours()+n.getMinutes()/60; }
+  const r=hDec(sun.rise), s=hDec(sun.set);
+  if(h<r-.75||h>s+.75) return 'night';
+  if(h<r+1) return 'dawn';
+  if(h>s-1) return 'dusk';
+  return 'day';
+}
+
 /* ======================================== rendu ======================================== */
 function render(){
   const d=state.data[state.spot], s=d.spot, k=state.day, day=d.days[k];
@@ -4760,7 +4943,7 @@ function render(){
     <button type="button" data-go="map"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.2-6-10a6 6 0 0 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg><span>Autour</span></button>
     <button type="button" data-go="fav"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-3-5.4 3 1.1-6L3.2 9.4l6.1-.8z"/></svg><span>Favoris</span></button>
   </nav>
-  <div class="pv-band"><div class="pv-deco" aria-hidden="true">${pvDeco()}</div>
+  <div class="pv-band" data-sky="${pvSky()}"><div class="pv-deco" aria-hidden="true">${pvDeco()}</div>
   <header class="pv pv-top">
     <a class="pv-brand" href="./" aria-label="Houlalah, accueil"><img src="brand/symbol.svg" alt="" width="26" height="24"><img class="pv-bw" src="brand/wordmark.svg" alt="houlalah" height="15"></a>
     <button type="button" class="pv-pick" id="openPicker" aria-label="Changer de spot (actuel : ${s.name})">${PV_ICO.search}<span>${s.name}</span><small>${s.region}</small>${PV_ICO.chev}</button>
@@ -4812,7 +4995,7 @@ function render(){
     </footer>
   </div>`;
   updateLive(); bind();
-  { const sc=document.getElementById('pvScroll'), c=sc&&sc.querySelector('.pv-hh.sel'); if(sc&&c&&sc.scrollWidth>sc.clientWidth) sc.scrollLeft=Math.max(0,c.offsetLeft-sc.clientWidth/2+c.offsetWidth/2); }
+  pvCenterHour(); pvScrollEdges();
   { const r=document.querySelector('.pv-days'), a=r&&r.querySelector('.pv-day[aria-pressed="true"]'); if(r&&a){ const rr=r.getBoundingClientRect(), ar=a.getBoundingClientRect(); if(ar.right>rr.right-16) r.scrollLeft+=ar.left-rr.left-16; } }
 }
 
@@ -4843,11 +5026,13 @@ function updateLive(){
 function pvSetView(v){
   PV.view=v; try{ localStorage.setItem('pvView',v); }catch(e){}
   const d=state.data[state.spot], day=d.days[state.day], b=document.getElementById('pvBody'); if(!b) return;
+  const osc=document.getElementById('pvScroll'), ol=osc?osc.scrollLeft:null;
   b.innerHTML=v==='chart'?pvChart(d,state.day):pvTable(day,day.list.filter(h=>h.hour>=6&&h.hour<=21));
   document.querySelectorAll('.pv-bar [data-view]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.view===v)));
   const cb=document.getElementById('pvModels'); if(cb) cb.hidden=v==='chart';
   const wn=document.querySelector('.pv-wn'); if(wn) wn.hidden=v==='chart';
   pvBindBody(); updateLive();
+  { const sc=document.getElementById('pvScroll'); if(sc){ if(ol!=null) sc.scrollLeft=ol; else pvCenterHour(); } pvScrollEdges(); }
 }
 function pvColTip(hr){
   const d=state.data[state.spot], day=d.days[state.day], h=day&&day.list.find(x=>x.hour===+hr); if(!h||h.H==null) return '';
@@ -4893,7 +5078,7 @@ function bind(){
 function pvHl(i){
   document.querySelectorAll('.pv-nr.hl').forEach(r=>r.classList.remove('hl'));
   Object.entries(markers).forEach(([j,m])=>{ const el=m.getElement(); el.classList.toggle('pv-hl',+j===i); el.style.zIndex=+j===state.spot?6:+j===i?7:el.dataset.z||1; });
-  if(i!=null){ const r=document.querySelector(`.pv-nr[data-i="${i}"]`); if(r) r.classList.add('hl'); }
+  if(i!=null){ const r=document.querySelector(`.pv-nr[data-i="${i}"]`); if(r){ r.classList.add('hl'); const l=r.parentElement; if(l&&l.scrollHeight>l.clientHeight+4){ const lr=l.getBoundingClientRect(), rr=r.getBoundingClientRect(); if(rr.top<lr.top||rr.bottom>lr.bottom) l.scrollTo({top:l.scrollTop+rr.top-lr.top-lr.height/2+rr.height/2,behavior:'smooth'}); } } }
 }
 document.addEventListener('keydown',e=>{ if(e.key!=='/'||e.ctrlKey||e.metaKey||e.altKey) return; const t=e.target; if(t&&(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return; const p=document.getElementById('openPicker'); if(p&&!document.getElementById('picker').open&&!HOME.on){ e.preventDefault(); p.click(); } });
 

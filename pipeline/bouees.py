@@ -22,7 +22,7 @@ EXTRA_CSS = """
 .dbars{margin-top:20px}.dbars svg{display:block;width:100%;height:84px;margin-top:8px}.dax{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px}
 .crumb{font-size:13px;color:var(--muted);margin:0 0 12px}.crumb a{color:var(--muted)}.crumb b{color:var(--text);font-weight:600}
 .live{display:inline-flex;gap:8px;align-items:center;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#7a5a1c;margin-bottom:8px}
-.live:before{content:"";width:8px;height:8px;border-radius:50%;background:#1f9d55;box-shadow:0 0 0 0 rgba(31,157,85,.5);animation:lv 2.2s ease-out infinite}@keyframes lv{70%{box-shadow:0 0 0 8px rgba(31,157,85,0)}100%{box-shadow:0 0 0 0 rgba(31,157,85,0)}}@media (prefers-reduced-motion:reduce){.live:before{animation:none}}
+.live:before{content:"";width:8px;height:8px;border-radius:50%;background:none;box-shadow:inset 0 0 0 1.5px currentColor;opacity:.8}.live.on:before{background:#1f9d55;opacity:1;box-shadow:0 0 0 0 rgba(31,157,85,.5);animation:lv 2.2s ease-out infinite}@keyframes lv{70%{box-shadow:0 0 0 8px rgba(31,157,85,0)}100%{box-shadow:0 0 0 0 rgba(31,157,85,0)}}@media (prefers-reduced-motion:reduce){.live:before{animation:none}}
 .bh{display:grid;grid-template-columns:1.25fr 1fr;gap:14px;margin:22px 0 0}
 @media(max-width:760px){.bh{grid-template-columns:1fr}}
 .mapbox{position:relative;border-radius:24px;overflow:hidden;min-height:400px;border:1px solid var(--edge);background:#EFE9DC}
@@ -60,7 +60,7 @@ ul.bidx{padding:0;margin:0}
 
 MAP_JS = """
 (function(){
-  var ag=document.getElementById('bage'); if(ag){var t=new Date(ag.getAttribute('data-t')); var h=(Date.now()-t.getTime())/36e5; if(h>=0&&h<24*30) ag.textContent=h<1?"à l'instant":h<36?'il y a '+Math.round(h)+' h':'il y a '+Math.round(h/24)+' j';}
+  var ag=document.getElementById('bage'); if(ag){var t=new Date(ag.getAttribute('data-t')); var h=(Date.now()-t.getTime())/36e5; if(h>=0&&h<24*30) ag.textContent=h<1?"à l'instant":h<36?'il y a '+Math.round(h)+' h':'il y a '+Math.round(h/24)+' j'; if(ag.parentNode&&ag.parentNode.classList) ag.parentNode.classList.toggle('on',h>=0&&h<1);}
   var el=document.getElementById('bmap'); var raw=document.getElementById('bdata'); if(!el||!raw) return;
   var D=JSON.parse(raw.textContent), started=false;
   function col(h){var S=[[0,'#9ed8f0'],[.6,'#43b8c9'],[1.2,'#6bc46d'],[1.8,'#e8d54a'],[2.4,'#f39a2b'],[3.2,'#e24a3b']];for(var i=S.length-1;i>=0;i--)if(h>=S[i][0])return S[i][1];return S[0][1];}
@@ -141,6 +141,14 @@ def spot_color(h):
         if h >= v:
             c = k
     return c
+
+
+def is_fresh(now, t):
+    """mesure de moins d'une heure : seule cette situation justifie la pastille verte animée"""
+    try:
+        return 0 <= (now - datetime.strptime(t[:16], "%Y-%m-%dT%H:%M")).total_seconds() < 3600
+    except ValueError:
+        return False
 
 
 def age_txt(now, t):
@@ -279,7 +287,7 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
     data = {"b": {"n": name, "lat": b["lat"], "lon": b["lon"], "hs": L["hs"]}, "base": base,
             "s": [{"n": s["name"], "slug": s["slug"], "lat": s["lat"], "lon": s["lon"], "h": s["h"]} for k, s in near]}
     body = f"""<p class="crumb"><a href="{base}">{BRAND}</a> › <a href="../">Bouées</a> › <b>{esc(name)}</b></p>
-<span class="live">Mesure réelle · <span id="bage" data-t="{esc(L["time"][:16])}">{esc(age_txt(now, L["time"]))}</span></span>
+<span class="live{' on' if is_fresh(now, L['time']) else ''}">Mesure réelle · <span id="bage" data-t="{esc(L["time"][:16])}">{esc(age_txt(now, L["time"]))}</span></span>
 <h1>Bouée {esc(name)}</h1>
 <p class="muted">{esc(b["sub"][:1].upper() + b["sub"][1:])} · {fr(abs(b["lat"]), 2)} °N, {fr(abs(b["lon"]), 2)} °{"O" if b["lon"] < 0 else "E"} · relevé de {hour_label(L["time"])}</p>
 <div class="bh"><div class="mapbox"><div id="bmap"></div></div>
