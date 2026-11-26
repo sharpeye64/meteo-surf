@@ -3623,6 +3623,93 @@ html[data-da="a"] .pv-band[data-sky="night"]{background:radial-gradient(1000px 4
   .ho-bw.is-under .ho-b{transform:translate(-16px,-12px)}
 }
 @media (prefers-reduced-motion:reduce){ .ho-b.b-live,.ho-b.b-live .ho-lv:after,.ho-dock{animation:none!important} }
+
+/* =====================================================================================================
+   ACCUEIL — FINITION 3 (test, avant publication) : proportions du panneau, recherche, en-tête dynamique,
+   états des marqueurs, unités, superpositions, transitions.
+   ===================================================================================================== */
+/* les marqueurs restent toujours SOUS les panneaux et fiches */
+#home.ho .ho-map{z-index:0}
+/* panneau un peu plus généreux sur les grands écrans (340 → 384 px) */
+#home.ho{--pw:clamp(340px,calc(250px + 6.5vw),384px)}
+@media (min-width:1600px){ .ho-h1{font-size:23.5px} .ho-hd{padding:20px 22px 28px} .ho-zones{padding:10px 18px 0} .ho-body{padding:8px 18px 16px} .ho-bv{font-size:17.5px} }
+/* recherche : plus lumineuse, l'action principale */
+.ho-srch{height:50px;border-radius:15px;background:linear-gradient(180deg,rgba(243,239,230,.17),rgba(243,239,230,.11));box-shadow:inset 0 0 0 1px rgba(243,239,230,.24),inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(0,0,0,.45)}
+.ho-srch:hover{box-shadow:inset 0 0 0 1px rgba(243,239,230,.34),inset 0 1px 0 rgba(255,255,255,.08),0 8px 18px -10px rgba(0,0,0,.45)}
+.ho-srch:focus-within{background:linear-gradient(180deg,rgba(243,239,230,.2),rgba(243,239,230,.14));box-shadow:inset 0 0 0 1.5px rgba(242,198,107,.75),0 0 0 4px rgba(242,198,107,.12),0 8px 18px -10px rgba(0,0,0,.45)}
+.ho-srch>svg{opacity:.85;width:18px;height:18px}
+.ho-srch input{font-size:15.5px}
+.ho-srch input::placeholder{color:rgba(243,239,230,.72)}
+.ho-k{color:rgba(243,239,230,.74)}
+/* en-tête dynamique : le nom du spot ou de la bouée remplace l'accroche */
+.ho-hbk{display:none;place-items:center;width:30px;height:30px;margin:0 6px 0 -6px;border:0;border-radius:50%;background:rgba(243,239,230,.1);color:var(--cr);cursor:pointer;transition:background .2s,transform .25s var(--ease)}
+.ho-hbk:hover{background:rgba(243,239,230,.18);transform:translateX(-2px)}
+.ho-hbk svg{width:17px;height:17px}
+.ho-hsp{flex:1}
+.ho-brand{justify-content:flex-start}
+.ho-hfv{width:32px;height:32px;margin-right:2px;background:rgba(243,239,230,.1);color:var(--cr)}
+.ho-hfv svg{width:16px;height:16px}
+.ho-hfv.on{background:rgba(242,198,107,.18);color:var(--g)}
+.ho-sel{display:none}
+.ho-sel-n{margin:16px 0 0;font:700 25px/1.08 Unbounded,system-ui,sans-serif;letter-spacing:-.04em;color:var(--cr)}
+.ho-sel-r{margin:7px 0 0;font:600 13px Manrope,system-ui,sans-serif;color:rgba(243,239,230,.7)}
+#home.ho.ho-hsel .ho-hbk{display:grid}
+#home.ho.ho-hsel .ho-h1,#home.ho.ho-hsel .ho-k{display:none}
+#home.ho.ho-hsel .ho-sel{display:block;animation:hoSelIn .4s var(--ease)}
+@keyframes hoSelIn{from{opacity:0;transform:translateY(6px)}}
+#home.ho:not(.ho-hsel) .ho-h1{animation:hoSelIn .4s var(--ease)}
+#home.ho:is([data-view="spot"],[data-view="buoy"]) .ho-body{padding-top:6px}
+.ho-spot>#hoNums>.ho-when:first-child{margin-top:8px}
+/* ---- marqueurs : unités compactes ---- */
+.ho-m u{text-decoration:none;font-weight:700;font-size:.74em;opacity:.72;margin-left:1.5px;letter-spacing:0}
+.ho-zlo .ho-m u{display:none}
+/* favori : une petite étoile dorée (et plus un simple point) */
+.ho-m.fav:after{content:"";top:-6px;right:-6px;width:13px;height:13px;border-radius:50%;background:#D9A441 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230B1B26' d='M12 4.5l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L4.8 9.8l5-.7z'/%3E%3C/svg%3E") center/9px no-repeat;box-shadow:0 0 0 1.5px #FFFDF8,0 2px 4px rgba(11,27,38,.25)}
+/* sélection : anneau bleu nuit net + halo doux */
+.ho-m.sel{box-shadow:0 0 0 2.5px #0B1B26,0 0 0 6px rgba(255,253,248,.92),0 0 0 7px rgba(11,27,38,.12),0 12px 24px -8px rgba(11,27,38,.55)}
+/* bouées : récente = anneau doré net, sans point ; ancienne = anneau sourd ; muette = grisée */
+.ho-b.b-recent .ho-lv{display:none}
+.ho-b.b-recent{box-shadow:0 0 0 1.5px rgba(242,198,107,.85),0 1px 2px rgba(11,27,38,.2),0 6px 14px -6px rgba(11,27,38,.5)}
+.ho-b.b-old{opacity:.72;color:#D6BF8A;background:linear-gradient(180deg,#2A3B45,#1E2D36);box-shadow:0 0 0 1.5px rgba(214,191,138,.4),0 6px 14px -6px rgba(11,27,38,.4)}
+.ho-b.b-off{opacity:.5;filter:grayscale(1)}
+.ho-tip .ho-fd.f-recent{background:rgba(243,239,230,.8)}
+/* distance sur le trait doré */
+.ho-kmw{pointer-events:none;z-index:4}
+.ho-km{display:inline-block;padding:3px 8px;border-radius:999px;background:#0B1B26;color:#F2C66B;font:800 11px Manrope,system-ui,sans-serif;letter-spacing:.02em;box-shadow:0 0 0 1px rgba(242,198,107,.5),0 4px 10px -4px rgba(11,27,38,.5);animation:hoPopIn .35s var(--ease)}
+/* fiche spot : la mesure de la bouée reste « actuelle » quand on regarde une autre heure */
+.ho-fut .ho-ms .ho-mf:after{content:" · mesure actuelle";color:rgba(242,198,107,.8)}
+.ho-mf{font-size:12px}
+/* ---- téléphone ---- */
+@media (max-width:759px){
+  .ho-mlogo{height:36px;padding:0 12px 0 10px;border-radius:12px}
+  .ho-mlogo img{height:18px}
+  .ho-mlogo img+img{height:11.5px}
+  .ho-ib{width:38px;height:38px}
+  .ho-srch{background:linear-gradient(180deg,#FFFDF8,#FAF6EE);box-shadow:0 0 0 1px rgba(11,27,38,.08),var(--sh)}
+  .ho-srch input::placeholder{color:#6E7A80}
+  .ho-srch>svg{opacity:.7}
+  .ho-srch:focus-within{background:#FFFDF8;box-shadow:0 0 0 1.5px rgba(11,27,38,.55),0 0 0 4px rgba(11,27,38,.06),var(--sh)}
+  .ho-top{top:var(--top)}
+  .ho-panel{top:calc(var(--top) + 46px)}
+  .ho-vlist button{position:relative}
+  .ho-ck{position:absolute;right:14px;top:50%;width:20px;height:20px;margin-top:-10px;color:var(--g)}
+  .ho-ck svg{width:20px;height:20px;stroke-width:2.4}
+  .ho-sheet.ho-sh-l{display:flex;flex-direction:column;overflow:hidden}
+  .ho-sh-l .ho-sk{flex:none;padding-bottom:8px;border-bottom:1px solid var(--ln);margin-bottom:4px}
+  .ho-sh-l .ho-bl{flex:1;min-height:0;overflow:auto;scrollbar-width:none;margin:0 -4px;padding:0 4px}
+  .ho-sh-l .ho-bl::-webkit-scrollbar{display:none}
+  .ho-sh-l .ho-more{flex:none}
+  .ho-sheet{z-index:20}
+  .ho-dock{z-index:12}
+  .ho-top,.ho-panel{z-index:15}
+}
+@media (prefers-reduced-motion:reduce){ #home.ho.ho-hsel .ho-sel,#home.ho:not(.ho-hsel) .ho-h1,.ho-km{animation:none} }
+
+/* après l'arrivée : un marqueur qui réapparaît (dézoom, regroupement) ne rejoue pas la cascade */
+#home.ho.ho-ready .ho-m{animation:none}
+
+/* bouée choisie : toujours pleinement visible, anneau doré net, même si sa mesure est ancienne */
+#home.ho .ho-bw.is-sel .ho-b{opacity:1;filter:none;transform:scale(1.12);box-shadow:0 0 0 2px #F2C66B,0 0 0 5px rgba(255,253,248,.9),0 10px 20px -8px rgba(11,27,38,.55)}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -5716,6 +5803,7 @@ const HO_I={
   menu:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>',
   cal:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>'
 };
+const hoIc=k=>k==='T'?'<svg class="pv-i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M10 2.8h4M12 2.8V6M18.2 6.8l1.4-1.4"/></svg>':pvI(k==='H'?'wave':'wind');
 const hoAge=L=>(Date.now()-new Date(L.time+':00').getTime())/36e5;
 const hoKey=t=>t.slice(0,13);
 const hoDays=['Dim.','Lun.','Mar.','Mer.','Jeu.','Ven.','Sam.'], hoDaysL=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
@@ -5764,15 +5852,16 @@ async function homeOpen(fromSpot){
         <button type="button" class="ho-ib" id="hoFavB" aria-label="Mes spots">${HO_I.star}</button><button type="button" class="ho-ib" id="hoMenuB" aria-label="Menu">${HO_I.menu}</button></div>
       <section class="ho-panel" id="hoPanel" aria-label="Explorer la côte">
         <header class="ho-hd"><div class="ho-deco" aria-hidden="true"><i></i><i></i></div>
-          <div class="ho-brand"><a class="ho-logo" href="./" aria-label="Houlalah"><img src="brand/symbol.svg" alt="" width="24" height="22"><img class="ho-wm" src="brand/wordmark.svg" alt="houlalah" height="15"></a><a class="ho-how" href="comment-ca-marche/" aria-label="Comment ça marche" title="Comment ça marche">${HO_I.info}</a></div>
+          <div class="ho-brand"><button type="button" class="ho-hbk" id="hoHbk" aria-label="Revenir à toute la côte">${HO_I.back}</button><a class="ho-logo" href="./" aria-label="Houlalah"><img src="brand/symbol.svg" alt="" width="24" height="22"><img class="ho-wm" src="brand/wordmark.svg" alt="houlalah" height="15"></a><span class="ho-hsp"></span><span id="hoHfv"></span><a class="ho-how" href="comment-ca-marche/" aria-label="Comment ça marche" title="Comment ça marche">${HO_I.info}</a></div>
           <h1 class="ho-h1">La houle prévue, <em>vérifiée par les bouées.</em></h1>
           <p class="ho-k">${HOME.data.length} spots · ${HOME.bu.length} bouées · Bretagne au Portugal</p>
+          <div class="ho-sel" id="hoSel" aria-live="polite"></div>
           <label class="ho-srch">${HO_I.srch}<input id="hmQ" type="search" placeholder="Un spot, une ville…" autocomplete="off" enterkeyhint="search" aria-label="Chercher un spot ou une ville"><button type="button" class="ho-qx" id="hmQx" aria-label="Effacer" hidden>${HO_I.x}</button></label>
         </header>
         <div class="ho-zones" id="hoZones" role="group" aria-label="Zone"></div>
         <div class="ho-body" id="hoBody"></div>
       </section>
-      <div class="ho-tools"><div class="ho-seg" id="hoVar" role="group" aria-label="Donnée affichée"><i class="ho-ind" aria-hidden="true"></i>${Object.values(HOME_VARS).map(x=>`<button type="button" data-v="${x.k}" aria-pressed="${x.k===HOME.v}">${pvI(x.k==='H'?'wave':x.k==='T'?'period':'wind')}<span>${x.lab}</span></button>`).join('')}</div>
+      <div class="ho-tools"><div class="ho-seg" id="hoVar" role="group" aria-label="Donnée affichée"><i class="ho-ind" aria-hidden="true"></i>${Object.values(HOME_VARS).map(x=>`<button type="button" data-v="${x.k}" aria-pressed="${x.k===HOME.v}">${hoIc(x.k)}<span>${x.lab}</span></button>`).join('')}</div>
         <button type="button" class="ho-rb" id="hoBuT" aria-pressed="${HOME.showBu}" aria-label="Afficher les bouées" title="Bouées : mesures réelles">${pvI('buoy')}</button>
         <div class="ho-leg" id="hoLeg" aria-hidden="true"></div></div>
       <button type="button" class="ho-rb ho-geo" id="hmGeo" title="Spots près de moi" aria-label="Spots près de moi">${HO_I.loc}</button>
@@ -5837,8 +5926,8 @@ function homeInitMap(){
     HOME.bm[bu.id]=new maplibregl.Marker({element:w}).setLngLat([bu.lon,bu.lat]).addTo(map); });
   homeMarks(); homeFit(true);   /* à l'arrivée : toute la côte, de la Bretagne au Portugal */
   map.on('moveend',homeCluster); map.on('zoom',homeTipHide);
-  map.on('click',()=>{ if(hoMob()&&!document.getElementById('hoSheet').hidden) homeBackHome(); });
-  setTimeout(homeCluster,60);
+  map.on('click',()=>{ if(hoMob()&&!document.getElementById('hoSheet').hidden) homeBackHome(false); });
+  setTimeout(homeCluster,60); setTimeout(()=>document.getElementById('home').classList.add('ho-ready'),1600);   /* apparition en cascade une seule fois */
 }
 function homeHover(b,html){
   if(!matchMedia('(hover:hover)').matches) return;
@@ -5854,7 +5943,7 @@ function homeBuoyTip(b){ const f=pvFresh(hoAge(b.L),b.L.time);
 function homeMarks(){
   const v=HOME.v;
   HOME.data.forEach(s=>{ const m=HOME.mk&&HOME.mk[s.i]; if(!m) return; const b=m.getElement().firstChild, h=homeHour(s), x=homeVal(h,v);
-    b.querySelector('span').innerHTML=x==null?'—':v==='W'?`${h.wd!=null?pvArr(h.wd,'ho-wa'):''}${Math.round(x)}`:homeTxt(x,v);
+    b.querySelector('span').innerHTML=x==null?'—':v==='W'?`${h.wd!=null?pvArr(h.wd,'ho-wa'):''}${Math.round(x)}<u>km/h</u>`:`${homeTxt(x,v)}<u>${v==='H'?'m':'s'}</u>`;
     b.style.cssText=x==null?'--c:#D8D2C4;--t:#5F6B71':pvCellCss(x,v);
     b.classList.toggle('fav',state.fav.includes(s.n)); b.classList.toggle('sel',HOME.sel===s.i); m.getElement().classList.toggle('is-sel',HOME.sel===s.i); });
   Object.entries(HOME.bm||{}).forEach(([id,m])=>{ const bu=HOME.bu.find(x=>x.id===id), b=m.getElement().firstChild, a=hoAge(bu.L);
@@ -5864,7 +5953,7 @@ function homeMarks(){
 }
 /* regroupement : moins de pastilles, plus lisibles ; un groupe = la plus haute valeur, en « pile » (pas de compteur) */
 function homeCluster(){
-  const map=HOME.map; if(!map||!HOME.data) return; const v=HOME.v, mob=hoMob(), z=map.getZoom(), R=(mob?8:0)+(z<6.5?50:z<8?44:z<9.5?40:36), W=innerWidth, H=innerHeight, lo=z<7.3;
+  const map=HOME.map; if(!map||!HOME.data) return; const v=HOME.v, mob=hoMob(), z=map.getZoom(), R=(mob?8:0)+(v==='W'?10:0)+(z<6.5?58:z<8?52:z<9.5?48:42), W=innerWidth, H=innerHeight, lo=z<7.3;
   document.getElementById('home').classList.toggle('ho-zlo',lo);
   (HOME.cl||[]).forEach(c=>c.remove()); HOME.cl=[];
   const groups=[], val=s=>homeVal(homeHour(s),v)??-1;
@@ -5872,11 +5961,11 @@ function homeCluster(){
   order.forEach(s=>{ const el=HOME.mk[s.i]&&HOME.mk[s.i].getElement(); if(!el) return;
     if(!homeRegOk(s)){ el.hidden=true; return; }
     const p=map.project([s.lon,s.lat]); if(p.x<-60||p.x>W+60||p.y<-60||p.y>H+60){ el.hidden=false; return; }
-    const g=s.i===HOME.sel?null:groups.find(q=>q.s.i!==HOME.sel&&Math.abs(q.p.x-p.x)<R&&Math.abs(q.p.y-p.y)<R*.6);
+    const g=s.i===HOME.sel?null:groups.find(q=>q.s.i!==HOME.sel&&Math.abs(q.p.x-p.x)<R&&Math.abs(q.p.y-p.y)<Math.max(R*.6,mob?32:28));
     if(g){ g.m.push(s); el.hidden=true; } else { groups.push({s,p,m:[s]}); el.hidden=false; } });
   Object.entries(HOME.bm||{}).forEach(([id,m])=>{ const el=m.getElement(); if(!HOME.showBu){ el.hidden=true; return; }
     el.hidden=false; const bu=HOME.bu.find(x=>x.id===id), p=map.project([bu.lon,bu.lat]), sel=HOME.selB&&HOME.selB.id===id;
-    const hit=!sel&&groups.some(g=>Math.abs(g.p.x-p.x)<(lo?34:46)&&Math.abs(g.p.y-p.y)<24); el.classList.toggle('is-under',hit); });   /* bouées toujours visibles ; sur un spot, compactes et dessous */
+    const hit=!sel&&groups.some(g=>Math.abs(g.p.x-p.x)<(lo?34:46)&&Math.abs(g.p.y-p.y)<(mob?32:24)); el.classList.toggle('is-under',hit); });   /* bouées toujours visibles ; sur un spot, compactes et dessous */
   groups.forEach(g=>{ HOME.mk[g.s.i].getElement().firstChild.classList.toggle('ho-st',g.m.length>1); g.el=HOME.mk[g.s.i].getElement(); });
   groups.filter(g=>g.m.length>1).forEach(g=>{ const b=g.el.firstChild;
     b.dataset.n=g.m.length; b.onmouseenter=null;
@@ -5897,6 +5986,8 @@ function homeFit(instant,first){
 function homeRef(){
   const src=HOME.map&&HOME.map.getSource&&HOME.map.getSource('ho-ref'); if(!src) return;
   const r=HOME.ref; src.setData({type:'FeatureCollection',features:r?[{type:'Feature',geometry:{type:'LineString',coordinates:[[r.a.lon,r.a.lat],[r.b.lon,r.b.lat]]},properties:{}}]:[]});
+  if(HOME.refM){ HOME.refM.remove(); HOME.refM=null; }
+  if(r&&r.k){ const e=document.createElement('div'); e.className='ho-kmw'; e.innerHTML=`<span class="ho-km">${r.k} km</span>`; HOME.refM=new maplibregl.Marker({element:e}).setLngLat([(r.a.lon+r.b.lon)/2,(r.a.lat+r.b.lat)/2]).addTo(HOME.map); }
 }
 
 /* ---------- légende et choix du jour / de l'heure ---------- */
@@ -5904,7 +5995,7 @@ function homeLegendHtml(){ const V=HOME_VARS[HOME.v], st=PV_PAL.a[HOME.v];
   return `<div class="ho-lt">${V.lab} · ${V.u}</div><div class="ho-lsteps">${V.ticks.map(t=>{ const c=pvRamp(t,st); return `<i style="background:rgb(${c.join(',')})"></i>`; }).join('')}</div><div class="ho-lk"><span>${V.min}</span><span>${V.max}</span></div>`; }
 function homeLegend(){
   const L=document.getElementById('hoLeg'); if(L) L.innerHTML=homeLegendHtml();
-  const vb=document.getElementById('hoVarM'); if(vb){ const V=HOME_VARS[HOME.v]; vb.innerHTML=`${pvI(HOME.v==='H'?'wave':HOME.v==='T'?'period':'wind')}<b>${V.lab}</b>${HO_I.down}`; vb.setAttribute('aria-label','Donnée affichée : '+V.lab); }
+  const vb=document.getElementById('hoVarM'); if(vb){ const V=HOME_VARS[HOME.v]; vb.innerHTML=`${hoIc(HOME.v)}<b>${V.lab}</b>${HO_I.down}`; vb.setAttribute('aria-label','Donnée affichée : '+V.lab); }
 }
 function homeDays(){ const o=[]; HOME.T.forEach((t,i)=>{ const d=t.slice(0,10); if(!o.length||o[o.length-1].d!==d) o.push({d,i}); }); return o; }
 function homeTimeBar(){
@@ -5961,9 +6052,9 @@ function homeZones(){
 }
 function homeBindUi(){
   const qi=document.getElementById('hmQ'), qx=document.getElementById('hmQx');
-  qi.oninput=()=>{ HOME.q=qi.value; qx.hidden=!qi.value; if(HOME.q.trim()){ homeSheet(null); HOME.view='search'; } else if(HOME.view==='search') HOME.view='home'; homePanel(); };
+  qi.oninput=()=>{ HOME.q=qi.value; qx.hidden=!qi.value; if(HOME.q.trim()){ homeSheet(null); HOME.view='search'; } else if(HOME.view==='search') HOME.view=HOME.sel!=null?'spot':HOME.selB?'buoy':'home'; homePanel(); };
   qi.onkeydown=e=>{ if(e.key==='Enter'){ const f=document.querySelector('#hoBody .ho-it'); if(f) f.click(); } if(e.key==='Escape'){ qx.click(); } };
-  qx.onclick=()=>{ qi.value=''; HOME.q=''; qx.hidden=true; if(HOME.view==='search') HOME.view='home'; homePanel(); qi.blur(); };
+  qx.onclick=()=>{ qi.value=''; HOME.q=''; qx.hidden=true; if(HOME.view==='search') HOME.view=HOME.sel!=null?'spot':HOME.selB?'buoy':'home'; homePanel(); qi.blur(); };
   const setV=v=>{ HOME.v=v; homeSwap(); try{ localStorage.setItem('hoVar',v); }catch(e){} document.getElementById('home').dataset.v=v; document.querySelectorAll('#hoVar [data-v]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v))); homeInd(document.getElementById('hoVar')); homeLegend(); homeMarks(); };
   HOME.setV=setV;
   document.querySelectorAll('#hoVar [data-v]').forEach(b=>b.onclick=()=>setV(b.dataset.v));
@@ -5982,9 +6073,21 @@ function homeSheet(html,cls){
   S.className='ho-sheet'+(cls?' '+cls:''); S.innerHTML=`<button type="button" class="ho-sx" aria-label="Fermer">${HO_I.x}</button>${html}`; S.hidden=false; document.getElementById('home').classList.add('ho-shon');
   S.querySelector('.ho-sx').onclick=()=>homeBackHome();
 }
-function homeBackHome(){ HOME.view='home'; HOME.sel=null; HOME.selB=null; HOME.ref=null; homeRef(); homeSheet(null); homePanel(); homeMarks(); }
+/* fermer une fiche : retour à l'accueil du panneau et, sauf toucher sur la carte, au cadrage d'avant la sélection */
+function homeBackHome(restore){ HOME.view='home'; HOME.sel=null; HOME.selB=null; HOME.ref=null; homeRef(); homeSheet(null); homeHead(null); homePanel(); homeMarks();
+  if(restore!==false&&HOME.prevCam&&HOME.map) HOME.map.easeTo({...HOME.prevCam,duration:900,essential:true}); HOME.prevCam=null; }
+function homeHead(t){ const S=document.getElementById('hoSel'), F=document.getElementById('hoHfv'), q=document.getElementById('hmQ'), el=document.getElementById('home'); if(!S) return;
+  el.classList.toggle('ho-hsel',!!t); S.innerHTML=t?`<h2 class="ho-sel-n">${t.n}</h2><p class="ho-sel-r">${t.r}</p>`:'';
+  F.innerHTML=t&&t.fav!=null?`<button type="button" class="ho-fv ho-hfv${t.fav?' on':''}" id="hoFv" aria-pressed="${t.fav}" aria-label="${t.fav?'Retirer de mes spots':'Ajouter à mes spots'}">${HO_I.star}</button>`:'';
+  if(q) q.placeholder=t?'Changer de spot…':'Un spot, une ville…'; const b=document.getElementById('hoHbk'); if(b) b.onclick=()=>homeBackHome(); }
+/* garder le cadrage d'avant la première sélection (pour y revenir) */
+function homeKeepCam(){ if(HOME.map&&!HOME.prevCam){ const c=HOME.map.getCenter(); HOME.prevCam={center:[c.lng,c.lat],zoom:HOME.map.getZoom()}; } }
+/* les n spots les plus proches d'un point : la caméra garde du contexte géographique */
+function homeNearest(lat,lon,n,maxKm){ const k=Math.cos(lat*Math.PI/180), d=s=>Math.hypot((s.lat-lat)*111,(s.lon-lon)*111*k); return HOME.data.filter(homeRegOk).map(s=>[s,d(s)]).filter(x=>x[1]<=(maxKm||999)).sort((a,b)=>a[1]-b[1]).slice(0,n).map(x=>x[0]); }
+function homeFitPts(pts,maxZoom){ if(!HOME.map||!pts.length) return; const b=pts.reduce((a,p)=>[Math.min(a[0],p.lon),Math.min(a[1],p.lat),Math.max(a[2],p.lon),Math.max(a[3],p.lat)],[999,99,-999,-99]);
+  HOME.map.fitBounds([[b[0],b[1]],[b[2],b[3]]],{padding:homePad(60),maxZoom,duration:1000,essential:true}); }
 function homeVarSheet(){
-  homeSheet(`<p class="ho-sk">Donnée affichée</p><div class="ho-vlist">${Object.values(HOME_VARS).map(x=>`<button type="button" data-v="${x.k}" aria-pressed="${x.k===HOME.v}">${pvI(x.k==='H'?'wave':x.k==='T'?'period':'wind')}<b>${x.lab}</b><small>${x.k==='H'?'hauteur prévue, en mètres':x.k==='T'?'période prévue, en secondes':'vent moyen prévu, en km/h'}</small></button>`).join('')}</div><div class="ho-leg2">${homeLegendHtml()}</div>`,'ho-sh-s');
+  homeSheet(`<p class="ho-sk">Donnée affichée</p><div class="ho-vlist">${Object.values(HOME_VARS).map(x=>`<button type="button" data-v="${x.k}" aria-pressed="${x.k===HOME.v}">${hoIc(x.k)}<b>${x.lab}</b>${x.k===HOME.v?'<i class="ho-ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>':''}<small>${x.k==='H'?'hauteur prévue, en mètres':x.k==='T'?'période prévue, en secondes':'vent moyen prévu, en km/h'}</small></button>`).join('')}</div><div class="ho-leg2">${homeLegendHtml()}</div>`,'ho-sh-s');
   document.querySelectorAll('#hoSheet [data-v]').forEach(b=>b.onclick=()=>{ HOME.setV(b.dataset.v); homeSheet(null); });
 }
 function homeMenu(){
@@ -6003,7 +6106,7 @@ function homeFavList(T){
 }
 function homePanel(){
   const B=document.getElementById('hoBody'), mob=hoMob(); if(!B) return; const v=HOME.view, el=document.getElementById('home');
-  el.dataset.view=v;
+  el.dataset.view=v; if(!['spot','buoy','search'].includes(v)) homeHead(null);
   if(v==='search'){ homeSearch(); return; }
   if(v==='spot'&&HOME.sel!=null){ homeSpotPanel(HOME.data.find(x=>x.i===HOME.sel)); return; }
   if(v==='buoy'&&HOME.selB){ homeBuoyPanel(HOME.selB); return; }
@@ -6016,7 +6119,7 @@ function homePanel(){
   /* grand écran : mes spots (repliés), puis 3 bouées, la liste complète à la demande */
   const live=HOME.bu.filter(b=>hoAge(b.L)<1).length, rec=HOME.bu.filter(b=>hoAge(b.L)<3).length, all=HOME.buAll, fav=HOME.data.filter(s=>state.fav.includes(s.n)), fo=v==='favs';
   B.innerHTML=`<button type="button" class="ho-row" id="hoFavT" aria-expanded="${fo}">${HO_I.star}<b>Mes spots</b>${fav.length?`<small>${fav.length}</small>`:''}<i class="ho-chev${fo?' on':''}">${HO_I.next}</i></button>${fo?'<div id="hoFavL"></div>':''}
-    <div class="ho-sea"><div class="ho-bh"><span>${pvI('buoy')}Mesures en mer</span><span class="ho-bcount${live?' on':''}"><i class="ho-fd ${live?'f-live':'f-recent'}"></i>${live?`${live} en direct`:`${rec} récentes`}<small> / ${HOME.bu.length}</small></span></div>
+    <div class="ho-sea"><div class="ho-bh"><span>${pvI('buoy')}Mesures en mer</span><span class="ho-bcount${live?' on':''}" title="${live?'Mesures de moins d’une heure':'Mesures de moins de 3 heures'}"><i class="ho-fd ${live?'f-live':'f-recent'}"></i>${live?`${live} en direct`:`${rec} récentes`}<small> / ${HOME.bu.length}</small></span></div>
     <div class="ho-bl${all?' all':''}">${(all?HOME.bu:HOME.bu.slice(0,3)).map(homeBuRow).join('')}</div>
     <button type="button" class="ho-more" id="hoBuAll">${all?'Moins de bouées':'Toutes les bouées'} ${all?HO_I.down:HO_I.next}</button></div>`;
   if(fo) homeFavList(B);
@@ -6035,22 +6138,23 @@ function homeSearch(){
 }
 function homeClearQ(){ const qi=document.getElementById('hmQ'), qx=document.getElementById('hmQx'); HOME.q=''; if(qi){ qi.value=''; qi.blur(); } if(qx) qx.hidden=true; }
 function homeSpot(s,fly){
-  if(!s) return; homeClearQ(); HOME.view='spot'; HOME.sel=s.i; HOME.selB=null;
+  if(!s) return; homeKeepCam(); homeClearQ(); HOME.view='spot'; HOME.sel=s.i; HOME.selB=null;
   const spot=state.data[s.i].spot, cur=pickBuoy(buoyChoices(spot)), bp=cur&&homeBuoyPos(cur.key);
-  HOME.ref=bp?{a:{lat:s.lat,lon:s.lon},b:bp}:null; homeRef();
+  HOME.ref=bp?{a:{lat:s.lat,lon:s.lon},b:bp,k:Math.round(cur.km)}:null; homeRef();
   homePanel(); homeMarks();
-  if(HOME.map){ if(fly){ const b=bp&&cur.km<60?bp:s; HOME.map.fitBounds([[Math.min(s.lon,b.lon),Math.min(s.lat,b.lat)],[Math.max(s.lon,b.lon),Math.max(s.lat,b.lat)]],{padding:homePad(60),maxZoom:Math.max(HOME.map.getZoom(),10),duration:900}); }
-    else HOME.map.easeTo({center:[s.lon,s.lat],offset:[0,-60],duration:500}); }
+  if(HOME.map){ if(fly){ const pts=[s,...homeNearest(s.lat,s.lon,5,25)]; if(bp&&cur.km<60) pts.push(bp); homeFitPts(pts,10.4); }
+    else HOME.map.easeTo({center:[s.lon,s.lat],zoom:Math.max(HOME.map.getZoom(),8.5),offset:[0,-90],duration:700}); }
 }
 function homeSpotPanel(s){
   const d=state.data[s.i], spot=d.spot, cur=pickBuoy(buoyChoices(spot)), fav=state.fav.includes(s.n), mob=hoMob();
-  const html=`<div class="ho-spot"><div class="ho-sp-hd">${mob?'':`<button type="button" class="ho-bk" id="hoBk" aria-label="Revenir">${HO_I.back}</button>`}<div class="ho-sp-t"><h2 class="ho-sp-n">${s.n}</h2><p class="ho-sp-r">${s.c&&hoNz(s.c)!==hoNz(s.n)?s.c+' · ':''}${s.r}</p></div><button type="button" class="ho-fv${fav?' on':''}" id="hoFv" aria-pressed="${fav}" aria-label="${fav?'Retirer de mes spots':'Ajouter à mes spots'}">${HO_I.star}</button></div>
+  const reg=`${s.c&&hoNz(s.c)!==hoNz(s.n)?s.c+' · ':''}${s.r}`;
+  if(!mob) homeHead({n:s.n,r:reg,fav});
+  const html=`<div class="ho-spot">${mob?`<div class="ho-sp-hd"><div class="ho-sp-t"><h2 class="ho-sp-n">${s.n}</h2><p class="ho-sp-r">${reg}</p></div><button type="button" class="ho-fv${fav?' on':''}" id="hoFv" aria-pressed="${fav}" aria-label="${fav?'Retirer de mes spots':'Ajouter à mes spots'}">${HO_I.star}</button></div>`:''}
     <div id="hoNums"></div>
-    ${cur?`<button type="button" class="ho-ms" id="hoMs"><span class="ho-mk">${pvI('buoy')}Bouée ${cur.name}</span><span class="ho-mv">${hmF(cur.L.hs)} m${(cur.L.tp||cur.Tm)?` · ${Math.round(cur.L.tp||cur.Tm)} s`:''}</span><span class="ho-mf"><i class="ho-fd f-${pvFresh(cur.ageH,cur.L.time).c}"></i>${pvFresh(cur.ageH,cur.L.time).t}</span></button>`:''}
+    ${cur?`<button type="button" class="ho-ms" id="hoMs"><span class="ho-mk">${pvI('buoy')}Bouée ${cur.name}</span><span class="ho-mv">${hmF(cur.L.hs)} m${(cur.L.tp||cur.Tm)?` · ${Math.round(cur.L.tp||cur.Tm)} s`:''}</span><span class="ho-mf"><i class="ho-fd f-${pvFresh(cur.ageH,cur.L.time).c}"></i>${pvFresh(cur.ageH,cur.L.time).t} · à ${Math.round(cur.km)} km</span></button>`:''}
     <button type="button" class="ho-go" id="hoGo">Voir la prévision ${pvI('go')}</button></div>`;
   if(mob){ homeSheet(html,'ho-sh-spot'); document.getElementById('hoBody').hidden=true; } else { const B=document.getElementById('hoBody'); B.hidden=false; B.innerHTML=html; }
   homeSpotNums(s);
-  const bk=document.getElementById('hoBk'); if(bk) bk.onclick=()=>{ homeBackHome(); homeFit(); };
   document.getElementById('hoFv').onclick=e=>{ const on=!state.fav.includes(s.n); state.fav=on?[...state.fav,s.n]:state.fav.filter(x=>x!==s.n); saveFav(); const b=e.currentTarget; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.setAttribute('aria-label',on?'Retirer de mes spots':'Ajouter à mes spots'); homeMarks(); };
   document.getElementById('hoGo').onclick=()=>{ const t=HOME.T[HOME.ti], di=d.days.findIndex(x=>x.date===t.slice(0,10)); homeClose(); go(s.i); if(!homeIsNow()&&di>0){ state.day=di; render(); state.hour=+t.slice(11,13); updateLive(); } };
   { const m=document.getElementById('hoMs'); if(m&&cur) m.onclick=()=>{ const b=HOME.bu.find(x=>x.id===cur.key)||HOME.bu.find(x=>x.n===cur.name); if(b) homeBuoy(b); }; }
@@ -6062,18 +6166,18 @@ function homeSpotNums(s){
     <div><small>${pvI('wind')}Vent</small><b>${h.v!=null?Math.round(h.v):'—'}<u>km/h</u></b><span>${h.wd!=null?pvDir(h.wd):''}${h.wind?`<em style="color:${pvWindCol(h.wind)}">${windWord[h.wind]}</em>`:''}</span></div></div>`;
 }
 function homeBuoy(b){
-  if(!b) return; homeClearQ(); HOME.view='buoy'; HOME.selB=b; HOME.sel=null; HOME.ref=null; homeRef(); homePanel(); homeMarks();
-  if(HOME.map) HOME.map.easeTo({center:[b.lon,b.lat],zoom:Math.max(HOME.map.getZoom(),8.5),padding:homePad(60),duration:900});
+  if(!b) return; homeKeepCam(); homeClearQ(); HOME.view='buoy'; HOME.selB=b; HOME.sel=null; HOME.ref=null; homeRef(); homePanel(); homeMarks();
+  homeFitPts([b,...homeNearest(b.lat,b.lon,b.coast?4:6)],b.coast?9.6:7.4);
 }
 function homeBuoyPanel(b){
   const L=b.L, a=hoAge(L), f=pvFresh(a,L.time), mob=hoMob();
-  const html=`<div class="ho-spot ho-buoy"><div class="ho-sp-hd">${mob?'':`<button type="button" class="ho-bk" id="hoBk" aria-label="Revenir">${HO_I.back}</button>`}<div class="ho-sp-t"><h2 class="ho-sp-n">${b.n}</h2><p class="ho-sp-r">${b.coast?'Bouée côtière':'Bouée du large'}</p></div></div>
+  if(!mob) homeHead({n:'Bouée '+b.n,r:b.coast?'Bouée côtière · mesure réelle':'Bouée du large · mesure réelle'});
+  const html=`<div class="ho-spot ho-buoy">${mob?`<div class="ho-sp-hd"><div class="ho-sp-t"><h2 class="ho-sp-n">${b.n}</h2><p class="ho-sp-r">${b.coast?'Bouée côtière':'Bouée du large'}</p></div></div>`:''}
     <div class="ho-gold"><div class="ho-gt"><span class="ho-fp f-${f.c}"><i class="ho-fd f-${f.c}"></i>${f.t}</span><span>Mesure réelle</span></div>
       <div class="ho-gr"><b class="ho-gv">${hmF(L.hs)}<u>m</u></b><span>${[hoPer(L),L.dir!=null?sector(L.dir):'',L.sst!=null?hmF(L.sst)+' °C':''].filter(Boolean).join(' · ')}</span></div></div>
     <p class="ho-note">À la bouée${b.coast?', près de la côte':', au large'} : pas la taille des vagues sur un spot.</p>
     <a class="ho-go" href="bouees/${slugOf(b.n)}/">Page de la bouée ${pvI('go')}</a></div>`;
   if(mob){ homeSheet(html,'ho-sh-spot'); document.getElementById('hoBody').hidden=true; } else { const B=document.getElementById('hoBody'); B.hidden=false; B.innerHTML=html; }
-  const bk=document.getElementById('hoBk'); if(bk) bk.onclick=()=>{ homeBackHome(); };
 }
 function homeGeo(btn){
   btn.classList.add('wait');
