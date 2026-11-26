@@ -87,7 +87,7 @@ Même exploration (255 URL du sitemap, HTML brut) sur la production et sur la ve
 | Titres « en direct » sur une station muette ou en retard | Anglet (9 jours), Cabo Silleiro, Île de Batz, Belle-Île, Leixões | aucun |
 | Titres uniques / descriptions uniques / canoniques auto-référentes | oui / oui / 255 | oui / oui / 255 |
 | Titre max / description max | 60 / 155 | 60 / 155 |
-| Pages de spots : poids | 4 Ko compressés | ≈ 6 Ko compressés (LCP local 0,7 s) |
+| Pages de spots : poids | 4 Ko compressés | 5 Ko compressés (LCP local 0,7 s) |
 
 ## 3. Maillage interne : état des lieux
 
