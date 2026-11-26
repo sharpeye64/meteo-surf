@@ -10,6 +10,8 @@ on:
   workflow_dispatch: {}        # bouton « Run workflow » pour lancer à la main
   push:
     branches: [main]
+  pull_request:                # pull request vers main : SEULEMENT les tests de sûreté (aucun appel réseau, aucune publication)
+    branches: [main]
 
 permissions:
   contents: write   # écriture de l'archive sur la branche « history » (jamais sur main)
@@ -22,7 +24,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  surete:
+    # tests de sûreté (issue #3) : sources simulées, aucun appel réseau, rien n'est publié. Bloquent la suite s'ils échouent.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Test hors ligne
+        # écrit dans un dossier temporaire (jamais dans web/), marqué « test », et vérifie que web/ n'a pas bougé
+        run: python -m tests.test_offline
+      - name: Simulations de pannes (le contrôle doit refuser chaque site abîmé)
+        run: python -m tests.simulate_pannes
+      - name: Panne de bout en bout et fausses clés (aucune fuite, publication refusée)
+        run: python -m tests.panne_bout_en_bout
   build:
+    needs: surete
+    # pas de vraie génération pour une pull request (ni appel aux API, ni archive, ni publication)
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -32,9 +57,6 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements.txt
-      - name: Test hors ligne
-        # sources simulées, écrites dans un dossier temporaire (jamais dans web/ ni _site/) et marquées « test » (issue #3)
-        run: python -m tests.test_offline
       - name: Préparer le dossier de publication
         # le robot génère dans _site/ (copie des sources du site) ; seul _site/ contrôlé est envoyé
         run: rm -rf _site && cp -r web _site
@@ -67,6 +89,8 @@ jobs:
       - name: Contrôler le site avant publication
         # refuse un site incomplet, incohérent ou contenant des données de test : la publication n'a pas lieu
         # et GitHub Pages garde la dernière version valide (tools/check_site.py, issue #3)
+        env:
+          METEOFRANCE_APIKEY: ${{ secrets.METEOFRANCE_APIKEY }}   # seulement pour vérifier que sa valeur n'apparaît dans AUCUN fichier publié
         run: python -m tools.check_site _site --max-age-h 3
       - name: Enregistrer l'archive
         id: archive

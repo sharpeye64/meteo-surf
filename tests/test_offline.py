@@ -10,7 +10,10 @@ _OUT = _tempfile.mkdtemp(prefix="houlalah-test-")
 _os.environ["METEO_OUT_DIR"] = _OUT      # avant tout import de pipeline : config.OUT_DIR est lu à l'import
 _os.environ["METEO_TEST"] = "1"
 _WEB = _Path(__file__).resolve().parent.parent / "web"
-_watch = {f: f.stat().st_mtime for f in (_WEB / "data" / "forecast.json", _WEB / "data" / "app" / "index.json", _WEB / "sitemap.xml") if f.exists()}
+# instantané de TOUT web/ (chemin, taille, date) : on détecte aussi un fichier AJOUTÉ, même si web/ ne contient au départ
+# aucun fichier généré (cas du robot GitHub, où web/ ne contient que les sources du site)
+_snap = lambda: {str(f.relative_to(_WEB)): (f.stat().st_size, f.stat().st_mtime_ns) for f in _WEB.rglob("*") if f.is_file()}
+_before = _snap()
 
 import json
 import math
@@ -322,8 +325,10 @@ assert _ll.startswith("# Houlalah") and "/bouees/" in _ll and "/meteo-surf-lande
 print("éditeur, à propos, pays, robots IA et llms.txt OK")
 
 # Isolation (issue #3) : le test n'a rien écrit dans web/, et tout ce qu'il a produit porte la marque de test.
-for _f, _m in _watch.items():
-    assert _f.stat().st_mtime == _m, f"le test a modifié {_f} : il ne doit écrire que dans le dossier temporaire"
+_after = _snap()
+_diff = sorted(set(_before.items()) ^ set(_after.items()))
+assert not _diff, f"le test a modifié web/ ({len(_diff)} fichier(s), ex. {_diff[:3]}) : il ne doit écrire que dans le dossier temporaire"
+assert all(json.loads(f.read_text(encoding="utf-8")).get("_test") is True for f in (config.OUT_DIR / "data" / "app" / "spots").glob("*.json"))
 assert json.loads((config.OUT_DIR / "data" / "forecast.json").read_text())["meta"].get("_test") is True
 assert json.loads((config.OUT_DIR / "data" / "app" / "index.json").read_text(encoding="utf-8")).get("_test") is True
 assert 'name="houlalah-test"' in (config.OUT_DIR / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
@@ -332,4 +337,4 @@ assert json.loads((config.OUT_DIR / "health.json").read_text(encoding="utf-8")).
 from tools import check_site as _cs
 _ok, _rep = _cs.check(config.OUT_DIR, max_age_h=None)
 assert not _ok and any("test" in x for x in _rep["errors"]), "le contrôle de publication doit refuser un site de test"
-print("isolation OK : rien écrit dans web/, site de test refusé par le contrôle (", len(_rep["errors"]), "motifs )")
+print("isolation OK :", len(_before), "fichiers de web/ inchangés, aucun ajouté ; site de test refusé par le contrôle (", len(_rep["errors"]), "motifs )")

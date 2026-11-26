@@ -18,7 +18,7 @@
 
 - **Adresse** : `EXPO_PUBLIC_DATA_URL`, par défaut `https://houlalah.fr/data/app`.
 - **Fichiers** écrits par le robot (`pipeline/appdata.py`) : `index.json` (tous les spots et toutes les bouées, version allégée), `spots/<slug>.json`, `bouees/<slug>.json`.
-- **Tests** : `python -m tests.test_offline` écrase `web/data/app/`. Remettre les vraies données ensuite (voir [HANDOFF.md](HANDOFF.md)).
+- **Tests** : `python -m tests.test_offline` écrit dans un dossier temporaire et ne touche plus `web/data/app/`. Pour tester l'appli avec de vraies données en local, voir [HANDOFF.md](HANDOFF.md).
 
 ## Écrans
 

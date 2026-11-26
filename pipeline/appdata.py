@@ -98,6 +98,8 @@ def _buoy_sheets(spots, payload, out_dir):
                  "latest": {k: L.get(k) for k in ("time", "hs", "hmax", "tp", "tm", "dir", "sst")}, "obs": obs, "model": model, "model_src": src,
                  "stats": {k: st.get(k) for k in ("since", "days", "hs_max", "hs_max_t", "hs_mean", "sst_mean")} if st else None,
                  "spots": [{"name": s["name"], "slug": slugify(s["name"]), "km": round(k)} for k, s in around[:6] if k < 60]}
+        if config.TEST_RUN:
+            sheet["_test"] = True
         (out_dir / f"{slugify(name)}.json").write_text(json.dumps(sheet, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         n += 1
     return n
@@ -133,6 +135,8 @@ def generate(spots, payload):
             "sea": col(m.get("sea_level_height_msl"), 2), "sst": col(m.get("sea_surface_temperature")),
             "tide": f.get("tide"), "sun": f.get("daily"),
         }
+        if config.TEST_RUN:
+            sheet["_test"] = True
         (tmp / "spots" / f"{slug}.json").write_text(json.dumps(sheet, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         i = _now_index(times)
         index.append({"name": s["name"], "slug": slug, "region": s["region"], "commune": s.get("commune"), "ref": config.ref_buoy(s),

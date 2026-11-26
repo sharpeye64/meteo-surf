@@ -25,7 +25,7 @@ Ces règles s'appliquent à **tous** les agents : Claude Code, ChatGPT, ou tout 
 ## Façon de travailler
 
 - **Propositions** : une **issue GitHub** par proposition (voir [docs/COLLABORATION.md](docs/COLLABORATION.md)).
-- **Implémentation** : sur une branche de test. On vérifie dans un navigateur, sur ordinateur et sur téléphone. `python -m tests.test_offline` doit rester vert. Ensuite, remettre les vraies données (voir HANDOFF).
+- **Implémentation** : sur une branche de test. On vérifie dans un navigateur, sur ordinateur et sur téléphone. `python -m tests.test_offline` doit rester vert (il n'écrit plus dans `web/`). Pour un aperçu local avec de vraies données, voir HANDOFF.
 - **Commits** : explicites, en français, qui disent ce qui change et pourquoi.
 - **Documentation** : après chaque évolution significative, mettre à jour le ou les documents de `docs/` concernés, ainsi que [docs/CHANGELOG.md](docs/CHANGELOG.md) et [docs/HANDOFF.md](docs/HANDOFF.md).
 - **Avant de proposer** : vérifier dans [docs/DECISIONS.md](docs/DECISIONS.md) que l'idée n'a pas déjà été testée et écartée.
@@ -33,6 +33,7 @@ Ces règles s'appliquent à **tous** les agents : Claude Code, ChatGPT, ou tout 
 ## Pièges techniques connus
 
 - **`web/index.html`** est un seul gros fichier. L'ancien CSS a des classes génériques (`.live`, `.hl`, `.mk`, `.old`…) qui cassent le nouveau code : utiliser les préfixes `pv-` (prévisions) et `ho-` (accueil).
-- **Tests du robot** : `tests.test_offline` écrase `web/data/forecast.json` et `web/data/app/`.
+- **Tests du robot** : `tests.test_offline` écrit dans un dossier temporaire, jamais dans `web/`, et marque tout ce qu'il produit comme « test ». `tests.simulate_pannes` et `tests.panne_bout_en_bout` vérifient que le contrôle de publication (`tools/check_site.py`) refuse un site abîmé. Les trois tournent dans GitHub Actions (job `surete`), sans réseau. Voir [docs/securisation-publication.md](docs/securisation-publication.md).
+- **Secrets** : toute erreur écrite dans un fichier publié ou dans les journaux passe par `pipeline/safe.py` (clés, en-têtes, identifiants et paramètres d'adresse masqués).
 - **Fuseau horaire** : le robot GitHub tourne en UTC, alors que toutes les heures de données sont en heure de Paris. Utiliser `seo.paris_now()`.
 - **Application mobile** : lire [app/AGENTS.md](app/AGENTS.md) (Expo SDK 58 : ne pas se fier à sa mémoire).

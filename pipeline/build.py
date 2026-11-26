@@ -5,12 +5,13 @@ Chaque source est optionnelle sauf Open-Meteo : si MARC, la bouée ou les marée
 le fichier est quand même produit et le site affiche ce qui est disponible.
 """
 import json
+import sys
 import traceback
 from datetime import datetime
 
 import pandas as pd
 
-from . import appdata, buoy, candhis, config, ibi_buoys, seo, history, marc, openmeteo, tides
+from . import appdata, buoy, candhis, config, ibi_buoys, safe, seo, history, marc, openmeteo, tides
 
 
 def log(msg):
@@ -64,9 +65,8 @@ def keep_silent(coast, offshore, meta, d=None):
 def write_health(payload, spots):
     """health.json : état de la génération, SANS secret ni adresse d'API. Lu par une surveillance externe (un fichier figé
     ne peut pas signaler sa propre panne : c'est l'ancienneté de « generated », vue de l'extérieur, qui alerte)."""
-    import re
     meta = payload["meta"]
-    clean = lambda m: re.sub(r"(?i)(apikey|api_key|token|key|password)=[^&\s]+", r"\1=***", str(m))[:160]
+    clean = lambda m: safe.public_error(m, 160)
     now = pd.Timestamp(meta["generated"])
     buoys = []
     for b in (payload.get("coast") or []) + (payload.get("offshore") or []) + ([dict(payload["gascogne"], id="gascogne", name="Gascogne")] if payload.get("gascogne") else []):
@@ -262,6 +262,7 @@ def main():
     except Exception as e:
         meta["errors"]["appdata"] = str(e)[:300]
         log(f"  données de l'appli non générées : {e}")
+    meta["errors"] = {k: safe.public_error(v) for k, v in meta["errors"].items()}   # fichier public : jamais d'adresse complète ni de clé
     config.OUTPUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
     try:
         n = seo.generate(payload)
@@ -271,6 +272,7 @@ def main():
         log(f"  pages SEO non générées : {e}")
     meta["errors"].update(seo.LAST_ERRORS)
     # forecast.json réécrit avec les erreurs de génération (avant, l'erreur SEO n'y figurait jamais : le fichier était déjà écrit)
+    meta["errors"] = {k: safe.public_error(v) for k, v in meta["errors"].items()}   # fichier public : jamais d'adresse complète ni de clé
     config.OUTPUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
     write_health(payload, spots)
     size = config.OUTPUT_FILE.stat().st_size / 1024
@@ -278,6 +280,8 @@ def main():
 
 
 if __name__ == "__main__":
+    # tout ce que le robot affiche (journaux GitHub) passe par safe.redact : clés, en-têtes, identifiants masqués
+    sys.stdout, sys.stderr = safe.RedactingStream(sys.stdout), safe.RedactingStream(sys.stderr)
     try:
         main()
     except Exception:

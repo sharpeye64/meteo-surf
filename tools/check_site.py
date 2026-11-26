@@ -7,6 +7,9 @@ dérivées du catalogue (pipeline/spots.json), de la configuration (zones, pages
 (bouées présentes dans forecast.json), jamais d'un nombre figé. Une PANNE DE SOURCE (une bouée, MARC, Météo-France…) est
 tolérée et signalée en avertissement ; un ARTEFACT INCOMPLET (pages, fiches de l'appli, sitemap, JSON invalides) bloque.
 Si le contrôle échoue, le workflow s'arrête avant l'envoi : GitHub Pages garde la dernière version publiée.
+
+Ce contrôle vérifie que le site est COMPLET, COHÉRENT et SANS donnée de test ni secret. Il ne garantit pas la justesse
+physique des valeurs (une prévision fausse mais bien formée passe) : c'est le rôle des sources et de l'archive de fiabilité.
 """
 import argparse
 import json
@@ -20,8 +23,11 @@ sys.path.insert(0, str(ROOT))
 
 # erreurs du robot qui signifient un artefact incomplet (les autres clés de meta.errors sont des pannes de source tolérées)
 GENERATION_ERRORS = ("appdata", "seo", "seo_bouees", "seo_zones")
-TEST_MARK = 'name="houlalah-test"'
-SECRET_RE = re.compile(r"(?i)(apikey|api_key|token|password|secret)[\"']?\s*[:=]\s*[\"']?[A-Za-z0-9_\-]{12,}")
+TEST_MARKS = ('name="houlalah-test"', '"_test":true', '"_test": true')
+SECRET_RE = re.compile(r"(?i)(apikey|api_key|access_token|token|password|secret)[\"']?\s*[:=]\s*[\"']?[A-Za-z0-9_\-]{12,}"
+                       r"|bearer\s+[A-Za-z0-9._~+/=-]{12,}|https?://[^/\s:@\"]+:[^/\s@\"]+@")
+MIN_HOURS = 24   # une fiche de spot doit couvrir au moins 24 heures
+TEXT_EXT = {".html", ".json", ".xml", ".txt", ".webmanifest"}
 
 
 def _json(path, errors, label):
@@ -36,7 +42,8 @@ def _json(path, errors, label):
 
 def check(site_dir, max_age_h=3.0):
     """Retourne (ok, rapport). rapport = {errors, warnings, counts}."""
-    from pipeline import bouees, config, pages, zones
+    from pipeline import appdata, bouees, config, pages, zones
+    from pipeline.safe import secret_values
     from pipeline.seo import paris_now, slugify
     d = Path(site_dir)
     errors, warnings, counts = [], [], {}
@@ -47,17 +54,20 @@ def check(site_dir, max_age_h=3.0):
     catalogue = json.loads(config.SPOTS_FILE.read_text(encoding="utf-8"))
     exp_spots = {slugify(s["name"]) for s in catalogue}
     counts["spots_catalogue"] = len(exp_spots)
+    gen = None
     if fc:
         meta = fc.get("meta") or {}
-        if meta.get("_test"):
-            errors.append("forecast.json : données de test (meta._test)")
-        got = {slugify(s.get("name", "")) for s in fc.get("spots") or []}
+        gen = meta.get("generated")
+        names = [s.get("name", "") for s in fc.get("spots") or []]
+        got = {slugify(n) for n in names}
         counts["spots_forecast"] = len(got)
         if got != exp_spots:
             errors.append(f"forecast.json : spots différents du catalogue (manquants {sorted(exp_spots - got)[:5]}, en trop {sorted(got - exp_spots)[:5]})")
+        if len(names) != len(set(names)):
+            errors.append("forecast.json : spots en double")
         try:
             from datetime import datetime
-            age = (paris_now() - datetime.strptime(meta["generated"][:16], "%Y-%m-%dT%H:%M")).total_seconds() / 3600
+            age = (paris_now() - datetime.strptime(gen[:16], "%Y-%m-%dT%H:%M")).total_seconds() / 3600
             counts["age_h"] = round(age, 2)
             if max_age_h is not None and not (-0.5 <= age <= max_age_h):
                 errors.append(f"forecast.json : généré il y a {age:.1f} h (maximum {max_age_h} h)")
@@ -66,23 +76,48 @@ def check(site_dir, max_age_h=3.0):
         for k, v in (meta.get("errors") or {}).items():
             (errors if k in GENERATION_ERRORS else warnings).append(f"robot : {k} — {str(v)[:120]}")
 
-    # 2. données de l'application
+    # 2. données de l'application : index, fiches de spots et de bouées, identifiants internes, séries
     idx = _json(d / "data" / "app" / "index.json", errors, "appli index.json")
     if idx:
-        if idx.get("_test"):
-            errors.append("appli : données de test (_test)")
-        aslugs = {s.get("slug") for s in idx.get("spots") or []}
+        alist = [s.get("slug") for s in idx.get("spots") or []]
+        aslugs = set(alist)
         counts["app_spots"] = len(aslugs)
+        if len(alist) != len(aslugs):
+            errors.append("appli : spots en double dans l'index")
         if aslugs != exp_spots:
             errors.append(f"appli : spots différents du catalogue ({len(aslugs)} / {len(exp_spots)})")
-        if fc and idx.get("generated") != (fc.get("meta") or {}).get("generated"):
+        if fc and idx.get("generated") != gen:
             errors.append("appli : génération différente de forecast.json")
-        for s in aslugs:
-            if s and not _json(d / "data" / "app" / "spots" / f"{s}.json", errors, f"appli fiche spot {s}"):
+        bad = []
+        for s in sorted(x for x in aslugs if x):
+            sh = _json(d / "data" / "app" / "spots" / f"{s}.json", errors, f"appli fiche spot {s}")
+            if sh is None:
                 break
+            hs = sh.get("hs") or []
+            lens = {len(sh.get(k) or []) for k in ("hs", "tp", "dir", "wind", "wdir")}
+            if sh.get("slug") != s or slugify(sh.get("name", "")) != s:
+                bad.append(f"{s} (fiche d'un autre spot)")
+            elif len(hs) < MIN_HOURS or len(lens) != 1 or all(v is None for v in hs):
+                bad.append(f"{s} (séries vides, trop courtes ou de longueurs différentes)")
+        if bad:
+            errors.append(f"appli : fiches de spots incorrectes : {len(bad)} (ex. {bad[:3]})")
+        blist = [b.get("slug") for b in idx.get("buoys") or []]
+        counts["app_buoys"] = len(blist)
+        if len(blist) != len(set(blist)):
+            errors.append("appli : bouées en double dans l'index")
+        if fc:
+            exp_b = {slugify(b["name"]) for b in appdata._buoys(fc)}
+            if set(blist) != exp_b:
+                errors.append(f"appli : bouées de l'index différentes de forecast.json (manquantes {sorted(exp_b - set(blist))[:4]}, en trop {sorted(set(blist) - exp_b)[:4]})")
+        badb = []
         for b in idx.get("buoys") or []:
-            if not _json(d / "data" / "app" / "bouees" / f"{b.get('slug')}.json", errors, f"appli fiche bouée {b.get('slug')}"):
+            sh = _json(d / "data" / "app" / "bouees" / f"{b.get('slug')}.json", errors, f"appli fiche bouée {b.get('slug')}")
+            if sh is None:
                 break
+            if sh.get("slug") != b.get("slug") or str(sh.get("id")) != str(b.get("id")):
+                badb.append(b.get("slug"))
+        if badb:
+            errors.append(f"appli : fiches de bouées d'une autre bouée : {len(badb)} (ex. {badb[:3]})")
 
     # 3. pages : adresses attendues dérivées du catalogue, des zones, des pages de texte et des bouées réelles
     regions = {s["region"] for s in catalogue}
@@ -96,20 +131,16 @@ def check(site_dir, max_age_h=3.0):
     missing = [p for p in sorted(exp_paths) if not (d / p / "index.html").exists()]
     if missing:
         errors.append(f"pages absentes : {len(missing)} (ex. {missing[:4]})")
-    bad_canon, marked, local = [], [], []
+    bad_canon, local = [], []
     for p in sorted(exp_paths - set(missing)):
         h = (d / p / "index.html").read_text(encoding="utf-8")
         m = re.search(r'<link rel="canonical" href="([^"]+)"', h)
         if not m or m.group(1) != f"{site}/{p}/":
             bad_canon.append(p)
-        if TEST_MARK in h:
-            marked.append(p)
         if "localhost" in h or "127.0.0.1" in h:
             local.append(p)
     if bad_canon:
         errors.append(f"canoniques incorrectes : {len(bad_canon)} (ex. {bad_canon[:3]})")
-    if marked:
-        errors.append(f"pages de test (marque houlalah-test) : {len(marked)} (ex. {marked[:3]})")
     if local:
         errors.append(f"adresses locales dans les pages : {len(local)} (ex. {local[:3]})")
     # pages générées en trop (reste d'une ancienne génération ou d'un test)
@@ -135,14 +166,32 @@ def check(site_dir, max_age_h=3.0):
         if not (d / f).exists():
             errors.append(f"{f} absent")
 
-    # 5. rapport de santé : présent, sans secret
-    hp = d / "health.json"
-    hj = _json(hp, errors, "health.json")
-    if hj is not None:
-        if hj.get("_test"):
-            errors.append("health.json : données de test")
-        if SECRET_RE.search(hp.read_text(encoding="utf-8")):
-            errors.append("health.json : ressemble à un secret (refusé)")
+    # 5. rapport de santé : présent, du même passage que forecast.json
+    hj = _json(d / "health.json", errors, "health.json")
+    if hj is not None and fc:
+        if hj.get("generated") != gen:
+            errors.append("health.json : génération différente de forecast.json")
+        if hj.get("spots") != len(fc.get("spots") or []) or hj.get("spots_expected") != len(catalogue):
+            errors.append("health.json : compteurs différents de forecast.json ou du catalogue")
+
+    # 6. TOUS les fichiers texte du site : aucune marque de test, aucun secret (valeur exacte des secrets connus + formes typiques)
+    vals = secret_values()
+    marked, leaks, n = [], [], 0
+    for f in d.rglob("*"):
+        if f.suffix.lower() not in TEXT_EXT or not f.is_file():
+            continue
+        n += 1
+        t = f.read_text(encoding="utf-8", errors="replace")
+        rel = str(f.relative_to(d)).replace("\\", "/")
+        if any(m in t for m in TEST_MARKS):
+            marked.append(rel)
+        if any(v in t for v in vals) or SECRET_RE.search(t):
+            leaks.append(rel)
+    counts["text_files"] = n
+    if marked:
+        errors.append(f"données de test : {len(marked)} fichier(s) marqué(s) (ex. {sorted(marked)[:3]})")
+    if leaks:
+        errors.append(f"secret possible dans {len(leaks)} fichier(s) (ex. {sorted(leaks)[:3]}) : refusé")
     return (not errors), {"errors": errors, "warnings": warnings, "counts": counts}
 
 

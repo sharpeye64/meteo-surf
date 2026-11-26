@@ -1,11 +1,18 @@
 """Simulations de pannes pour l'issue #3 : chaque artefact abîmé doit être REFUSÉ par tools/check_site.py,
 une simple panne de source doit être tolérée (avertissement). Base : sortie du test hors ligne (sources simulées),
 dont on retire les marques de test pour obtenir un site « valide » de référence.
-    python simulate.py <dossier de sortie du test> <dépôt>"""
-import json, re, shutil, sys, tempfile
+Sans réseau ni publication. À lancer APRÈS python -m tests.test_offline (dont il reprend la sortie) :
+    python -m tests.simulate_pannes [dossier de sortie du test]
+Code de sortie 1 si un scénario ne donne pas le résultat attendu."""
+import json, os, re, shutil, sys, tempfile
 from pathlib import Path
 
-src, repo = Path(sys.argv[1]), Path(sys.argv[2])
+repo = Path(__file__).resolve().parent.parent
+if len(sys.argv) > 1:
+    src = Path(sys.argv[1])
+else:   # dernière sortie du test hors ligne
+    src = max(Path(tempfile.gettempdir()).glob("houlalah-test-*"), key=lambda p: p.stat().st_mtime)
+print("sortie du test :", src)
 sys.path.insert(0, str(repo))
 from tools.check_site import check
 
@@ -20,10 +27,12 @@ for f in base.rglob("*.html"):
     if 'houlalah-test' in t:
         f.write_text(t.replace('<meta name="robots" content="noindex"><meta name="houlalah-test" content="1">',
                                '<meta name="robots" content="index,follow,max-image-preview:large">'), encoding="utf-8")
-for rel in ("data/forecast.json", "data/app/index.json", "health.json"):
-    p = base / rel; j = json.loads(p.read_text(encoding="utf-8"))
-    (j.get("meta") or j).pop("_test", None); j.pop("_test", None)
-    p.write_text(json.dumps(j, ensure_ascii=False), encoding="utf-8")
+for p in base.rglob("*.json"):
+    t = p.read_text(encoding="utf-8")
+    if '"_test"' in t:
+        j = json.loads(t)
+        (j.get("meta") or j).pop("_test", None); j.pop("_test", None)
+        p.write_text(json.dumps(j, ensure_ascii=False), encoding="utf-8")
 
 
 def case(name, mutate, expect_ok, must=None):
@@ -77,7 +86,18 @@ results = [
     case("page en trop (reste d'un ancien spot)", lambda d: ((d / "spots/ancien").mkdir(), (d / "spots/ancien/index.html").write_text("x")), False, "inattendues"),
     case("secret dans health.json", jset("health.json", lambda j: j["errors"].update(x="apikey=abcdefghijklmnop1234")), False, "secret"),
     case("index.html du site absent", rm("index.html"), False, "index.html absent"),
+    case("fiche JSON valide d'un autre spot", lambda d: shutil.copy(d / "data/app/spots/hossegor-la-graviere.json" if (d / "data/app/spots/hossegor-la-graviere.json").exists() else next(x for x in (d / "data/app/spots").glob("*.json") if x.name != "lacanau.json"), d / "data/app/spots/lacanau.json"), False, "autre spot"),
+    case("fiche de spot aux séries vides", jset("data/app/spots/lacanau.json", lambda j: j.update(hs=[], tp=[], dir=[], wind=[], wdir=[])), False, "séries"),
+    case("fiche de spot aux séries de longueurs différentes", jset("data/app/spots/lacanau.json", lambda j: j.update(tp=j["tp"][:10])), False, "séries"),
+    case("spot en double dans l'index de l'appli", jset("data/app/index.json", lambda j: j["spots"].append(dict(j["spots"][0]))), False, "double"),
+    case("bouée de l'appli absente de forecast.json", jset("data/app/index.json", lambda j: j["buoys"].pop()), False, "bouées de l'index"),
+    case("fiche bouée d'une autre bouée", lambda d: (lambda fs: shutil.copy(fs[1], fs[0]))(sorted((d / "data/app/bouees").glob("*.json"))), False, "autre bouée"),
+    case("health.json d'un autre passage", jset("health.json", lambda j: j.update(generated="2020-01-01T00:00")), False, "health.json"),
+    case("marque de test dans une fiche de l'appli", jset("data/app/spots/lacanau.json", lambda j: j.update(_test=True)), False, "données de test"),
+    case("adresse avec identifiants dans forecast.json", jset("data/forecast.json", lambda j: j["meta"]["errors"].update(x="https://robot:motdepasse@exemple.test/")), False, "secret"),
+    case("valeur exacte d'un secret dans une page", lambda d: (os.environ.__setitem__("METEOFRANCE_APIKEY", "FAUSSECLE-0123456789abcdef"), sub("spots/lacanau/index.html", "<head>", "<head><!-- FAUSSECLE-0123456789abcdef -->")(d)), False, "secret"),
 ]
+os.environ.pop("METEOFRANCE_APIKEY", None)
 # fraîcheur : une génération vieille de 5 h est refusée avec la limite de 3 h
 d = base.parent / "vieux"; shutil.rmtree(d, ignore_errors=True); shutil.copytree(base, d)
 for rel, key in (("data/forecast.json", "meta"), ("data/app/index.json", None)):
