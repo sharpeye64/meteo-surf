@@ -5591,7 +5591,7 @@ function homeInitMap(){
     w.innerHTML=`<button type="button" class="ho-b" aria-label="Bouée ${bu.n} : ${hmF(bu.L.hs)} m mesurés">${pvI('buoy')}<b>${hmF(bu.L.hs)}</b><i class="ho-lv"></i></button>`;
     const b=w.firstChild; b.onclick=e=>{ e.stopPropagation(); homeBuoy(bu); }; homeHover(b,()=>homeBuoyTip(bu));
     HOME.bm[bu.id]=new maplibregl.Marker({element:w}).setLngLat([bu.lon,bu.lat]).addTo(map); });
-  homeMarks(); homeFit(true,true);
+  homeMarks(); homeFit(true);   /* à l'arrivée : toute la côte, de la Bretagne au Portugal */
   map.on('moveend',homeCluster); map.on('zoom',homeTipHide);
   map.on('click',()=>{ if(hoMob()&&!document.getElementById('hoSheet').hidden) homeBackHome(); });
   setTimeout(homeCluster,60);
