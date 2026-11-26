@@ -3530,6 +3530,99 @@ html[data-da="a"] .pv-band[data-sky="night"]{background:radial-gradient(1000px 4
   .ho-deco i,.ho-panel,.ho-tools,.ho-time,.ho-mb,.ho-sheet,.ho-spot,.ho-b.b-live,.ho-mw.is-sel:before,.ho-bw.is-sel:before,.ho-sw .ho-m>span,.ho-tk,.ho-fv.on svg,#hoFavL,.ho-bl.all,.ho-qx{animation:none!important}
   .ho-ind.rd,.ho-m,.ho-b,.ho-chip,.ho-br,.ho-it{transition:none}
 }
+
+/* =====================================================================================================
+   ACCUEIL — FINITION 2 (test) : panneau placé selon la largeur, statuts des bouées identiques carte / panneau,
+   collisions, frise sur une ligne, socle unique en bas sur téléphone.
+   ===================================================================================================== */
+/* panneau : se rapproche du centre sur les grands écrans (24 px à 1280, ~150 à 1920, ~260 à 2560) */
+#home.ho{--pl:clamp(24px,calc(18vw - 200px),300px);--pw:340px;--i3:#5D6A70}
+.ho-panel{left:var(--pl);width:var(--pw);box-shadow:0 0 0 1px rgba(11,27,38,.06),0 1px 2px rgba(11,27,38,.05),0 10px 24px -14px rgba(11,27,38,.28),0 30px 60px -40px rgba(11,27,38,.35)}
+.ho-panel:hover{box-shadow:0 0 0 1px rgba(11,27,38,.08),0 1px 2px rgba(11,27,38,.05),0 12px 28px -14px rgba(11,27,38,.32),0 34px 66px -40px rgba(11,27,38,.4)}
+.ho-back{left:calc(var(--pl) + var(--pw) + 20px)}
+/* focus clavier : un anneau doré, partout */
+#home.ho :is(button,a,select,input):focus-visible{outline:2px solid rgba(217,164,65,.85);outline-offset:2px}
+#home.ho .ho-srch input:focus-visible{outline:0}
+/* textes secondaires plus lisibles */
+.ho-k{font-size:12.5px;color:rgba(243,239,230,.68)}
+.ho-bn small,.ho-rn small{font-size:12.5px}
+.ho-sp-r{font-size:13px}
+/* ---- frise du grand écran : une seule ligne, plus légère ---- */
+.ho-time{display:flex;align-items:center;gap:10px;left:calc(var(--pl) + var(--pw) + 24px);right:24px;max-width:700px;padding:7px 8px 7px 14px;border-radius:999px}
+.ho-th{flex:none;width:118px;padding:0}
+.ho-tw{font-size:13px;white-space:nowrap}
+.ho-tw b{overflow:hidden;text-overflow:ellipsis}
+.ho-tds{flex:1;min-width:0;gap:2px}
+.ho-tds button{height:32px;border-radius:999px;font-size:12.5px;align-items:center}
+.ho-tds button small{position:relative;top:.5px}
+.ho-tds .ho-ind{border-radius:999px}
+.ho-hr{flex:none}
+.ho-hr select{height:32px;padding:0 28px 0 12px;background:rgba(243,239,230,.09);font-size:13px}
+.ho-hr svg{right:10px}
+/* ---- légende : lisible, avec les valeurs intermédiaires ---- */
+.ho-leg{width:212px;padding:10px 12px}
+.ho-lt{display:flex;justify-content:space-between;font:700 12px Manrope,system-ui,sans-serif;color:var(--n)}
+.ho-lsteps i{height:7px}
+.ho-lk{font-size:11px;color:#56636A}
+/* ---- marqueurs : priorité et collisions ---- */
+.ho-mw{z-index:2}
+.ho-mw.is-sel{z-index:8}
+.ho-mw:hover{z-index:9}
+.ho-bw{z-index:5}
+.ho-bw.is-under{z-index:1}
+.ho-bw.is-under .ho-b{gap:0;width:22px;height:22px;padding:0;justify-content:center;transform:translate(-14px,-10px);opacity:.92}
+.ho-bw.is-under .ho-b b{display:none}
+.ho-bw.is-under .ho-b .pv-i{width:13px;height:13px}
+.ho-bw.is-under:hover{z-index:9}
+.ho-bw.is-under:hover .ho-b{transform:translate(-14px,-12px) scale(1.12);opacity:1}
+.ho-bw.is-sel,.ho-bw.is-hl{z-index:9}
+.ho-m{box-shadow:0 0 0 1.8px #FFFDF8,0 0 0 2.6px rgba(11,27,38,.06),0 1px 2px rgba(11,27,38,.16),0 5px 12px -6px rgba(11,27,38,.42)}
+.ho-m:hover{box-shadow:0 0 0 1.8px #FFFDF8,0 0 0 2.6px rgba(11,27,38,.08),0 2px 4px rgba(11,27,38,.16),0 12px 22px -8px rgba(11,27,38,.48)}
+.ho-mw.is-sel:before{inset:-6px;border-width:1.5px}
+/* ---- bouées : direct (halo doré lent + pastille verte), récente (point crème), ancienne (en retrait), muette (grisée) ---- */
+.ho-b{box-shadow:0 0 0 1.5px rgba(242,198,107,.7),0 1px 2px rgba(11,27,38,.2),0 6px 14px -6px rgba(11,27,38,.5)}
+.ho-b .ho-lv{display:none;position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;box-shadow:0 0 0 1.5px var(--n)}
+.ho-b.b-live{box-shadow:0 0 0 1.5px #F2C66B,0 0 0 4px rgba(242,198,107,.13),0 6px 14px -6px rgba(11,27,38,.5);animation:hoGlow 4.2s ease-in-out infinite}
+@keyframes hoGlow{50%{box-shadow:0 0 0 1.5px #F2C66B,0 0 0 6px rgba(242,198,107,.17),0 0 16px 1px rgba(242,198,107,.3),0 6px 14px -6px rgba(11,27,38,.5)}}
+.ho-b.b-live .ho-lv{display:block;background:#2FC48A}
+.ho-b.b-live .ho-lv:after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1.5px solid #2FC48A;animation:pvRing 2.6s ease-out infinite}
+.ho-b.b-recent .ho-lv{display:block;background:#F3EFE6}
+.ho-b.b-old{opacity:.78;color:#E3CB92;box-shadow:0 0 0 1.5px rgba(227,203,146,.45),0 6px 14px -6px rgba(11,27,38,.45)}
+.ho-b.b-off{opacity:.5;filter:grayscale(.85);box-shadow:0 0 0 1.5px rgba(243,239,230,.35)}
+.ho-b.b-fut{animation:none}
+.ho-bw.is-hl .ho-b{transform:translateY(-2px) scale(1.14);box-shadow:0 0 0 2px var(--g),0 0 0 5px rgba(255,253,248,.85),0 10px 20px -8px rgba(11,27,38,.55)}
+.ho-bw.is-under.is-hl .ho-b{transform:translate(-14px,-12px) scale(1.15)}
+.ho-br.hl{background:rgba(255,253,248,.85)}
+.ho-sea .ho-br.hl{background:#FFFDF8;box-shadow:0 0 0 1px rgba(138,100,24,.12)}
+/* panneau : même code de fraîcheur que la carte */
+.ho-fd.f-live:after{animation-duration:2.6s}
+/* ---- panneau : petits détails ---- */
+.ho-sea{background:linear-gradient(180deg,#F9F4EA,#F3ECDD);box-shadow:inset 0 0 0 1px rgba(138,100,24,.1),inset 0 1px 0 rgba(255,255,255,.8)}
+.ho-row{height:46px;font-size:14.5px}
+.ho-bv{font-size:16.5px}
+.ho-it>svg,.ho-more svg,.ho-chev svg{transition:transform .3s var(--ease)}
+.ho-it:hover>svg{transform:translateX(2px)}
+.ho-chip:focus-visible{outline-offset:1px}
+/* ---- téléphone : un seul socle en bas (données + jour), plus fin ---- */
+.ho-dock{display:contents}
+@media (max-width:759px){
+  .ho-dock{position:absolute;z-index:5;left:10px;right:10px;bottom:var(--bot);display:flex;flex-direction:column;border-radius:18px;overflow:hidden;box-shadow:0 0 0 1px rgba(11,27,38,.06),0 1px 2px rgba(11,27,38,.08),0 14px 30px -14px rgba(11,27,38,.5);animation:hoFade .5s .1s var(--ease) both}
+  .ho-mb{position:static;height:44px;border-radius:0;box-shadow:none;animation:none;background:linear-gradient(180deg,#FFFDF8,#F7F2E8)}
+  .ho-time{position:static;display:block;padding:3px 4px;border-radius:0;box-shadow:none;animation:none}
+  .ho-th,.ho-tds,.ho-hr{display:none}
+  .ho-tm{height:42px}
+  .ho-ta{width:42px;height:42px}
+  .ho-vb,.ho-bc{height:38px}
+  .ho-mb .ho-rbm{width:36px;height:36px;background:none;box-shadow:none}
+  .ho-mb .ho-rbm[aria-pressed="true"]{color:var(--gi)}
+  .ho-geo{bottom:calc(var(--bot) + 100px)}
+  .ho-sheet{bottom:calc(var(--bot) + 98px)}
+  #home.ho.ho-shon .ho-sheet{bottom:calc(var(--bot) + 58px)}
+  .ho-panel,.ho-panel:hover{left:10px;width:auto;box-shadow:none}
+  #home.ho .maplibregl-ctrl-bottom-right{bottom:calc(var(--bot) + 150px)}
+  .ho-bw.is-under .ho-b{transform:translate(-16px,-12px)}
+}
+@media (prefers-reduced-motion:reduce){ .ho-b.b-live,.ho-b.b-live .ho-lv:after,.ho-dock{animation:none!important} }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -5683,8 +5776,8 @@ async function homeOpen(fromSpot){
         <button type="button" class="ho-rb" id="hoBuT" aria-pressed="${HOME.showBu}" aria-label="Afficher les bouées" title="Bouées : mesures réelles">${pvI('buoy')}</button>
         <div class="ho-leg" id="hoLeg" aria-hidden="true"></div></div>
       <button type="button" class="ho-rb ho-geo" id="hmGeo" title="Spots près de moi" aria-label="Spots près de moi">${HO_I.loc}</button>
-      <div class="ho-mb"><button type="button" class="ho-vb" id="hoVarM" aria-haspopup="dialog"></button><button type="button" class="ho-rb ho-rbm" id="hoBuTM" aria-pressed="${HOME.showBu}" aria-label="Afficher les bouées">${pvI('buoy')}</button><span class="ho-vsep"></span><button type="button" class="ho-bc" id="hoBuL" aria-label="Liste des bouées"><i class="ho-fd ${live?'f-live':'f-recent'}"></i>${live||rec} bouée${(live||rec)>1?'s':''}</button></div>
-      <div class="ho-time" id="hoTime"></div>
+      <div class="ho-dock"><div class="ho-mb"><button type="button" class="ho-vb" id="hoVarM" aria-haspopup="dialog"></button><button type="button" class="ho-rb ho-rbm" id="hoBuTM" aria-pressed="${HOME.showBu}" aria-label="Afficher les bouées">${pvI('buoy')}</button><span class="ho-vsep"></span><button type="button" class="ho-bc" id="hoBuL" aria-label="Liste des bouées"><i class="ho-fd ${live?'f-live':'f-recent'}"></i>${live||rec} bouée${(live||rec)>1?'s':''}</button></div>
+      <div class="ho-time" id="hoTime"></div></div>
       <div class="ho-sheet" id="hoSheet" hidden></div>
       <div class="ho-tip" id="hoTip" hidden></div>
       <button type="button" class="ho-back" id="hmClose" hidden></button>`;
@@ -5740,7 +5833,7 @@ function homeInitMap(){
     HOME.mk[s.i]=new maplibregl.Marker({element:w}).setLngLat([s.lon,s.lat]).addTo(map); });
   HOME.bu.forEach(bu=>{ const w=document.createElement('div'); w.className='ho-bw';
     w.innerHTML=`<button type="button" class="ho-b" aria-label="Bouée ${bu.n} : ${hmF(bu.L.hs)} m mesurés">${pvI('buoy')}<b>${hmF(bu.L.hs)}</b><i class="ho-lv"></i></button>`;
-    const b=w.firstChild; b.onclick=e=>{ e.stopPropagation(); homeBuoy(bu); }; homeHover(b,()=>homeBuoyTip(bu));
+    const b=w.firstChild; b.onclick=e=>{ e.stopPropagation(); homeBuoy(bu); }; homeHover(b,()=>homeBuoyTip(bu)); b.addEventListener('mouseenter',()=>homeBuHl(bu.id,true)); b.addEventListener('mouseleave',()=>homeBuHl(bu.id,false));
     HOME.bm[bu.id]=new maplibregl.Marker({element:w}).setLngLat([bu.lon,bu.lat]).addTo(map); });
   homeMarks(); homeFit(true);   /* à l'arrivée : toute la côte, de la Bretagne au Portugal */
   map.on('moveend',homeCluster); map.on('zoom',homeTipHide);
@@ -5765,13 +5858,13 @@ function homeMarks(){
     b.style.cssText=x==null?'--c:#D8D2C4;--t:#5F6B71':pvCellCss(x,v);
     b.classList.toggle('fav',state.fav.includes(s.n)); b.classList.toggle('sel',HOME.sel===s.i); m.getElement().classList.toggle('is-sel',HOME.sel===s.i); });
   Object.entries(HOME.bm||{}).forEach(([id,m])=>{ const bu=HOME.bu.find(x=>x.id===id), b=m.getElement().firstChild, a=hoAge(bu.L);
-    b.classList.toggle('b-live',a<1); b.classList.toggle('b-rec',a>=1&&a<3); b.classList.toggle('b-old',a>=6); m.getElement().classList.toggle('is-sel',!!(HOME.selB&&HOME.selB.id===id)); b.classList.toggle('b-fut',!homeIsNow()); b.classList.toggle('sel',HOME.selB&&HOME.selB.id===id); });
+    const fc=pvFresh(a,bu.L.time).c; ['live','recent','old','off'].forEach(c=>b.classList.toggle('b-'+c,c===fc)); b.classList.remove('b-rec'); b.dataset.f=fc; m.getElement().classList.toggle('is-sel',!!(HOME.selB&&HOME.selB.id===id)); b.classList.toggle('b-fut',!homeIsNow()); b.classList.toggle('sel',HOME.selB&&HOME.selB.id===id); });
   document.getElementById('home').classList.toggle('ho-fut',!homeIsNow());
   homeCluster();
 }
 /* regroupement : moins de pastilles, plus lisibles ; un groupe = la plus haute valeur, en « pile » (pas de compteur) */
 function homeCluster(){
-  const map=HOME.map; if(!map||!HOME.data) return; const v=HOME.v, mob=hoMob(), z=map.getZoom(), R=mob?50:46, W=innerWidth, H=innerHeight, lo=z<7.3;
+  const map=HOME.map; if(!map||!HOME.data) return; const v=HOME.v, mob=hoMob(), z=map.getZoom(), R=(mob?8:0)+(z<6.5?50:z<8?44:z<9.5?40:36), W=innerWidth, H=innerHeight, lo=z<7.3;
   document.getElementById('home').classList.toggle('ho-zlo',lo);
   (HOME.cl||[]).forEach(c=>c.remove()); HOME.cl=[];
   const groups=[], val=s=>homeVal(homeHour(s),v)??-1;
@@ -5782,7 +5875,8 @@ function homeCluster(){
     const g=s.i===HOME.sel?null:groups.find(q=>q.s.i!==HOME.sel&&Math.abs(q.p.x-p.x)<R&&Math.abs(q.p.y-p.y)<R*.6);
     if(g){ g.m.push(s); el.hidden=true; } else { groups.push({s,p,m:[s]}); el.hidden=false; } });
   Object.entries(HOME.bm||{}).forEach(([id,m])=>{ const el=m.getElement(); if(!HOME.showBu){ el.hidden=true; return; }
-    el.hidden=false; });   /* bouées toujours visibles (demande de l'utilisateur), au-dessus des spots */
+    el.hidden=false; const bu=HOME.bu.find(x=>x.id===id), p=map.project([bu.lon,bu.lat]), sel=HOME.selB&&HOME.selB.id===id;
+    const hit=!sel&&groups.some(g=>Math.abs(g.p.x-p.x)<(lo?34:46)&&Math.abs(g.p.y-p.y)<24); el.classList.toggle('is-under',hit); });   /* bouées toujours visibles ; sur un spot, compactes et dessous */
   groups.forEach(g=>{ HOME.mk[g.s.i].getElement().firstChild.classList.toggle('ho-st',g.m.length>1); g.el=HOME.mk[g.s.i].getElement(); });
   groups.filter(g=>g.m.length>1).forEach(g=>{ const b=g.el.firstChild;
     b.dataset.n=g.m.length; b.onmouseenter=null;
@@ -5815,8 +5909,8 @@ function homeLegend(){
 function homeDays(){ const o=[]; HOME.T.forEach((t,i)=>{ const d=t.slice(0,10); if(!o.length||o[o.length-1].d!==d) o.push({d,i}); }); return o; }
 function homeTimeBar(){
   const el=document.getElementById('hoTime'); if(!el) return; const D=homeDays();
-  el.innerHTML=`<div class="ho-th"><span class="ho-tw">${HO_I.cal}<b id="hoTl"></b></span><label class="ho-hr">${''}<select id="hoHr" aria-label="Heure"></select>${HO_I.down}</label></div>
-    <div class="ho-tds" role="group" aria-label="Jour"><i class="ho-ind" aria-hidden="true"></i>${D.map((x,k)=>{ const d=new Date(x.d+'T12:00:00'); return `<button type="button" data-d="${x.d}">${k===0?'Auj.':hoDays[d.getDay()]}<small>${d.getDate()}</small></button>`; }).join('')}</div>
+  el.innerHTML=`<div class="ho-th"><span class="ho-tw">${HO_I.cal}<b id="hoTl"></b></span></div>
+    <div class="ho-tds" role="group" aria-label="Jour"><i class="ho-ind" aria-hidden="true"></i>${D.map((x,k)=>{ const d=new Date(x.d+'T12:00:00'); return `<button type="button" data-d="${x.d}">${k===0?'Auj.':hoDays[d.getDay()]}<small>${d.getDate()}</small></button>`; }).join('')}</div><label class="ho-hr"><select id="hoHr" aria-label="Heure"></select>${HO_I.down}</label>
     <div class="ho-tm"><button type="button" class="ho-ta" id="hoPrev" aria-label="Jour précédent">${HO_I.back}</button><span class="ho-tc"><b id="hoTlM"></b><label class="ho-hrm"><select id="hoHrM" aria-label="Heure"></select></label></span><button type="button" class="ho-ta" id="hoNext" aria-label="Jour suivant">${HO_I.next}</button></div>`;
   el.querySelectorAll('.ho-tds [data-d]').forEach(b=>b.onclick=()=>homeDay(b.dataset.d));
   const step=k=>{ const D=homeDays(), cur=HOME.T[HOME.ti].slice(0,10), j=D.findIndex(x=>x.d===cur)+k; if(j>=0&&j<D.length) homeDay(D[j].d); };
@@ -5896,6 +5990,9 @@ function homeVarSheet(){
 function homeMenu(){
   homeSheet(`<p class="ho-sk">Houlalah</p><nav class="ho-menu"><a href="comment-ca-marche/">Comment ça marche ${HO_I.next}</a><a href="bouees/">Toutes les bouées ${HO_I.next}</a><a href="spots/">Tous les spots ${HO_I.next}</a><a href="a-propos/">À propos ${HO_I.next}</a></nav>`,'ho-sh-s');
 }
+/* survol d'une bouée dans le panneau : son marqueur ressort sur la carte (et inversement) */
+function homeBuHl(id,on){ const m=HOME.bm&&HOME.bm[id]; if(m) m.getElement().classList.toggle('is-hl',!!on); document.querySelectorAll(`#home [data-b="${id}"]`).forEach(r=>r.classList.toggle('hl',!!on)); }
+document.addEventListener('mouseover',e=>{ const r=e.target.closest&&e.target.closest('#home .ho-br[data-b]'); if(HOME._hb&&(!r||r.dataset.b!==HOME._hb)){ homeBuHl(HOME._hb,false); HOME._hb=null; } if(r&&!HOME._hb){ HOME._hb=r.dataset.b; homeBuHl(HOME._hb,true); } });
 function homeBuRow(b){ const a=hoAge(b.L), f=pvFresh(a,b.L.time);
   return `<button type="button" class="ho-br${a>=6?' ho-old':''}${f.c==='live'?' ho-blive':''}" data-b="${b.id}"><i class="ho-fd f-${f.c}"></i><span class="ho-bn"><b>${b.n}</b><small>${[hoPer(b.L),b.L.dir!=null?sector(b.L.dir):''].filter(Boolean).join(' · ')}${f.c==='live'?` · <em class="ho-lvt">${f.t}</em>`:` · ${f.t}`}</small></span><span class="ho-bv">${hmF(b.L.hs)}<u>m</u></span></button>`; }
 function homeFavList(T){
