@@ -370,6 +370,7 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
 {summary}
 <div class="bh"><div class="mapbox"><div id="bmap"></div></div>
 <div class="cur"><span class="k">{"Dernière mesure de houle" if working else "Dernière mesure reçue"}</span><div><div class="big">{fr(L["hs"])}<small> m</small></div><div class="when">Hauteur significative des vagues</div></div><div class="cg">{cg}</div></div></div>
+<p class="muted"><a href="{base}guide/lire-une-bouee/">Lire la hauteur, la période et la fraîcheur d’un relevé de bouée</a></p>
 <h2>Historique de la hauteur de houle (48 h)</h2><div class="bcard">{chart_svg(obs, fc, label)}</div>
 <h2>Historique des mesures</h2><div class="bcard tw"><table class="rel"><thead><tr>{head}</tr></thead><tbody>{rows_html(obs, 12)}</tbody></table>
 <details class="more"><summary>Afficher les 48 dernières heures</summary><table class="rel"><tbody>{rows_html(obs, len(obs), 12)}</tbody></table></details></div>

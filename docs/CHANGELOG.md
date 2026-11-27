@@ -4,6 +4,8 @@
 
 ## 27/11/2026
 
+- **Liens vers les guides, issue #13** (branche `codex/seo-liens-guides`, en revue) — accès au guide depuis les mesures des bouées et le tableau de prévisions des spots.
+
 - **Guides SEO/GEO, issue #13** (branche de test `codex/geo-guides-audit`) — revue scientifique des trois guides et de leurs cinq schémas, corrections du comparateur en eau profonde et vérification de l’aperçu sur ordinateur et mobile. Voir [l’audit](audit-geo-guides-2026-11-27.md).
 
 - **Quotas et cache Open-Meteo, issue #7** (branche `quotas-cache`, PR en revue, non publié) : mesure de chaque requête (dont les 429), cache des prévisions renouvelé à chaque nouveau run des modèles, vent séparé par modèle, mode dégradé signalé. Environ 3,3 fois moins d'appels, bouées inchangées. Voir [quotas-licences.md](quotas-licences.md).

@@ -349,6 +349,7 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
 <p class="muted">{(esc(sp['type']) + ' · fond de ' + esc(sp['bottom'].lower()) + ' · ') if sp.get('type') and sp.get('bottom') else ''}{esc(sp['commune'])}, {esc(sp['region'])}. Mis à jour le {now:%d/%m/%Y à %Hh%M}.</p>
 {buoy_line}<h2>La semaine à {esc(name)}</h2>
 <table><thead><tr><th>Jour</th><th>Houle</th><th>Période</th><th>Vent</th><th>Coef.</th></tr></thead><tbody>{trs}</tbody></table>
+<p class="muted"><a href="../../guide/comprendre-la-houle/">Comprendre la hauteur, la période et la direction de houle</a></p>
 {hours_html}{tides_html}
 {profile_html(sp, t)}
 <h2>Autres spots autour de {esc(name)}</h2><ul class="near">{nl}</ul>
