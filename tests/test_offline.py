@@ -261,6 +261,19 @@ bp = (config.OUT_DIR / "bouees" / "cap-ferret" / "index.html").read_text(encodin
 assert "<h1>Bouée houlographe du Cap Ferret</h1>" in bp and "CANDHIS 03302" in bp and "Historique des mesures" in bp and "Source des mesures" in bp, "page bouée"
 assert '"@type": "Dataset"' in bp and "../../spots/" in bp and "?spot=" not in bp.split("Spots autour")[1].split("Bouées voisines")[0]
 assert "Heure par heure" in pg and "Marées à Lacanau" in pg, "page spot : heure par heure et marées"
+# Fiches SEO : distinguer synthèse journalière, mesure en mer et disponibilité des marées.
+assert "hauteur significative médiane" in pg and "entre 7 h et 20 h" in pg
+assert 'class="spot-observation"' in pg and "pas la taille des vagues au bord" in pg
+assert "OBSERVATION EN MER" in pg and "Comprendre ce relevé" in pg
+assert "CANDHIS" in pg or "Météo-France" in pg or "Copernicus" in pg
+assert _re.search(r'<time datetime="[^"]+[+-]\\d\\d:\\d\\d">', pg)
+_ptpg = (config.OUT_DIR / "spots" / "supertubos" / "index.html").read_text(encoding="utf-8")
+assert "Marées et coefficients non disponibles" in _ptpg
+assert "heure du Portugal" in _ptpg
+assert "marée" not in _re.search(r"<title>(.*?)</title>", _ptpg).group(1).lower()
+assert "<th>Coef.</th>" not in _ptpg
+assert _re.search(r'"dateModified": "[^"]+\\+00:00"', _ptpg)
+
 assert "Les bouées" in (config.OUT_DIR / "bouees" / "index.html").read_text(encoding="utf-8")
 # GEO : mesure datée, source visible et distinction entre mer au large et vagues au bord.
 assert '<time datetime="' in bp and "heure de Paris" in bp and "Date / heure (Paris)" in bp
