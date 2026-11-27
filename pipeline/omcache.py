@@ -86,10 +86,11 @@ def reset():
     CHANGED = False
 
 
-def model_meta(kind, name):
-    """Métadonnées publiques d'un modèle (heure de disponibilité du dernier run). None si illisibles."""
+def model_meta(kind, name, fresh=False):
+    """Métadonnées publiques d'un modèle (heure de disponibilité du dernier run). None si illisibles.
+    fresh : relues maintenant (sinon, la lecture faite plus tôt dans le passage est réutilisée)."""
     k = (kind, name)
-    if k not in _metas:
+    if fresh or k not in _metas:
         try:
             r = requests.get(META_URL[kind].format(m=name), timeout=20, headers={"User-Agent": "houlalah (non commercial)"})
             r.raise_for_status()
@@ -111,15 +112,36 @@ def _snapshot(watch, now):
     return snap
 
 
-def _runs(watch, now):
-    """Cycle (run) de chaque modèle surveillé, d'après ses métadonnées publiques, SEULEMENT s'il était disponible au moment de
-    la requête : {nom: {"init", "available", "step_s"}} (horodatages UNIX) ou None (inconnu). Archivé tel quel (issue #1) :
-    jamais d'heure d'émission déduite ou inventée."""
+CYCLE_BASIS = "inféré : métadonnées Open-Meteo identiques avant et après la collecte (la réponse n'indique pas son run)"
+
+
+def _meta_now(watch):
+    """Métadonnées relues MAINTENANT pour chaque modèle surveillé (archive, issue #1 : avant et après la collecte)."""
+    return {name: model_meta(kind, name, fresh=True) for kind, name in watch}
+
+
+def _cycles(watch, before, after, start):
+    """Cycle (run) de chaque modèle pour une réponse collectée à `start` (horodatage UNIX), avec `before` / `after` = métadonnées
+    lues juste avant et juste après la requête. Open-Meteo n'écrit PAS le run dans sa réponse : le cycle est INFÉRÉ, et
+    seulement si rien n'a bougé pendant la collecte. Sinon init = None, avec la raison dans « note ». Jamais inventé (issue #1)."""
     out = {}
-    for kind, name in watch:
-        m = model_meta(kind, name) or {}
-        a, i = m.get("last_run_availability_time"), m.get("last_run_initialisation_time")
-        out[name] = {"init": int(i), "available": int(a), "step_s": m.get("temporal_resolution_seconds")} if a and i and a <= now else None
+    for _kind, name in watch:
+        b, a = before.get(name) or {}, after.get(name) or {}
+        av, ini = b.get("last_run_availability_time"), b.get("last_run_initialisation_time")
+        c = {"init": None, "available": int(av) if av else None, "step_s": b.get("temporal_resolution_seconds"), "note": None}
+        if not av or not ini:
+            c["note"] = "métadonnées illisibles avant la collecte"
+        elif av > start:
+            c["note"] = "run annoncé après le début de la collecte"
+        elif start - av < SETTLE_S:
+            c["note"] = "run publié moins de 10 min avant la collecte : non affirmé"
+        elif not a.get("last_run_initialisation_time"):
+            c["note"] = "métadonnées illisibles après la collecte : run non vérifié"
+        elif a.get("last_run_initialisation_time") != ini or a.get("last_run_availability_time") != av:
+            c["note"] = "nouveau run publié pendant la collecte : run de la réponse incertain"
+        else:
+            c["init"] = int(ini)
+        out[name] = c
     return out
 
 
@@ -193,13 +215,18 @@ def _load(group):
         return None
 
 
-def cached_get(group, url, params, fetcher, watch_key=None):
-    """Comme fetcher(url, params), mais réutilise la dernière réponse si aucun modèle concerné n'a publié depuis."""
+def cached_get(group, url, params, fetcher, watch_key=None, cycles=False):
+    """Comme fetcher(url, params), mais réutilise la dernière réponse si aucun modèle concerné n'a publié depuis.
+    cycles : noter le run de chaque modèle (métadonnées relues avant ET après la requête), conservé avec la réponse en cache :
+    une réponse réutilisée garde la provenance de SA collecte (issue #1)."""
     global CHANGED
     if not ENABLED:
-        STATE[group] = {"source": "api", "fetched": time.time(), "reason": "cache désactivé"}
+        watch = WATCH[watch_key or group]
+        before, start = (_meta_now(watch) if cycles else None), time.time()
         data = fetcher(url, params)
-        CYCLES[group] = _runs(WATCH[watch_key or group], time.time())
+        STATE[group] = {"source": "api", "fetched": start, "reason": "cache désactivé"}
+        if cycles:
+            CYCLES[group] = _cycles(watch, before, _meta_now(watch), start)
         return data
     watch = WATCH[watch_key or group]
     now = time.time()
@@ -208,8 +235,10 @@ def cached_get(group, url, params, fetcher, watch_key=None):
     reason = why_refresh(entry, key, watch, now, TTL_H.get(watch_key or group, TTL_MAX_H))
     if reason is None:
         STATE[group] = {"source": "cache", "fetched": entry["fetched"], "age_h": round((now - entry["fetched"]) / 3600, 2)}
-        CYCLES[group] = entry.get("cycles")
+        if cycles:
+            CYCLES[group] = entry.get("cycles")   # provenance d'ORIGINE (collecte), jamais recalculée ; None = cache d'avant l'archive v2
         return entry["data"]
+    before, start = (_meta_now(watch) if cycles else None), time.time()
     try:
         data = fetcher(url, params)
         if not valid(data):
@@ -221,17 +250,19 @@ def cached_get(group, url, params, fetcher, watch_key=None):
             age = round((now - entry["fetched"]) / 3600, 2)
             STATE[group] = {"source": "cache-dégradé", "fetched": entry["fetched"], "age_h": age,
                             "reason": safe.public_error(f"Open-Meteo indisponible ({e})", 160)}
-            CYCLES[group] = entry.get("cycles")
+            if cycles:
+                CYCLES[group] = entry.get("cycles")
             return entry["data"]
         raise
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     tmp = _path(group).with_suffix(".tmp")
-    cycles = _runs(watch, now)
-    tmp.write_text(json.dumps({"key": key, "fetched": now, "runs": _snapshot(watch, now), "cycles": cycles, "data": data}, separators=(",", ":")), encoding="utf-8")
-    CYCLES[group] = cycles
+    cyc = _cycles(watch, before, _meta_now(watch), start) if cycles else None
+    tmp.write_text(json.dumps({"key": key, "fetched": start, "runs": _snapshot(watch, now), "cycles": cyc, "data": data}, separators=(",", ":")), encoding="utf-8")
+    if cycles:
+        CYCLES[group] = cyc
     tmp.replace(_path(group))
     CHANGED = True
-    STATE[group] = {"source": "api", "fetched": now, "age_h": 0.0, "reason": reason}
+    STATE[group] = {"source": "api", "fetched": start, "age_h": 0.0, "reason": reason}
     return data
 
 

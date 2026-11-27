@@ -240,19 +240,23 @@ def buoy_points():
 def buoy_forecasts(points):
     """Prévisions aux points des bouées pour l'archive (issue #1) : UNE requête par modèle pour TOUTES les bouées (avant : une
     par bouée), via le cache (#7) : redemandée seulement quand le modèle publie un nouveau run.
-    Retourne {"ref": réponse best match (hauteur, période, direction), "models": {clé: (nom d'API, réponse)}, "missing": {clé: raison}}."""
+    Retourne {"ref": réponse best match (hauteur, période, direction) ou None, "models": {clé: (nom d'API, réponse)},
+    "missing": {clé: raison}}. Chaque requête est indépendante : un échec (best match compris) ne fait perdre que sa série."""
     from . import safe
     common = {"latitude": ",".join(str(p["lat"]) for p in points), "longitude": ",".join(str(p["lon"]) for p in points),
               "timezone": config.TIMEZONE, "forecast_days": 6, "cell_selection": "sea"}
-    out = {"ref": omcache.cached_get("buoys_marine", MARINE, {**common, "hourly": "wave_height,wave_period,wave_direction"},
-                                     lambda u, p: get(u, p)),
-           "models": {}, "missing": {}}
+    out = {"ref": None, "models": {}, "missing": {}}
+    try:
+        out["ref"] = omcache.cached_get("buoys_marine", MARINE, {**common, "hourly": "wave_height,wave_period,wave_direction"},
+                                        lambda u, p: get(u, p), cycles=True)
+    except Exception as e:
+        out["missing"]["base"] = safe.public_error(str(e), 160)
     for key, _label, _w, names in config.WAVE_MODELS:
         why = "nom de modèle refusé"
         for name in names:
             try:
                 out["models"][key] = (name, omcache.cached_get(f"buoys_wave_{key}", MARINE, {**common, "hourly": "wave_height", "models": name},
-                                                               lambda u, p: get(u, p)))
+                                                               lambda u, p: get(u, p), cycles=True))
                 break
             except ValueError:
                 continue

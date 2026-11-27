@@ -2,20 +2,30 @@
  "v": 2,
  "scope": "points des bouées (pas la prévision publiée aux spots)",
  "issued": "2026-11-27T17:00+01:00",
- "generated": "2026-11-27T17:13+01:00",
+ "generated": "2026-11-27T17:54+01:00",
  "t0": "2026-11-27T17:00+01:00",
  "step_h": 1,
  "n": 97,
  "engine": {"melange": "melange-1", "code": null, "correction_hours": 24, "ratio_bounds": [0.75, 1.35], "max_age_h": 36},
  "weights": {"marc": 0.3, "mfwam": 0.25, "ewam": 0.25, "ecmwf": 0.15, "gfs": 0.05},
- "correction": {"ratio": null, "ratio_measured": null, "status": "essai local : correction non calculée", "t_obs": null, "hours": 24},
+ "correction": {
+  "ratio": null,
+  "ratio_measured": null,
+  "status": "essai local : correction non calculée",
+  "t_obs": null,
+  "hours": 24,
+  "start_axis": null,
+  "axis_offset_s": 3600,
+  "start": null,
+  "factors": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+ },
  "sources": {
-  "base": {"group": "buoys_marine", "api": null, "fetched": "2026-11-27T17:13+01:00", "from": "api", "run": null, "run_note": "best match : non lié à un run unique"},
-  "mfwam": {"group": "buoys_wave_mfwam", "api": "meteofrance_wave", "fetched": "2026-11-27T17:13+01:00", "from": "api", "run": "2026-11-27T01:00+01:00", "run_available": "2026-11-27T13:05+01:00", "native_step_h": 3.0},
-  "ewam": {"group": "buoys_wave_ewam", "api": "ewam", "fetched": "2026-11-27T17:13+01:00", "from": "api", "run": "2026-11-27T13:00+01:00", "run_available": "2026-11-27T16:48+01:00", "native_step_h": 1.0},
-  "ecmwf": {"group": "buoys_wave_ecmwf", "api": "ecmwf_wam", "fetched": "2026-11-27T17:13+01:00", "from": "api", "run": "2026-11-27T07:00+01:00", "run_available": "2026-11-27T14:01+01:00", "native_step_h": 3.0},
-  "gfs": {"group": "buoys_wave_gfs", "api": "ncep_gfswave025", "fetched": "2026-11-27T17:13+01:00", "from": "api", "run": "2026-11-27T07:00+01:00", "run_available": "2026-11-27T12:15+01:00", "native_step_h": 1.0},
-  "marc": {"api": "Ifremer MARC (OPeNDAP)", "fetched": "2026-11-27T17:13+01:00", "run": null, "run_note": "série agrégée sans heure de run", "max_km": 6.0}
+  "base": {"group": "buoys_marine", "api": null, "fetched": "2026-11-27T17:54+01:00", "from": "api", "run": null, "run_note": "best match : non lié à un run unique"},
+  "mfwam": {"group": "buoys_wave_mfwam", "api": "meteofrance_wave", "fetched": "2026-11-27T17:54+01:00", "from": "api", "run": "2026-11-27T01:00+01:00", "run_basis": "inféré : métadonnées Open-Meteo identiques avant et après la collecte (la réponse n'indique pas son run)", "run_note": null, "run_available": "2026-11-27T13:05+01:00", "native_step_h": 3.0},
+  "ewam": {"group": "buoys_wave_ewam", "api": "ewam", "fetched": "2026-11-27T17:54+01:00", "from": "api", "run": "2026-11-27T13:00+01:00", "run_basis": "inféré : métadonnées Open-Meteo identiques avant et après la collecte (la réponse n'indique pas son run)", "run_note": null, "run_available": "2026-11-27T16:48+01:00", "native_step_h": 1.0},
+  "ecmwf": {"group": "buoys_wave_ecmwf", "api": "ecmwf_wam", "fetched": "2026-11-27T17:54+01:00", "from": "api", "run": "2026-11-27T07:00+01:00", "run_basis": "inféré : métadonnées Open-Meteo identiques avant et après la collecte (la réponse n'indique pas son run)", "run_note": null, "run_available": "2026-11-27T14:01+01:00", "native_step_h": 3.0},
+  "gfs": {"group": "buoys_wave_gfs", "api": "ncep_gfswave025", "fetched": "2026-11-27T17:54+01:00", "from": "api", "run": "2026-11-27T07:00+01:00", "run_basis": "inféré : métadonnées Open-Meteo identiques avant et après la collecte (la réponse n'indique pas son run)", "run_note": null, "run_available": "2026-11-27T12:15+01:00", "native_step_h": 1.0},
+  "marc": {"api": "Ifremer MARC (OPeNDAP)", "fetched": "2026-11-27T17:54+01:00", "run": null, "run_note": "série agrégée sans heure de run", "max_km": 6.0}
  },
  "missing": {},
  "b": {

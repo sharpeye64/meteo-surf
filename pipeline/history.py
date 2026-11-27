@@ -57,30 +57,6 @@ def _has_issued(f, issued):
         return any(needle in line for line in fh)
 
 
-def already(d, issued):
-    """Heure déjà archivée dans les anciens formats (runs/ et coast_runs/) ?"""
-    d = Path(d)
-    return _has_issued(d / "runs" / f"{issued[:7]}.jsonl", issued) and _has_issued(d / "coast_runs" / f"{issued[:7]}.jsonl", issued)
-
-
-def slice_from(hourly, from_local, hours=97, extra=False):
-    """Découpe d'une série Open-Meteo à partir de `from_local` (même règle qu'avant l'issue #1 : première heure >= from_local).
-    extra : période et direction aussi (format coast_runs)."""
-    from .openmeteo import valid_hs
-    t = hourly.get("time") or []
-    i = next((j for j, x in enumerate(t) if x >= from_local), None)
-    if i is None:
-        return None
-    hs = valid_hs(hourly["wave_height"][i:i + hours])
-    if not any(x is not None for x in hs):
-        return None
-    out = {"t0": t[i], "hs": hs}
-    if extra:
-        sl = lambda k: [None if x is None else round(float(x), 2) for x in (hourly.get(k) or [])[i:i + hours]]
-        out = {"t0": t[i], "hs": hs, "tp": sl("wave_period"), "dir": sl("wave_direction")}
-    return out
-
-
 def record_obs(gascogne_obs, buoys, d=None):
     """Mesures seules (Gascogne et bouées côtières) : fusion par heure, sans effet si on les écrit deux fois."""
     record(None, None, gascogne_obs, d)

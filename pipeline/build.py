@@ -65,8 +65,11 @@ def keep_silent(coast, offshore, meta, d=None):
 def archive_pass(meta, gascogne, coast, offshore, bpts, weights, marc_buoys, times, ratio, corr_start, gen_utc):
     """Archive du passage (heures UTC multiples de 3, main seulement). Issue #1 :
     - UNE requête par modèle pour toutes les bouées (avant : 21 + 4 requêtes), via le cache (#7) ;
-    - anciens fichiers (runs/, coast_runs/, obs/, coast_obs/) : même format qu'avant, sans doublon ;
-    - nouveau fichier buoy_runs/ (v2) : modèles, MARC, mélanges brut et corrigé, provenance (pipeline/archive.py)."""
+    - anciens fichiers (runs/, coast_runs/, obs/, coast_obs/) : même format qu'avant, sans doublon, séries placées sur les
+      heures EXACTES du passage (une réponse en cache d'un autre décalage est réalignée) ;
+    - nouveau fichier buoy_runs/ (v2) : modèles, MARC, mélanges brut et corrigé, provenance (pipeline/archive.py).
+    Heure déjà présente dans buoy_runs/ : aucune requête. Chaque requête est indépendante : un échec ne fait perdre que sa série ;
+    si TOUTES échouent, rien n'est écrit et le passage suivant de la même heure réessaie."""
     if not history.archiving_enabled():
         return
     d = history.history_dir()
@@ -75,27 +78,22 @@ def archive_pass(meta, gascogne, coast, offshore, bpts, weights, marc_buoys, tim
     buoys = list(coast) + list(offshore)
     history.record_obs(gascogne.get("obs") if gascogne else None, buoys, d)   # mesures : fusion par heure, à chaque passage
     issued_v2 = timefmt.fmt(issued_utc, timefmt.PARIS)
-    if archive.already(d, issued_v2) and history.already(d, issued_old):
-        log("  archive : heure déjà archivée (pas de doublon)")
+    if archive.already(d, issued_v2):
+        log("  archive : heure déjà archivée (pas de doublon, aucune requête)")
         return
     fc = openmeteo.buoy_forecasts(bpts)
+    if fc["ref"] is None and not fc["models"]:
+        meta["errors"]["history"] = "archive : aucune prévision obtenue aux bouées (" + "; ".join(f"{k} : {v}" for k, v in fc["missing"].items())[:200] + ")"
+        log(f"  archive non écrite : aucune prévision aux bouées ({fc['missing']}) ; nouvel essai au prochain passage de l'heure")
+        return
     ids = [p["id"] for p in bpts]
-    # anciens formats : contenu identique à avant (mêmes points, mêmes variables, même découpage), sans doublon
-    old = {}
-    for k, (_api, r) in fc["models"].items():
-        h = history.slice_from(r[ids.index("gascogne")]["hourly"], issued_old)
-        if h:
-            old[k] = {"t0": h["t0"], "hs": h["hs"]}
-    if gascogne and old:
+    # anciens formats : mêmes points, mêmes variables, sans doublon (écrivains), sur les heures exactes du passage
+    old = archive.legacy_gascogne(fc, ids, issued_utc, issued_old) if gascogne else {}
+    if old:
         history.record(issued_old, old, None, d)
-    live = {b["id"] for b in buoys}
-    cfc = {}
-    for j, bid in enumerate(ids):
-        if bid in live:
-            h = history.slice_from(fc["ref"][j]["hourly"], issued_old, extra=True)
-            if h:
-                cfc[bid] = h
-    history.record_coast(issued_old, cfc, None, d)
+    cfc = archive.legacy_coast(fc, ids, {b["id"] for b in buoys}, issued_utc, issued_old)
+    if cfc:
+        history.record_coast(issued_old, cfc, None, d)
     # v2 : modèles, MARC, mélanges brut et corrigé, provenance
     st = "appliquée" if ratio else ("mesure trop ancienne" if meta["errors"].get("gascogne_age") else "pas de rapport mesuré")
     corr_info = {"ratio": ratio or None, "ratio_measured": (gascogne or {}).get("ratio"), "start": corr_start if ratio else None,

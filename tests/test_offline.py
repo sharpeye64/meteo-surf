@@ -171,7 +171,7 @@ os.environ["METEO_HISTORY_DIR"] = _hist     # archive de test : jamais dans le v
 os.environ["METEO_ARCHIVE"] = "1"
 openmeteo.get = fake_get
 from pipeline import omcache as _omc
-_omc.model_meta = lambda kind, name: {"last_run_availability_time": 1_700_000_000}   # métadonnées simulées, sans réseau
+_omc.model_meta = lambda kind, name, fresh=False: {"last_run_availability_time": 1_700_000_000}   # métadonnées simulées, sans réseau
 marc.open_dataset = fake_marc
 buoy.requests.get = fake_buoy_get
 build.main()
@@ -410,3 +410,18 @@ from tools import check_site as _cs
 _ok, _rep = _cs.check(config.OUT_DIR, max_age_h=None)
 assert not _ok and any("test" in x for x in _rep["errors"]), "le contrôle de publication doit refuser un site de test"
 print("isolation OK :", len(_before), "fichiers de web/ inchangés, aucun ajouté ; site de test refusé par le contrôle (", len(_rep["errors"]), "motifs )")
+
+# Issue #1 (revue de la PR #20, point 5) : la prévision PUBLIÉE est identique, archive activée ou désactivée.
+# Empreintes normalisées des séries des 214 spots (tools/compare_forecast.py, utilisable aussi entre deux commits).
+from tools import compare_forecast as _cf
+from pipeline import appdata as _ad, seo as _seo
+_with = json.loads((config.OUT_DIR / "data" / "forecast.json").read_text())
+(_Path(_hist) / "forecast_archive_on.json").write_text(json.dumps(_with), encoding="utf-8")   # pour comparer à un autre commit
+print("forecast.json (archive activée) gardé pour comparaison :", _Path(_hist) / "forecast_archive_on.json")
+_os.environ["METEO_ARCHIVE"] = "0"
+_seo.generate, _ad.generate = (lambda payload: 0), (lambda spots, payload: 0)   # pages déjà vérifiées plus haut : on gagne du temps
+build.main()
+_without = json.loads((config.OUT_DIR / "data" / "forecast.json").read_text())
+_r = _cf.compare(_with, _without)
+assert not _r["diffs"] and _r["spots"] == (214, 214) and _r["global"][0] == _r["global"][1], _r["diffs"][:5]
+print("prévision publiée identique archive activée / désactivée :", _r["spots"][0], "spots, empreinte", _r["global"][0][:16])

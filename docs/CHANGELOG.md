@@ -4,7 +4,7 @@
 
 ## 27/11/2026
 
-- **Archive des modèles aux points des bouées, issue #1** (branche `archive-modeles`, PR en revue, non publiée ; repère `avant-archive-modeles`) : modèles un par un, MARC, mélanges brut et corrigé, cycle des modèles, heures avec décalage (`history/buoy_runs/`) ; 5 requêtes groupées au lieu de 25 ; fin des passages archivés deux fois ; anciennes archives intactes. Voir [archive-modeles.md](archive-modeles.md).
+- **Archive des modèles aux points des bouées, issue #1** (branche `archive-modeles`, PR #20 corrigée après la revue de ChatGPT, non publiée ; repère `avant-archive-modeles`) : modèles un par un, MARC, mélanges brut et corrigé, cycle des modèles, heures avec décalage (`history/buoy_runs/`) ; 5 requêtes groupées au lieu de 25 ; fin des passages archivés deux fois ; anciennes archives intactes. Voir [archive-modeles.md](archive-modeles.md).
 - **Heures explicites, issue #2** : **publiée** (PR #17, fusion `68cac65`) après deux revues de ChatGPT. ISO 8601 avec décalage à l'heure du lieu, Portugal à l'heure de Lisbonne, lecture des deux formats (site, appli), correction du décalage unique des séries Open-Meteo. Voir [heures.md](heures.md).
 - **Issue #7 publiée** (PR #12).
 - **Guides SEO/GEO, issue #13** (branche de test `codex/geo-guides-audit`) — revue scientifique des trois guides et de leurs cinq schémas, corrections du comparateur en eau profonde et vérification de l’aperçu sur ordinateur et mobile. Voir [l’audit](audit-geo-guides-2026-11-27.md).

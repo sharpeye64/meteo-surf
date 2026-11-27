@@ -4,15 +4,18 @@ Une ligne par passage d'archive dans `history/buoy_runs/AAAA-MM.jsonl` (ajout se
   {"v": 2, "scope": "points des bouées", "issued", "generated", "t0", "step_h": 1, "n", "engine": {...},
    "weights": {clé: poids}, "correction": {...}, "sources": {clé: provenance}, "missing": {clé: raison},
    "b": {id: {"lat", "lon", "tz", "models": {clé: [Hs] | null}, "marc": {"hs", "cell", "km"} | null,
-              "base": [Hs best match], "mix_raw": [Hs], "mix": [Hs]}}}
+              "base": [Hs best match] | null, "mix_raw": [Hs], "mix": [Hs]}}}
 - Instants : ISO 8601 avec décalage (contrat horaire v2, docs/heures.md) ; l'heure k vaut t0 + k heures EXACTES.
 - Valeur absente = null, modèle absent = null + raison dans « missing ». Jamais de valeur inventée.
-- « sources » : heure de collecte, cache ou non, et cycle du modèle (run) seulement s'il est connu par les métadonnées
-  Open-Meteo et qu'il était disponible au moment de la collecte. Le « best match » n'est lié à aucun run : null.
+- « sources » : instant réel de collecte, cache ou non, et cycle du modèle (run) INFÉRÉ des métadonnées Open-Meteo relues
+  avant et après la collecte (la réponse n'indique pas son run) ; null + raison sinon. Le « best match » n'a pas de run.
+- « correction » : ratio, départ exact (heure murale et décalage de l'axe, tels que le calcul les compare) et facteur de chaque
+  heure : le mélange corrigé se recalcule sans ambiguïté, même autour d'un changement d'heure.
 - CE N'EST PAS la prévision publiée aux spots : c'est le même calcul (pipeline/melange.py), appliqué aux points des bouées,
   pour comparer prévision et mesure. Les mesures sont dans coast_obs/ et obs/ (inchangés).
 """
 import json
+import math
 import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -21,6 +24,7 @@ from . import config, melange, openmeteo, timefmt
 
 MARC_MAX_KM = 6.0   # maille MARC acceptée pour une bouée (grille ≈ 3,7 km) : au-delà, la bouée est hors de la grille
 HOURS = 97
+META_NAME = {"ewam": "dwd_ewam", "ecmwf_wam": "ecmwf_wam025", "gfs_wave": "ncep_gfswave025"}   # nom d'API → nom des métadonnées
 
 
 def engine():
@@ -33,16 +37,35 @@ def _iso_ts(ts):
     return None if ts is None else timefmt.fmt(datetime.fromtimestamp(ts, timezone.utc), timefmt.PARIS)
 
 
+def _ukey(dt):
+    return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H")
+
+
 def _by_instant(times, values, offset_s):
     """{instant UTC « AAAA-MM-JJTHH »: valeur} : chaque réponse Open-Meteo a SON décalage (cache d'avant un changement d'heure)."""
-    out = {}
-    for t, v in zip(times or [], values or []):
-        out[timefmt.from_fixed(t, offset_s).astimezone(timezone.utc).strftime("%Y-%m-%dT%H")] = v
-    return out
+    return {_ukey(timefmt.from_fixed(t, offset_s)): v for t, v in zip(times or [], values or [])}
+
+
+def grid(issued_utc, hours=HOURS):
+    """Axe de l'archive : clés UTC des `hours` heures exactes à partir du passage."""
+    return [_ukey(issued_utc + timedelta(hours=k)) for k in range(hours)]
+
+
+def on_grid(resp_point, var, offset_s, keys):
+    """Série d'une réponse replacée sur l'axe par INSTANT, coupée là où la réponse s'arrête (comme l'ancien découpage)."""
+    h = resp_point["hourly"]
+    by = _by_instant(h["time"], h.get(var), offset_s)
+    vals = [by.get(k) for k in keys]
+    last = max((i for i, k in enumerate(keys) if k in by), default=-1)
+    return vals[:last + 1]
+
+
+def _with_offset(wall, offset_s):
+    sign, m = ("+" if offset_s >= 0 else "-"), abs(int(offset_s)) // 60
+    return f"{wall}{sign}{m // 60:02d}:{m % 60:02d}"
 
 
 def _km(a, b):
-    import math
     r = math.cos(math.radians((a[0] + b[0]) / 2))
     return math.hypot((a[0] - b[0]) * 111.2, (a[1] - b[1]) * 111.2 * r)
 
@@ -54,23 +77,26 @@ def _r2(v):
 def _source(group, api=None):
     from . import omcache
     st = omcache.STATE.get(group) or {}
-    cyc = omcache.CYCLES.get(group)
     d = {"group": group, "api": api, "fetched": _iso_ts(st.get("fetched")), "from": st.get("source")}
+    if group not in omcache.CYCLES:
+        d.update(run=None, run_note="requête non effectuée")
+        return d
+    cyc = omcache.CYCLES.get(group)
     if api is None:   # best match : pas de run unique (https://open-meteo.com/en/docs/model-updates)
-        d["run"] = None
-        d["run_note"] = "best match : non lié à un run unique"
+        d.update(run=None, run_note="best match : non lié à un run unique")
+        return d
+    c = (cyc or {}).get(META_NAME.get(api, api))
+    if cyc is None:
+        note = "cycle inconnu (réponse en cache d'avant l'archive v2)"
+    elif c is None:
+        note = "modèle absent des métadonnées surveillées"
     else:
-        names = {"ewam": "dwd_ewam", "ecmwf_wam": "ecmwf_wam025", "gfs_wave": "ncep_gfswave025"}
-        c = (cyc or {}).get(names.get(api, api))
-        if c and st.get("fetched") and st["fetched"] - c["available"] < omcache.SETTLE_S:
-            # run publié moins de 10 min avant la collecte : tous les serveurs ne l'ont peut-être pas encore, on ne l'affirme pas
-            d["run_note"] = "run publié moins de 10 min avant la collecte : non affirmé"
-            c = None
-        if cyc is None:
-            d["run_note"] = "cycle inconnu (réponse en cache d'avant l'archive v2)"
-        d["run"] = _iso_ts(c["init"]) if c else None
-        d["run_available"] = _iso_ts(c["available"]) if c else None
-        d["native_step_h"] = round(c["step_s"] / 3600, 2) if c and c.get("step_s") else None
+        note = c.get("note")
+    d["run"] = _iso_ts(c["init"]) if c and c.get("init") else None
+    d["run_basis"] = omcache.CYCLE_BASIS if d["run"] else None
+    d["run_note"] = None if d["run"] else (note or "métadonnées illisibles")
+    d["run_available"] = _iso_ts(c.get("available")) if c else None
+    d["native_step_h"] = round(c["step_s"] / 3600, 2) if c and c.get("step_s") else None
     return d
 
 
@@ -78,31 +104,34 @@ def build_line(issued_utc, generated_utc, fc, points, weights, marc_rows, marc_a
     """Ligne d'archive v2. issued_utc : début de l'heure du passage (datetime UTC). fc : openmeteo.buoy_forecasts().
     marc_rows : {id: {"hs", "cell"}} sur l'axe marc_axis (heures Open-Meteo au décalage openmeteo.LAST_OFFSET_S), ou None.
     corr_info : {"ratio" (appliqué), "ratio_measured", "start" (pd.Timestamp sans fuseau, comme build.py), "t_obs", "status"}."""
-    keys = [(issued_utc + timedelta(hours=k)).strftime("%Y-%m-%dT%H") for k in range(HOURS)]
+    keys = grid(issued_utc)
+    axis_off = openmeteo.LAST_OFFSET_S or 0
     # heures « murales » au décalage de l'axe des spots : la correction est calculée EXACTEMENT comme pour la prévision publiée
-    wall = [openmeteo.shift_str((issued_utc + timedelta(hours=k)).strftime("%Y-%m-%dT%H:00"), openmeteo.LAST_OFFSET_S or 0)
-            for k in range(HOURS)]
-    corr = melange.correction(wall, corr_info.get("ratio"), corr_info.get("start"))
-    ref, ref_off = fc["ref"], openmeteo.offset_of(fc["ref"])
+    wall = [openmeteo.shift_str((issued_utc + timedelta(hours=k)).strftime("%Y-%m-%dT%H:00"), axis_off) for k in range(HOURS)]
+    start = corr_info.get("start")
+    corr = melange.correction(wall, corr_info.get("ratio"), start)
+    ref = fc["ref"]
+    ref_off = openmeteo.offset_of(ref) if ref else None
     mods = {k: (api, r, openmeteo.offset_of(r)) for k, (api, r) in fc["models"].items()}
-    marc_off = openmeteo.LAST_OFFSET_S or 0
     b = {}
     for i, p in enumerate(points):
-        h = ref[i]["hourly"]
-        base = [_r2(v) for v in openmeteo.valid_hs([_by_instant(h["time"], h["wave_height"], ref_off).get(k) for k in keys])]
+        base = None
+        if ref:
+            s = openmeteo.valid_hs(on_grid(ref[i], "wave_height", ref_off, keys))
+            base = [_r2(v) for v in s] + [None] * (HOURS - len(s))
         models = {}
         for k, (_api, r, off) in mods.items():
-            hh = r[i]["hourly"]
-            s = openmeteo.valid_hs([_by_instant(hh["time"], hh["wave_height"], off).get(x) for x in keys])
-            models[k] = [_r2(v) for v in s] if any(v is not None for v in s) else None
+            s = openmeteo.valid_hs(on_grid(r[i], "wave_height", off, keys))
+            models[k] = ([_r2(v) for v in s] + [None] * (HOURS - len(s))) if any(v is not None for v in s) else None
         for k in fc["missing"]:
-            models[k] = None
+            if k != "base":
+                models[k] = None
         marc = None
         m = (marc_rows or {}).get(p["id"])
         if m and m.get("cell"):
             km = _km((p["lat"], p["lon"]), m["cell"])
             if km <= MARC_MAX_KM:
-                s = [_by_instant(marc_axis, m["hs"], marc_off).get(x) for x in keys]
+                s = [_by_instant(marc_axis, m["hs"], axis_off).get(x) for x in keys]
                 if any(v is not None for v in s):
                     marc = {"hs": [_r2(v) for v in s], "cell": m["cell"], "km": round(km, 1)}
         used = {k: v for k, v in models.items() if v}
@@ -122,14 +151,51 @@ def build_line(issued_utc, generated_utc, fc, points, weights, marc_rows, marc_a
     missing = dict(fc["missing"])
     if marc_rows is None:
         missing["marc"] = "MARC indisponible pour ce passage"
-    corr_pub = {k: corr_info.get(k) for k in ("ratio", "ratio_measured", "status")}
-    corr_pub["t_obs"] = timefmt.fmt(timefmt.parse(corr_info["t_obs"]), timefmt.PARIS) if corr_info.get("t_obs") else None
-    corr_pub["hours"] = config.BUOY_CORRECTION_HOURS
+    correction = {k: corr_info.get(k) for k in ("ratio", "ratio_measured", "status")}
+    correction.update({
+        "t_obs": timefmt.fmt(timefmt.parse(corr_info["t_obs"]), timefmt.PARIS) if corr_info.get("t_obs") else None,
+        "hours": config.BUOY_CORRECTION_HOURS,
+        # départ EXACT tel que le calcul le compare : l'heure murale de départ écrite AVEC le décalage de l'axe des prévisions
+        # (« start_axis »), donc un instant ISO 8601 exact ; « start » = le même instant à l'heure de Paris
+        "start_axis": _with_offset(start.strftime("%Y-%m-%dT%H:%M"), axis_off) if start is not None else None,
+        "axis_offset_s": axis_off,
+        "start": timefmt.fmt(timefmt.from_fixed(start.strftime("%Y-%m-%dT%H:%M"), axis_off), timefmt.PARIS) if start is not None else None,
+        "factors": [round(c, 6) for c in corr],
+    })
     return {"v": 2, "scope": "points des bouées (pas la prévision publiée aux spots)",
             "issued": timefmt.fmt(issued_utc, timefmt.PARIS), "generated": timefmt.fmt(generated_utc, timefmt.PARIS),
             "t0": timefmt.fmt(issued_utc, timefmt.PARIS), "step_h": 1, "n": HOURS, "engine": engine(),
             "weights": {k: weights[k] for k in (["marc"] if "marc" in weights else []) + [k for k in fc["models"]] if k in weights},
-            "correction": corr_pub, "sources": sources, "missing": missing, "b": b}
+            "correction": correction, "sources": sources, "missing": missing, "b": b}
+
+
+# ---------- anciens formats (runs/, coast_runs/), alimentés depuis les mêmes requêtes, sur la grille d'instants ----------
+def legacy_gascogne(fc, ids, issued_utc, issued_old):
+    """{clé: {"t0", "hs"}} au point de Gascogne, comme l'ancien models_at_point : t0 = heure de Paris du passage (sans décalage,
+    format d'avant), valeurs aux heures EXACTES t0 + k (une réponse en cache d'un autre décalage est réalignée)."""
+    out, j, keys = {}, ids.index("gascogne"), grid(issued_utc)
+    for k, (_api, r) in fc["models"].items():
+        hs = openmeteo.valid_hs(on_grid(r[j], "wave_height", openmeteo.offset_of(r), keys))
+        if any(x is not None for x in hs):
+            out[k] = {"t0": issued_old, "hs": hs}
+    return out
+
+
+def legacy_coast(fc, ids, live, issued_utc, issued_old):
+    """{id: {"t0", "hs", "tp", "dir"}} best match aux bouées vivantes, comme l'ancien coast_forecast, sur la grille d'instants."""
+    ref = fc["ref"]
+    if not ref:
+        return {}
+    off, keys, out = openmeteo.offset_of(ref), grid(issued_utc), {}
+    for j, bid in enumerate(ids):
+        if bid not in live:
+            continue
+        hs = openmeteo.valid_hs(on_grid(ref[j], "wave_height", off, keys))
+        if not any(x is not None for x in hs):
+            continue
+        sl = lambda v: [None if x is None else round(float(x), 2) for x in on_grid(ref[j], v, off, keys)]
+        out[bid] = {"t0": issued_old, "hs": hs, "tp": sl("wave_period"), "dir": sl("wave_direction")}
+    return out
 
 
 def _issued_in(f, issued):

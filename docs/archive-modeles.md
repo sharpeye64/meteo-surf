@@ -20,7 +20,13 @@ _27/11/2026, Claude Code, branche `archive-modeles` (repère `avant-archive-mode
 - **Les mesures** (`obs/`, `coast_obs/`) sont fusionnées heure par heure, comme avant.
 - **Les doublons déjà présents restent dans les fichiers.** Les lecteurs les ignorent : `history.reliability`, `history.read_coast_runs`, `tools/coast_report.py`. Pour une heure en double, on garde le premier passage.
 - **Conséquence visible** : la « fiabilité mesurée » (`reliability`) ne compte plus deux fois les heures doublées. Les chiffres peuvent bouger légèrement ; ils sont plus justes.
-- **Une seule différence pour les anciens formats** : la prévision peut venir du cache (#7). Le cache est redemandé dès qu'un modèle publie un nouveau run, donc la prévision archivée est toujours celle du **dernier run disponible**, comme avant.
+- **Une différence pour les anciens formats** : la prévision peut venir du cache (#7). Le cache est redemandé dès qu'un modèle publie un nouveau run, donc la prévision archivée est toujours celle du **dernier run disponible**, comme avant.
+- **Alignement par instant** (revue de la PR #20) : les séries des anciens formats sont placées sur les heures **exactes** du passage (`t0 + k` heures), avant d'être écrites au format d'avant.
+  - Pour une réponse au décalage du moment, la sortie est **identique** à celle de l'ancien code (test).
+  - Une réponse en cache écrite avec un autre décalage, celui d'avant un changement d'heure, est réalignée. L'ancien découpage, fait sur les heures écrites, l'aurait décalée d'une heure (test).
+- **Limite propre aux anciens formats** : leur `t0` est une heure de Paris **sans décalage**, et leurs lecteurs comptent `t0 + k` en heures de Paris. Sur une fenêtre de 97 h qui traverse un changement d'heure, les heures après le changement sont donc lues avec une heure d'écart. L'heure répétée d'octobre est lue comme la première des deux.
+  - Ce défaut existait avant et n'est pas corrigé, car les fichiers ne sont pas réécrits.
+  - Pour toute nouvelle analyse, utiliser `buoy_runs/`, dont les instants sont exacts.
 
 ## Le nouveau fichier : `history/buoy_runs/AAAA-MM.jsonl`
 
@@ -33,9 +39,12 @@ Une ligne par passage d'archive (heures UTC multiples de 3, `main` seulement). A
  "t0": "2026-11-27T17:00+01:00", "step_h": 1, "n": 97,   l'heure k vaut t0 + k heures exactes
  "engine": {"melange": "melange-1", "code": "<commit>", "correction_hours": 24, ...},
  "weights": {"marc": 0.3, "mfwam": 0.25, "ewam": 0.25, "ecmwf": 0.15, "gfs": 0.05},
- "correction": {"ratio": 1.2, "ratio_measured": 1.2, "t_obs": "…+01:00", "hours": 24, "status": "appliquée"},
+ "correction": {"ratio": 1.2, "ratio_measured": 1.2, "status": "appliquée", "t_obs": "…+01:00", "hours": 24,
+                "start_axis": "2026-11-27T15:00+01:00",   départ tel que le calcul le compare (heure de l'axe + son décalage)
+                "axis_offset_s": 3600, "start": "…+01:00", "factors": [97 facteurs]},
  "sources": {"mfwam": {"api": "meteofrance_wave", "fetched": "…", "from": "api|cache|cache-dégradé",
-                       "run": "2026-11-27T01:00+01:00", "run_available": "…", "native_step_h": 3.0}, ...},
+                       "run": "2026-11-27T01:00+01:00", "run_basis": "inféré : …", "run_note": null,
+                       "run_available": "…", "native_step_h": 3.0}, ...},
  "missing": {"ewam": "raison"},             modèle absent de ce passage, avec la raison
  "b": {"03302": {"lat", "lon", "tz": "Europe/Paris",
                  "models": {"mfwam": [Hs × 97], "ewam": [...], "ecmwf": [...], "gfs": null},
@@ -49,10 +58,40 @@ Une ligne par passage d'archive (heures UTC multiples de 3, `main` seulement). A
 
 - **Instants** : ISO 8601 avec décalage. Les réponses Open-Meteo sont replacées sur l'axe **par instant**, y compris une réponse en cache écrite avec un autre décalage (avant un changement d'heure).
 - **Valeur absente** = `null`. **Modèle absent** = `null` partout, avec sa raison dans `missing`. GFS sur une maille « terre » (0,00 m partout) = `null`, comme dans la prévision.
-- **Cycle d'un modèle (`run`)** : il est lu dans les métadonnées publiques d'Open-Meteo (`last_run_initialisation_time`), qui ne sont pas comptées dans les quotas. On ne l'écrit que s'il était disponible **avant** la collecte, depuis au moins 10 minutes, délai conseillé par Open-Meteo. Sinon `null`, avec la raison dans `run_note`. On ne l'invente jamais :
-  - **best match** : toujours `null`, car il n'est lié à aucun run unique ;
-  - **MARC** : toujours `null`, car la série OPeNDAP agrégée ne donne pas d'heure de run.
-- **Échéance** (horizon de prévision) d'une valeur = son heure de validité − `run`. Quand `run` est `null`, on calcule par rapport à `fetched`, l'heure de collecte.
+- **Cycle d'un modèle (`run`) : toujours INFÉRÉ, jamais confirmé par la réponse.**
+  - **D'où il vient** : la réponse d'Open-Meteo n'indique pas son run. On lit donc `last_run_initialisation_time` dans les métadonnées publiques du modèle, qui ne sont pas comptées dans les quotas.
+  - **Quand on l'écrit** : on relit ces métadonnées **juste avant et juste après** la requête, y compris quand le cache est désactivé. Le cycle n'est écrit que si quatre conditions sont réunies :
+    - les deux lectures sont lisibles ;
+    - elles sont **identiques** ;
+    - le run était annoncé **avant** le début de la collecte ;
+    - il l'était depuis au moins 10 minutes, délai conseillé par Open-Meteo.
+  - **Ce qui l'accompagne** : un cycle écrit porte `run_basis`, qui dit en clair qu'il est inféré. Un cycle absent porte toujours sa raison dans `run_note` :
+    - métadonnées illisibles avant ou après la collecte ;
+    - run annoncé après le début de la collecte ;
+    - run publié moins de 10 minutes avant ;
+    - nouveau run publié pendant la collecte ;
+    - modèle absent des métadonnées ;
+    - réponse en cache plus ancienne que l'archive v2 ;
+    - requête non effectuée.
+  - **Cas particuliers** :
+    - **best match** : jamais de cycle, car il n'est lié à aucun run unique ;
+    - **MARC** : jamais de cycle, car la série OPeNDAP agrégée ne donne pas d'heure de run.
+  - **Réponse réutilisée depuis le cache** : elle garde la provenance de **sa** collecte (`fetched`, `run`), enregistrée avec elle. Elle n'est jamais recalculée au moment de la réutilisation.
+- **Échéance** (horizon de prévision) : il faut distinguer deux mesures.
+  - **Depuis le run** (`validité − run`) : c'est l'échéance du modèle. Elle n'existe que si `run` est connu.
+  - **Depuis la collecte** (`validité − fetched`) : c'est l'âge de l'information au moment où nous l'avions. Ce n'est pas la même chose. Avec un run publié 4 h après son heure nominale et collecté 2 h plus tard, les deux mesures diffèrent de 6 h.
+  - **Pour les comparaisons futures** (#5, #9) : les calculer séparément. Partir de la provenance de chaque source, et de l'instant **réel** de collecte (`sources.*.fetched`), pas seulement de `issued`, qui est arrondi à l'heure du passage.
+- **Correction** : la ligne garde tout ce qu'il faut pour la recalculer exactement :
+  - le ratio appliqué ;
+  - `start_axis`, le départ tel que le calcul le compare : l'heure de l'axe écrite **avec** le décalage de cet axe (`axis_offset_s`) ;
+  - `start`, le même instant à l'heure de Paris ;
+  - le **facteur de chaque heure** (`factors`).
+  - Test : le mélange corrigé se recalcule depuis la ligne seule, avec un axe à +1 h, +2 h ou +0 h. `t_obs` seul ne suffirait pas autour d'un changement d'heure.
+- **Pannes** : chaque requête est indépendante.
+  - **Best match en échec** : la ligne est écrite quand même, avec les modèles disponibles. `base` vaut `null` et la raison est dans `missing.base`. `coast_runs/`, qui ne vient que du best match, n'est pas écrit pour cette heure.
+  - **Tout en échec** : rien n'est écrit, l'erreur est notée, et le passage suivant de la même heure réessaie.
+  - **Heure déjà présente dans `buoy_runs/`** : aucune requête n'est envoyée.
+  - **Reprise après un passage interrompu** (anciens formats écrits, v2 absente) : la v2 est écrite, et les anciens fichiers ne reçoivent pas de doublon.
 - **MARC** n'est retenu que si sa maille est à 6 km au plus de la bouée (grille d'environ 3,7 km). Le test réel du 27/11 l'a trouvé pour 5 bouées : Cap Ferret (1,8 km), Anglet (0,5), Saint-Jean-de-Luz (0,9), Donostia (0,9), Pasaia (0,5). Il vaut `null` ailleurs : Bretagne, Galice, Portugal, Gascogne au large, Bilbao.
 - **Mélanges** : ils viennent du **même code** que la prévision publiée (`pipeline/melange.py`, extrait de `build.py` sans changement de méthode). On peut les recalculer à l'identique depuis l'archive, mais ils sont conservés tels quels, comme demandé : une évolution future de l'algorithme ne les rendra pas faux.
 - **Périmètre** : ce sont les calculs **aux points des bouées**, pour comparer prévision et mesure. Ce n'est **pas** la prévision publiée aux spots, qui est calculée sur 176 points en mer distincts des bouées. Le champ `scope` le rappelle.
@@ -93,6 +132,21 @@ Mesuré sur une ligne réelle et sur l'historique git réel de `coast_runs`.
 
 Aucun. Open-Meteo et MARC sont gratuits pour cet usage non commercial. GitHub accepte ces volumes : un dépôt doit rester sous 5 Go, et un fichier sous 100 Mo, alors qu'un mois de `buoy_runs` fait environ 18 Mo.
 
+## Preuve que la prévision publiée ne change pas (reproductible)
+
+`python -m tools.compare_forecast A/forecast.json B/forecast.json` compare les séries publiées des spots :
+- séries comparées : `marine`, `wave_models`, `wind`, `wind_models`, `daily`, `tide` ;
+- chaque série est sérialisée en JSON trié, puis résumée par une empreinte SHA-256 ;
+- l'empreinte globale couvre aussi `buoy_correction` et les listes de modèles.
+
+| Comparaison (données simulées du test hors ligne) | Empreinte globale | Résultat |
+|---|---|---|
+| Code d'avant ce lot (`avant-archive-modeles`) | `70e707add943600cbe98815421bed3f9fde0f66c8675d3267c6dde28f51950e8` | |
+| Ce lot, archive activée | `70e707add943600cbe98815421bed3f9fde0f66c8675d3267c6dde28f51950e8` | identique, 214 spots × 6 séries |
+| Ce lot, archive désactivée | `70e707add943600c…` | identique (vérifié à chaque CI par `tests.test_offline`) |
+
+Pour refaire la première ligne : lancer `python -m tests.test_offline` sur le repère `avant-archive-modeles`, puis sur ce lot. Le test affiche le chemin du `forecast.json` archive activée. Comparer ensuite les deux fichiers avec l'outil ci-dessus. Les empreintes changent d'un jour à l'autre, car les données simulées dépendent de la date. Il faut donc lancer les deux tests le même jour, dans la même heure.
+
 ## Tests (`python -m tests.test_archive`, job `surete`, sans réseau)
 
 - **Calcul inchangé** : le mélange extrait donne exactement l'ancien calcul de `build.py` sur 200 tirages, avec des valeurs manquantes, le repli et la correction. `forecast.json` est identique avant et après sur les 214 spots (test hors ligne rejoué sur les deux versions).
@@ -112,6 +166,21 @@ Aucun. Open-Meteo et MARC sont gratuits pour cet usage non commercial. GitHub ac
   - il n'est pas affirmé quand le run a été publié moins de 10 min avant la collecte ;
   - il vaut `null` quand les métadonnées sont illisibles, et toujours pour le best match et MARC.
 - **Fiabilité** : un passage en double ne compte plus deux fois.
+- **Ajouts après la revue de la PR #20** :
+  - **Anciens formats** :
+    - sortie identique à l'ancien code pour une réponse au décalage du moment ;
+    - réalignement par instant d'une réponse d'un autre décalage (l'ancien découpage décalait d'une heure).
+  - **Provenance** :
+    - cycle affirmé seulement s'il est stable avant et après la collecte (5 cas) ;
+    - nouveau run publié pendant la collecte, cache désactivé ;
+    - provenance d'origine conservée pour une réponse en cache.
+  - **Pannes** :
+    - best match en échec ;
+    - tout en échec, puis nouvel essai ;
+    - reprise partielle ;
+    - aucune requête quand l'heure est déjà archivée.
+  - **Correction** : recalculée depuis la ligne seule, pour trois décalages d'axe.
+  - **Prévision publiée** : identique, archive activée ou désactivée (dans `test_offline`).
 
 ## Ce qui reste hors de ce lot
 
