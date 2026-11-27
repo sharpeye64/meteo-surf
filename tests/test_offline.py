@@ -248,7 +248,7 @@ print("CANDHIS OK :", [b["name"] for b in data["coast"]], c0["latest"])
 import re as _re
 sm = (config.OUT_DIR / "sitemap.xml").read_text(encoding="utf-8")
 _nb = len(data["coast"]) + len(data["offshore"]) + (1 if (data.get("gascogne") or {}).get("latest") else 0)   # pages des bouées (Gascogne comprise) + leur page liste
-assert sm.count("<url>") == len(data["spots"]) + 6 + _nb + 1 + 12, sm.count("<url>")   # +1 : page « À propos »
+assert sm.count("<url>") == len(data["spots"]) + 2 + len(__import__("pipeline.pages", fromlist=["ALL"]).ALL) + _nb + 12, sm.count("<url>")
 assert "Sitemap:" in (config.OUT_DIR / "robots.txt").read_text()
 pg = (config.OUT_DIR / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
 assert "<h1>Prévisions surf à Lacanau</h1>" in pg and "application/ld+json" in pg and 'rel="canonical"' in pg and "<table>" in pg
