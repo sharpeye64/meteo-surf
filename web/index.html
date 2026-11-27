@@ -4878,7 +4878,7 @@ function render_v1(){
       </div>
       <details class="allspots"><summary>Tous les spots <span class="cnt">(${state.data.length})</span></summary>
       <nav class="spotlinks" aria-label="Tous les spots">${(()=>{ const g={}; state.data.forEach(x=>{ (g[x.spot.region]=g[x.spot.region]||[]).push(x.spot); }); return Object.entries(g).map(([r,l])=>`<div><h3>${r}</h3>${l.map(sp=>`<a href="spots/${slugOf(sp.name)}/">${sp.name}</a>`).join('')}</div>`).join(''); })()}</nav></details>
-      <p class="flinks"><a href="comment-ca-marche/">Comment ça marche</a> · <a href="a-propos/">À propos</a> · <a href="mentions-legales/">Mentions légales</a> · <a href="confidentialite/">Confidentialité</a></p>
+      <p class="flinks"><a href="guide/">Comprendre la houle</a> · <a href="comment-ca-marche/">Comment ça marche</a> · <a href="a-propos/">À propos</a> · <a href="mentions-legales/">Mentions légales</a> · <a href="confidentialite/">Confidentialité</a></p>
       ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}.${fcStaleNote()}</p>`:''}
     </footer>
   </div>`;
@@ -5506,7 +5506,7 @@ function render(){
       </div>
       <details class="allspots"><summary>Tous les spots <span class="cnt">(${state.data.length})</span></summary>
       <nav class="spotlinks" aria-label="Tous les spots">${(()=>{ const g={}; state.data.forEach(x=>{ (g[x.spot.region]=g[x.spot.region]||[]).push(x.spot); }); return Object.entries(g).map(([r,l])=>`<div><h3>${r}</h3>${l.map(sp=>`<a href="spots/${slugOf(sp.name)}/">${sp.name}</a>`).join('')}</div>`).join(''); })()}</nav></details>
-      <p class="flinks"><a href="comment-ca-marche/">Comment ça marche</a> · <a href="a-propos/">À propos</a> · <a href="mentions-legales/">Mentions légales</a> · <a href="confidentialite/">Confidentialité</a></p>
+      <p class="flinks"><a href="guide/">Comprendre la houle</a> · <a href="comment-ca-marche/">Comment ça marche</a> · <a href="a-propos/">À propos</a> · <a href="mentions-legales/">Mentions légales</a> · <a href="confidentialite/">Confidentialité</a></p>
       ${pvDaSwitch()}
       ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}.${fcStaleNote()}</p>`:''}
     </footer>
@@ -5760,7 +5760,7 @@ async function homeOpen(fromSpot){
         </header>
         <div class="ho-zones" id="hoZones" role="group" aria-label="Zone"></div>
         <div class="ho-body" id="hoBody"></div>
-        <details class="ho-xp" id="hoXp"><summary>Spots, bouées et régions</summary><nav aria-label="Explorer Houlalah"><a href="spots/">Tous les spots</a><a href="bouees/">Toutes les bouées</a>${ZONE_LINKS.map(([z,n])=>`<a href="meteo-surf-${z}/">Météo surf ${n}</a>`).join('')}<a href="comment-ca-marche/">Comment ça marche</a><a href="a-propos/">À propos</a></nav></details>
+        <details class="ho-xp" id="hoXp"><summary>Spots, bouées et régions</summary><nav aria-label="Explorer Houlalah"><a href="spots/">Tous les spots</a><a href="bouees/">Toutes les bouées</a>${ZONE_LINKS.map(([z,n])=>`<a href="meteo-surf-${z}/">Météo surf ${n}</a>`).join('')}<a href="guide/">Comprendre la houle</a><a href="comment-ca-marche/">Comment ça marche</a><a href="a-propos/">À propos</a></nav></details>
       </section>
       <div class="ho-tools"><div class="ho-seg" id="hoVar" role="group" aria-label="Donnée affichée"><i class="ho-ind" aria-hidden="true"></i>${Object.values(HOME_VARS).map(x=>`<button type="button" data-v="${x.k}" aria-pressed="${x.k===HOME.v}">${hoIc(x.k)}<span>${x.lab}</span></button>`).join('')}</div>
         <button type="button" class="ho-rb" id="hoBuT" aria-pressed="${HOME.showBu}" aria-label="Afficher les bouées" title="Bouées : mesures réelles">${pvI('buoy')}</button>
@@ -5993,7 +5993,7 @@ function homeVarSheet(){
   document.querySelectorAll('#hoSheet [data-v]').forEach(b=>b.onclick=()=>{ HOME.setV(b.dataset.v); homeSheet(null); });
 }
 function homeMenu(){
-  homeSheet(`<p class="ho-sk">Houlalah</p><nav class="ho-menu"><a href="spots/">Tous les spots ${HO_I.next}</a><a href="bouees/">Toutes les bouées ${HO_I.next}</a>${ZONE_LINKS.map(([z,n])=>`<a href="meteo-surf-${z}/">Météo surf ${n} ${HO_I.next}</a>`).join('')}<a href="comment-ca-marche/">Comment ça marche ${HO_I.next}</a><a href="a-propos/">À propos ${HO_I.next}</a></nav>`,'ho-sh-l ho-sh-menu');
+  homeSheet(`<p class="ho-sk">Houlalah</p><nav class="ho-menu"><a href="spots/">Tous les spots ${HO_I.next}</a><a href="bouees/">Toutes les bouées ${HO_I.next}</a>${ZONE_LINKS.map(([z,n])=>`<a href="meteo-surf-${z}/">Météo surf ${n} ${HO_I.next}</a>`).join('')}<a href="guide/">Comprendre la houle ${HO_I.next}</a><a href="comment-ca-marche/">Comment ça marche ${HO_I.next}</a><a href="a-propos/">À propos ${HO_I.next}</a></nav>`,'ho-sh-l ho-sh-menu');
 }
 /* survol d'une bouée dans le panneau : son marqueur ressort sur la carte (et inversement) */
 function homeBuHl(id,on){ const m=HOME.bm&&HOME.bm[id]; if(m) m.getElement().classList.toggle('is-hl',!!on); document.querySelectorAll(`#home [data-b="${id}"]`).forEach(r=>r.classList.toggle('hl',!!on)); }
