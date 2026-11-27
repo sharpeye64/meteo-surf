@@ -235,8 +235,9 @@ def summary():
     u = USAGE
     att = [(x, st) for x in u for st in (x["statuses"] or [0])]
     ok = [(x, st) for x, st in att if st == 200]
-    tz = ZoneInfo(config.TIMEZONE)
-    loc = lambda ts: datetime.fromtimestamp(ts, tz).strftime("%Y-%m-%dT%H:%M")
+    from datetime import timezone as _utc
+    from . import timefmt
+    loc = lambda ts: timefmt.fmt(datetime.fromtimestamp(ts, _utc.utc), timefmt.PARIS)   # contrat horaire (issue #2)
     groups = {}
     for g, st in sorted(STATE.items()):
         d = {k: (safe.public_error(v, 160) if k == "reason" else v) for k, v in st.items() if k != "fetched"}

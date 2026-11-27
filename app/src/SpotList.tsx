@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Arrow from './Arrow';
 import Brand from './Brand';
-import { ageTxt, country, fr, Index, regionName, sector, SpotLite } from './data';
+import { ageH, ageTxt, country, fr, Index, regionName, sector, SpotLite } from './data';
+
 import { useBarSpace } from './TabBar';
 import { C, F, sizeCell, themed, windCell } from './theme';
 
@@ -21,7 +22,7 @@ export default function SpotList({ index, favs, offline, refreshing, onRefresh, 
       .filter(s => !t || s.name.toLowerCase().includes(t) || (s.commune || '').toLowerCase().includes(t) || s.region.toLowerCase().includes(t))
       .sort((a, b) => (top[b.region] - top[a.region]) || (b.lat - a.lat));   // régions du nord au sud, puis spots du nord au sud
   }, [index, q, f, favs, top]);
-  const live = index.buoys.filter(b => (Date.now() - new Date(b.time + ':00').getTime()) / 36e5 < 2);
+  const live = index.buoys.filter(b => ageH(b.time) < 2);
 
   return (
     <FlatList

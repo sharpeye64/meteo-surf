@@ -12,6 +12,7 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   `web/data/forecast.json` et, à défaut, appelle Open-Meteo en direct (`loadLive`).
 - `.github/workflows/update.yml` : génération environ toutes les 1 h 30 (deux séries de passages décalées, car GitHub saute des passages : 9 h de trou constaté le 11/11/2026) et publication sur GitHub Pages ; l'archive n'est écrite qu'aux heures UTC multiples de 3.
 - `tests/test_offline.py` : tout le pipeline avec des sources simulées, dans un dossier temporaire (jamais `web/`), avec marques de test. À garder vert.
+- Heures publiées : ISO 8601 avec décalage, heure locale du lieu (issue #2, `pipeline/timefmt.py`, `docs/heures.md`) ; site `tMs`/`tKey`/`tzParts`, appli `app/src/time.ts`. Open-Meteo écrit ses séries avec UN décalage (celui de la requête) : instant = heure − `utc_offset_seconds`.
 - `tools/check_site.py` : contrôle avant publication (issue #3, `docs/securisation-publication.md`) ; le workflow génère dans `_site/` et ne publie que si le contrôle passe, depuis `main` seulement.
 
 ## Points à vérifier au premier vrai lancement (non testés en conditions réelles)

@@ -83,9 +83,13 @@ def hourly(sp, now):
     """La journée toutes les 3 h (6 h à 21 h), à partir des prévisions horaires déjà calculées. Après 19 h : le lendemain."""
     from datetime import timedelta
     m, w = sp["marine"], sp["wind"]
+    # heure locale du spot (issue #2 : Portugal en heure de Lisbonne) ; les heures publiées portent leur décalage
+    from . import timefmt
+    now = timefmt.now(sp.get("tz") or timefmt.PARIS).replace(tzinfo=None) if sp.get("tz") else now
+    today = now.strftime("%Y-%m-%d")
     day = (now + timedelta(days=1 if now.hour >= 19 else 0)).strftime("%Y-%m-%d")
-    mi = {t: i for i, t in enumerate(m["time"])}
-    wi = {t: i for i, t in enumerate(w["time"])}
+    mi = {t[:16]: i for i, t in enumerate(m["time"])}
+    wi = {t[:16]: i for i, t in enumerate(w["time"])}
     g = lambda d, k, i: (d.get(k) or [None] * (i + 1))[i] if i is not None and i < len(d.get(k) or []) else None
     out = []
     for h in (6, 9, 12, 15, 18, 21):
@@ -96,7 +100,7 @@ def hourly(sp, now):
             continue
         out.append({"h": h, "hs": hs, "tp": g(m, "wave_period", i), "dir": g(m, "wave_direction", i),
                     "w": g(w, "wind_speed_10m", j), "wd": g(w, "wind_direction_10m", j), "gust": g(w, "wind_gusts_10m", j)})
-    return {"day": day, "rows": out}
+    return {"day": day, "today": today, "rows": out}
 
 
 def tide_days(sp, coef):
@@ -329,7 +333,7 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
     hours_html = ""
     if hh.get("rows"):
         hd = datetime.strptime(hh["day"], "%Y-%m-%d")
-        lab = "aujourd'hui" if hh["day"] == now.strftime("%Y-%m-%d") else "demain"
+        lab = "aujourd'hui" if hh["day"] == hh.get("today", now.strftime("%Y-%m-%d")) else "demain"
         ws = lambda r: WIND_WORD.get(wind_for_spot(r["w"], r["wd"], sp.get("ori")), "—")
         hrs = "".join(f"<tr><td>{r['h']} h</td><td>{fr(r['hs'])} m</td><td>{fr(r['tp'], 0)} s {sector(r['dir']) or ''}</td>"
                       f"<td>{fr(r['w'], 0)} km/h {sector(r['wd']) or ''}{(' (raf. ' + fr(r['gust'], 0) + ')') if r.get('gust') is not None else ''}</td><td>{ws(r)}</td></tr>" for r in hh["rows"])

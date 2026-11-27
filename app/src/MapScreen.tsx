@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import Brand from './Brand';
 import { ageH, Buoy, fr, Index, perTxt, SpotLite } from './data';
+import { partsIn } from './time';
 import { Pulse } from './Live';
 import { FLOAT_BAR_H } from './TabBar';
 import { C, F, isDark, sizeCell, themed } from './theme';
@@ -75,7 +76,7 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
     else { const s = index.spots.find(x => x.slug === id.slice(2)); if (s) onSpot(s); }
   };
 
-  const hour = useMemo(() => { const d = new Date(); return `${d.getHours()} h`; }, [index]);
+  const hour = useMemo(() => `${partsIn(Date.now(), 'Europe/Paris').h} h`, [index]);   // carte de toute la côte : heure de Paris
 
   return (
     <View style={StyleSheet.absoluteFill} onLayout={e => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>

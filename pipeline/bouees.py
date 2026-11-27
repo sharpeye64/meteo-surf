@@ -9,7 +9,7 @@ import json
 import math
 from datetime import datetime
 
-from . import config
+from . import config, timefmt
 from .seotext import fit, fit_desc
 from .seo import BRAND, fr, hav, page, sector, slugify
 
@@ -173,9 +173,11 @@ def station(b):
 
 
 def age_h(now, t):
+    """Âge d'une mesure : instants exacts (issue #2), l'heure publiée portant son décalage ; `now` naïf = heure de Paris."""
+    from . import timefmt
     try:
-        return (now - datetime.strptime(t[:16], "%Y-%m-%dT%H:%M")).total_seconds() / 3600
-    except ValueError:
+        return timefmt.age_h(t, now)
+    except (ValueError, TypeError):
         return 999
 
 
@@ -191,9 +193,8 @@ def is_fresh(now, t, lim=1):
 
 
 def age_txt(now, t):
-    try:
-        h = (now - datetime.strptime(t[:16], "%Y-%m-%dT%H:%M")).total_seconds() / 3600
-    except ValueError:
+    h = age_h(now, t)
+    if h == 999:
         return ""
     if h < 1:
         return "à l'instant"
@@ -216,25 +217,27 @@ def collect(payload):
             continue
         out.append({"id": b["id"], "name": b["name"], "slug": slugify(b["name"]), "sub": b.get("sub") or "sur la côte", "lat": float(b["lat"]),
                     "lon": float(b["lon"]), "L": L, "obs": b.get("obs") or [], "model": b.get("model") or [],
-                    "st": (payload.get("buoy_stats") or {}).get(b["id"]), "silent": bool(b.get("silent"))})
+                    "st": (payload.get("buoy_stats") or {}).get(b["id"]), "silent": bool(b.get("silent")), "tz": b.get("tz")})
     g = payload.get("gascogne") or {}
     L = g.get("latest") or {}
     if L.get("hs") is not None:   # bouée du large (Météo-France 62001) : même page que les autres
         out.append({"id": "gascogne", "name": "Gascogne", "slug": "gascogne", "sub": "au large, bouée Météo-France 62001", "lat": float(g["lat"]),
-                    "lon": float(g["lon"]), "L": L, "obs": g.get("obs") or [], "model": g.get("model") or [], "st": None, "far": True})
+                    "lon": float(g["lon"]), "L": L, "obs": g.get("obs") or [], "model": g.get("model") or [], "st": None, "far": True, "tz": g.get("tz")})
     return out
 
 
 def spot_forecasts(payload, now):
-    """Prévision du moment de chaque spot : {nom: (h, p, byhour)}."""
-    key = now.strftime("%Y-%m-%dT%H")
+    """Prévision du moment de chaque spot : {nom: (h, p, byhour)}. Clés = heures ABSOLUES (issue #2, revue PR #17) : un spot
+    portugais (heure de Lisbonne) et `now` (heure de Paris) désignent le même instant."""
+    from . import timefmt
+    key = timefmt.hour_key(now)
     meta = {s["name"]: s for s in json.loads(config.SPOTS_FILE.read_text(encoding="utf-8"))}
     res = []
     for sp in payload["spots"]:
         m, mm = sp["marine"], meta.get(sp["name"])
         if not mm:
             continue
-        by = {t[:13]: h for t, h in zip(m["time"], m["wave_height"])}
+        by = {timefmt.hour_key(t): h for t, h in zip(m["time"], m["wave_height"])}
         h = by.get(key)
         if h is None:
             continue
@@ -296,13 +299,13 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
     if only:
         spots = [s for s in spots if s["name"] in only]
     if b["model"]:
-        by = {m["t"][:13]: m["hs"] for m in b["model"] if m.get("hs") is not None}
-        fc = [by.get(o["t"][:13]) for o in obs]
+        by = {timefmt.hour_key(m["t"]): m["hs"] for m in b["model"] if m.get("hs") is not None}
+        fc = [by.get(timefmt.hour_key(o["t"])) for o in obs]
         label = "Prévision de référence au point de la bouée"
     if not any(v is not None for v in fc) and spots:
         s0 = min(spots, key=lambda s: hav(b, s))
         if hav(b, s0) < 40:
-            fc = [s0["by"].get(o["t"][:13]) for o in obs]
+            fc = [s0["by"].get(timefmt.hour_key(o["t"])) for o in obs]
             label = f"Prévision au spot {s0['name']} (point différent)"
     near = sorted(((hav(b, s), s) for s in spots), key=lambda x: x[0])
     kept = []   # spots espacés d'au moins 4 km : sinon une zone dense (Anglet) donne 7 points collés
@@ -334,14 +337,15 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
         desc = fit_desc(f"Dernières mesures de la {wl} ({S['ident']}), {when} : {vals}. Historique, records et bouées voisines à jour.",
                         f"Dernières mesures de la {wl}, {when} : {vals}. Historique et bouées voisines à jour.")
     # Résumé visible et daté : ne jamais présenter une ancienne mesure comme la houle actuelle.
-    t_obs = L["time"][:16]
+    t_obs = L["time"]   # instant complet, décalage compris (issue #2) ; affichage à l'heure du lieu de la bouée
     date_obs = f"{t_obs[8:10]}/{t_obs[5:7]}/{t_obs[:4]} à {t_obs[11:16]}"
+    tzl = timefmt.tz_label(b.get("tz"))
     period = (f" ; période de pic {fr(L['tp'])} s" if L.get("tp") is not None else
               f" ; période moyenne {fr(L['tm'])} s" if L.get("tm") is not None else "")
     direction = f" ; direction {sector(L['dir'])} ({fr(L['dir'], 0)}°)" if L.get("dir") is not None else ""
     status = "Dernière mesure disponible"
     summary = (f'<p class="lead">{esc(status)} pour la station {esc(S["ident"])} : '
-               f'<time datetime="{esc(t_obs)}">{esc(date_obs)}</time> (heure de Paris), '
+               f'<time datetime="{esc(t_obs)}">{esc(date_obs)}</time> ({tzl}), '
                f'hauteur significative {fr(L["hs"])} m{period}{direction}. '
                f'Source : {esc(S["source"])}. Cette valeur décrit la mer à la bouée, pas la hauteur des vagues au bord.</p>')
     canonical = f"{site}/bouees/{slug}/"
@@ -350,7 +354,7 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
     ochips = "".join(f'<li><a href="../{o["slug"]}/"><span aria-hidden="true">⚓</span><span><b>{esc(o["name"])}</b> <small>{round(k)} km</small></span><span class="v">{fr(o["L"]["hs"])} m</span></a></li>' for k, o in others)
     cg = (f'<div><span class="k">Vague max</span><b>{fr(L.get("hmax"))}<i> m</i></b></div><div><span class="k">Période</span><b>{fr(L.get("tp"))}<i> s</i></b></div>'
           f'<div><span class="k">Direction</span><b>{sector(L.get("dir")) or "—"} {arrow(L.get("dir"), 26)}</b></div><div><span class="k">Eau</span><b>{sst_txt(L.get("sst"))}<i> °C</i></b></div>')
-    head = "".join(f"<th>{h}</th>" for h in ("Date / heure (Paris)", "Hauteur", "Max", "Période", "Direction", "Eau"))
+    head = "".join(f"<th>{h}</th>" for h in (f"Date / heure ({ {timefmt.PARIS: 'Paris', timefmt.MADRID: 'Espagne', timefmt.LISBON: 'Portugal'}.get(b.get('tz') or timefmt.PARIS, 'heure locale')})", "Hauteur", "Max", "Période", "Direction", "Eau"))
     stale = ""
     if not working:
         alt = [(k, o) for k, o in others if fresh_state(now, o["L"]["time"], station(o)["lim"]) in ("live", "recent")][:3]
@@ -363,7 +367,7 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
     data = {"b": {"n": name, "lat": b["lat"], "lon": b["lon"], "hs": L["hs"]}, "base": base,
             "s": [{"n": s["name"], "slug": s["slug"], "lat": s["lat"], "lon": s["lon"], "h": s["h"]} for k, s in near]}
     body = f"""<p class="crumb"><a href="{base}">{BRAND}</a> › <a href="../">Bouées</a> › <b>{esc(name)}</b></p>
-<span class="live{' on' if is_fresh(now, L['time'], S['lim']) else ''}{' off' if not working else ''}">Mesure réelle · <span id="bage" data-lim="{S['lim']}" data-t="{esc(L["time"][:16])}">{esc(age_txt(now, L["time"]))}</span></span>
+<span class="live{' on' if is_fresh(now, L['time'], S['lim']) else ''}{' off' if not working else ''}">Mesure réelle · <span id="bage" data-lim="{S['lim']}" data-t="{esc(L["time"])}">{esc(age_txt(now, L["time"]))}</span></span>
 <h1>{"Bouée houlographe " + esc(DE.get(name, "de " + name)) if houlo else "Bouée " + esc(name)}</h1>
 <p class="muted">{("Houlographe du réseau CANDHIS (Cerema) · station " + esc(S["ident"].replace("CANDHIS ", "")) + " · ") if houlo else esc(b["sub"][:1].upper() + b["sub"][1:]) + " · " + esc(S["ident"]) + " · "}{fr(abs(b["lat"]), 2)} °N, {fr(abs(b["lon"]), 2)} °{"O" if b["lon"] < 0 else "E"} · {esc(S["cadence"])}</p>
 {stale}

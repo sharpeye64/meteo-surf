@@ -3,7 +3,8 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, Vie
 import Svg, { Circle, G, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
 import Brand from './Brand';
-import { ageTxt, Buoy, country, fr, Index, km, loadSheet, perTxt, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { ageH, ageTxt, Buoy, country, fr, Index, km, loadSheet, perTxt, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { hhIn, partsIn, placeTz, tMs } from './time';
 import { Blink } from './Live';
 import { SpotRow } from './SpotList';
 import { useBarSpace } from './TabBar';
@@ -16,7 +17,6 @@ type Props = {
 
 const CTY = ['France', 'Espagne', 'Portugal'];
 const norm =(t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-const hh = (d: Date) => `${d.getHours()} h${d.getMinutes() ? ' ' + String(d.getMinutes()).padStart(2, '0') : ''}`;
 
 /** Onglet Spots « Mon tableau » : la recherche toujours en haut, votre spot en grand, ceux d'à côté, puis toute la côte par région. */
 export default function Home({ index, favs, offline, refreshing, onRefresh, onOpen, onBuoy }: Props) {
@@ -39,7 +39,7 @@ export default function Home({ index, favs, offline, refreshing, onRefresh, onOp
   }, [index, q]);
 
   const near = useMemo(() => (hero ? index.spots.filter(s => s.slug !== hero.slug).map(s => ({ s, d: km(hero, s) })).sort((a, b) => a.d - b.d).slice(0, 8).map(x => x.s) : []), [index, hero]);
-  const live = index.buoys.filter(b => (Date.now() - new Date(b.time + ':00').getTime()) / 36e5 < 2);
+  const live = index.buoys.filter(b => ageH(b.time) < 2);
 
   // Régions du nord au sud, rangées par pays.
   const regions = useMemo(() => {
@@ -48,7 +48,7 @@ export default function Home({ index, favs, offline, refreshing, onRefresh, onOp
     return [...m.entries()].map(([r, ss]) => ({ r, c: country(r), ss: ss.sort((a, b) => b.lat - a.lat), top: Math.max(...ss.map(s => s.lat)) })).sort((a, b) => CTY.indexOf(a.c) - CTY.indexOf(b.c) || b.top - a.top);
   }, [index]);
 
-  const hour = new Date().getHours();
+  const hour = partsIn(Date.now(), 'Europe/Paris').h;   // heure de Paris (liste de toute la côte), comme la carte du site
   return (
     <ScrollView stickyHeaderIndices={[1]} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag"
       contentContainerStyle={{ paddingBottom: pad }}
@@ -147,16 +147,18 @@ function Hero({ s, onOpen }: { s: SpotLite; onOpen: (s: SpotLite) => void }) {
   const day = useMemo(() => {
     if (!sh) return null;
     // Le soir (après 19 h) ou la nuit, on montre la journée suivante (ou celle qui vient) à partir de 7 h.
-    const t0 = new Date(sh.t0 + ':00').getTime(), nowI = Math.max(1, Math.floor((Date.now() - t0) / 36e5)), hr = new Date().getHours();
-    const morning = new Date(); morning.setHours(7, 0, 0, 0); if (hr >= 19) morning.setDate(morning.getDate() + 1);
-    const later = hr >= 19 || hr < 6, i0 = later ? Math.max(1, Math.round((morning.getTime() - t0) / 36e5)) : nowI;
+    // heure DU SPOT (issue #2 : Lisbonne au Portugal), pas celle du téléphone
+    const t0 = tMs(sh.t0), tz = placeTz(sh), nowP = partsIn(Date.now(), tz), hr = nowP.h, nowI = Math.max(1, Math.floor((Date.now() - t0) / 36e5));
+    const tgt = hr >= 19 ? partsIn(Date.now() + 864e5, tz).date : nowP.date;
+    const mI = sh.hs.findIndex((_, i) => { const p = partsIn(t0 + i * 36e5, tz); return p.date === tgt && p.h === 7; });
+    const later = hr >= 19 || hr < 6, i0 = later ? Math.max(1, mI >= 0 ? mI : nowI) : nowI;
     const cols = Array.from({ length: NCOL }, (_, k) => i0 + k * STEP).filter(i => i < sh.hs.length);
     // marée : hauteur d'eau heure par heure sur toute la largeur, et les PM / BM qui tombent dedans
     const from = i0 - STEP / 2, to = i0 + NCOL * STEP - STEP / 2;
     const sea: [number, number][] = [];
     for (let i = from; i <= to; i++) { const v = sh.sea[i]; if (v != null) sea.push([i, v]); }
-    const ext = (sh.tide?.extremes || []).map(e => ({ ...e, f: (new Date(e.t + ':00').getTime() - t0) / 36e5 })).filter(e => e.f >= from && e.f <= to);
-    return { t0, cols, from, to, sea, ext, later, tomorrow: hr >= 19 };
+    const ext = (sh.tide?.extremes || []).map(e => ({ ...e, f: (tMs(e.t) - t0) / 36e5 })).filter(e => e.f >= from && e.f <= to);
+    return { t0, tz, cols, from, to, sea, ext, later, tomorrow: hr >= 19 };
   }, [sh]);
 
   const H = 44;
@@ -172,11 +174,10 @@ function Hero({ s, onOpen }: { s: SpotLite; onOpen: (s: SpotLite) => void }) {
         <Path d={d} stroke={C.sandMuted} strokeWidth={1.6} fill="none" />
         {day.ext.map(e => {
           const x = xs(e.f), y = e.type === 'PM' ? 6 : H - 6, tx = Math.min(w - 26, Math.max(26, x));
-          const tt = new Date(e.t + ':00');
           return (
             <G key={e.t}>
               <Circle cx={x} cy={y} r={3} fill={C.sandText} />
-              <SvgText x={tx} y={e.type === 'PM' ? y + 15 : y - 7} fontSize={10.5} fontFamily={F.tX} fill={C.sandText} textAnchor="middle">{`${e.type} ${hh(tt)}`}</SvgText>
+              <SvgText x={tx} y={e.type === 'PM' ? y + 15 : y - 7} fontSize={10.5} fontFamily={F.tX} fill={C.sandText} textAnchor="middle">{`${e.type} ${+e.t.slice(11, 13)} h${+e.t.slice(14, 16) ? ' ' + e.t.slice(14, 16) : ''}`}</SvgText>
             </G>
           );
         })}
@@ -202,7 +203,7 @@ function Hero({ s, onOpen }: { s: SpotLite; onOpen: (s: SpotLite) => void }) {
       <View onLayout={e => setW(e.nativeEvent.layout.width)} style={{ marginTop: 12 }}>
         {day ? (
           <>
-            <View style={st.mrow}>{day.cols.map((i, k) => <Text key={i} style={[st.mh, k === 0 && { color: C.sandText }]}>{k === 0 && !day.later ? 'maint.' : hh(new Date(day.t0 + i * 36e5))}</Text>)}</View>
+            <View style={st.mrow}>{day.cols.map((i, k) => <Text key={i} style={[st.mh, k === 0 && { color: C.sandText }]}>{k === 0 && !day.later ? 'maint.' : hhIn(day.t0 + i * 36e5, day.tz)}</Text>)}</View>
             <View style={st.mrow}>{day.cols.map((i, k) => (
               <View key={i} style={[st.mc, { backgroundColor: sizeCell(sh!.hs[i]) }, k === 0 && !day.later && st.mcOn]}>
                 <Text style={st.mcV}>{fr(sh!.hs[i])}</Text><Text style={st.mcU}>{fr(sh!.tp[i], 0)} s</Text>

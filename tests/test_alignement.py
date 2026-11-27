@@ -102,7 +102,7 @@ expect("vent GFS d'hier : valeurs présentes pour aujourd'hui, absentes au-delà
 expect("AROME court : valeurs puis vide après 60 h", out[0]["wind_models"]["arome"][59] is not None and out[0]["wind_models"]["arome"][60] is None)
 expect("soleil d'hier : lever du 28/11 bien rangé au 28/11", out[0]["daily"]["time"][0] == "2026-11-28" and out[0]["daily"]["sunrise"][0].startswith("2026-11-28"))
 summ = omcache.summary()["openmeteo"]
-expect("collecte des prévisions = la plus ancienne (veille, 23 h 50)", summ["forecast_fetched"] == "2026-11-27T23:50", summ["forecast_fetched"])
+expect("collecte des prévisions = la plus ancienne (veille, 23 h 50)", summ["forecast_fetched"] == "2026-11-27T23:50+01:00", summ["forecast_fetched"])
 
 # 3. prévisions qui ne couvrent pas les 48 prochaines heures : refusées (le site garde sa version)
 failing = set()

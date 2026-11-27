@@ -105,6 +105,23 @@ def clean_daily(daily):
     return out
 
 
+LAST_OFFSET_S = None       # décalage (s) des heures de la dernière série publiée : instant = heure écrite − décalage
+LAST_SUN_OFFSET_S = None
+
+
+def offset_of(resp):
+    """utc_offset_seconds d'une réponse ; à défaut, décalage de Paris à sa première heure (comme Open-Meteo à la requête)."""
+    o = (resp[0] if resp else {}).get("utc_offset_seconds")
+    if o is not None:
+        return int(o)
+    t = ((resp[0].get("hourly") or resp[0].get("daily") or {}).get("time") or ["2026-01-01T00:00"])[0]
+    return int(datetime.strptime(t[:16] if len(t) > 10 else t + "T12:00", "%Y-%m-%dT%H:%M").replace(tzinfo=ZoneInfo(config.TIMEZONE)).utcoffset().total_seconds())
+
+
+def shift_str(t, seconds):
+    return (datetime.strptime(t[:16], "%Y-%m-%dT%H:%M") + timedelta(seconds=seconds)).strftime("%Y-%m-%dT%H:%M")
+
+
 def check_coverage(groups, ref, now=None, hours=48):
     """Chaque groupe doit couvrir l'heure actuelle et les 48 h suivantes (heure de Paris), sinon les prévisions ne sont pas
     publiables : la génération échoue et le site garde sa version. Le décalage de chaque groupe est noté (mode dégradé)."""
@@ -157,6 +174,17 @@ def fetch(spots):
     # tout est replacé sur un même axe horaire, celui de la réponse la plus récente, heure par heure (par date pour le soleil).
     hourly_groups = {"marine": base, **{f"wave_{k}": v for k, v in wave_models.items()},
                      **{f"wind_{k}": wind_raw[api] for k, _l, api in config.WIND_MODELS}}
+    # Décalage horaire de chaque réponse (issue #2) : Open-Meteo écrit TOUTE une série avec le décalage du moment de la requête.
+    # Une réponse en cache d'avant un changement d'heure a donc un autre décalage : on ramène toutes les heures à celui de la mer.
+    global LAST_OFFSET_S, LAST_SUN_OFFSET_S
+    ref_off = offset_of(base)
+    for g, r in hourly_groups.items():
+        off = offset_of(r)
+        if off != ref_off:
+            for pt in r:
+                pt["hourly"] = {**pt["hourly"], "time": [shift_str(t, ref_off - off) for t in pt["hourly"]["time"]]}
+    LAST_OFFSET_S = ref_off
+    LAST_SUN_OFFSET_S = offset_of(sun)
     t0 = max(r[0]["hourly"]["time"][0] for r in hourly_groups.values())
     start = datetime.strptime(t0, "%Y-%m-%dT%H:%M")
     ref = [(start + timedelta(hours=h)).strftime("%Y-%m-%dT%H:%M") for h in range(24 * config.FORECAST_DAYS)]
@@ -227,7 +255,7 @@ def model_at_point(lat, lon, past_days=2):
                             "forecast_days": 2, "cell_selection": "sea",
                             "hourly": "wave_height,wave_period,swell_wave_period,wave_direction"},
                            lambda u, p: get(u, p), watch_key="point")[0]
-    return d["hourly"]
+    return {**d["hourly"], "_utc_offset": d.get("utc_offset_seconds")}
 
 
 def coast_forecast(lat, lon, from_local, hours=97):

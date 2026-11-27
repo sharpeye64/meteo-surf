@@ -30,11 +30,14 @@ def _r(v, nd=1):
     return None if v is None else round(float(v), nd)
 
 
-def _now_index(times):
-    # les prévisions sont à l'heure de Paris ; le robot GitHub, lui, tourne en UTC
-    key = pd.Timestamp.now(tz=config.TIMEZONE).strftime("%Y-%m-%dT%H")
+def _now_index(times, now=None):
+    """Créneau de l'heure COURANTE : premier instant publié >= début de l'heure UTC en cours (issue #2, revue PR #17).
+    À 11:59 on garde 11:00 (et non 12:00) ; au second 02:30+01:00 d'octobre, on garde le second 02:00 (02:00+01:00)."""
+    from datetime import timezone
+    from . import timefmt
+    now = (now or timefmt.now()).astimezone(timezone.utc).replace(minute=0, second=0, microsecond=0)
     for i, t in enumerate(times):
-        if t[:13] >= key:
+        if timefmt.parse(t).astimezone(timezone.utc) >= now:
             return i
     return 0
 
@@ -43,14 +46,14 @@ def _buoys(payload):
     out = []
     g = payload.get("gascogne")
     if g and (g.get("latest") or {}).get("hs") is not None:
-        out.append({"id": "gascogne", "name": "Gascogne", "sub": "au large, Météo-France 62001", "lat": g["lat"], "lon": g["lon"],
+        out.append({"id": "gascogne", "name": "Gascogne", "sub": "au large, Météo-France 62001", "lat": g["lat"], "lon": g["lon"], "tz": g.get("tz"),
                     "large": True, **{k: g["latest"].get(k) for k in ("time", "hs", "tp", "tm", "dir", "sst")}})
     for kind in ("coast", "offshore"):
         for b in payload.get(kind) or []:
             L = b.get("latest") or {}
             if L.get("hs") is None:
                 continue
-            out.append({"id": b["id"], "name": b["name"], "sub": b.get("sub") or "sur la côte", "lat": float(b["lat"]), "lon": float(b["lon"]),
+            out.append({"id": b["id"], "name": b["name"], "sub": b.get("sub") or "sur la côte", "lat": float(b["lat"]), "lon": float(b["lon"]), "tz": b.get("tz"),
                         **({"silent": True} if b.get("silent") else {}), **{k: L.get(k) for k in ("time", "hs", "tp", "dir", "sst")}})
     return out
 
@@ -94,7 +97,7 @@ def _buoy_sheets(spots, payload, out_dir):
         t_first = obs[0]["t"] if obs else L.get("time")
         model = [m for m in model if t_first and m["t"] >= t_first][:72]
         st = stats.get(bid) or {}
-        sheet = {"v": VERSION, "id": bid, "slug": slugify(name), "name": name, "sub": sub, "lat": pos[0], "lon": pos[1],
+        sheet = {"v": VERSION, "id": bid, "slug": slugify(name), "name": name, "sub": sub, "lat": pos[0], "lon": pos[1], "tz": b.get("tz"),
                  "latest": {k: L.get(k) for k in ("time", "hs", "hmax", "tp", "tm", "dir", "sst")}, "obs": obs, "model": model, "model_src": src,
                  "stats": {k: st.get(k) for k in ("since", "days", "hs_max", "hs_max_t", "hs_mean", "sst_mean")} if st else None,
                  "spots": [{"name": s["name"], "slug": slugify(s["name"]), "km": round(k)} for k, s in around[:6] if k < 60]}
@@ -125,7 +128,7 @@ def generate(spots, payload):
         wt = {t: i for i, t in enumerate(w.get("time") or [])}
         wcol = lambda key, nd=0: [_r((w.get(key) or [])[wt[t]], nd) if t in wt and wt[t] < len(w.get(key) or []) else None for t in times]
         sheet = {
-            "v": VERSION, "name": s["name"], "slug": slug, "region": s["region"], "commune": s.get("commune"),
+            "v": VERSION, "name": s["name"], "slug": slug, "region": s["region"], "commune": s.get("commune"), "tz": f.get("tz"),
             "lat": s["lat"], "lon": s["lon"], "ori": s.get("ori"), "type": s.get("type"), "level": s.get("level"),
             "bottom": s.get("bottom"), "notes": s.get("notes"),
             "t0": times[0] if times else None,
@@ -139,7 +142,7 @@ def generate(spots, payload):
             sheet["_test"] = True
         (tmp / "spots" / f"{slug}.json").write_text(json.dumps(sheet, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         i = _now_index(times)
-        index.append({"name": s["name"], "slug": slug, "region": s["region"], "commune": s.get("commune"), "ref": config.ref_buoy(s),
+        index.append({"name": s["name"], "slug": slug, "region": s["region"], "commune": s.get("commune"), "tz": f.get("tz"), "ref": config.ref_buoy(s),
                       "lat": s.get("mlat", s["lat"]), "lon": s.get("mlon", s["lon"]), "ori": s.get("ori"),
                       "now": {"t": times[i] if times else None, "hs": sheet["hs"][i] if n else None, "tp": sheet["tp"][i] if n else None,
                               "dir": sheet["dir"][i] if n else None, "wind": sheet["wind"][i] if n else None, "wdir": sheet["wdir"][i] if n else None}})
@@ -152,7 +155,8 @@ def generate(spots, payload):
             # issue #7 : heure de collecte des prévisions (plus ancienne que « generated » en mode dégradé) ; les mesures des
             # bouées, elles, datent toujours de « generated »
             "forecast_fetched": payload["meta"].get("forecast_fetched") or payload["meta"]["generated"],
-            "forecast_degraded": "openmeteo_cache" in (payload["meta"].get("errors") or {})}
+            "forecast_degraded": "openmeteo_cache" in (payload["meta"].get("errors") or {}),
+            "time": payload["meta"].get("time")}   # contrat horaire (issue #2) : ISO 8601 avec décalage, fuseau du lieu dans « tz »
     if config.TEST_RUN:
         meta["_test"] = True   # refusé par le contrôle de publication (tools/check_site.py)
     (tmp / "index.json").write_text(json.dumps(meta, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
