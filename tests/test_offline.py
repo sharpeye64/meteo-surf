@@ -267,7 +267,7 @@ assert "hauteur significative médiane" in pg or "Synthèse de la journée indis
 assert 'class="spot-observation"' in pg and "pas la taille des vagues au bord" in pg
 assert "Observation en mer" in pg and "Comprendre ce relevé" in pg
 assert "CANDHIS" in pg or "Météo-France" in pg or "Copernicus" in pg
-assert _re.search(r'<time datetime="[^"]+[+-]\\d\\d:\\d\\d">', pg)
+assert _re.search(r'<time datetime="[^"]+[+-]\d\d:\d\d">', pg)
 _ptpg = (config.OUT_DIR / "spots" / "supertubos" / "index.html").read_text(encoding="utf-8")
 assert "Marées et coefficients non disponibles" in _ptpg
 assert "heure du Portugal" in _ptpg
