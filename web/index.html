@@ -4472,7 +4472,7 @@ function pickBuoy(list){
   if(fresh.length) return fresh.sort((x,y)=>x.km-y.km)[0];
   if(ok.length) return ok.slice().sort((x,y)=>x.ageH-y.ageH)[0];
   /* tout est muet : la moins ancienne, affichée « aucune mesure depuis » ; une heure incohérente n'est jamais choisie */
-  return list.filter(o=>o.silent&&Number.isFinite(o.ageH)).sort((x,y)=>x.ageH-y.ageH)[0]||null;
+  return list.filter(o=>o.silent&&Number.isFinite(o.ageH)&&o.ageH>=-0.25).sort((x,y)=>x.ageH-y.ageH)[0]||null;
 }
 function radarHtml_v1(s){
   const list=buoyChoices(s), cur=pickBuoy(list); if(!cur) return '';

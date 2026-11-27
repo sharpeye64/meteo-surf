@@ -764,6 +764,42 @@
     }
    },
    "want": null
+  },
+  {
+   "case": "Lacanau : seule bouée, muette ET datée 1 h dans le futur → aucune",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": {
+     "age": -1,
+     "silent": true
+    }
+   },
+   "want": null
+  },
+  {
+   "case": "Lacanau : muette datée dans le futur + autre muette valide → la muette valide",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": {
+     "age": -1,
+     "silent": true
+    },
+    "gascogne": {
+     "age": 70,
+     "silent": true
+    }
+   },
+   "want": "gascogne"
   }
  ],
  "sector": [

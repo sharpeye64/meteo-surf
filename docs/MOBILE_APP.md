@@ -32,6 +32,7 @@
 | `src/TabBar.tsx` | Barre d'onglets flottante (`useBarSpace()`) |
 | `src/Live.tsx` | Pastille « en direct » qui clignote |
 | `src/data.ts` | Chargement, favoris, fraîcheur et bouée de référence (`freshOf`, `isLive`, `refBuoy`, `perTxt`) |
+| `src/cache.ts`, `src/reload.ts`, `src/useReloaded.ts`, `src/selection.ts` | Copie hors connexion protégée contre les réponses dans le désordre, rechargement des fiches au retour au premier plan, sélection jour / heure gardée par instant (issue #4) |
 | `src/rules.ts` | **Règles métier communes avec le site et le robot**, sans dépendance : fraîcheur selon la cadence, vent, secteurs, bouée de référence ([regles-communes.md](regles-communes.md)) |
 | `src/theme.ts` | Deux palettes (clair, sombre) de mêmes clés ; styles via `themed(() => StyleSheet.create(...))` |
 

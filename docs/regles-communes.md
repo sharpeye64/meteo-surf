@@ -59,7 +59,7 @@ N, NNE, NE… NNO : `round(degrés / 22,5) mod 16`. C'est la direction **d'où**
 4. La plus proche dont la mesure a moins de 6 h.
 5. Sinon la plus fraîche.
 6. **Aucune bouée utilisable** :
-   - s'il y a des bouées muettes, on affiche la moins ancienne, avec « aucune mesure depuis le… » ;
+   - s'il y a des bouées muettes **dont l'heure est cohérente**, on affiche la moins ancienne, avec « aucune mesure depuis le… » ;
    - sinon, aucune bouée ;
    - une heure incohérente ou illisible n'est **jamais** choisie automatiquement.
 7. **Appli, « Autour de mon spot »** : quand aucune bouée n'est utilisable, l'écran dit « Aucune bouée n'a de mesure exploitable autour de ce spot pour le moment ». Il garde la liste des bouées voisines, chacune avec son état. Avant, il plantait ou disait « Ajoutez un spot en favori ».
@@ -89,6 +89,14 @@ N, NNE, NE… NNO : `round(degrés / 22,5) mod 16`. C'est la direction **d'où**
 | R4 | Vent : dans le vrai calcul des heures (`analyse`), une orientation absente devenait 180° (`null + 180`), ou NaN | `spotOff(s)` : orientation absente = aucune qualification ; `windInfo` refuse toute valeur non numérique | `analyse` réelle avec une orientation de 270°, absente (`null`) et non renseignée (`undefined`) |
 | R5 | Portée des tests du robot imprécise | Voir « Ce que chaque test couvre » ci-dessous | — |
 
+### Contre-revue de ChatGPT (commit `7cb5a82`) : trois derniers correctifs
+
+| # | Point | Correction | Tests de non-régression |
+|---|---|---|---|
+| C1 | Le repli « tout muet » acceptait encore une bouée muette datée de plus de 15 min dans le futur | même borne que partout ailleurs (site `pickBuoy`, appli `pickRef`) | muette et datée dans le futur, seule → aucune bouée ; avec une autre muette à l'heure cohérente → celle-ci. Les deux cas échouent sur la version précédente |
+| C2 | Copie hors connexion : la réponse lente d'une demande plus ancienne, ignorée à l'écran, pouvait quand même écraser dans le téléphone une copie plus récente. Même risque pour l'index lors de retours au premier plan rapprochés | `src/cache.ts` : ordre des demandes suivi **par clé** ; une réponse n'écrit sa copie que si aucune demande plus récente n'a déjà écrit la sienne. Index de l'appli : même protection, et seule la dernière demande met à jour l'écran (`createReloader` dans `App.tsx`) | stockage simulé : réponses inversées d'une fiche, puis panne → copie la plus récente ; fiches distinctes ; index avec trois demandes dans le désordre, puis panne ; ni réseau ni copie → erreur |
+| C3 | Fiche de spot : le jour choisi était une position (`days[day]`). Après un rechargement, une série plus courte ou décalée pouvait faire planter la fiche ou montrer une autre heure | `src/selection.ts` : la sélection est gardée par **date** et par **instant**. Jour disparu → premier jour ; heure plus disponible → heure par défaut ; série vide → écran de chargement. Un jour sans heure entre 6 h et 21 h ne plante plus | jour et heure gardés ; série plus courte ; série qui commence 3 h plus tard (même instant, autre position) ; instant hors du jour ; série vide |
+
 **Pour ChatGPT (PR #21, `perf-home-index`)** : `loadHomeIndex` calcule `(spot.ori+180)%360` avant `windInfo`. Il faudrait utiliser `spotOff(spot)` pour qu'une orientation absente reste absente. `windInfo` rejette déjà les valeurs non numériques, donc l'effet est sans gravité, mais la règle serait la même partout. Les deux branches se fusionnent sans conflit.
 
 Il n'y a **aucun changement visuel**, hormis deux mentions nouvelles dans l'appli, dans les styles existants : « hors connexion · dernière version reçue » sur les fiches, et « Aucune bouée » dans « Autour de mon spot ». Seuls quelques mots changent dans l'appli : la catégorie du vent, et « il y a 25 min » au lieu de « à l'instant ».
@@ -109,7 +117,7 @@ Il n'y a **aucun changement visuel**, hormis deux mentions nouvelles dans l'appl
 - **fraîcheur** : 18 cas, dont chaque seuil 1 h, 3 h, 2 h, 6 h et 48 h, la cadence du robot, l’horloge en retard, l’horloge en avance et l’heure illisible ; plus 7 cas d’âge en mots ;
 - **vent** : 16 cas, dont chaque seuil, le passage par le nord et les données absentes ;
 - **secteurs** : 9 cas ;
-- **choix de bouée** : 25 scénarios avec les vraies positions des spots et des stations, dont les bouées muettes et les heures incohérentes ou illisibles (revue de la PR #22), ainsi que :
+- **choix de bouée** : 27 scénarios avec les vraies positions des spots et des stations, dont les bouées muettes et les heures incohérentes ou illisibles (revue de la PR #22), ainsi que :
   - Landes nord et sud, Sainte-Barbe et Hendaye ;
   - Portugal ;
   - bouée muette, bouée sans hauteur, tout ancien, aucune bouée.
@@ -119,7 +127,7 @@ Il n'y a **aucun changement visuel**, hormis deux mentions nouvelles dans l'appl
 | Site : fonctions **extraites telles quelles** de `web/index.html` | `node tests/regles_site.test.js` | CI, job `surete` |
 | Appli : `app/src/rules.ts`, sans dépendance, utilisé par `data.ts` et les écrans | `node tests/regles_app.test.mjs` | CI |
 | Robot : `bouees.fresh_state`, `seo.wind_for_spot`, `seo.sector`, cadence `station`, référence des Landes, données écrites pour l'appli | `python -m tests.test_regles` | CI |
-| Appli : reprise réseau d'une fiche (`src/reload.ts`) et âge en mots (`ageWords`) | `node tests/regles_app.test.mjs` | CI |
+| Appli : reprise réseau d'une fiche (`src/reload.ts`), copie hors connexion (`src/cache.ts`), sélection de la fiche (`src/selection.ts`) et âge en mots (`ageWords`) | `node tests/regles_app.test.mjs` | CI |
 | Données réelles de l'appli (`lim`, `kind`, `pt`) | `python -m tests.test_offline` | CI |
 
 **Preuve que le test détecte les écarts** : joué sur la version du site d'avant ce lot (`REGLES_HTML=… node tests/regles_site.test.js`), il échoue sur 5 cas :
@@ -133,10 +141,10 @@ Il n'y a **aucun changement visuel**, hormis deux mentions nouvelles dans l'appl
 
 ### Ce que chaque test couvre (précision demandée par la revue)
 
-- **Site et appli** : tous les cas. Fraîcheur, secteurs, vent, et les **25 scénarios de choix de bouée**, candidates comprises. Pour le site, le vent est aussi testé dans le vrai calcul des heures (`analyse`).
+- **Site et appli** : tous les cas. Fraîcheur, secteurs, vent, et les **27 scénarios de choix de bouée**, candidates comprises. Pour le site, le vent est aussi testé dans le vrai calcul des heures (`analyse`).
 - **Robot** : les mêmes cas de fraîcheur, de vent et de secteurs ; la cadence des 22 stations ; la référence des Landes (`config.ref_buoy`) pour les spots des Landes des scénarios ; les données écrites pour l'appli (`kind`, `lim`, `silent`, et `pt` dans `test_offline`). Il **ne rejoue pas** les scénarios de choix de bouée : le robot n'a pas de sélection par âge.
 - **Pages de spots générées** (`seo.py`) : **hors de ce lot** ; leur règle simplifiée est un écart connu.
-- **Appli, cache et horloge** : testés au niveau de la logique (`reload.ts`, `ageWords`, `freshState`), pas sur un téléphone. Le rafraîchissement à la minute et au retour au premier plan (`App.tsx`, `useReloaded`, `AppState`) est vérifié par TypeScript et par lecture du code.
+- **Appli, cache et horloge** : testés au niveau de la logique (`reload.ts`, `cache.ts` avec un stockage simulé, `selection.ts`, `ageWords`, `freshState`), pas sur un téléphone. Le rafraîchissement à la minute et au retour au premier plan (`App.tsx`, `useReloaded`, `AppState`) est vérifié par TypeScript et par lecture du code.
 - **Période de la bouée Gascogne** : aucun changement dans ce lot. Le choix entre période moyenne mesurée et période estimée reste à confirmer séparément par le porteur. La mesure n'est pas modifiée.
 
 ## Pour changer une règle

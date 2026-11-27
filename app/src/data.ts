@@ -6,6 +6,7 @@ export type { Fresh, WindCat } from './rules';
 // Données de l'appli : les fichiers allégés que le robot publie avec le site (web/data/app/).
 // En développement, EXPO_PUBLIC_DATA_URL peut pointer vers le serveur local du PC.
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createCachedLoader } from './cache';
 
 export const DATA_URL = (process.env.EXPO_PUBLIC_DATA_URL || 'https://houlalah.fr/data/app').replace(/\/$/, '');
 
@@ -32,19 +33,12 @@ export type Sheet = {
   sun: { time: string[]; sunrise: string[]; sunset: string[] } | null;
 };
 
-async function getJSON<T>(path: string, cacheKey: string): Promise<{ data: T; offline: boolean }> {
-  try {
-    const r = await fetch(`${DATA_URL}/${path}?v=${Math.floor(Date.now() / 6e5)}`);
-    if (!r.ok) throw new Error(String(r.status));
-    const data = (await r.json()) as T;
-    AsyncStorage.setItem(cacheKey, JSON.stringify(data)).catch(() => {});
-    return { data, offline: false };
-  } catch (e) {
-    const c = await AsyncStorage.getItem(cacheKey).catch(() => null);   // hors connexion : dernière version reçue
-    if (c) return { data: JSON.parse(c) as T, offline: true };
-    throw e;
-  }
-}
+// copie hors connexion : une réponse lente d'une demande plus ancienne n'écrase jamais une copie plus récente (src/cache.ts)
+const getJSON = createCachedLoader(async (path: string) => {
+  const r = await fetch(`${DATA_URL}/${path}?v=${Math.floor(Date.now() / 6e5)}`);
+  if (!r.ok) throw new Error(String(r.status));
+  return r.json();
+}, AsyncStorage);
 
 export const loadIndex = () => getJSON<Index>('index.json', 'cache:index');
 export const loadBuoy = (slug: string) => getJSON<BuoySheet>(`bouees/${slug}.json`, `cache:buoy:${slug}`);

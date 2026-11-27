@@ -5,6 +5,7 @@ import Arrow from './Arrow';
 import { ageTxt, Buoy, fr, isLive, loadSheet, perTxt, refBuoy, regionName, sector, Sheet, SpotLite, windCat, windText } from './data';
 import { partsIn, placeTz, tMs } from './time';
 import { useReloaded } from './useReloaded';
+import { Pick, resolveSel } from './selection';
 import { useBarSpace } from './TabBar';
 import { C, F, isDark, periodCell, sizeCell, themed, windCell } from './theme';
 
@@ -16,8 +17,8 @@ const COL = 50;   // largeur d'une colonne de la frise horaire
 export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: Props) {
   const pad = useBarSpace();
   const { data: sheet, offline, err } = useReloaded<Sheet>(loadSheet, spot.slug);   // redemandée au retour (reprise réseau)
-  const [day, setDay] = useState(0);
-  const [hour, setHour] = useState<number | null>(null);
+  // sélection gardée par date et par instant (src/selection.ts) : une série rechargée, décalée ou plus courte, ne peut pas planter
+  const [pick, setPick] = useState<Pick>({ date: null, ms: null });
   const strip = useRef<{ scrollTo: (o: { x: number; animated?: boolean }) => void } | null>(null);
 
 
@@ -34,14 +35,15 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
   }, [sheet]);
 
   if (err) return <Center onBack={onBack} name={spot.name} text="Fiche indisponible. Vérifie la connexion." />;
-  if (!sheet || !days.length) return <Center onBack={onBack} name={spot.name} loading />;
+  const t0 = sheet ? tMs(sheet.t0) : NaN, r = resolveSel(days, t0, pick);
+  if (!sheet || !r) return <Center onBack={onBack} name={spot.name} loading />;
 
-  const t0 = tMs(sheet.t0), tz = placeTz(sheet);
+  const tz = placeTz(sheet), day = r.dayI, hour = r.hourI;
   const at = (i: number) => partsIn(t0 + i * 36e5, tz);   // heure du spot (issue #2)
   const nowI = Math.max(0, Math.min(sheet.hs.length - 1, Math.floor((Date.now() - t0) / 36e5)));
   const d = days[day];
   const hrs = d.idx.filter(i => { const h = at(i).h; return h >= 6 && h <= 21; });
-  const def = day === 0 ? (hrs.find(i => i >= nowI) ?? hrs[hrs.length - 1]) : (hrs.find(i => at(i).h >= 10) ?? hrs[0]);
+  const def = (day === 0 ? (hrs.find(i => i >= nowI) ?? hrs[hrs.length - 1]) : (hrs.find(i => at(i).h >= 10) ?? hrs[0])) ?? d.idx[0];   // jour sans heure de 6 h à 21 h : la première
   const sel = hour != null && d.idx.includes(hour) ? hour : def;
   const isNow = day === 0 && sel === nowI;
   const rel = windText(windCat(sheet.wind[sel], sheet.wdir[sel], sheet.ori));   // mêmes catégories et seuils que le site
@@ -67,7 +69,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
           {days.map((x, i) => {
             const dd = at(x.idx[0]), mx = Math.max(...x.idx.map(j => sheet.hs[j] ?? 0)), on = i === day;
             return (
-              <Pressable key={x.date} onPress={() => { setDay(i); setHour(null); strip.current?.scrollTo({ x: 0, animated: false }); }} style={[st.day, on && st.dayOn]}>
+              <Pressable key={x.date} onPress={() => { setPick({ date: x.date, ms: null }); strip.current?.scrollTo({ x: 0, animated: false }); }} style={[st.day, on && st.dayOn]}>
                 <Text style={[st.dayJ, on && { color: C.onInk2 }]}>{i === 0 ? 'AUJ.' : J[dd.wd]}</Text>
                 <Text style={[st.dayN, on && { color: C.onInk }]}>{dd.d}</Text>
                 <Text style={[st.dayH, on && { color: C.onInk }]}>{fr(mx)}<Text style={st.dayU}> m</Text></Text>
@@ -115,7 +117,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
             {hrs.map(i => {
               const on = i === sel, h = at(i).h;
               return (
-                <Pressable key={i} onPress={() => setHour(i)} style={st.col}>
+                <Pressable key={i} onPress={() => setPick({ date: d.date, ms: t0 + i * 36e5 })} style={st.col}>
                   <Text style={[st.hh, on && { color: C.ink }]}>{h}h</Text>
                   <View style={[st.cell, { height: 46, backgroundColor: sizeCell(sheet.hs[i]) }, on && st.cellOn]}><Text style={st.cellBig}>{fr(sheet.hs[i])}</Text></View>
                   <View style={[st.cell, { height: 36, backgroundColor: periodCell(sheet.tp[i]) }, on && st.cellOn]}>

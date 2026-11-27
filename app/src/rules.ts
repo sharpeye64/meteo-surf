@@ -119,5 +119,5 @@ export function pickRef<B extends RBuoy & { silent?: boolean }>(list: Cand<B>[])
   const live = ok.filter(o => o.km <= 60 && freshState(o.b.ageH, o.b.lim) === 'live')[0]; if (live) return live;
   const fresh = ok.filter(o => o.b.ageH < 6)[0]; if (fresh) return fresh;
   if (ok.length) return ok.slice().sort((x, y) => x.b.ageH - y.b.ageH)[0];
-  return list.filter(o => o.b.silent && Number.isFinite(o.b.ageH)).sort((x, y) => x.b.ageH - y.b.ageH)[0] || null;
+  return list.filter(o => o.b.silent && Number.isFinite(o.b.ageH) && o.b.ageH >= -CLOCK_SKEW_H).sort((x, y) => x.b.ageH - y.b.ageH)[0] || null;
 }

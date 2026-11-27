@@ -2,11 +2,12 @@ import { Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold, Manrope_800Ext
 import { Unbounded_500Medium, Unbounded_700Bold, Unbounded_800ExtraBold } from '@expo-google-fonts/unbounded';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, AppState, BackHandler, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { BuoyList, BuoyPage } from './src/BuoyScreens';
 import { Buoy, Index, loadFavs, loadIndex, saveFavs, SpotLite } from './src/data';
+import { createReloader } from './src/reload';
 import Home from './src/Home';
 import MapScreen from './src/MapScreen';
 import SpotList from './src/SpotList';
@@ -29,9 +30,10 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('spots');
   const [stack, setStack] = useState<Screen[]>([]);
 
-  const load = useCallback(async () => {
-    try { const r = await loadIndex(); setIndex(r.data); setOffline(r.offline); setErr(false); } catch { setErr(true); }
-  }, []);
+  // index : seule la réponse de la DERNIÈRE demande compte (retours au premier plan rapprochés), une panne garde l'index affiché
+  const reloader = useRef<{ run: () => Promise<void> } | null>(null);
+  if (!reloader.current) reloader.current = createReloader<Index>(loadIndex, s => { if (s.data) setIndex(s.data); setOffline(s.offline); setErr(s.err); });
+  const load = useCallback(() => reloader.current!.run(), []);
   useEffect(() => { load(); loadFavs().then(setFavs); }, [load]);
   // Âges et états « en direct » recalculés en continu (issue #4) : une minute sur l'écran, ou un retour au premier plan, et
   // l'affichage suit l'heure réelle, même hors connexion. Au retour au premier plan, on redemande aussi les données (reprise réseau).
