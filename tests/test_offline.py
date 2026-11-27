@@ -174,6 +174,20 @@ marc.open_dataset = fake_marc
 buoy.requests.get = fake_buoy_get
 build.main()
 data = json.loads(config.OUTPUT_FILE.read_text())
+# Issue #6 : mesurer le prototype sans modifier le chargement du site.
+from tools.benchmark_home_index import compact as _home_compact, benchmark as _home_benchmark
+_home = _home_compact(data)
+assert len(_home["spots"]) == len(data["spots"])
+assert _home["meta"] == data["meta"]
+for _group in ("coast", "offshore"):
+    assert [b.get("latest") for b in _home[_group]] == [b.get("latest") for b in data[_group]]
+if data.get("gascogne"):
+    assert _home["gascogne"]["latest"] == data["gascogne"]["latest"]
+for _compact, _original in zip(_home["spots"], data["spots"]):
+    assert _home["times"][_compact["time"]] == _original["marine"]["time"]
+    assert [row[0] for row in _compact["rows"]] == _original["marine"]["wave_height"]
+print("BENCHMARK HOME INDEX:", _home_benchmark(data))
+
 s = data["spots"][0]
 print("modèles :", [m["key"] for m in data["meta"]["wave_models"]], "· correction bouée :", data["meta"]["buoy_correction"])
 print("bouée :", data["gascogne"]["latest"], "· trajet vers", s["name"], ":", data["gascogne"]["eta_hours"][s["name"]], "h")
