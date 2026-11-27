@@ -80,6 +80,8 @@ Trois anomalies relevées par ChatGPT Work, reproduites puis corrigées, chacune
 
 La branche de ChatGPT Work n'a pas été modifiée. Les tests (dont ceux de #16 dans `test_offline`) passent sur le résultat fusionné.
 
+**Deuxième revue (commit `f533bef`)** : `pipeline/appdata.py` `_now_index()` (prévision « maintenant » de l'index de l'appli) calculait « maintenant − 59 min » en heure murale de Paris. À 11:59:01 il prenait déjà 12:00 ; au second 02:30 d'octobre (01:31 murale, donc +02:00) il retombait sur le premier 02:00. Correction : début de l'heure **UTC** en cours, puis premier instant publié qui n'est pas antérieur. Test `test_heures` D : 11:59:01 → 11:00+01:00 ; second 02:30 (horloge `Europe/Paris`, fold=1) → 02:00+01:00 ; premier 02:30 → 02:00+02:00 ; spot portugais → 10:00+00:00.
+
 ## Limites
 
 - **Heure répétée d'octobre** : une valeur isolée ambiguë, par exemple la dernière mesure d'une bouée absente de sa série, prend la première occurrence ; elle est comptée dans `meta.time.ambiguous`.

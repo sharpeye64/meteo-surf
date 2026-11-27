@@ -120,5 +120,22 @@ for utc, want in (("2026-10-25T00:30:00+00:00", "2026-10-25T02:30+02:00"), ("202
 # C. pipeline/bouees.py : libellé du fuseau de la bouée (Leixões n'est pas « heure de Paris »)
 eq("C. libellés", [T.tz_label(T.place_tz(41.32, -8.98)), T.tz_label(T.place_tz(43.53, -1.62)), T.tz_label(T.place_tz(43.6, -2.0))],
    ["heure du Portugal", "heure de Paris", "heure d'Espagne"])
+# D. pipeline/appdata.py (_now_index, index de l'appli) : créneau de l'heure courante choisi en UTC (2e revue PR #17)
+from pipeline import appdata  # noqa: E402
+_at = lambda ax, n: ax[appdata._now_index(ax, datetime.fromisoformat(n))]
+ax = ["2026-11-27T10:00+01:00", "2026-11-27T11:00+01:00", "2026-11-27T12:00+01:00"]
+eq("D. à 11:59:01+01:00 → créneau 11:00+01:00 (pas 12:00)", _at(ax, "2026-11-27T11:59:01+01:00"), "2026-11-27T11:00+01:00")
+eq("D. à 11:00:00+01:00 pile → 11:00+01:00", _at(ax, "2026-11-27T11:00:00+01:00"), "2026-11-27T11:00+01:00")
+oct25 = ["2026-10-25T01:00+02:00", "2026-10-25T02:00+02:00", "2026-10-25T02:00+01:00", "2026-10-25T03:00+01:00"]
+eq("D. au second 02:30+01:00 → second 02:00 (02:00+01:00)", _at(oct25, "2026-10-25T02:30+01:00"), "2026-10-25T02:00+01:00")
+eq("D. au premier 02:30+02:00 → premier 02:00 (02:00+02:00)", _at(oct25, "2026-10-25T02:30+02:00"), "2026-10-25T02:00+02:00")
+# horloge réelle Europe/Paris (comme timefmt.now()) : second 02:30 = fold=1. L'ancien calcul « now - 59 min » se faisait en
+# heure murale (01:31+02:00) et retombait sur le premier 02:00.
+_par = datetime(2026, 10, 25, 2, 30, fold=1, tzinfo=T.zone(T.PARIS))
+eq("D. horloge de Paris, second 02:30 (fold=1) → 02:00+01:00", oct25[appdata._now_index(oct25, _par)], "2026-10-25T02:00+01:00")
+_par = datetime(2026, 11, 27, 11, 59, 1, tzinfo=T.zone(T.PARIS))
+eq("D. horloge de Paris, 11:59:01 → 11:00+01:00", ax[appdata._now_index(ax, _par)], "2026-11-27T11:00+01:00")
+pt = ["2026-11-27T09:00+00:00", "2026-11-27T10:00+00:00", "2026-11-27T11:00+00:00"]
+eq("D. spot portugais : 11:59 à Paris → 10:00+00:00", _at(pt, "2026-11-27T11:59:01+01:00"), "2026-11-27T10:00+00:00")
 print(f"\n{'TOUT OK' if not fails else 'ÉCHECS : ' + ', '.join(fails)}")
 sys.exit(1 if fails else 0)

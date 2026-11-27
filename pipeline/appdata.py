@@ -30,13 +30,14 @@ def _r(v, nd=1):
     return None if v is None else round(float(v), nd)
 
 
-def _now_index(times):
-    """Première heure qui n'est pas encore passée, comparée en INSTANTS (heures publiées avec décalage, issue #2)."""
-    from datetime import timedelta
+def _now_index(times, now=None):
+    """Créneau de l'heure COURANTE : premier instant publié >= début de l'heure UTC en cours (issue #2, revue PR #17).
+    À 11:59 on garde 11:00 (et non 12:00) ; au second 02:30+01:00 d'octobre, on garde le second 02:00 (02:00+01:00)."""
+    from datetime import timezone
     from . import timefmt
-    now = timefmt.now() - timedelta(minutes=59)
+    now = (now or timefmt.now()).astimezone(timezone.utc).replace(minute=0, second=0, microsecond=0)
     for i, t in enumerate(times):
-        if timefmt.parse(t) >= now:
+        if timefmt.parse(t).astimezone(timezone.utc) >= now:
             return i
     return 0
 
