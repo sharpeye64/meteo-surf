@@ -1,6 +1,6 @@
 # HANDOFF — état du projet (à garder court)
 
-_Dernière mise à jour : 27/11/2026 pour l'issue #4 (règles communes site / appli), par Claude Code._
+_Dernière mise à jour : 27/11/2026 pour le chantier #8 (appli iOS : audit et vision), par Claude Code._
 
 ## Point SEO/GEO
 
@@ -21,7 +21,8 @@ _Dernière mise à jour : 27/11/2026 pour l'issue #4 (règles communes site / ap
 
 ## En cours
 
-- **Issue #4, branche `regles-communes`** (PR en revue, **non publiée**, repère `avant-regles-communes`) : mêmes règles sur le site, dans l'appli et dans le robot.
+- **Chantier #8, branche `appli-experience`** (repère `avant-appli-experience`) : audit de l'appli et vision iOS, **en attente de validation par le porteur avant toute modification majeure** ; maquettes iPhone 15 Pro avec des valeurs réelles. Rien n'est développé dans l'interface. [appli-experience.md](appli-experience.md).
+- **Issue #4 publiée** (PR #22, fusion `283e9cc`, production vérifiée : `lim`, `kind`, `pt` dans les données de l'appli, bouée muette signalée) : mêmes règles sur le site, dans l'appli et dans le robot.
   - Règles harmonisées : fraîcheur des bouées selon la cadence (1 h / 3 h CANDHIS, 2 h / 6 h horaires), qualification du vent, secteurs, bouée de référence.
   - Les mêmes cas sont testés sur les trois (`tests/regles_communes.json`).
   - 10 écarts corrigés, 5 écarts connus documentés ([regles-communes.md](regles-communes.md)). Aucun changement visuel.

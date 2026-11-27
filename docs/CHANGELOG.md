@@ -4,7 +4,8 @@
 
 ## 27/11/2026
 
-- **Règles communes site / appli, issue #4** (branche `regles-communes`, PR en revue, non publiée ; repère `avant-regles-communes`) :
+- **Appli iOS, chantier #8** (branche `appli-experience`) : audit, vision et maquettes iPhone 15 Pro (carte d'accueil, panneau à crans, Ma côte, comparer demain matin, bouée mesurée / prévue, hors connexion). En attente de validation. Voir [appli-experience.md](appli-experience.md).
+- **Règles communes site / appli, issue #4** (publiée, PR #22, fusion `283e9cc`) :
   - fraîcheur des bouées selon la cadence de chaque station, qualification du vent, secteurs et bouée de référence identiques sur le site, dans l'appli et dans le robot ;
   - mêmes cas de test pour les trois ;
   - âges recalculés et données redemandées au retour dans l'appli ;
