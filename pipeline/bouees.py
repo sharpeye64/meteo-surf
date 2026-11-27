@@ -181,10 +181,18 @@ def age_h(now, t):
         return 999
 
 
+CLOCK_SKEW_H = 0.25   # tolérance d'horloge : une mesure datée jusqu'à 15 min dans le futur vaut « à l'instant »
+
+
 def fresh_state(now, t, lim=1):
-    """Même règle que le site (pvFresh) : en direct < lim, récente < 3 × lim, ancienne < 48 h, muette au-delà."""
+    """Règle commune site / appli / robot (issue #4, docs/regles-communes.md ; site pvFresh, appli rules.freshState) :
+    en direct < lim, récente < 3 × lim, ancienne < 48 h, muette au-delà. Indisponible (« off ») aussi : heure illisible, ou
+    datée de plus de 15 min dans le futur (heure incohérente, jamais en direct)."""
     a = age_h(now, t)
-    return "live" if 0 <= a < lim else "recent" if a < 3 * lim else "old" if a < 48 else "off"
+    if a == 999 or a < -CLOCK_SKEW_H:
+        return "off"
+    a = max(0.0, a)
+    return "live" if a < lim else "recent" if a < 3 * lim else "old" if a < 48 else "off"
 
 
 def is_fresh(now, t, lim=1):

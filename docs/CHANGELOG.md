@@ -4,18 +4,26 @@
 
 ## 27/11/2026
 
-- **Heures explicites, issue #2** (branche `heures-locales`, PR en revue, non publié) : ISO 8601 avec décalage à l'heure du lieu, Portugal à l'heure de Lisbonne, lecture des deux formats (site, appli), correction du décalage unique des séries Open-Meteo. Voir [heures.md](heures.md).
+- **Règles communes site / appli, issue #4** (branche `regles-communes`, PR en revue, non publiée ; repère `avant-regles-communes`) :
+  - fraîcheur des bouées selon la cadence de chaque station, qualification du vent, secteurs et bouée de référence identiques sur le site, dans l'appli et dans le robot ;
+  - mêmes cas de test pour les trois ;
+  - âges recalculés et données redemandées au retour dans l'appli ;
+  - aucun changement visuel.
+  - Voir [regles-communes.md](regles-communes.md).
+
+- **Archive des modèles aux points des bouées, issue #1** (branche `archive-modeles`, PR #20 corrigée après la revue de ChatGPT, non publiée ; repère `avant-archive-modeles`) : modèles un par un, MARC, mélanges brut et corrigé, cycle des modèles, heures avec décalage (`history/buoy_runs/`) ; 5 requêtes groupées au lieu de 25 ; fin des passages archivés deux fois ; anciennes archives intactes. Voir [archive-modeles.md](archive-modeles.md).
+- **Heures explicites, issue #2** : **publiée** (PR #17, fusion `68cac65`) après deux revues de ChatGPT. ISO 8601 avec décalage à l'heure du lieu, Portugal à l'heure de Lisbonne, lecture des deux formats (site, appli), correction du décalage unique des séries Open-Meteo. Voir [heures.md](heures.md).
 - **Issue #7 publiée** (PR #12).
 - **Guides SEO/GEO, issue #13** (branche de test `codex/geo-guides-audit`) — revue scientifique des trois guides et de leurs cinq schémas, corrections du comparateur en eau profonde et vérification de l’aperçu sur ordinateur et mobile. Voir [l’audit](audit-geo-guides-2026-11-27.md).
 
-- **Quotas et cache Open-Meteo, issue #7** (branche `quotas-cache`, PR en revue, non publié) : mesure de chaque requête (dont les 429), cache des prévisions renouvelé à chaque nouveau run des modèles, vent séparé par modèle, mode dégradé signalé. Environ 3,3 fois moins d'appels, bouées inchangées. Voir [quotas-licences.md](quotas-licences.md).
+- **Quotas et cache Open-Meteo, issue #7** (publiée, PR #12) : mesure de chaque requête (dont les 429), cache des prévisions renouvelé à chaque nouveau run des modèles, vent séparé par modèle, mode dégradé signalé. Environ 3,3 fois moins d'appels, bouées inchangées. Voir [quotas-licences.md](quotas-licences.md).
 - **Sécurisation de la publication, issue #3** : publiée le 26/11 au soir (PR #11, fusion `56c4c91`).
 
 - **Liens vers les guides, issue #13** (branche `codex/seo-liens-guides`, en revue) — accès au guide depuis les mesures des bouées et le tableau de prévisions des spots.
 
 ## 26/11/2026
 
-- **Sécurisation de la publication, issue #3** (branche `securiser-publication`, PR en revue, non publié) : tests isolés hors de `web/`, marques de test, contrôle avant publication (`tools/check_site.py`), génération dans `_site/`, déploiement depuis `main` seulement, `health.json`. Voir [securisation-publication.md](securisation-publication.md).
+- **Sécurisation de la publication, issue #3** (publiée le 26/11 au soir, PR #11) : tests isolés hors de `web/`, marques de test, contrôle avant publication (`tools/check_site.py`), génération dans `_site/`, déploiement depuis `main` seulement, `health.json`. Voir [securisation-publication.md](securisation-publication.md).
 - **SEO, premier lot** (publié, commit `afb3185` ; tag `avant-seo-corrections`) :
   - accueil sans la page d'un spot derrière la carte ;
   - fraîcheur des bouées selon la cadence de chaque station ;

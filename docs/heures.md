@@ -1,6 +1,6 @@
 # Contrat horaire des données (issue #2)
 
-_27/11/2026, Claude Code, branche `heures-locales` (repère `avant-heures-locales`). Non publié._
+_27/11/2026, Claude Code. **Publié le 27/11/2026** (PR #17, fusion `68cac65`, repère `avant-heures-locales`) ; production vérifiée : `meta.time.version = 2`, aucune heure sans décalage dans `forecast.json` ni dans `data/app/`, Portugal à l'heure de Lisbonne._
 
 ## Le contrat
 
@@ -17,7 +17,7 @@ Chaque **instant** publié par le robot s'écrit en **ISO 8601 avec décalage**,
 - Les **dates seules** (`2026-11-27` : soleil, coefficients) sont des dates locales du lieu.
 - **Concerné** : `forecast.json` (`meta.time.version = 2`), `data/app/` (index et fiches), `health.json`, ainsi que les pages générées (affichage à l'heure du lieu).
 - **Champ `tz`** : il donne le fuseau de chaque spot, de chaque bouée et de chaque fiche de l'appli.
-- **Non concerné** : l'**archive** (branche `history`). Elle n'est pas réécrite et reste en heure de Paris sans décalage. Les nouvelles archives (#1) devront adopter ce contrat.
+- **Archive** (branche `history`) : les anciens fichiers (`runs/`, `coast_runs/`, `obs/`, `coast_obs/`) ne sont pas réécrits et restent en heure de Paris sans décalage. La nouvelle archive des modèles aux points des bouées (`buoy_runs/`, issue #1) **suit ce contrat** : voir [archive-modeles.md](archive-modeles.md).
 
 ## Lecture : une seule règle, partout
 
@@ -81,6 +81,10 @@ Trois anomalies relevées par ChatGPT Work, reproduites puis corrigées, chacune
 La branche de ChatGPT Work n'a pas été modifiée. Les tests (dont ceux de #16 dans `test_offline`) passent sur le résultat fusionné.
 
 **Deuxième revue (commit `f533bef`)** : `pipeline/appdata.py` `_now_index()` (prévision « maintenant » de l'index de l'appli) calculait « maintenant − 59 min » en heure murale de Paris. À 11:59:01 il prenait déjà 12:00 ; au second 02:30 d'octobre (01:31 murale, donc +02:00) il retombait sur le premier 02:00. Correction : début de l'heure **UTC** en cours, puis premier instant publié qui n'est pas antérieur. Test `test_heures` D : 11:59:01 → 11:00+01:00 ; second 02:30 (horloge `Europe/Paris`, fold=1) → 02:00+01:00 ; premier 02:30 → 02:00+02:00 ; spot portugais → 10:00+00:00.
+
+## Après la publication
+
+- **Marqueur « maint. » de la frise horaire du site** (amélioration mineure, à traiter à part) : à 15 h 45, il est posé sur 16 h, car la frise arrondit l'heure courante à l'heure la plus proche (`Math.round(state.liveHour)` dans `web/index.html`). Ce comportement existait avant #2. L'index de l'appli, lui, prend le créneau de l'heure en cours (correction de la 2e revue de la PR #17). À aligner sur la même règle.
 
 ## Limites
 

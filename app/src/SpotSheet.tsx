@@ -2,8 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
-import { ageH, ageTxt, Buoy, buoyFits, fr, km, loadSheet, perTxt, prefBuoy, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { ageTxt, Buoy, fr, isLive, loadSheet, perTxt, refBuoy, regionName, sector, Sheet, SpotLite, windCat, windText } from './data';
 import { partsIn, placeTz, tMs } from './time';
+import { useReloaded } from './useReloaded';
+import { Pick, resolveSel } from './selection';
 import { useBarSpace } from './TabBar';
 import { C, F, isDark, periodCell, sizeCell, themed, windCell } from './theme';
 
@@ -14,13 +16,11 @@ const COL = 50;   // largeur d'une colonne de la frise horaire
 
 export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: Props) {
   const pad = useBarSpace();
-  const [sheet, setSheet] = useState<Sheet | null>(null);
-  const [err, setErr] = useState(false);
-  const [day, setDay] = useState(0);
-  const [hour, setHour] = useState<number | null>(null);
+  const { data: sheet, offline, err } = useReloaded<Sheet>(loadSheet, spot.slug);   // redemandée au retour (reprise réseau)
+  // sélection gardée par date et par instant (src/selection.ts) : une série rechargée, décalée ou plus courte, ne peut pas planter
+  const [pick, setPick] = useState<Pick>({ date: null, ms: null });
   const strip = useRef<{ scrollTo: (o: { x: number; animated?: boolean }) => void } | null>(null);
 
-  useEffect(() => { loadSheet(spot.slug).then(r => setSheet(r.data)).catch(() => setErr(true)); }, [spot.slug]);
 
   const days = useMemo(() => {
     if (!sheet) return [];
@@ -35,23 +35,22 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
   }, [sheet]);
 
   if (err) return <Center onBack={onBack} name={spot.name} text="Fiche indisponible. Vérifie la connexion." />;
-  if (!sheet || !days.length) return <Center onBack={onBack} name={spot.name} loading />;
+  const t0 = sheet ? tMs(sheet.t0) : NaN, r = resolveSel(days, t0, pick);
+  if (!sheet || !r) return <Center onBack={onBack} name={spot.name} loading />;
 
-  const t0 = tMs(sheet.t0), tz = placeTz(sheet);
+  const tz = placeTz(sheet), day = r.dayI, hour = r.hourI;
   const at = (i: number) => partsIn(t0 + i * 36e5, tz);   // heure du spot (issue #2)
   const nowI = Math.max(0, Math.min(sheet.hs.length - 1, Math.floor((Date.now() - t0) / 36e5)));
   const d = days[day];
   const hrs = d.idx.filter(i => { const h = at(i).h; return h >= 6 && h <= 21; });
-  const def = day === 0 ? (hrs.find(i => i >= nowI) ?? hrs[hrs.length - 1]) : (hrs.find(i => at(i).h >= 10) ?? hrs[0]);
+  const def = (day === 0 ? (hrs.find(i => i >= nowI) ?? hrs[hrs.length - 1]) : (hrs.find(i => at(i).h >= 10) ?? hrs[0])) ?? d.idx[0];   // jour sans heure de 6 h à 21 h : la première
   const sel = hour != null && d.idx.includes(hour) ? hour : def;
   const isNow = day === 0 && sel === nowI;
-  const rel = windRel(sheet.wdir[sel], sheet.ori);
+  const rel = windText(windCat(sheet.wind[sel], sheet.wdir[sel], sheet.ori));   // mêmes catégories et seuils que le site
   const tides = (sheet.tide?.extremes || []).filter(e => partsIn(tMs(e.t), tz).date === d.date);
   const sunI = sheet.sun ? sheet.sun.time.findIndex(x => x === d.date) : -1;   // dates locales du spot
-  // Bouée de comparaison : la plus proche en direct (moins de 2 h, à moins de 60 km), sinon de moins de 6 h, sinon la plus proche.
-  const cands = buoys.filter(b => buoyFits(b, spot.name)).map(b => ({ b, k: km(spot, b) })).filter(x => x.k < 130).sort((a, b) => a.k - b.k);
-  const pb = prefBuoy(buoys, spot);   // Landes : Cap Ferret au nord, Gascogne ailleurs
-  const near = (pb && { b: pb, k: km(spot, pb) }) || cands.find(x => ageH(x.b.time) < 2 && x.k < 60) || cands.find(x => ageH(x.b.time) < 6) || cands[0];
+  // Bouée de comparaison : même règle que le site (src/rules.ts : Landes, Sainte-Barbe, en direct selon la cadence, 6 h, la plus fraîche)
+  const near = refBuoy(buoys, spot);
   const sea = d.idx.map(i => sheet.sea[i]);
 
   return (
@@ -65,11 +64,12 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: pad + 20 }}>
+        {offline && <Text style={st.off}>hors connexion · dernière version reçue</Text>}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.days}>
           {days.map((x, i) => {
             const dd = at(x.idx[0]), mx = Math.max(...x.idx.map(j => sheet.hs[j] ?? 0)), on = i === day;
             return (
-              <Pressable key={x.date} onPress={() => { setDay(i); setHour(null); strip.current?.scrollTo({ x: 0, animated: false }); }} style={[st.day, on && st.dayOn]}>
+              <Pressable key={x.date} onPress={() => { setPick({ date: x.date, ms: null }); strip.current?.scrollTo({ x: 0, animated: false }); }} style={[st.day, on && st.dayOn]}>
                 <Text style={[st.dayJ, on && { color: C.onInk2 }]}>{i === 0 ? 'AUJ.' : J[dd.wd]}</Text>
                 <Text style={[st.dayN, on && { color: C.onInk }]}>{dd.d}</Text>
                 <Text style={[st.dayH, on && { color: C.onInk }]}>{fr(mx)}<Text style={st.dayU}> m</Text></Text>
@@ -101,7 +101,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
             </View>
             <SunTile sun={sunI >= 0 && sheet.sun ? { rise: sheet.sun.sunrise[sunI], set: sheet.sun.sunset[sunI] } : null} today={day === 0} />
           </View>
-          {rel && <Text style={st.rel}>Vent {rel}</Text>}
+          {rel && <Text style={st.rel}>{rel}</Text>}
 
           <ScrollView ref={strip as never} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.grid}
             onContentSizeChange={() => { const k = hrs.indexOf(sel); if (k > 2) strip.current?.scrollTo({ x: (k - 2) * (COL + 4), animated: false }); }}>
@@ -117,7 +117,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
             {hrs.map(i => {
               const on = i === sel, h = at(i).h;
               return (
-                <Pressable key={i} onPress={() => setHour(i)} style={st.col}>
+                <Pressable key={i} onPress={() => setPick({ date: d.date, ms: t0 + i * 36e5 })} style={st.col}>
                   <Text style={[st.hh, on && { color: C.ink }]}>{h}h</Text>
                   <View style={[st.cell, { height: 46, backgroundColor: sizeCell(sheet.hs[i]) }, on && st.cellOn]}><Text style={st.cellBig}>{fr(sheet.hs[i])}</Text></View>
                   <View style={[st.cell, { height: 36, backgroundColor: periodCell(sheet.tp[i]) }, on && st.cellOn]}>
@@ -140,7 +140,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
 
         {near && (
           <Pressable onPress={() => onBuoy?.(near.b)} style={({ pressed }) => [st.card, { backgroundColor: C.sandCard }, pressed && { opacity: 0.85 }]}>
-            <View style={st.nowRow}><View style={[st.dot, ageH(near.b.time) >= 2 && { backgroundColor: C.sandMuted }]} /><Text style={[st.nowT, { color: C.sandText }]}>MESURE RÉELLE · BOUÉE {near.b.name.toUpperCase()}</Text></View>
+            <View style={st.nowRow}><View style={[st.dot, !isLive(near.b) && { backgroundColor: C.sandMuted }]} /><Text style={[st.nowT, { color: C.sandText }]}>MESURE RÉELLE · BOUÉE {near.b.name.toUpperCase()}</Text></View>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 8 }}>
               <Text style={[st.big, { color: C.sandText }]}>{fr(near.b.hs)}<Text style={st.bigU}> m</Text></Text>
               <Text style={[st.tileS, { color: C.sandText, marginBottom: 8 }]}>{perTxt(near.b) ? `${perTxt(near.b)} · ` : ''}{near.b.dir != null ? sector(near.b.dir) + ' · ' : ''}{Math.round(near.k)} km</Text>
@@ -234,6 +234,7 @@ function Center({ onBack, name, loading, text }: { onBack: () => void; name: str
 }
 
 const st = themed(() => StyleSheet.create({
+  off: { fontFamily: F.tB, fontSize: 12, color: C.coral, marginHorizontal: 16, marginTop: 8 },   // même style que « hors connexion » de l'accueil
   bar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 8 },
   round: { width: 40, height: 40, borderRadius: 20, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center' },
   roundT: { fontFamily: F.tX, fontSize: 24, color: C.ink, marginTop: -2 },

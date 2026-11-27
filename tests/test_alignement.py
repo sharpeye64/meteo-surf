@@ -19,7 +19,7 @@ TZ = ZoneInfo(config.TIMEZONE)
 ORIGIN = datetime(2026, 1, 1)
 clock = {"now": datetime(2026, 11, 27, 23, 50, tzinfo=TZ)}
 omcache.time.time = lambda: clock["now"].timestamp()
-omcache.model_meta = lambda kind, name: {"last_run_availability_time": 1_700_000_000}
+omcache.model_meta = lambda kind, name, fresh=False: {"last_run_availability_time": 1_700_000_000}
 _cov = openmeteo.check_coverage
 openmeteo.check_coverage = lambda g, r: _cov(g, r, now=clock["now"])
 openmeteo.config.REQUEST_PAUSE_S = 0

@@ -49,8 +49,10 @@ def fake_get(url, params, tries=3):
                   "sea_level_height_msl": [math.sin(i / 12.42 * 2 * math.pi) for i in range(len(tt))],
                   "sea_surface_temperature": [16.8] * len(tt)}
         res = [{"hourly": hourly}] * n
-        if params.get("models") == "ncep_gfswave025":  # maille « terre » : 0,00 m sur tout le premier point
-            res = [{"hourly": {**hourly, "wave_height": [0.0] * len(tt)}}] + res[1:]
+        if params.get("models") == "ncep_gfswave025":  # maille « terre » : 0,00 m sur tout le premier point, et au point de Gascogne
+            lats = str(params["latitude"]).split(",")
+            res = [{"hourly": {**hourly, "wave_height": [0.0] * len(tt)}} if (j == 0 or float(la) == config.GASCOGNE["lat"]) else r
+                   for j, (la, r) in enumerate(zip(lats, res))]
         return res
     hourly = {"time": TIMES}
     models = [m for m in str(params.get("models", "")).split(",") if m]
@@ -169,7 +171,7 @@ os.environ["METEO_HISTORY_DIR"] = _hist     # archive de test : jamais dans le v
 os.environ["METEO_ARCHIVE"] = "1"
 openmeteo.get = fake_get
 from pipeline import omcache as _omc
-_omc.model_meta = lambda kind, name: {"last_run_availability_time": 1_700_000_000}   # métadonnées simulées, sans réseau
+_omc.model_meta = lambda kind, name, fresh=False: {"last_run_availability_time": 1_700_000_000}   # métadonnées simulées, sans réseau
 marc.open_dataset = fake_marc
 buoy.requests.get = fake_buoy_get
 build.main()
@@ -437,3 +439,33 @@ from tools import check_site as _cs
 _ok, _rep = _cs.check(config.OUT_DIR, max_age_h=None)
 assert not _ok and any("test" in x for x in _rep["errors"]), "le contrôle de publication doit refuser un site de test"
 print("isolation OK :", len(_before), "fichiers de web/ inchangés, aucun ajouté ; site de test refusé par le contrôle (", len(_rep["errors"]), "motifs )")
+
+# Issue #4 : règles communes site / appli. L'index de l'appli porte la cadence et le type de chaque bouée, et le point de prévision
+# (« pt ») des spots dont le point affiché est recalé sur la côte : les distances aux bouées sont mesurées comme sur le site.
+_ix = json.loads((config.OUT_DIR / "data" / "app" / "index.json").read_text(encoding="utf-8"))
+_sp = {s["name"]: s for s in json.loads(config.SPOTS_FILE.read_text(encoding="utf-8"))}
+assert all(b.get("kind") in ("gascogne", "coast", "offshore") and b.get("lim") in (1, 2) for b in _ix["buoys"]), [b for b in _ix["buoys"] if not b.get("lim")][:2]
+assert all((s.get("pt") == [_sp[s["name"]]["lat"], _sp[s["name"]]["lon"]]) == ("mlat" in _sp[s["name"]]) for s in _ix["spots"])
+assert all(json.loads(f.read_text(encoding="utf-8")).get("lim") in (1, 2) for f in (config.OUT_DIR / "data" / "app" / "bouees").glob("*.json"))
+print("index de l'appli : cadence, type de bouée et point de prévision OK (issue #4)")
+
+# Issue #1 (revue de la PR #20, point 5) : la prévision PUBLIÉE est identique, archive activée ou désactivée.
+# Empreintes normalisées des séries des 214 spots (tools/compare_forecast.py, utilisable aussi entre deux commits).
+from tools import compare_forecast as _cf
+from pipeline import appdata as _ad, seo as _seo
+_with = json.loads((config.OUT_DIR / "data" / "forecast.json").read_text())
+(_Path(_hist) / "forecast_archive_on.json").write_text(json.dumps(_with), encoding="utf-8")   # pour comparer à un autre commit
+print("forecast.json (archive activée) gardé pour comparaison :", _Path(_hist) / "forecast_archive_on.json")
+_os.environ["METEO_ARCHIVE"] = "0"
+# le site du premier passage reste celui que d'autres tests réutilisent (simulate_pannes) : ses fichiers sont remis ensuite
+_keep = {f: f.read_bytes() for f in (config.OUT_DIR / "data" / "forecast.json", config.OUT_DIR / "data" / "home-index.json", config.OUT_DIR / "health.json")}
+_gen = (_seo.generate, _ad.generate)
+_seo.generate, _ad.generate = (lambda payload: 0), (lambda spots, payload: 0)   # pages déjà vérifiées plus haut : on gagne du temps
+build.main()
+_without = json.loads((config.OUT_DIR / "data" / "forecast.json").read_text())
+_seo.generate, _ad.generate = _gen
+for _f, _b in _keep.items():
+    _f.write_bytes(_b)
+_r = _cf.compare(_with, _without)
+assert not _r["diffs"] and _r["spots"] == (214, 214) and _r["global"][0] == _r["global"][1], _r["diffs"][:5]
+print("prévision publiée identique archive activée / désactivée :", _r["spots"][0], "spots, empreinte", _r["global"][0][:16])

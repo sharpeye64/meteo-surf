@@ -50,6 +50,10 @@ jobs:
         run: python -m tests.test_alignement
       - name: Contrat horaire du robot (France, Portugal, changements d'heure)
         run: python -m tests.test_heures
+      - name: Archive des modèles aux points des bouées (issue #1 ; anciennes archives, doublons, mélanges)
+        run: python -m tests.test_archive
+      - name: Règles métier communes, côté robot (issue #4 ; fraîcheur, vent, secteurs, cadence)
+        run: python -m tests.test_regles
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
@@ -61,6 +65,10 @@ jobs:
             TZ=$tz node tests/heures_app.test.mjs
             echo "::endgroup::"
           done
+      - name: Règles métier communes au site et à l'appli, mêmes cas (issue #4)
+        run: |
+          node tests/regles_site.test.js
+          node tests/regles_app.test.mjs
       - name: Tests navigateur accueil (desktop et mobile, données simulées)
         if: github.event_name == 'pull_request'
         run: |

@@ -230,21 +230,41 @@ def fetch(spots):
     return out, wave_labels
 
 
-def models_at_point(lat, lon, from_local, hours=97):
-    """Hauteur de vagues prévue par chaque modèle au point de la bouée, à partir de `from_local` (archive de fiabilité)."""
-    out = {}
+def buoy_points():
+    """Points de TOUTES les bouées suivies, dans un ordre fixe (la requête groupée reste la même d'un passage à l'autre)."""
+    from . import candhis, ibi_buoys
+    return ([{"id": s["id"], "lat": s["lat"], "lon": s["lon"]} for s in candhis.STATIONS + ibi_buoys.STATIONS]
+            + [{"id": "gascogne", "lat": config.GASCOGNE["lat"], "lon": config.GASCOGNE["lon"]}])
+
+
+def buoy_forecasts(points):
+    """Prévisions aux points des bouées pour l'archive (issue #1) : UNE requête par modèle pour TOUTES les bouées (avant : une
+    par bouée), via le cache (#7) : redemandée seulement quand le modèle publie un nouveau run.
+    Retourne {"ref": réponse best match (hauteur, période, direction) ou None, "models": {clé: (nom d'API, réponse)},
+    "missing": {clé: raison}}. Chaque requête est indépendante : un échec (best match compris) ne fait perdre que sa série."""
+    from . import safe
+    common = {"latitude": ",".join(str(p["lat"]) for p in points), "longitude": ",".join(str(p["lon"]) for p in points),
+              "timezone": config.TIMEZONE, "forecast_days": 6, "cell_selection": "sea"}
+    out = {"ref": None, "models": {}, "missing": {}}
+    try:
+        out["ref"] = omcache.cached_get("buoys_marine", MARINE, {**common, "hourly": "wave_height,wave_period,wave_direction"},
+                                        lambda u, p: get(u, p), cycles=True)
+    except Exception as e:
+        out["missing"]["base"] = safe.public_error(str(e), 160)
     for key, _label, _w, names in config.WAVE_MODELS:
+        why = "nom de modèle refusé"
         for name in names:
             try:
-                h = get(MARINE, {"latitude": lat, "longitude": lon, "timezone": config.TIMEZONE, "forecast_days": 6,
-                                 "cell_selection": "sea", "hourly": "wave_height", "models": name})[0]["hourly"]
+                out["models"][key] = (name, omcache.cached_get(f"buoys_wave_{key}", MARINE, {**common, "hourly": "wave_height", "models": name},
+                                                               lambda u, p: get(u, p), cycles=True))
+                break
             except ValueError:
                 continue
-            i = next((j for j, t in enumerate(h["time"]) if t >= from_local), None)
-            hs = valid_hs(h["wave_height"][i:i + hours]) if i is not None else []
-            if any(x is not None for x in hs):
-                out[key] = {"t0": h["time"][i], "hs": hs}
-            break
+            except Exception as e:
+                why = safe.public_error(str(e), 160)
+                break
+        if key not in out["models"]:
+            out["missing"][key] = why
     return out
 
 
@@ -256,17 +276,3 @@ def model_at_point(lat, lon, past_days=2):
                             "hourly": "wave_height,wave_period,swell_wave_period,wave_direction"},
                            lambda u, p: get(u, p), watch_key="point")[0]
     return {**d["hourly"], "_utc_offset": d.get("utc_offset_seconds")}
-
-
-def coast_forecast(lat, lon, from_local, hours=97):
-    """Hauteur, période et direction de la houle prévues (modèle par défaut) au point d'une bouée côtière, pour l'archive."""
-    h = get(MARINE, {"latitude": lat, "longitude": lon, "timezone": config.TIMEZONE, "forecast_days": 6, "cell_selection": "sea",
-                     "hourly": "wave_height,wave_period,wave_direction"})[0]["hourly"]
-    i = next((j for j, t in enumerate(h["time"]) if t >= from_local), None)
-    if i is None:
-        return None
-    sl = lambda k: [None if x is None else round(float(x), 2) for x in h.get(k, [])[i:i + hours]]
-    hs = valid_hs(h["wave_height"][i:i + hours])
-    if not any(x is not None for x in hs):
-        return None
-    return {"t0": h["time"][i], "hs": hs, "tp": sl("wave_period"), "dir": sl("wave_direction")}

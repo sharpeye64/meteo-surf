@@ -141,6 +141,14 @@ Métadonnées lues : {'ok': 14, 'failed': 0}
 
 **Constat important** : le passage à cache vide a reçu **4 refus 429**. Jusqu'ici, ils étaient invisibles, car le robot réessayait sans les noter. Envoyer environ 1 850 « appels par point » en 1 à 2 minutes dépasse la limite gratuite de 600 par minute **si chaque point compte**. C'est un **indice fort** en faveur de l'hypothèse H2 (comptage par point), **pas une preuve**. Avec le cache, ces rafales n'ont lieu qu'aux publications des modèles, et en plus petites requêtes, une par groupe.
 
+## 4 bis. Archive des modèles aux points des bouées (issue #1)
+
+- **Avant** : 25 requêtes par passage d'archive (une par bouée et une par modèle à Gascogne), soit environ 475 requêtes par jour. Ce total compte les **11 passages par jour archivés en double**.
+- **Après** : 5 requêtes groupées (22 bouées chacune), passées par le cache. On compte environ 25 requêtes par jour.
+  - H1 (une requête = un appel) : −450 appels par jour.
+  - H2 (un point = un appel) : +75 appels par jour, moins de 1 % de la limite gratuite.
+- **Détail et stockage** : voir [archive-modeles.md](archive-modeles.md).
+
 ## 5. Licences et accès : inventaire au 27/11/2026
 
 Ici, « licence des données » veut dire le droit de réutiliser les valeurs, et « accès » les conditions pour les obtenir (API, compte, quota). Les deux peuvent différer.

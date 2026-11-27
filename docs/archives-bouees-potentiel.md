@@ -23,7 +23,7 @@ Il y a donc **3 semaines d'historique** environ. L'archive n'est écrite qu'un p
   - température de l'eau `sst`.
 
   Pour Gascogne, `hs` et la période. Météo-France ne fournit que la période moyenne : elle n'est jamais présentée comme une période pic.
-- **Prévisions archivées** : à chaque passage, la prévision sur 96 h au point de la bouée (hauteur, période, direction ; modèles MFWAM, EWAM, ECMWF, GFS, MARC et notre mélange). On pourra donc comparer, après coup, **ce qui était prévu** à **ce qui a été mesuré**, selon l'échéance (à 6 h, 24 h, 48 h…).
+- **Prévisions archivées** : à chaque passage, la prévision sur 96 h au point de la bouée. _Correction du 27/11 (issue #1) : jusqu'ici, seul le « best match » d'Open-Meteo (hauteur, période, direction) était archivé aux bouées côtières, et les 4 modèles seulement à Gascogne ; ni MARC ni notre mélange ne l'étaient. Depuis l'archive v2 (`buoy_runs/`), on garde les modèles un par un, MARC et les mélanges brut et corrigé : voir [archive-modeles.md](archive-modeles.md)._ On pourra donc comparer, après coup, **ce qui était prévu** à **ce qui a été mesuré**, selon l'échéance (à 6 h, 24 h, 48 h…).
 - **Fichiers** : `obs/AAAA-MM.json` (Gascogne), `coast_obs/AAAA-MM.json` (21 stations), `runs/AAAA-MM.jsonl`, `coast_runs/AAAA-MM.jsonl`. Un fichier par mois.
 
 ## 3. Fréquence et complétude (novembre 2026)

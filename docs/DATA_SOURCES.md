@@ -62,11 +62,11 @@ Elle s'applique sur le site (`pvFresh(ageH, t, key)`, `pvLim`), dans les pages d
 - **Titre Google** : « houle en direct » tant que la station publie normalement, « dernières mesures » sinon.
 - **Station qui ne publie plus** : un encadré « Pas de mesure transmise depuis… » propose les 3 bouées à jour les plus proches.
 - **Robot arrêté** : la page de bouée se corrige seule dans le navigateur.
-- **À aligner** : l'application mobile a encore ses propres seuils (voir [HANDOFF.md](HANDOFF.md)).
+- **Même règle partout** (issue #4) : le site, l'application et le robot appliquent ces seuils. La cadence de chaque bouée est écrite par le robot dans les données de l'appli (`lim`). Les mêmes cas sont testés sur les trois ([regles-communes.md](regles-communes.md)).
 
 ### Bouée de référence d'un spot
 
-La règle est la même sur le site, dans l'application et dans le robot : la plus proche dont la mesure a moins de 2 h (et à moins de 60 km), sinon la plus proche de moins de 6 h, sinon la plus fraîche. S'y ajoutent des cas particuliers :
+La règle est la même sur le site et dans l'application, vérifiée sur les mêmes cas (issue #4, [regles-communes.md](regles-communes.md)) : la plus proche **en direct selon sa cadence** (et à 60 km au plus), sinon la plus proche de moins de 6 h, sinon la plus fraîche. Les pages de spots générées par le robot suivent encore une règle simplifiée (écart connu). S'y ajoutent des cas particuliers :
 - **Landes** : Cap Ferret pour le nord, jusqu'à 70 km ; Gascogne pour Saint-Girons à Tarnos.
 - **Bouée abritée de Sainte-Barbe** : réservée à son spot (`BUOY_ONLY`).
 - **Choix fait à la main** : retenu par spot (`localStorage.radarViews`).
@@ -84,7 +84,8 @@ La règle est la même sur le site, dans l'application et dans le robot : la plu
 - **Où** : branche git `history`, écrite par le robot un passage sur trois (heures UTC multiples de 3).
 - **Contenu** :
   - mesures horaires des 21 bouées et de Gascogne ;
-  - prévisions sur 96 h au point des bouées, archivées à chaque passage.
+  - prévisions sur 96 h au point des bouées, archivées à chaque passage ;
+  - depuis l'issue #1 (`buoy_runs/`) : les modèles un par un, MARC, les mélanges brut et corrigé et leur provenance ([archive-modeles.md](archive-modeles.md)).
 - **Calcul** (`history.reliability`) : écart prévision − mesure par échéance (24, 48, 72, 96 h) et par modèle, sur 30 jours. Le site affiche l'écart moyen de la prévision à 1 jour avec la bouée Gascogne.
 - **Inventaire, volumes, statistiques possibles et droits** : voir [archives-bouees-potentiel.md](archives-bouees-potentiel.md).
 

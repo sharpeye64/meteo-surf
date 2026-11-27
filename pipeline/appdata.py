@@ -43,17 +43,22 @@ def _now_index(times, now=None):
 
 
 def _buoys(payload):
+    """Bouées de l'index. Règles communes (issue #4) : « kind » (gascogne / coast = houlographe CANDHIS / offshore = Copernicus)
+    et « lim » (âge jusqu'auquel la mesure est « en direct », selon la cadence de la station : bouees.station)."""
+    from .bouees import station
     out = []
     g = payload.get("gascogne")
     if g and (g.get("latest") or {}).get("hs") is not None:
         out.append({"id": "gascogne", "name": "Gascogne", "sub": "au large, Météo-France 62001", "lat": g["lat"], "lon": g["lon"], "tz": g.get("tz"),
-                    "large": True, **{k: g["latest"].get(k) for k in ("time", "hs", "tp", "tm", "dir", "sst")}})
+                    "large": True, "kind": "gascogne", "lim": station({"id": "gascogne"})["lim"],
+                    **{k: g["latest"].get(k) for k in ("time", "hs", "tp", "tm", "dir", "sst")}})
     for kind in ("coast", "offshore"):
         for b in payload.get(kind) or []:
             L = b.get("latest") or {}
             if L.get("hs") is None:
                 continue
             out.append({"id": b["id"], "name": b["name"], "sub": b.get("sub") or "sur la côte", "lat": float(b["lat"]), "lon": float(b["lon"]), "tz": b.get("tz"),
+                        "kind": kind, "lim": station(b)["lim"],
                         **({"silent": True} if b.get("silent") else {}), **{k: L.get(k) for k in ("time", "hs", "tp", "dir", "sst")}})
     return out
 
@@ -95,9 +100,14 @@ def _buoy_sheets(spots, payload, out_dir):
                 src = f"prévision du spot {around[0][1]['name']}"
         obs = [{k: o.get(k) for k in ("t", "hs", "tp", "dir", "hmax", "sst")} for o in (b.get("obs") or [])][-48:]
         t_first = obs[0]["t"] if obs else L.get("time")
-        model = [m for m in model if t_first and m["t"] >= t_first][:72]
+        # comparaison en INSTANTS (issue #4) : mesure et prévision peuvent être écrites dans deux fuseaux (bouée portugaise)
+        from . import timefmt
+        t1 = timefmt.parse(t_first) if t_first else None
+        model = [m for m in model if t1 and timefmt.parse(m["t"]) >= t1][:72]
         st = stats.get(bid) or {}
+        from .bouees import station
         sheet = {"v": VERSION, "id": bid, "slug": slugify(name), "name": name, "sub": sub, "lat": pos[0], "lon": pos[1], "tz": b.get("tz"),
+                 "lim": station({"id": bid})["lim"], **({"silent": True} if b.get("silent") else {}),
                  "latest": {k: L.get(k) for k in ("time", "hs", "hmax", "tp", "tm", "dir", "sst")}, "obs": obs, "model": model, "model_src": src,
                  "stats": {k: st.get(k) for k in ("since", "days", "hs_max", "hs_max_t", "hs_mean", "sst_mean")} if st else None,
                  "spots": [{"name": s["name"], "slug": slugify(s["name"]), "km": round(k)} for k, s in around[:6] if k < 60]}
@@ -144,6 +154,8 @@ def generate(spots, payload):
         i = _now_index(times)
         index.append({"name": s["name"], "slug": slug, "region": s["region"], "commune": s.get("commune"), "tz": f.get("tz"), "ref": config.ref_buoy(s),
                       "lat": s.get("mlat", s["lat"]), "lon": s.get("mlon", s["lon"]), "ori": s.get("ori"),
+                      # point du spot pour les distances aux bouées (le site mesure depuis lat/lon, pas depuis le point affiché)
+                      **({"pt": [s["lat"], s["lon"]]} if "mlat" in s else {}),
                       "now": {"t": times[i] if times else None, "hs": sheet["hs"][i] if n else None, "tp": sheet["tp"][i] if n else None,
                               "dir": sheet["dir"][i] if n else None, "wind": sheet["wind"][i] if n else None, "wdir": sheet["wdir"][i] if n else None}})
     (tmp / "bouees").mkdir()
