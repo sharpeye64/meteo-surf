@@ -248,8 +248,8 @@ print("CANDHIS OK :", [b["name"] for b in data["coast"]], c0["latest"])
 import re as _re
 from pipeline import pages as _content_pages
 sm = (config.OUT_DIR / "sitemap.xml").read_text(encoding="utf-8")
-_nb = len(data["coast"]) + len(data["offshore"]) + (1 if (data.get("gascogne") or {}).get("latest") else 0)   # pages des bouées (Gascogne comprise) + leur page liste
-assert sm.count("<url>") == len(data["spots"]) + 2 + len(_content_pages.ALL) + _nb + 12, sm.count("<url>")
+_nb = len(data["coast"]) + len(data["offshore"]) + (1 if (data.get("gascogne") or {}).get("latest") else 0)   # pages individuelles des bouées (Gascogne comprise)
+assert sm.count("<url>") == len(data["spots"]) + 3 + len(_content_pages.ALL) + _nb + 12, sm.count("<url>")
 assert "Sitemap:" in (config.OUT_DIR / "robots.txt").read_text()
 pg = (config.OUT_DIR / "spots" / "lacanau" / "index.html").read_text(encoding="utf-8")
 assert "<h1>Prévisions surf à Lacanau</h1>" in pg and "application/ld+json" in pg and 'rel="canonical"' in pg and "<table>" in pg
@@ -298,7 +298,11 @@ for _spec in _content_pages.ALL:
     _links.feed(_html)
     for _href in _links.links:
         _target = (_dir / urlsplit(_href).path).resolve()
-        assert _target.is_dir() and (_target / "index.html").exists(), (_spec["slug"], _href)
+        # La racine statique reste dans web/ pendant le test, seuls les HTML générés sont dans OUT_DIR.
+        if _target == config.OUT_DIR.resolve():
+            assert (_WEB / "index.html").is_file()
+        else:
+            assert _target.is_dir() and (_target / "index.html").exists(), (_spec["slug"], _href)
 
 print("SEO OK :", len(data["spots"]), "pages de spots + index + sitemap ;", _nb, "pages de bouées")
 
