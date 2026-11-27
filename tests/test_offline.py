@@ -273,7 +273,7 @@ assert "Marées et coefficients non disponibles" in _ptpg
 assert "heure du Portugal" in _ptpg
 assert "marée" not in _re.search(r"<title>(.*?)</title>", _ptpg).group(1).lower()
 assert "<th>Coef.</th>" not in _ptpg
-assert _re.search(r'"dateModified": "[^"]+\\+00:00"', _ptpg)
+assert _re.search(r'"dateModified": "[^"]+\+00:00"', _ptpg)
 
 assert "Les bouées" in (config.OUT_DIR / "bouees" / "index.html").read_text(encoding="utf-8")
 # GEO : mesure datée, source visible et distinction entre mer au large et vagues au bord.
