@@ -61,3 +61,18 @@ Les 30 questions ci-dessous constituent un panel, non des résultats de tests. E
 
 ## Validation
 Routes et gabarits inchangés. Tests CI à vérifier avant fusion. Pas de tests exécutés localement par ChatGPT ; accès public et baseline GEO encore incomplets. Aucun changement de production sans « Oui, publie ».
+
+## Benchmark exploratoire du 27/11 — recherche web
+
+Requêtes : « bouée Anglet houlographe mesures surf en direct », « site de prévisions surf gratuit comparaison modèles bouées France La Bouée conditions surf », « site:houlalah.fr bouée houlographe surf ». Recherches groupées, résultats non assimilables à des positions Google ni à une baseline neutre d'assistants. Houlalah non retrouvé dans les résultats pertinents retournés ; accès robots.txt, llms.txt et /bouees/anglet/ impossible via cet outil. Aucun diagnostic DNS/HTTP confirmé.
+
+| Site | Page observée | Opportunité |
+|---|---|---|
+| La Bouée | https://www.labouee.app/fr/bouees/spots/anglet ; https://www.labouee.app/fr — données, stations voisines, articles de tempêtes | Statistiques originales et validation des modèles |
+| Conditions Surf | https://conditionssurf.fr/spots/anglet ; https://conditionssurf.fr/guide/windguru-surfline-comparatif | Guides méthodologiques, sans reproduire leurs scores |
+| Yadusurf | https://www.yadusurf.com/ — prévisions et état de panne Anglet | Traçabilité de la mesure et source |
+| Allosurf | https://www.allosurf.net/meteo/live/anglet-bouee-fr-06402.html — panne affichée | Historique daté et lisible |
+| BestSwell | https://bestswell.com/fr/data-sources — distinction accord/précision | Expliquer la méthode et les limites |
+
+## Lot pages de bouées
+Ajout d'un résumé HTML visible, daté (heure de Paris selon contrat actuel #2), avec identifiant, source, Hs, période de pic ou moyenne si disponible, direction si disponible. Pas de donnée inventée ni de nouveau label live. Les lignes du tableau affichent jour et minute, plutôt que seulement l'heure arrondie. Le graphique distingue prévision de référence au point de la bouée et prévision d'un spot différent. Lien vers la méthode. Tests de présence ajoutés. À revoir lors de #2 pour le fuseau, et à vérifier visuellement sur mobile. Aucun changement de route, calcul ou workflow. La CI du dernier commit reste à confirmer.
