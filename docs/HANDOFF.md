@@ -2,6 +2,11 @@
 
 _Dernière mise à jour : 27/11/2026 pour le chantier des guides, par Codex._
 
+## Point SEO/GEO
+
+- **Issue #13, PR #16** — trois guides en ligne depuis le 27/11. Les quatre URL, leurs canoniques et leur présence dans le sitemap ont été vérifiées.
+- **Lot suivant** — liens contextuels en revue sur la branche `codex/seo-liens-guides`. Voir [GEO.md](GEO.md).
+
 ## En production (houlalah.fr)
 
 - **Accueil cartographique Premium Ocean v2** : panneau compact, choix houle / période / vent, sélecteur de jour et d'heure, bouées dorées, approche « la carte d'abord » sur téléphone.

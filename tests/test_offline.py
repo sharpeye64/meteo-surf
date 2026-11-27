@@ -282,6 +282,13 @@ assert "Comment lire une bouée houlographe ?" in _guide
 assert "../../bouees/" in _guide and "../../brand/symbol.svg" in _guide
 assert "/guide/lire-une-bouee/" in (config.OUT_DIR / "sitemap.xml").read_text(encoding="utf-8")
 assert "guide/lire-une-bouee/" in _method
+# Les liens contextuels doivent apparaître dans le contenu et viser des pages générées.
+for _source, _target in [("bouees/cap-ferret", "guide/lire-une-bouee"), ("spots/lacanau", "guide/comprendre-la-houle")]:
+    _source_dir = config.OUT_DIR / _source
+    _main = (_source_dir / "index.html").read_text(encoding="utf-8").split("<footer>", 1)[0]
+    _href = f"../../{_target}/"
+    assert f'<a href="{_href}">' in _main, (_source, _href)
+    assert (_source_dir / _href / "index.html").is_file(), _href
 from html.parser import HTMLParser
 from urllib.parse import urlsplit
 class _GuideLinks(HTMLParser):

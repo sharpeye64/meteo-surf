@@ -76,3 +76,10 @@ Requêtes : « bouée Anglet houlographe mesures surf en direct », « site de p
 
 ## Lot pages de bouées
 Ajout d'un résumé HTML visible, daté (heure de Paris selon contrat actuel #2), avec identifiant, source, Hs, période de pic ou moyenne si disponible, direction si disponible. Pas de donnée inventée ni de nouveau label live. Les lignes du tableau affichent jour et minute, plutôt que seulement l'heure arrondie. Le graphique distingue prévision de référence au point de la bouée et prévision d'un spot différent. Lien vers la méthode. Tests de présence ajoutés. À revoir lors de #2 pour le fuseau, et à vérifier visuellement sur mobile. Aucun changement de route, calcul ou workflow. La CI du dernier commit reste à confirmer.
+
+
+## Guides en production et liens contextuels
+
+La PR #16 a publié l’index et les trois guides. Le contrôle HTTP a confirmé leurs canoniques et leur présence dans le sitemap et dans `llms.txt`. Leur indexation effective et les citations des assistants restent à mesurer.
+
+Le lot suivant place un lien vers le guide de lecture des bouées sous le dernier relevé et un lien vers le guide sur la houle sous le tableau hebdomadaire des spots. Le test hors ligne vérifie les liens dans le corps des pages de Cap Ferret et de Lacanau et la présence des destinations générées.

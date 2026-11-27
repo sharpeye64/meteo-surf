@@ -11,6 +11,8 @@
 - **Quotas et cache Open-Meteo, issue #7** (branche `quotas-cache`, PR en revue, non publié) : mesure de chaque requête (dont les 429), cache des prévisions renouvelé à chaque nouveau run des modèles, vent séparé par modèle, mode dégradé signalé. Environ 3,3 fois moins d'appels, bouées inchangées. Voir [quotas-licences.md](quotas-licences.md).
 - **Sécurisation de la publication, issue #3** : publiée le 26/11 au soir (PR #11, fusion `56c4c91`).
 
+- **Liens vers les guides, issue #13** (branche `codex/seo-liens-guides`, en revue) — accès au guide depuis les mesures des bouées et le tableau de prévisions des spots.
+
 ## 26/11/2026
 
 - **Sécurisation de la publication, issue #3** (branche `securiser-publication`, PR en revue, non publié) : tests isolés hors de `web/`, marques de test, contrôle avant publication (`tools/check_site.py`), génération dans `_site/`, déploiement depuis `main` seulement, `health.json`. Voir [securisation-publication.md](securisation-publication.md).
