@@ -4,7 +4,7 @@ import time
 
 import requests
 
-from . import config
+from . import config, omcache
 
 MARINE = "https://marine-api.open-meteo.com/v1/marine"
 FORECAST = "https://api.open-meteo.com/v1/forecast"
@@ -13,7 +13,16 @@ session.headers["User-Agent"] = "meteo-surf-prototype (non commercial)"
 
 
 def get(url, params, tries=5):
-    """Appel Open-Meteo avec reprises : 429 (quota), erreurs 5xx, coupures réseau et délais dépassés sont transitoires."""
+    """Appel Open-Meteo avec reprises : 429 (quota), erreurs 5xx, coupures réseau et délais dépassés sont transitoires.
+    Chaque appel est compté (issue #7) : points, variables, essais, codes HTTP (dont 429), même en cas d'échec."""
+    statuses = []
+    try:
+        return _get(url, params, tries, statuses)
+    finally:
+        omcache.record(url, params, max(1, len(statuses)), statuses)
+
+
+def _get(url, params, tries, statuses):
     last = "trop de requêtes"
     for attempt in range(tries):
         wait = 20 * (attempt + 1)
@@ -21,10 +30,12 @@ def get(url, params, tries=5):
             r = session.get(url, params=params, timeout=60)
         except (requests.ConnectionError, requests.Timeout) as e:
             last = f"réseau : {type(e).__name__}"
+            statuses.append(0)
             if attempt < tries - 1:
                 time.sleep(wait)
                 continue
             break
+        statuses.append(r.status_code)
         if r.status_code == 429 or r.status_code >= 500:
             last = f"HTTP {r.status_code}"
             if attempt < tries - 1:
@@ -97,25 +108,39 @@ def fetch(spots):
     sea_pts, sea_map = grid([sea_point(s) for s in spots])
     land_pts, land_map = grid([(s["lat"], s["lon"]) for s in spots])
 
-    base = get(MARINE, {**ll(sea_pts), **common, "cell_selection": "sea", "hourly": ",".join([
+    base = omcache.cached_get("marine", MARINE, {**ll(sea_pts), **common, "cell_selection": "sea", "hourly": ",".join([
         "wave_height", "wave_period", "wave_direction", "swell_wave_height", "swell_wave_period",
         "swell_wave_direction", "secondary_swell_wave_height", "secondary_swell_wave_period",
         "secondary_swell_wave_direction", "wind_wave_height", "wind_wave_period", "wind_wave_direction",
-        "sea_level_height_msl", "sea_surface_temperature"])})
+        "sea_level_height_msl", "sea_surface_temperature"])}, lambda u, p: get(u, p))
 
     wave_models, wave_labels = {}, {}
     for key, label, _w, names in config.WAVE_MODELS:
         for name in names:
             try:
-                wave_models[key] = get(MARINE, {**ll(sea_pts), **common, "cell_selection": "sea",
-                                                "hourly": "wave_height,wave_period,wave_direction", "models": name})
+                wave_models[key] = omcache.cached_get(f"wave_{key}", MARINE, {**ll(sea_pts), **common, "cell_selection": "sea",
+                                                      "hourly": "wave_height,wave_period,wave_direction", "models": name},
+                                                      lambda u, p: get(u, p))
                 wave_labels[key] = label
                 break
             except ValueError:
                 continue
 
-    wind = get(FORECAST, {**ll(land_pts), **common, "hourly": "wind_speed_10m,wind_direction_10m,wind_gusts_10m",
-                          "daily": "sunrise,sunset", "models": ",".join(m[2] for m in config.WIND_MODELS)})
+    # Vent : une requête par modèle (issue #7), chacune redemandée seulement quand SON modèle publie un nouveau run ; on
+    # reconstruit la réponse « plusieurs modèles » d'avant (variables suffixées par modèle). Soleil : à part, une fois par jour.
+    wvars = ("wind_speed_10m", "wind_direction_10m", "wind_gusts_10m")
+    wind = [{"hourly": {}} for _ in land_pts]
+    for key, _label, api in config.WIND_MODELS:
+        r = omcache.cached_get(f"wind_{key}", FORECAST, {**ll(land_pts), **common, "hourly": ",".join(wvars), "models": api},
+                               lambda u, p: get(u, p))
+        for j, pt in enumerate(r):
+            h = pt["hourly"]
+            wind[j]["hourly"].setdefault("time", h["time"])
+            for v in wvars:
+                wind[j]["hourly"][f"{v}_{api}"] = h.get(f"{v}_{api}", h.get(v))
+    sun = omcache.cached_get("sun", FORECAST, {**ll(land_pts), **common, "daily": "sunrise,sunset"}, lambda u, p: get(u, p))
+    for j, pt in enumerate(sun):
+        wind[j]["daily"] = pt.get("daily", {})
 
     out = []
     for i, _s in enumerate(spots):
@@ -158,9 +183,11 @@ def models_at_point(lat, lon, from_local, hours=97):
 
 def model_at_point(lat, lon, past_days=2):
     """Prévision de vagues (mix par défaut) au point de la bouée, avec les jours passés pour comparer."""
-    d = get(MARINE, {"latitude": lat, "longitude": lon, "timezone": config.TIMEZONE, "past_days": past_days,
-                     "forecast_days": 2, "cell_selection": "sea",
-                     "hourly": "wave_height,wave_period,swell_wave_period,wave_direction"})[0]
+    d = omcache.cached_get(f"point_{float(lat):.3f}_{float(lon):.3f}", MARINE,
+                           {"latitude": lat, "longitude": lon, "timezone": config.TIMEZONE, "past_days": past_days,
+                            "forecast_days": 2, "cell_selection": "sea",
+                            "hourly": "wave_height,wave_period,swell_wave_period,wave_direction"},
+                           lambda u, p: get(u, p), watch_key="point")[0]
     return d["hourly"]
 
 
