@@ -84,7 +84,8 @@ La règle est la même sur le site, dans l'application et dans le robot : la plu
 - **Où** : branche git `history`, écrite par le robot un passage sur trois (heures UTC multiples de 3).
 - **Contenu** :
   - mesures horaires des 21 bouées et de Gascogne ;
-  - prévisions sur 96 h au point des bouées, archivées à chaque passage.
+  - prévisions sur 96 h au point des bouées, archivées à chaque passage ;
+  - depuis l'issue #1 (`buoy_runs/`) : les modèles un par un, MARC, les mélanges brut et corrigé et leur provenance ([archive-modeles.md](archive-modeles.md)).
 - **Calcul** (`history.reliability`) : écart prévision − mesure par échéance (24, 48, 72, 96 h) et par modèle, sur 30 jours. Le site affiche l'écart moyen de la prévision à 1 jour avec la bouée Gascogne.
 - **Inventaire, volumes, statistiques possibles et droits** : voir [archives-bouees-potentiel.md](archives-bouees-potentiel.md).
 

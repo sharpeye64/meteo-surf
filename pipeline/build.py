@@ -11,7 +11,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from . import appdata, buoy, candhis, config, ibi_buoys, omcache, safe, seo, history, marc, openmeteo, tides, timefmt
+from . import appdata, archive, buoy, candhis, config, ibi_buoys, melange, omcache, safe, seo, history, marc, openmeteo, tides, timefmt
 
 
 def log(msg):
@@ -62,6 +62,50 @@ def keep_silent(coast, offshore, meta, d=None):
         meta["errors"]["silent_buoys"] = str(e)[:300]
 
 
+def archive_pass(meta, gascogne, coast, offshore, bpts, weights, marc_buoys, times, ratio, corr_start, gen_utc):
+    """Archive du passage (heures UTC multiples de 3, main seulement). Issue #1 :
+    - UNE requête par modèle pour toutes les bouées (avant : 21 + 4 requêtes), via le cache (#7) ;
+    - anciens fichiers (runs/, coast_runs/, obs/, coast_obs/) : même format qu'avant, sans doublon, séries placées sur les
+      heures EXACTES du passage (une réponse en cache d'un autre décalage est réalignée) ;
+    - nouveau fichier buoy_runs/ (v2) : modèles, MARC, mélanges brut et corrigé, provenance (pipeline/archive.py).
+    Heure déjà présente dans buoy_runs/ : aucune requête. Chaque requête est indépendante : un échec ne fait perdre que sa série ;
+    si TOUTES échouent, rien n'est écrit et le passage suivant de la même heure réessaie."""
+    if not history.archiving_enabled():
+        return
+    d = history.history_dir()
+    issued_utc = gen_utc.floor("h").to_pydatetime()
+    issued_old = gen_utc.floor("h").tz_convert(config.TIMEZONE).tz_localize(None).strftime("%Y-%m-%dT%H:00")
+    buoys = list(coast) + list(offshore)
+    history.record_obs(gascogne.get("obs") if gascogne else None, buoys, d)   # mesures : fusion par heure, à chaque passage
+    issued_v2 = timefmt.fmt(issued_utc, timefmt.PARIS)
+    if archive.already(d, issued_v2):
+        log("  archive : heure déjà archivée (pas de doublon, aucune requête)")
+        return
+    fc = openmeteo.buoy_forecasts(bpts)
+    if fc["ref"] is None and not fc["models"]:
+        meta["errors"]["history"] = "archive : aucune prévision obtenue aux bouées (" + "; ".join(f"{k} : {v}" for k, v in fc["missing"].items())[:200] + ")"
+        log(f"  archive non écrite : aucune prévision aux bouées ({fc['missing']}) ; nouvel essai au prochain passage de l'heure")
+        return
+    ids = [p["id"] for p in bpts]
+    # anciens formats : mêmes points, mêmes variables, sans doublon (écrivains), sur les heures exactes du passage
+    old = archive.legacy_gascogne(fc, ids, issued_utc, issued_old) if gascogne else {}
+    if old:
+        history.record(issued_old, old, None, d)
+    cfc = archive.legacy_coast(fc, ids, {b["id"] for b in buoys}, issued_utc, issued_old)
+    if cfc:
+        history.record_coast(issued_old, cfc, None, d)
+    # v2 : modèles, MARC, mélanges brut et corrigé, provenance
+    st = "appliquée" if ratio else ("mesure trop ancienne" if meta["errors"].get("gascogne_age") else "pas de rapport mesuré")
+    corr_info = {"ratio": ratio or None, "ratio_measured": (gascogne or {}).get("ratio"), "start": corr_start if ratio else None,
+                 "t_obs": ((gascogne or {}).get("latest") or {}).get("time") if ratio else None, "status": st}
+    line = archive.build_line(issued_utc, gen_utc.to_pydatetime(), fc, bpts, weights, marc_buoys, times, corr_info)
+    n = archive.write(d, line)
+    nm = sum(1 for b in line["b"].values() for v in b["models"].values() if v)
+    log(f"  archive v2 : {len(line['b'])} bouées, {nm} séries de modèles, MARC pour {sum(1 for b in line['b'].values() if b['marc'])} bouées, "
+        f"{n / 1024:.0f} Ko ; anciens formats : {len(old)} modèles Gascogne, {len(cfc)} bouées côtières"
+        + ("" if not fc["missing"] else f" ; absents : {fc['missing']}"))
+
+
 def write_health(payload, spots):
     """health.json : état de la génération, SANS secret ni adresse d'API. Lu par une surveillance externe (un fichier figé
     ne peut pas signaler sa propre panne : c'est l'ancienneté de « generated », vue de l'extérieur, qui alerte)."""
@@ -97,10 +141,14 @@ def main():
 
     log("Ifremer MARC : modèle côtier")
     marc_data = None
+    marc_buoys = None   # MARC aux points des bouées, pour l'archive (issue #1) ; None = indisponible
+    bpts = openmeteo.buoy_points() if history.archiving_enabled() else []
     try:
         sea_pts, sea_map = openmeteo.grid([openmeteo.sea_point(s) for s in spots])
-        marc_pts = marc.fetch(sea_pts, times)
+        marc_pts = marc.fetch(sea_pts + [(p["lat"], p["lon"]) for p in bpts], times)   # même lecture OPeNDAP
         marc_data = [marc_pts[sea_map[i]] for i in range(len(spots))]
+        if bpts:
+            marc_buoys = {p["id"]: marc_pts[len(sea_pts) + j] for j, p in enumerate(bpts)}
         meta["sources"]["marc"] = config.MARC_LABEL
     except Exception as e:
         meta["errors"]["marc"] = str(e)[:300]
@@ -153,29 +201,14 @@ def main():
 
     keep_silent(coast, offshore, meta)
 
-    # Archive prévision/réalité : fiabilité mesurée sur les 30 derniers jours, puis ajout du passage en cours.
+    # Fiabilité mesurée sur les 30 derniers jours (archive) ; l'ajout du passage en cours se fait après le mélange (issue #1).
     now_local = pd.Timestamp.now(tz=config.TIMEZONE).tz_localize(None).floor("h")
     reliability = None
     try:
         reliability = history.reliability(now_local)
-        if history.archiving_enabled() and gascogne:
-            fc = openmeteo.models_at_point(gascogne["lat"], gascogne["lon"], now_local.strftime("%Y-%m-%dT%H:00"))
-            history.record(now_local.strftime("%Y-%m-%dT%H:00"), fc, gascogne.get("obs"))
-            log(f"  archive : {len(fc)} modèles, {len(gascogne.get('obs') or [])} mesures de la bouée")
-        if history.archiving_enabled() and (coast or offshore):
-            cfc = {}
-            for b in list(coast) + list(offshore):
-                try:
-                    c = openmeteo.coast_forecast(b["lat"], b["lon"], now_local.strftime("%Y-%m-%dT%H:00"))
-                    if c:
-                        cfc[b["id"]] = c
-                except Exception as e:
-                    meta["errors"][f"archive_cote_{b['id']}"] = str(e)[:200]
-            history.record_coast(now_local.strftime("%Y-%m-%dT%H:00"), cfc, list(coast) + list(offshore))
-            log(f"  archive côtière : {len(cfc)} prévisions, {sum(len(b.get('obs') or []) for b in list(coast) + list(offshore))} mesures de {len(coast) + len(offshore)} bouées")
     except Exception as e:
         meta["errors"]["history"] = str(e)[:300]
-        log(f"  archive indisponible : {e}")
+        log(f"  archive illisible : {e}")
 
     log("Marées (calcul harmonique)")
     start = times[0][:10] + "T00:00"
@@ -211,12 +244,7 @@ def main():
             meta["errors"]["gascogne_age"] = "mesure de la bouée trop ancienne : modèles non corrigés"
         else:
             now = t_obs
-    corr = [1.0] * len(times)
-    if ratio:
-        for j, t in enumerate(times):
-            dt = (pd.Timestamp(t) - now) / pd.Timedelta("1h")
-            if 0 <= dt <= config.BUOY_CORRECTION_HOURS:
-                corr[j] = 1 + (ratio - 1) * (1 - dt / config.BUOY_CORRECTION_HOURS)
+    corr = melange.correction(times, ratio, now)
 
     weights = {k: w for k, _l, w, _n in config.WAVE_MODELS}
     labels = dict(wave_labels)
@@ -230,17 +258,7 @@ def main():
         models = {k: v for k, v in d["wave_models"].items() if v and any(x is not None for x in v)}
         if marc_data and any(v is not None for v in marc_data[i]["hs"]):
             models = {"marc": marc_data[i]["hs"], **models}
-        mix = []
-        for j in range(len(times)):
-            num = den = 0.0
-            for k, arr in models.items():
-                v = arr[j] if j < len(arr) else None
-                if v is not None:
-                    num += v * weights.get(k, 0.1)
-                    den += weights.get(k, 0.1)
-            base = d["marine"]["wave_height"][j]
-            val = num / den if den else base
-            mix.append(None if val is None else val * corr[j])
+        mix = melange.corrected(melange.blend(models, weights, d["marine"]["wave_height"], len(times)), corr)
         marine = dict(d["marine"])
         marine["wave_height"] = mix
         port = s["tide_port"]
@@ -256,6 +274,12 @@ def main():
             "daily": d["daily"],
             "tide": None if not tide else {"port": port, "label": tide["label"], "extremes": tide["extremes"]},
         })
+
+    try:
+        archive_pass(meta, gascogne, coast, offshore, bpts, weights, marc_buoys if marc_data else None, times, ratio, now, gen_utc)
+    except Exception as e:   # l'archive ne bloque jamais la publication
+        meta["errors"]["history"] = str(e)[:300]
+        log(f"  archive indisponible : {e}")
 
     meta["wave_models"] = [{"key": k, "label": labels[k]} for k in labels]
     meta["wind_models"] = [{"key": k, "label": l} for k, l, _a in config.WIND_MODELS]

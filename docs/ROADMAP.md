@@ -30,6 +30,7 @@ Statuts : ✅ fait · 🔧 en cours · 💡 envisagé (rien n'est lancé sans va
 - **Nettoyage de `web/index.html`** : fonctions `*_v1`, directions B et C, ancien océan WebGL.
 - **Poids** : alléger les données chargées par l'accueil (résumé compact, détail à la demande).
 - **Maillage** : « bouées de la zone » sur les pages de spots.
+- **Frise du site** : marqueur « maint. » sur le créneau de l'heure en cours, au lieu de l'heure la plus proche (amélioration mineure, voir `docs/heures.md`).
 
 ## 💡 Envisagé — moyen terme
 

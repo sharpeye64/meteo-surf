@@ -122,7 +122,33 @@ def main():
     print(f"\nLimite gratuite : 10 000 appels/jour, 300 000/mois. H1 : {tot['b1']:.0f} → {tot['a1']:.0f} ; "
           f"H2 : {tot['b2']:.0f} → {tot['a2']:.0f} (÷ {tot['b2'] / max(tot['a2'], 1):.1f}). "
           f"Par mois (×30) : H2 {tot['b2'] * 30 / 1e6:.2f} M → {tot['a2'] * 30 / 1e6:.2f} M.")
+    archive_budget(ps)
     print(f"Métadonnées lues : {omcache.META_CHECKS}")
+
+
+def archive_budget(ps):
+    """Archive aux points des bouées (issue #1). AVANT : à CHAQUE passage d'une heure UTC multiple de 3 (souvent 2 ou 3 par
+    heure : d'où les doublons), 1 requête par bouée (best match) + 1 par modèle à Gascogne. APRÈS : premier passage de l'heure
+    seulement, 1 requête groupée par modèle (22 bouées), via le cache (nouveau run, nouveau jour, 6 h)."""
+    n_b = len(candhis.STATIONS) + len(ibi_buoys.STATIONS)
+    arch = [p for p in ps if p.hour % 3 == 0]
+    first = []
+    for p in arch:
+        if not first or (p.date(), p.hour) != (first[-1].date(), first[-1].hour):
+            first.append(p)
+    before_q = len(arch) * (n_b + len(config.WAVE_MODELS))
+    groups = [("buoys_marine", "marine", 3)] + [(f"buoys_wave_{k}", f"wave_{k}", 1) for k, *_ in config.WAVE_MODELS]
+    after_q = after_pts = 0
+    rows = []
+    for g, w, nv in groups:
+        n = simulate(omcache.WATCH[g], first, omcache.TTL_MAX_H)
+        after_q += n
+        after_pts += n * (n_b + 1)
+        rows.append(f"{g} {n}")
+    print(f"\nArchive (issue #1) : {len(arch)} passages d'archive par jour, dont {len(first)} premiers de leur heure.")
+    print(f"  AVANT : {before_q} requêtes/jour = {before_q} points (H1 = H2 = {before_q}) ; doublons : {len(arch) - len(first)} passages/jour en trop")
+    print(f"  APRÈS : {after_q} requêtes/jour ({', '.join(rows)}) ; H1 = {after_q}, H2 = {after_pts} (22 points par requête)")
+    print(f"  Écart : H1 {after_q - before_q:+d}/jour ; H2 {after_pts - before_q:+d}/jour (limite gratuite 10 000/jour)")
 
 
 if __name__ == "__main__":

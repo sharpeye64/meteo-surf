@@ -25,7 +25,7 @@ metas = {name: T0 - 3600 for _k, name in omcache.MARINE_ALL + omcache.WIND_ALL} 
 broken = set()
 
 
-def fake_meta(kind, name):
+def fake_meta(kind, name, fresh=False):
     return None if name in broken else {"last_run_availability_time": metas[name]}
 
 
