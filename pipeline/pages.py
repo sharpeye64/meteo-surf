@@ -25,7 +25,7 @@ HOW = {
 <li><b>Bouée Gascogne (Météo-France, 62001)</b> : station au large. Lorsque la mesure permet de calculer une correction, le moteur ajuste la hauteur prévue avec un rapport mesure/prévision dont l'effet décroît jusqu'à zéro sur 24 heures à partir de la mesure. Cette correction est actuellement appliquée aux spots du catalogue ; son bénéfice selon les régions reste à évaluer.</li>
 <li><b>Houlographes CANDHIS (Cerema)</b> : les stations côtières fournissent normalement des mesures toutes les 30 minutes. Les autres stations sont notamment accessibles via Copernicus Marine. La fraîcheur dépend de la dernière mesure reçue et de la cadence de chaque station. Une station interrompue peut afficher des mesures anciennes ; les observations en temps réel peuvent être provisoires.</li>
 </ul>
-<p>Consultez les <a href="../bouees/">mesures des bouées</a> pour retrouver la station, la hauteur, la période, la direction lorsqu'elle est disponible, la source et l'heure de mesure.</p>
+<p>Consultez le <a href="../guide/lire-une-bouee/">guide de lecture des houlographes</a> et les <a href="../bouees/">mesures des bouées</a> pour retrouver la station, la hauteur, la période, la direction lorsqu'elle est disponible, la source et l'heure de mesure.</p>
 
 <h2>Que signifie la hauteur significative Hs ?</h2>
 <p>La hauteur significative caractérise un état de mer : elle correspond approximativement à la moyenne du tiers des vagues les plus hautes. Elle ne représente ni la hauteur de chaque vague ni la taille des vagues qui déferlent sur une plage. Le relief sous-marin, l'exposition du spot, la période et la marée influencent notamment le déferlement. Une observation à une bouée ne constitue donc pas une mesure au bord.</p>
@@ -120,7 +120,32 @@ ABOUT = {
 """,
 }
 
-ALL = [HOW, ABOUT, LEGAL, PRIVACY]
+GUIDE_BUOY = {
+    "slug": "guide/lire-une-bouee",
+    "title": "Comment lire une bouée houlographe ? | Houlalah",
+    "desc": "Comprendre la hauteur significative, la période, la direction et la fraîcheur des mesures de houle avant de les comparer aux prévisions.",
+    "h1": "Comment lire une bouée houlographe ?",
+    "body": """
+<p class="muted">GUIDE · OBSERVATIONS EN MER</p>
+<p class="lead">Une bouée décrit l'état de la mer à son emplacement. Pour interpréter une mesure, lis ensemble la hauteur significative, la période, la direction et l'heure du relevé.</p>
+<dl class="fiche"><div><dt>Hauteur significative</dt><dd>Hs · en mètres</dd></div><div><dt>Période et direction</dt><dd>Tp / Tm · secteur</dd></div><div><dt>Fraîcheur</dt><dd>Date et heure</dd></div></dl>
+<h2>Hauteur significative ou vague maximale ?</h2>
+<p>La hauteur significative (Hs) caractérise l'état de mer et correspond approximativement à la moyenne du tiers des vagues les plus hautes. La hauteur maximale, lorsqu'elle est disponible, décrit une vague individuelle observée pendant la mesure. Ni l'une ni l'autre n'est une mesure de la taille au bord.</p>
+<h2>Période et direction : lire les deux ensemble</h2>
+<p>La période de pic (Tp) correspond au maximum d'énergie du spectre de vagues. La période moyenne (Tm) est une autre statistique : ne les compare pas comme si elles étaient identiques. La direction de provenance indique d'où viennent les vagues. Une mer peut contenir plusieurs trains de houle ; une direction unique n'en décrit pas toute la complexité.</p>
+<h2>La mesure est-elle récente ?</h2>
+<p>Vérifie l'heure du relevé plutôt que l'heure de mise à jour du site. Les stations CANDHIS publient normalement des mesures toutes les 30 minutes ; les retards ou interruptions restent possibles. Une ancienne observation ne décrit pas nécessairement la mer actuelle.</p>
+<h2>Comparer la bouée à une prévision</h2>
+<p>Privilégie une comparaison au même emplacement et à la même heure. Une prévision à un spot voisin peut différer pour des raisons géographiques. L'exposition de la côte, la bathymétrie et la marée influencent le déferlement ; une bouée ne suffit donc pas à déterminer la taille au bord.</p>
+<h2>Observer les stations</h2>
+<ul class="near"><li><a href="../../bouees/cap-ferret/">Cap Ferret<small>Houlographe CANDHIS</small></a></li><li><a href="../../bouees/anglet/">Anglet<small>Houlographe CANDHIS</small></a></li><li><a href="../../bouees/gascogne/">Gascogne<small>Bouée du large</small></a></li></ul>
+<p><a class="cta" href="../../bouees/">Toutes les bouées</a></p>
+<h2>Sources et méthode</h2>
+<p>Consulte le <a href="https://candhis.cerema.fr/">réseau CANDHIS du Cerema</a>, la <a href="https://open-meteo.com/en/docs/marine-weather-api">documentation marine Open-Meteo</a> et <a href="../../comment-ca-marche/">la méthode Houlalah</a> pour distinguer observations et prévisions.</p>
+""",
+}
+
+ALL = [HOW, ABOUT, LEGAL, PRIVACY, GUIDE_BUOY]
 
 
 def render(site, spec):
@@ -131,4 +156,4 @@ def render(site, spec):
           {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
               {"@type": "ListItem", "position": 1, "name": BRAND, "item": site + "/"},
               {"@type": "ListItem", "position": 2, "name": spec["h1"], "item": canonical}]}]
-    return page(site, spec["title"], spec["desc"], canonical, body, ld, base="../")
+    return page(site, spec["title"], spec["desc"], canonical, body, ld, base="../" * (spec["slug"].count("/") + 1))
