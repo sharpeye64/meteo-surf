@@ -89,5 +89,36 @@ eq("heures du modèle au point de la bouée (décalage Open-Meteo)", out["offsho
 eq("génération à l'heure de Paris, contrat v2", (out["meta"]["generated"], out["meta"]["time"]["version"]), ("2026-11-27T10:39+01:00", 2))
 eq("plus aucune heure sans décalage", T.naive_strings(out), [])
 eq("l'original n'est pas modifié (calculs internes du robot)", pay["spots"][1]["marine"]["time"][0], "2026-11-27T00:00")
+
+# ===== Non-régression : revue de la PR #17 (ChatGPT Work, commit 3ab85d9) =====
+# A. pipeline/bouees.py (spot_forecasts, graphique) : rapprochement par INSTANT, pas par heure écrite.
+#    Scénario : à 10 h (Paris), la prévision « du moment » d'un spot portugais doit être celle de 9 h à Lisbonne (même
+#    instant), pas celle de 10 h à Lisbonne (une heure plus tard). Valeurs simulées = n° d'heure absolue.
+from pipeline import bouees  # noqa: E402
+_orig = bouees.json.loads
+ax2 = [(datetime(2026, 11, 27) + timedelta(hours=h)).strftime("%Y-%m-%dT%H:%M") for h in range(48)]
+mk2 = lambda name: {"name": name, "marine": {"time": ax2, "wave_height": [float(h) for h in range(48)]}, "wind": {"time": ax2},
+                    "wave_models": {}, "wind_models": {}, "daily": {}, "tide": None}
+loc = T.localize({"meta": {"generated": "2026-11-27T10:00", "errors": {}}, "coast": [], "offshore": [], "spots": [mk2("Lacanau"), mk2("Supertubos")]},
+                 [{"name": "Lacanau", "region": "Gironde"}, {"name": "Supertubos", "region": "Portugal Centre"}], 3600)
+res = {r["name"]: r["h"] for r in bouees.spot_forecasts(loc, datetime(2026, 11, 27, 10, 0))}
+eq("A. prévision « du moment » à 10 h de Paris : même instant pour Lacanau et Supertubos", (res.get("Lacanau"), res.get("Supertubos")), (10.0, 10.0))
+eq("A. clé horaire absolue : 10 h Paris = 9 h Lisbonne ; 10 h Lisbonne = 11 h Paris",
+   (T.hour_key("2026-11-27T10:00+01:00") == T.hour_key("2026-11-27T09:00+00:00"), T.hour_key("2026-11-27T10:00+00:00") == T.hour_key("2026-11-27T11:00+01:00")), (True, True))
+obs = [{"t": "2026-11-27T09:00+00:00"}, {"t": "2026-11-27T10:00+00:00"}]                      # Leixões (Lisbonne)
+model = [{"t": "2026-11-27T10:00+01:00", "hs": 1.0}, {"t": "2026-11-27T11:00+01:00", "hs": 2.0}]  # prévision écrite à l'heure de Paris
+by = {T.hour_key(m["t"]): m["hs"] for m in model}
+eq("A. graphique bouée : mesure 9 h Lisbonne ↔ prévision 10 h Paris (même instant)", [by.get(T.hour_key(o["t"])) for o in obs], [1.0, 2.0])
+
+# B. pipeline/build.py : heure de génération pendant l'heure répétée d'octobre. 03:30 heure d'été (01:30 UTC) et 02:30 heure
+#    d'hiver s'écrivent toutes deux « 02:30 » en heure de Paris : seul l'instant exact transmis par le robot lève l'ambiguïté.
+for utc, want in (("2026-10-25T00:30:00+00:00", "2026-10-25T02:30+02:00"), ("2026-10-25T01:30:00+00:00", "2026-10-25T02:30+01:00")):
+    o = T.localize({"meta": {"generated": "2026-10-25T02:30", "errors": {}, "api": {"today": {"last": "2026-10-25T02:30"}}}, "spots": [],
+                    "_generated_utc": utc}, [], 3600)
+    eq(f"B. génération à {utc[11:16]} UTC → {want} (et compteur du jour identique)", (o["meta"]["generated"], o["meta"]["api"]["today"]["last"], "_generated_utc" in o), (want, want, False))
+
+# C. pipeline/bouees.py : libellé du fuseau de la bouée (Leixões n'est pas « heure de Paris »)
+eq("C. libellés", [T.tz_label(T.place_tz(41.32, -8.98)), T.tz_label(T.place_tz(43.53, -1.62)), T.tz_label(T.place_tz(43.6, -2.0))],
+   ["heure du Portugal", "heure de Paris", "heure d'Espagne"])
 print(f"\n{'TOUT OK' if not fails else 'ÉCHECS : ' + ', '.join(fails)}")
 sys.exit(1 if fails else 0)

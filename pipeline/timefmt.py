@@ -105,6 +105,25 @@ def wall_seq(values, tz=PARIS, stats=None):
     return out
 
 
+def hour_key(x):
+    """Clé d'heure ABSOLUE (UTC, « AAAA-MM-JJTHH ») pour rapprocher deux séries écrites dans des fuseaux différents.
+    Chaîne avec ou sans décalage (sans = heure de Paris) ; datetime naïf = heure de Paris ; datetime avec fuseau = exact."""
+    if isinstance(x, str):
+        d = parse(x)
+    elif x.tzinfo is None:
+        d = x.replace(tzinfo=zone(PARIS))
+    else:
+        d = x
+    return d.astimezone(timezone.utc).strftime("%Y-%m-%dT%H")
+
+
+TZ_LABEL = {PARIS: "heure de Paris", MADRID: "heure d'Espagne", LISBON: "heure du Portugal"}
+
+
+def tz_label(tz):
+    return TZ_LABEL.get(tz or PARIS, "heure locale")
+
+
 def now(tz=PARIS):
     return datetime.now(zone(tz))
 
@@ -168,6 +187,12 @@ def localize(payload, spots_cfg, om_offset_s, sun_offset_s=None):
     p = copy.deepcopy(payload)
     stats = {}
     meta = p["meta"]
+    # heure de génération : instant EXACT si le robot l'a fourni (sinon l'heure de Paris écrite serait ambiguë la nuit du
+    # passage à l'heure d'hiver : revue de la PR #17)
+    gen_utc = p.pop("_generated_utc", None)
+    naive_gen = meta.get("generated")
+    if gen_utc:
+        meta["generated"] = fmt(datetime.fromisoformat(gen_utc), PARIS)
     for k in ("generated", "forecast_fetched"):
         if meta.get(k):
             meta[k] = _conv_one(meta[k], PARIS, stats)
@@ -200,7 +225,7 @@ def localize(payload, spots_cfg, om_offset_s, sun_offset_s=None):
                 st[k] = _conv_one(st[k], PARIS, stats)
     td = (meta.get("api") or {}).get("today") or {}
     if td.get("last"):
-        td["last"] = _conv_one(td["last"], PARIS, stats)
+        td["last"] = meta["generated"] if td["last"] == naive_gen else _conv_one(td["last"], PARIS, stats)
     p.pop("_model_offsets", None)
     meta["time"] = {"version": VERSION, "format": "ISO 8601 avec décalage, heure locale du lieu (fuseau IANA dans « tz »)",
                     "ambiguous": stats.get("ambiguous", 0), "nonexistent": stats.get("nonexistent", 0)}

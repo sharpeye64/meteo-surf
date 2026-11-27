@@ -263,6 +263,14 @@ assert "Heure par heure" in pg and "Marées à Lacanau" in pg, "page spot : heur
 assert "Les bouées" in (config.OUT_DIR / "bouees" / "index.html").read_text(encoding="utf-8")
 # GEO : mesure datée, source visible et distinction entre mer au large et vagues au bord.
 assert '<time datetime="' in bp and "heure de Paris" in bp and "Date / heure (Paris)" in bp
+# Non-régression revue PR #17 (C) : bouée portugaise à l'heure du Portugal, décalage ISO 8601 conservé dans <time datetime>
+import re as _re
+_lx = (config.OUT_DIR / "bouees" / "leixoes" / "index.html").read_text(encoding="utf-8")
+_m = _re.search(r'<time datetime="([^"]+)">[^<]*</time> \(([^)]+)\)', _lx)
+assert _m and _m.group(1).endswith("+00:00") and _m.group(2) == "heure du Portugal", ("Leixões", _m and _m.groups())
+assert "Date / heure (Portugal)" in _lx and "heure de Paris" not in _lx and "(Paris)" not in _lx, "Leixões : libellés à l'heure du Portugal"
+_m2 = _re.search(r'<time datetime="([^"]+)">', bp)
+assert _m2 and _re.search(r"[+-]\d\d:\d\d$", _m2.group(1)), ("Cap Ferret : décalage dans <time>", _m2 and _m2.group(1))
 assert "Dernière mesure disponible" in bp and "la méthode Houlalah" in bp
 assert "pas la hauteur des vagues au bord" in bp
 _method = (config.OUT_DIR / "comment-ca-marche" / "index.html").read_text(encoding="utf-8")

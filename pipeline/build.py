@@ -83,7 +83,8 @@ def write_health(payload, spots):
 def main():
     spots = json.loads(config.SPOTS_FILE.read_text())
     # heure de Paris (le robot GitHub tourne en UTC) : le site et l'appli affichent « mis à jour à… » sans conversion
-    meta = {"generated": pd.Timestamp.now(tz=config.TIMEZONE).strftime("%Y-%m-%dT%H:%M"), "sources": {}, "errors": {}}
+    gen_utc = pd.Timestamp.now(tz="UTC")   # instant exact : l'heure de Paris écrite seule est ambiguë une heure par an (issue #2)
+    meta = {"generated": gen_utc.tz_convert(config.TIMEZONE).strftime("%Y-%m-%dT%H:%M"), "sources": {}, "errors": {}}
     if config.TEST_RUN:
         meta["_test"] = True   # sources simulées : le contrôle de publication refuse ces données
 
@@ -281,6 +282,7 @@ def main():
     # CONTRAT HORAIRE v2 (issue #2) : tout ce qui est publié à partir d'ici (forecast.json, appli, pages, health.json) porte
     # des instants ISO 8601 avec décalage, à l'heure locale du lieu. Les calculs ci-dessus restent faits sur les heures internes.
     payload["_model_offsets"] = model_offsets
+    payload["_generated_utc"] = gen_utc.isoformat()
     payload = timefmt.localize(payload, spots, openmeteo.LAST_OFFSET_S, openmeteo.LAST_SUN_OFFSET_S)
     meta = payload["meta"]
     config.OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
