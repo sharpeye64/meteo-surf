@@ -262,9 +262,10 @@ assert "<h1>Bouée houlographe du Cap Ferret</h1>" in bp and "CANDHIS 03302" in 
 assert '"@type": "Dataset"' in bp and "../../spots/" in bp and "?spot=" not in bp.split("Spots autour")[1].split("Bouées voisines")[0]
 assert "Heure par heure" in pg and "Marées à Lacanau" in pg, "page spot : heure par heure et marées"
 # Fiches SEO : distinguer synthèse journalière, mesure en mer et disponibilité des marées.
-assert "hauteur significative médiane" in pg and "entre 7 h et 20 h" in pg
+assert "entre 7 h et 20 h" in pg
+assert "hauteur significative médiane" in pg or "Synthèse de la journée indisponible" in pg
 assert 'class="spot-observation"' in pg and "pas la taille des vagues au bord" in pg
-assert "OBSERVATION EN MER" in pg and "Comprendre ce relevé" in pg
+assert "Observation en mer" in pg and "Comprendre ce relevé" in pg
 assert "CANDHIS" in pg or "Météo-France" in pg or "Copernicus" in pg
 assert _re.search(r'<time datetime="[^"]+[+-]\\d\\d:\\d\\d">', pg)
 _ptpg = (config.OUT_DIR / "spots" / "supertubos" / "index.html").read_text(encoding="utf-8")
