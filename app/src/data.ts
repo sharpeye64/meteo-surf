@@ -1,4 +1,7 @@
 import { tMs } from './time';
+import { BUOY_ONLY, candidates, Fresh, freshState, liveLim, pickRef, WIND_WORD, WindCat, windCat } from './rules';
+export { windCat, WIND_WORD } from './rules';
+export type { Fresh, WindCat } from './rules';
 // Données de l'appli : les fichiers allégés que le robot publie avec le site (web/data/app/).
 // En développement, EXPO_PUBLIC_DATA_URL peut pointer vers le serveur local du PC.
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -6,14 +9,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const DATA_URL = (process.env.EXPO_PUBLIC_DATA_URL || 'https://houlalah.fr/data/app').replace(/\/$/, '');
 
 export type Now = { t: string | null; hs: number | null; tp: number | null; dir: number | null; wind: number | null; wdir: number | null };
-export type SpotLite = { name: string; slug: string; region: string; commune?: string; tz?: string | null; ref?: string | null; lat: number; lon: number; ori?: number; now: Now };
-export type Buoy = { id: string; slug: string; name: string; sub: string; lat: number; lon: number; tz?: string | null; large?: boolean; silent?: boolean; time: string; hs: number; tp?: number | null; tm?: number | null; dir?: number | null; sst?: number | null };
+export type SpotLite = { name: string; slug: string; region: string; commune?: string; tz?: string | null; ref?: string | null; lat: number; lon: number; pt?: [number, number]; ori?: number; now: Now };
+export type Buoy = { id: string; slug: string; name: string; sub: string; lat: number; lon: number; tz?: string | null; large?: boolean; silent?: boolean; kind?: 'gascogne' | 'coast' | 'offshore'; lim?: number; time: string; hs: number; tp?: number | null; tm?: number | null; dir?: number | null; sst?: number | null };
 /** Période d'une bouée : la période pic si elle est mesurée, sinon la période MOYENNE (Gascogne, Météo-France), dite comme telle. */
 export const perTxt = (b: { tp?: number | null; tm?: number | null }) => (b.tp ? `${Math.round(b.tp)} s` : b.tm ? `${Math.round(b.tm)} s moy.` : '');
 export type Index = { v: number; generated: string; spots: SpotLite[]; buoys: Buoy[] };
 export type Obs = { t: string; hs: number | null; tp?: number | null; dir?: number | null; hmax?: number | null; sst?: number | null };
 export type BuoySheet = {
-  id: string; slug: string; name: string; sub: string; lat: number; lon: number; tz?: string | null;
+  id: string; slug: string; name: string; sub: string; lat: number; lon: number; tz?: string | null; lim?: number; silent?: boolean;
   latest: { time: string; hs: number; hmax?: number | null; tp?: number | null; tm?: number | null; dir?: number | null; sst?: number | null };
   obs: Obs[]; model: { t: string; hs: number | null }[]; model_src: string;
   stats: { since: string; days: number; hs_max: number; hs_max_t: string; hs_mean: number; sst_mean?: number | null } | null;
@@ -52,8 +55,7 @@ export async function loadFavs(): Promise<string[]> {
 export async function saveFavs(f: string[]) { try { await AsyncStorage.setItem('favs', JSON.stringify(f)); } catch {} }
 
 // ---------- petites fonctions d'affichage ----------
-export const SECT = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSO', 'SO', 'OSO', 'O', 'ONO', 'NO', 'NNO'];
-export const sector = (d?: number | null) => (d == null ? '—' : SECT[Math.round(((d % 360) + 360) % 360 / 22.5) % 16]);
+export { SECT, sector } from './rules';   // règle commune avec le site et le robot
 export const fr = (v?: number | null, nd = 1) => (v == null ? '—' : v.toFixed(nd).replace('.', ','));
 export function sizeCol(h?: number | null) {
   const ST: [number, string][] = [[0, '#9ed8f0'], [0.6, '#43b8c9'], [1.2, '#6bc46d'], [1.8, '#e8d54a'], [2.4, '#f39a2b'], [3.2, '#e24a3b']];
@@ -62,14 +64,9 @@ export function sizeCol(h?: number | null) {
 export const country = (r: string) => (/^Portugal/.test(r) ? 'Portugal' : r === 'Espagne Nord' || r === 'Galice' ? 'Espagne' : 'France');
 export const regionName = (r: string) => r.replace('Pays Basque', 'Pays basque').replace('Espagne Nord', 'Espagne du Nord');
 
-/** Vent de terre / de mer / de travers, d'après l'orientation de la plage (ori = direction vers le large). */
-export function windRel(wdir?: number | null, ori?: number) {
-  if (wdir == null || ori == null) return null;
-  const d = Math.abs((((wdir - ori) % 360) + 540) % 360 - 180);   // 0 = le vent vient du large, 180 = il vient de la terre
-  return d >= 120 ? 'de terre' : d <= 60 ? 'de mer' : 'de travers';
-}
-/** Bouées abritées : elles ne valent que pour les spots listés (même règle que pipeline/config.py : BUOY_ONLY). */
-const BUOY_ONLY: Record<string, string[]> = { 'Saint-Jean-de-Luz': ['Sainte Barbe'] };
+/** Vent rapporté à l'orientation du spot, en mots (règle commune avec le site : src/rules.ts, windCat). */
+export const windText = (c: WindCat | null) => (c == null ? null : c === 'lisse' ? 'Plan d’eau lisse' : `Vent ${WIND_WORD[c].toLowerCase()}`);
+/** Bouées abritées : elles ne valent que pour les spots listés (src/rules.ts : BUOY_ONLY). */
 export const buoyFits = (b: { name: string }, spotName: string) => !BUOY_ONLY[b.name] || BUOY_ONLY[b.name].includes(spotName);
 
 /** Distance en km entre deux points (assez précis à l'échelle de la côte). */
@@ -78,12 +75,22 @@ export const km = (a: { lat: number; lon: number }, b: { lat: number; lon: numbe
   return Math.sqrt(x * x + y * y) * 6371;
 };
 
-/** Bouée de référence par défaut, calculée par le robot (champ « ref » : Landes, Cap Ferret au nord, Gascogne ailleurs,
- *  pipeline/config.py : ref_buoy). Prise si sa mesure a moins de 6 h ; Cap Ferret trop ancienne → la Gascogne. */
-export function prefBuoy(buoys: Buoy[], spot: { ref?: string | null }): Buoy | null {
-  if (!spot.ref) return null;
-  const ids = spot.ref === 'gascogne' ? ['gascogne'] : [spot.ref, 'gascogne'];
-  return ids.map(id => buoys.find(b => b.id === id)).find((b): b is Buoy => !!b && ageH(b.time) < 6) || null;
+/** Type de station (règles communes) : champ « kind » du robot ; à défaut (ancien fichier en cache), d'après l'identifiant. */
+export const buoyKind = (b: { id: string; kind?: Buoy['kind'] }): NonNullable<Buoy['kind']> =>
+  b.kind || (b.id === 'gascogne' ? 'gascogne' : /^0\d{4}$/.test(b.id) ? 'coast' : 'offshore');
+/** Fraîcheur d'une mesure, selon la cadence de SA station (règle commune avec le site et le robot : src/rules.ts).
+ *  L'âge est recalculé à chaque affichage, y compris sur des données en cache hors connexion. */
+export const freshOf = (b: { id: string; lim?: number | null; time: string; silent?: boolean }): Fresh => freshState(ageH(b.time), liveLim(b), !!b.silent);
+export const isLive = (b: { id: string; lim?: number | null; time: string; silent?: boolean }) => freshOf(b) === 'live';
+
+/** Bouée de référence d'un spot : MÊME règle que le site (src/rules.ts : candidates + pickRef ; web/index.html : buoyChoices +
+ *  pickBuoy) : Landes (Cap Ferret au nord, Gascogne ailleurs, D9), Sainte-Barbe réservée à son spot, puis la plus proche en
+ *  direct à 60 km au plus, puis la plus proche de moins de 6 h, puis la plus fraîche. Distances depuis le point du spot (pt). */
+export function refBuoy(buoys: Buoy[], spot: SpotLite): { b: Buoy; k: number } | null {
+  const s = { name: spot.name, region: spot.region, lat: spot.pt ? spot.pt[0] : spot.lat, lon: spot.pt ? spot.pt[1] : spot.lon };
+  const list = candidates(s, buoys.map(b => ({ ...b, kind: buoyKind(b), ageH: ageH(b.time), lim: liveLim(b) })));
+  const r = pickRef(list);
+  return r ? { b: r.b, k: r.km } : null;
 }
 
 // âge d'une mesure en INSTANTS (issue #2) : heures publiées avec décalage ; l'ancien format est lu comme heure de Paris
@@ -92,7 +99,8 @@ export const ageH = (t: string) => (Date.now() - tMs(t)) / 36e5;
 export const dayTxt = (t: string) => `le ${t.slice(8, 10)}/${t.slice(5, 7)}`;
 export function ageTxt(t: string) {
   const h = ageH(t);
+  // comme le site (pvFresh) : « à l'instant » sous 12 min, puis les minutes sous 1 h (avant : « à l'instant » jusqu'à 59 min) ;
   // au-delà de 2 jours (bouée muette, en panne) : la date de la dernière mesure, plus parlante que « il y a 5 j »
-  return h < 1 ? "à l'instant" : h < 48 ? `il y a ${Math.round(h)} h` : dayTxt(t);
+  return h < 0.2 ? "à l'instant" : h < 1 ? `il y a ${Math.round(h * 60)} min` : h < 48 ? `il y a ${Math.round(h)} h` : dayTxt(t);
 }
 export const JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];

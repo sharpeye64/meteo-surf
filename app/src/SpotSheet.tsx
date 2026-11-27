@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
-import { ageH, ageTxt, Buoy, buoyFits, fr, km, loadSheet, perTxt, prefBuoy, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { ageTxt, Buoy, fr, isLive, loadSheet, perTxt, refBuoy, regionName, sector, Sheet, SpotLite, windCat, windText } from './data';
 import { partsIn, placeTz, tMs } from './time';
 import { useBarSpace } from './TabBar';
 import { C, F, isDark, periodCell, sizeCell, themed, windCell } from './theme';
@@ -45,13 +45,11 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
   const def = day === 0 ? (hrs.find(i => i >= nowI) ?? hrs[hrs.length - 1]) : (hrs.find(i => at(i).h >= 10) ?? hrs[0]);
   const sel = hour != null && d.idx.includes(hour) ? hour : def;
   const isNow = day === 0 && sel === nowI;
-  const rel = windRel(sheet.wdir[sel], sheet.ori);
+  const rel = windText(windCat(sheet.wind[sel], sheet.wdir[sel], sheet.ori));   // mêmes catégories et seuils que le site
   const tides = (sheet.tide?.extremes || []).filter(e => partsIn(tMs(e.t), tz).date === d.date);
   const sunI = sheet.sun ? sheet.sun.time.findIndex(x => x === d.date) : -1;   // dates locales du spot
-  // Bouée de comparaison : la plus proche en direct (moins de 2 h, à moins de 60 km), sinon de moins de 6 h, sinon la plus proche.
-  const cands = buoys.filter(b => buoyFits(b, spot.name)).map(b => ({ b, k: km(spot, b) })).filter(x => x.k < 130).sort((a, b) => a.k - b.k);
-  const pb = prefBuoy(buoys, spot);   // Landes : Cap Ferret au nord, Gascogne ailleurs
-  const near = (pb && { b: pb, k: km(spot, pb) }) || cands.find(x => ageH(x.b.time) < 2 && x.k < 60) || cands.find(x => ageH(x.b.time) < 6) || cands[0];
+  // Bouée de comparaison : même règle que le site (src/rules.ts : Landes, Sainte-Barbe, en direct selon la cadence, 6 h, la plus fraîche)
+  const near = refBuoy(buoys, spot);
   const sea = d.idx.map(i => sheet.sea[i]);
 
   return (
@@ -101,7 +99,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
             </View>
             <SunTile sun={sunI >= 0 && sheet.sun ? { rise: sheet.sun.sunrise[sunI], set: sheet.sun.sunset[sunI] } : null} today={day === 0} />
           </View>
-          {rel && <Text style={st.rel}>Vent {rel}</Text>}
+          {rel && <Text style={st.rel}>{rel}</Text>}
 
           <ScrollView ref={strip as never} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.grid}
             onContentSizeChange={() => { const k = hrs.indexOf(sel); if (k > 2) strip.current?.scrollTo({ x: (k - 2) * (COL + 4), animated: false }); }}>
@@ -140,7 +138,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
 
         {near && (
           <Pressable onPress={() => onBuoy?.(near.b)} style={({ pressed }) => [st.card, { backgroundColor: C.sandCard }, pressed && { opacity: 0.85 }]}>
-            <View style={st.nowRow}><View style={[st.dot, ageH(near.b.time) >= 2 && { backgroundColor: C.sandMuted }]} /><Text style={[st.nowT, { color: C.sandText }]}>MESURE RÉELLE · BOUÉE {near.b.name.toUpperCase()}</Text></View>
+            <View style={st.nowRow}><View style={[st.dot, !isLive(near.b) && { backgroundColor: C.sandMuted }]} /><Text style={[st.nowT, { color: C.sandText }]}>MESURE RÉELLE · BOUÉE {near.b.name.toUpperCase()}</Text></View>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 8 }}>
               <Text style={[st.big, { color: C.sandText }]}>{fr(near.b.hs)}<Text style={st.bigU}> m</Text></Text>
               <Text style={[st.tileS, { color: C.sandText, marginBottom: 8 }]}>{perTxt(near.b) ? `${perTxt(near.b)} · ` : ''}{near.b.dir != null ? sector(near.b.dir) + ' · ' : ''}{Math.round(near.k)} km</Text>

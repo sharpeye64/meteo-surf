@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
-import { ageH, ageTxt, Buoy, buoyFits, dayTxt, BuoySheet, fr, Index, km, loadBuoy, perTxt, prefBuoy, sector } from './data';
+import { ageTxt, Buoy, buoyFits, dayTxt, BuoySheet, fr, freshOf, Index, isLive, km, loadBuoy, perTxt, refBuoy, sector } from './data';
 import { tMs } from './time';
 import { Blink } from './Live';
 import { useBarSpace } from './TabBar';
@@ -17,10 +17,11 @@ const alongSpain = (a: Buoy, b: Buoy) => {
   return k(a) - k(b);
 };
 
-/** Feu de fraîcheur : vert qui clignote (moins de 2 h), sable (moins de 6 h), gris (plus ancien). */
+/** Feu de fraîcheur, selon la cadence de la station (règle commune avec le site, src/rules.ts) : vert qui clignote (en direct),
+ *  sable (récente), gris (ancienne ou muette). */
 function Lamp({ b, i = 0 }: { b: Buoy; i?: number }) {
-  const a = ageH(b.time);
-  return a < 2 ? <Blink size={9} delay={(i % 3) * 450} /> : <View style={[st.lamp, { backgroundColor: a < 6 ? C.sandB : C.lampOld }]} />;
+  const f = freshOf(b);
+  return f === 'live' ? <Blink size={9} delay={(i % 3) * 450} /> : <View style={[st.lamp, { backgroundColor: f === 'recent' ? C.sandB : C.lampOld }]} />;
 }
 
 /** Une ligne de bouée dans une carte groupée. */
@@ -43,15 +44,14 @@ function BuoyLine({ b, i, note, first, onOpen }: { b: Buoy; i: number; note?: st
 export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]; onOpen: (b: Buoy) => void }) {
   const pad = useBarSpace();
   const spot = favs.map(f => index.spots.find(s => s.slug === f)).find(Boolean);
-  const fresh = index.buoys.filter(b => ageH(b.time) < 2).length;
+  const fresh = index.buoys.filter(isLive).length;
 
   const mine = useMemo(() => {
     if (!spot) return null;
     const all = index.buoys.filter(b => buoyFits(b, spot.name)).map(b => ({ b, k: km(spot, b) })).sort((x, y) => x.k - y.k);
-    const coast = all.filter(x => !x.b.large && x.k < 120);
-    // La plus proche en direct (moins de 2 h, à moins de 60 km), sinon la plus proche de moins de 6 h, sinon la plus proche.
-    const pb = prefBuoy(index.buoys, spot);   // Landes : Cap Ferret au nord, Gascogne ailleurs
-    const main = (pb && all.find(x => x.b.id === pb.id)) || coast.find(x => ageH(x.b.time) < 2 && x.k < 60) || coast.find(x => ageH(x.b.time) < 6) || coast[0] || all[0];
+    // bouée de référence : même règle que le site (src/rules.ts), Landes et Sainte-Barbe compris
+    const r = refBuoy(index.buoys, spot);
+    const main = r || all[0];
     const others = all.filter(x => x.b.id !== main.b.id && x.k < 200).slice(0, 4);
     const off = all.find(x => x.b.large);
     if (off && off.b.id !== main.b.id && !others.some(x => x.b.id === off.b.id)) others.push(off);
@@ -115,7 +115,7 @@ export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => v
   const [d, setD] = useState<BuoySheet | null>(null);
   const [err, setErr] = useState(false);
   useEffect(() => { loadBuoy(buoy.slug).then(r => setD(r.data)).catch(() => setErr(true)); }, [buoy.slug]);
-  const L = d?.latest, a = L ? ageH(L.time) : 99;
+  const L = d?.latest, live = !!(d && L && freshOf({ id: d.id, lim: d.lim, time: L.time, silent: d.silent }) === 'live');
 
   return (
     <View style={{ flex: 1 }}>
@@ -131,8 +131,8 @@ export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => v
         <ScrollView contentContainerStyle={{ paddingBottom: pad + 10 }}>
           <View style={[st.card, { backgroundColor: C.sandCard }]}>
             <View style={st.nowRow}>
-              <View style={[st.lamp, a >= 2 && { backgroundColor: C.sandMuted }]} />
-              <Text style={st.nowT}>{a < 2 ? 'EN DIRECT' : 'DERNIÈRE MESURE'} · {ageTxt(L!.time).toUpperCase()}</Text>
+              <View style={[st.lamp, !live && { backgroundColor: C.sandMuted }]} />
+              <Text style={st.nowT}>{live ? 'EN DIRECT' : 'DERNIÈRE MESURE'} · {ageTxt(L!.time).toUpperCase()}</Text>
             </View>
             <Text style={st.big}>{fr(L!.hs)}<Text style={st.bigU}> m</Text></Text>
             <Text style={st.bigS}>Hauteur significative mesurée{L!.hmax ? ` · vague max ${fr(L!.hmax)} m` : ''}</Text>

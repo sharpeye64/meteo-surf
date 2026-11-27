@@ -4,6 +4,13 @@
 
 ## 27/11/2026
 
+- **Règles communes site / appli, issue #4** (branche `regles-communes`, PR en revue, non publiée ; repère `avant-regles-communes`) :
+  - fraîcheur des bouées selon la cadence de chaque station, qualification du vent, secteurs et bouée de référence identiques sur le site, dans l'appli et dans le robot ;
+  - mêmes cas de test pour les trois ;
+  - âges recalculés et données redemandées au retour dans l'appli ;
+  - aucun changement visuel.
+  - Voir [regles-communes.md](regles-communes.md).
+
 - **Archive des modèles aux points des bouées, issue #1** (branche `archive-modeles`, PR #20 corrigée après la revue de ChatGPT, non publiée ; repère `avant-archive-modeles`) : modèles un par un, MARC, mélanges brut et corrigé, cycle des modèles, heures avec décalage (`history/buoy_runs/`) ; 5 requêtes groupées au lieu de 25 ; fin des passages archivés deux fois ; anciennes archives intactes. Voir [archive-modeles.md](archive-modeles.md).
 - **Heures explicites, issue #2** : **publiée** (PR #17, fusion `68cac65`) après deux revues de ChatGPT. ISO 8601 avec décalage à l'heure du lieu, Portugal à l'heure de Lisbonne, lecture des deux formats (site, appli), correction du décalage unique des séries Open-Meteo. Voir [heures.md](heures.md).
 - **Issue #7 publiée** (PR #12).

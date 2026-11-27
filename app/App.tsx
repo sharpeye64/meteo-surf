@@ -3,7 +3,7 @@ import { Unbounded_500Medium, Unbounded_700Bold, Unbounded_800ExtraBold } from '
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, BackHandler, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { ActivityIndicator, AppState, BackHandler, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { BuoyList, BuoyPage } from './src/BuoyScreens';
 import { Buoy, Index, loadFavs, loadIndex, saveFavs, SpotLite } from './src/data';
@@ -33,6 +33,14 @@ export default function App() {
     try { const r = await loadIndex(); setIndex(r.data); setOffline(r.offline); setErr(false); } catch { setErr(true); }
   }, []);
   useEffect(() => { load(); loadFavs().then(setFavs); }, [load]);
+  // Âges et états « en direct » recalculés en continu (issue #4) : une minute sur l'écran, ou un retour au premier plan, et
+  // l'affichage suit l'heure réelle, même hors connexion. Au retour au premier plan, on redemande aussi les données (reprise réseau).
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick(x => x + 1), 60e3);
+    const sub = AppState.addEventListener('change', st => { if (st === 'active') { setTick(x => x + 1); load(); } });
+    return () => { clearInterval(t); sub.remove(); };
+  }, [load]);
   useEffect(() => {   // bouton retour d'Android : revenir à l'écran précédent
     const sub = BackHandler.addEventListener('hardwareBackPress', () => { if (stack.length) { setStack(s => s.slice(0, -1)); return true; } return false; });
     return () => sub.remove();

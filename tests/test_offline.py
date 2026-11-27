@@ -425,6 +425,15 @@ _ok, _rep = _cs.check(config.OUT_DIR, max_age_h=None)
 assert not _ok and any("test" in x for x in _rep["errors"]), "le contrôle de publication doit refuser un site de test"
 print("isolation OK :", len(_before), "fichiers de web/ inchangés, aucun ajouté ; site de test refusé par le contrôle (", len(_rep["errors"]), "motifs )")
 
+# Issue #4 : règles communes site / appli. L'index de l'appli porte la cadence et le type de chaque bouée, et le point de prévision
+# (« pt ») des spots dont le point affiché est recalé sur la côte : les distances aux bouées sont mesurées comme sur le site.
+_ix = json.loads((config.OUT_DIR / "data" / "app" / "index.json").read_text(encoding="utf-8"))
+_sp = {s["name"]: s for s in json.loads(config.SPOTS_FILE.read_text(encoding="utf-8"))}
+assert all(b.get("kind") in ("gascogne", "coast", "offshore") and b.get("lim") in (1, 2) for b in _ix["buoys"]), [b for b in _ix["buoys"] if not b.get("lim")][:2]
+assert all((s.get("pt") == [_sp[s["name"]]["lat"], _sp[s["name"]]["lon"]]) == ("mlat" in _sp[s["name"]]) for s in _ix["spots"])
+assert all(json.loads(f.read_text(encoding="utf-8")).get("lim") in (1, 2) for f in (config.OUT_DIR / "data" / "app" / "bouees").glob("*.json"))
+print("index de l'appli : cadence, type de bouée et point de prévision OK (issue #4)")
+
 # Issue #1 (revue de la PR #20, point 5) : la prévision PUBLIÉE est identique, archive activée ou désactivée.
 # Empreintes normalisées des séries des 214 spots (tools/compare_forecast.py, utilisable aussi entre deux commits).
 from tools import compare_forecast as _cf

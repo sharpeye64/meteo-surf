@@ -3745,6 +3745,8 @@ function tideFactor(pref, phase, rising){
   }
 }
 function windInfo(v, dir, off){
+  /* règle commune site / appli / robot (issue #4, docs/regles-communes.md) : donnée absente = pas de qualification */
+  if(v==null||dir==null||off==null) return {f:1, label:null};
   const d = angDiff(dir, off);
   if(v<8) return {f:1, label:'lisse'};
   if(d<=45) return {f:v<35?1:0.7, label:'offshore'};
@@ -4444,7 +4446,9 @@ function buoyChoices(s){
   out.spot=s.name;
   return out;
 }
-/* Bouée affichée par défaut : la plus proche parmi celles dont la mesure a moins de 6 h ; sinon la plus fraîche. Le choix de l'utilisateur prime. */
+/* Bouée affichée par défaut (règle commune site / appli, issue #4, docs/regles-communes.md) : le choix fait à la main ;
+   sinon la bouée de référence des Landes (moins de 6 h) ; sinon la plus proche EN DIRECT selon sa cadence, à 60 km au plus ;
+   sinon la plus proche dont la mesure a moins de 6 h ; sinon la plus fraîche (une bouée muette en dernier recours). */
 /* Bouée de référence des Landes (demande de l'utilisateur) : Cap Ferret pour le nord, jusqu'à 70 km (Biscarrosse à Cap de l'Homy),
    la Gascogne pour les autres. Prise par défaut si sa mesure a moins de 6 h. Même règle dans le robot (pipeline/config.py : ref_buoy,
    utilisé par l'appli et les pages de spots) : changer LANDES_CF_KM aux deux endroits. */
@@ -4460,6 +4464,7 @@ function pickBuoy(list){
   let want=state.radarView[list.spot]; if(want==='large') want='gascogne'; else if(want==='cote'){ const c=list.find(o=>o.kind==='coast'); want=c&&c.key; }
   const mine=list.find(o=>o.key===want); if(mine) return mine;
   const pf=list.filter(o=>o.pref!=null&&o.ageH<6).sort((x,y)=>x.pref-y.pref)[0]; if(pf) return pf;
+  const live=list.filter(o=>o.km<=60&&pvFresh(o.ageH,o.L.time,o.key).c==='live').sort((x,y)=>x.km-y.km)[0]; if(live) return live;
   const fresh=list.filter(o=>o.ageH<6);
   return fresh.length?fresh.sort((x,y)=>x.km-y.km)[0]:list.slice().sort((x,y)=>x.ageH-y.ageH)[0];
 }
@@ -5368,6 +5373,10 @@ const pvDir=(deg,col)=>deg==null?'':`<span class="pv-dir" title="Vient du ${sect
    bouées horaires (Météo-France 62001, Copernicus Marine) publiées avec 30 à 60 min de retard (« en direct » jusqu'à 2 h) */
 const pvLim=key=>/^0\d{4}$/.test(String(key||''))?1:2;
 function pvFresh(ageH,t,key){
+  /* règle commune site / appli / robot (issue #4) : tolérance d'horloge de 15 min ; au-delà, mesure « dans le futur » = jamais en direct */
+  if(!(ageH===ageH)) return {c:'off',t:'aucune mesure'};
+  if(ageH<-0.25) return {c:'old',t:stampTxt(t)};
+  ageH=Math.max(0,ageH);
   const m=Math.max(1,Math.round(ageH*60)), lim=pvLim(key);
   if(ageH<0.2) return {c:'live',t:'En direct'};
   if(ageH<lim) return {c:'live',t:ageH<1?`il y a ${m} min`:`il y a ${Math.round(ageH)} h`};
