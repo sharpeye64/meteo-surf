@@ -64,6 +64,22 @@ Vérifié le 27/11/2026 (une requête) : avec `timezone=Europe/Paris`, Open-Mete
   - l'ancien format s'affiche toujours correctement ;
   - aucune erreur dans la console.
 
+## Corrections après la revue de la PR #17 (commit `3ab85d9`)
+
+Trois anomalies relevées par ChatGPT Work, reproduites puis corrigées, chacune avec un test de non-régression :
+
+| Anomalie | Correction | Test de non-régression |
+|---|---|---|
+| **A.** `pipeline/bouees.py` (prévision « du moment », graphique) comparait des heures **écrites** : un spot portugais (heure de Lisbonne) était rapproché de l'heure de Paris, avec 1 h d'écart | rapprochement par **heure absolue** (`timefmt.hour_key`) : prévision du moment, modèle au point de la bouée, spot le plus proche | `test_heures` A : à 10 h de Paris, Lacanau et Supertubos donnent la valeur du même instant ; mesure 9 h Lisbonne ↔ prévision 10 h Paris |
+| **B.** Carte de l'accueil (`web/index.html`) : clé = heure de Paris, donc les deux « 2 h » du passage à l'heure d'hiver se confondaient (un créneau perdu, l'autre ambigu). `build.py` écrivait aussi l'heure de génération sans décalage, ambiguë cette nuit-là | clés **absolues** (UTC), jour et heure de Paris calculés pour l'affichage. Les deux « 2 h » s'affichent « 2h (UTC+2) » et « 2h (UTC+1) ». Le robot transmet l'**instant exact** de génération | `heures_site` B : 4 heures publiées donnent 4 clés distinctes ; la journée du 25/10 compte 25 créneaux, avec des libellés sans ambiguïté ; `test_heures` B : génération à 00:30 et 01:30 UTC → `02:30+02:00` et `02:30+01:00` |
+| **C.** `pipeline/bouees.py` : Leixões affichait « heure de Paris », et `<time datetime>` perdait le décalage | libellé selon le fuseau de la bouée : heure de Paris, d'Espagne ou du Portugal. `datetime` complet (ISO 8601 avec décalage) | `test_offline` : page de Leixões `+00:00` et « heure du Portugal », sans « Paris » ; décalage présent sur la page du Cap Ferret ; `test_heures` C |
+
+**Intégration avec la PR #16 (guides)**, fusionnée dans `main` entre-temps : `main` est fusionné dans `heures-locales`. Trois conflits sont résolus en gardant les deux chantiers :
+- `web/index.html` : le lien « Comprendre la houle » de #16 et l'heure de mise à jour à l'heure du spot de #2 ;
+- `docs/CHANGELOG.md` et `docs/HANDOFF.md` : les deux entrées.
+
+La branche de ChatGPT Work n'a pas été modifiée. Les tests (dont ceux de #16 dans `test_offline`) passent sur le résultat fusionné.
+
 ## Limites
 
 - **Heure répétée d'octobre** : une valeur isolée ambiguë, par exemple la dernière mesure d'une bouée absente de sa série, prend la première occurrence ; elle est comptée dans `meta.time.ambiguous`.
