@@ -2,9 +2,12 @@
 
 _Dernière mise à jour : 27/11/2026 pour le chantier des guides, par Codex._
 
-## En production (houlalah.fr)
+## Point SEO/GEO
 
-- **Issue #13, PR #16** — les trois guides, les cinq schémas et le comparateur sont en ligne depuis le 27/11. Les quatre URL, leurs canoniques et leur présence dans le sitemap ont été vérifiées en production.
+- **Issue #13, PR #16** — trois guides en ligne depuis le 27/11. Les quatre URL, leurs canoniques et leur présence dans le sitemap ont été vérifiées.
+- **Lot suivant** — liens contextuels en revue sur la branche `codex/seo-liens-guides`. Voir [GEO.md](GEO.md).
+
+## En production (houlalah.fr)
 
 - **Accueil cartographique Premium Ocean v2** : panneau compact, choix houle / période / vent, sélecteur de jour et d'heure, bouées dorées, approche « la carte d'abord » sur téléphone.
 - **Pages de prévisions Premium Ocean** (`/?spot=…`), avec une frise horaire pleine largeur sur téléphone.
@@ -18,7 +21,7 @@ _Dernière mise à jour : 27/11/2026 pour le chantier des guides, par Codex._
 
 ## En cours
 
-- **Issue #13, liens vers les guides** — lot sur `codex/seo-liens-guides`. Les fiches de bouées et de spots renvoient vers le guide pertinent au niveau des données.
+- **Issue #13, PR #15** — trois guides et cinq schémas relus, comparateur corrigé sur `codex/geo-guides-audit`. Aperçu HTML autonome vérifié dans Chromium. Voir [l’audit des guides](audit-geo-guides-2026-11-27.md). Validation éditoriale avant toute mise en ligne.
 
 - **Issue #7, branche `quotas-cache`** (PR ouverte pour revue, **non fusionnée**, repère `avant-quotas-cache`) : mesure de la consommation Open-Meteo, cache persistant (`pipeline/omcache.py`), comparatif `python -m tools.api_budget`, inventaire des licences : [quotas-licences.md](quotas-licences.md). **4 refus 429** vus sur un passage à cache vide.
 - **Issue #3, branche `securiser-publication`** (PR #11, corrigée après la revue de ChatGPT, validée par un vrai passage GitHub sans déploiement ; **non fusionnée**, repère `avant-securiser-publication`) : tests isolés dans un dossier temporaire, marques de test, contrôle avant publication `tools/check_site.py`, génération dans `_site/`, déploiement et archive depuis `main` seulement, `health.json`. Rapport et preuves : [securisation-publication.md](securisation-publication.md). Attend la revue de ChatGPT puis le « Oui, publie ».
