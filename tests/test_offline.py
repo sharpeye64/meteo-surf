@@ -177,6 +177,7 @@ data = json.loads(config.OUTPUT_FILE.read_text())
 # Issue #6 : mesurer le prototype sans modifier le chargement du site.
 from tools.benchmark_home_index import compact as _home_compact, benchmark as _home_benchmark
 _home = _home_compact(data)
+assert json.loads((config.OUTPUT_FILE.parent / "home-index.json").read_text()) == _home
 assert len(_home["spots"]) == len(data["spots"])
 assert _home["meta"] == data["meta"]
 for _group in ("coast", "offshore"):
