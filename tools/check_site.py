@@ -99,6 +99,17 @@ def check(site_dir, max_age_h=3.0):
         for k, v in (meta.get("errors") or {}).items():
             (errors if k in GENERATION_ERRORS else warnings).append(f"robot : {k} — {str(v)[:120]}")
 
+    # Index accueil : même génération et mêmes valeurs, y compris les bouées.
+    home = _json(d / "data" / "home-index.json", errors, "home-index.json")
+    if fc is not None and home is not None:
+        from tools.benchmark_home_index import compact
+        try:
+            if home != compact(fc):
+                errors.append("home-index.json : divergence avec forecast.json")
+            counts["home_spots"] = len(home["spots"])
+        except (KeyError, TypeError, ValueError) as e:
+            errors.append(f"home-index.json : structure invalide ({e})")
+
     # 2. données de l'application : index, fiches de spots et de bouées, identifiants internes, séries
     idx = _json(d / "data" / "app" / "index.json", errors, "appli index.json")
     if idx:
