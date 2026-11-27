@@ -341,13 +341,13 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
             period = (f"Tp {fr(L['tp'])} s" if L.get("tp") is not None else
                       f"Tm {fr(L['tm'])} s" if L.get("tm") is not None else "Période indisponible")
             direction = sector(L.get("dir")) or "Direction indisponible"
-            buoy_line = (f'<section class="spot-observation" aria-label="Observation en mer"><p class="spot-obs-kicker">OBSERVATION EN MER</p>'
-                         f'<h2>{label} : <a href="../../bouees/{slugify(b["name"])}/">{esc(b["name"])}</a></h2>'
-                         f'<p class="spot-obs-values"><b>{fr(L["hs"])} m</b> · {period} · {direction}</p>'
-                         f'<p>{esc(source)} · À {round(dist(b))} km · <time datetime="{esc(timefmt.fmt(obs, bt))}">{obs_local:%d/%m/%Y à %Hh%M}</time> ({esc(timefmt.tz_label(bt))}).</p>'
-                         f'<p>{state} à la génération de cette page · {age_text}.</p>'
-                         '<p>Hauteur significative mesurée à la bouée, pas la taille des vagues au bord.</p>'
-                         '<p><a href="../../guide/lire-une-bouee/">Comprendre ce relevé</a></p></section>')
+            buoy_line = (f'<section class="spot-observation" aria-label="Observation en mer">'
+                         f'<p class="muted"><b>Observation en mer — {label} : <a href="../../bouees/{slugify(b["name"])}/">{esc(b["name"])}</a></b><br>'
+                         f'Hauteur significative : <b>{fr(L["hs"])} m</b> · {period} · {direction}<br>'
+                         f'{esc(source)} · À {round(dist(b))} km · <time datetime="{esc(timefmt.fmt(obs, bt))}">{obs_local:%d/%m/%Y à %Hh%M}</time> ({esc(timefmt.tz_label(bt))}).<br>'
+                         f'{state} à la génération de cette page · {age_text}.<br>'
+                         'Hauteur significative mesurée à la bouée, pas la taille des vagues au bord. '
+                         '<a href="../../guide/lire-une-bouee/">Comprendre ce relevé</a></p></section>')
     except (ValueError, TypeError, KeyError, AttributeError):
         buoy_line = ""
     if not buoy_line:
@@ -397,7 +397,7 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
             {"@type": "ListItem", "position": 2, "name": "Spots de surf", "item": site + "/spots/"},
             {"@type": "ListItem", "position": 3, "name": name, "item": canonical}]},
     ]
-    return page(site, title, desc, canonical, body, ld, og_image=og_image, extra_css=".spot-observation{background:#0B1B26;color:#F3EFE6;padding:20px;border-radius:16px;margin:20px 0}.spot-observation h2{color:#F3EFE6;margin:8px 0}.spot-observation a,.spot-obs-kicker,.spot-obs-values{color:#E9C694}.spot-obs-kicker{font-size:12px;letter-spacing:.08em;font-weight:800}.spot-obs-values{font-size:20px;line-height:1.5}.spot-observation p{margin:8px 0}")
+    return page(site, title, desc, canonical, body, ld, og_image=og_image)
 
 
 def index_page(site, spots_meta, now):
