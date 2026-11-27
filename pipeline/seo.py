@@ -10,9 +10,9 @@ import re
 import shutil
 import statistics
 import unicodedata
-from datetime import datetime
+from datetime import datetime, timezone
 
-from . import config
+from . import config, timefmt
 from .seotext import fit, fit_desc
 
 SECTORS = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSO", "SO", "OSO", "O", "ONO", "NO", "NNO"]
@@ -275,33 +275,36 @@ def profile_html(sp, t):
 def spot_page(site, sp, spots_meta, payload, now, og_image=None):
     name, slug = sp["name"], sp["slug"]
     rows = sp["rows"]
-    t = rows[0] if rows else None
+    tz = timefmt.spot_tz(sp)
+    generated = timefmt.parse((payload.get("meta") or {}).get("generated") or timefmt.fmt(timefmt.now(), timefmt.PARIS))
+    local_now = generated.astimezone(timefmt.zone(tz))
+    t = next((r for r in rows if r["date"] == local_now.strftime("%Y-%m-%d")), None)
+    has_tides = bool((sp.get("tides") or {}).get("rows"))
     esc = html.escape
     where = sp["commune"] if sp["commune"] != name else sp["region"]
     # la commune dans le titre et le h1 : on cherche « météo surf Hossegor » plus souvent que « La Gravière »
     same = lambda a, b: slugify(a).replace("-", "") in slugify(b).replace("-", "")   # « Vieux-Boucau » est déjà dans « Vieux Boucau »
     full = f"{name} ({sp['commune']})" if sp["commune"] and not same(sp["commune"], name) else name
     # « Météo surf » et le nom du spot passent avant la marque : sans place, on retire d'abord « | Houlalah »
-    title = fit(f"Météo surf {full} : houle, vent et marée | {BRAND}", f"Météo surf {full} : houle et marée | {BRAND}",
-                f"Météo surf {full} : houle et marée", f"Météo surf {full} | {BRAND}", f"Météo surf {full}", f"Surf {full}")
-    if t:
-        today = (f"Houle de {fr(t['hs'])} m à {name} ({where}) aujourd'hui, période {fr(t['tp'], 0)} s, vent {fr(t['wind'], 0)} km/h"
-                 f"{' (' + sector(t['wdir']) + ')' if t['wdir'] is not None else ''}.")
-        desc = fit_desc(today + " Prévisions 7 jours, marées et coefficients, mises à jour toutes les heures.",
-                        today + " Prévisions 7 jours, marées et coefficients.", today + " Prévisions 7 jours et marées.", today)
-    else:
-        desc = fit_desc(f"Prévisions surf à {name} ({where}) : houle, vent, marée et coefficient sur 7 jours.")
+    suffix = "houle, vent et marée" if has_tides else "houle et vent"
+    title = fit(f"Météo surf {full} : {suffix} | {BRAND}", f"Météo surf {full} : {suffix}",
+                f"Météo surf {full} | {BRAND}", f"Météo surf {full}", f"Surf {full}")
+    detail = "Houle, vent, marées et coefficients disponibles." if has_tides else "Houle et vent ; marées non disponibles sur Houlalah."
+    desc = fit_desc(f"Prévisions surf à {name} ({where}) sur 7 jours. {detail} Observations des bouées lorsqu’elles sont disponibles.",
+                    f"Prévisions surf à {name} ({where}) sur 7 jours. {detail}",
+                    f"Prévisions surf à {name} : {suffix} sur 7 jours.")
     canonical = f"{site}/spots/{slug}/"
     app = f"../../?spot={slug}"
     trs = "".join(
         f"<tr><td>{r['label']} {r['dm']}</td><td>{fr(r['hmin'])}–{fr(r['hmax'])} m</td><td>{fr(r['tp'], 0)} s {sector(r['dir']) or ''}</td>"
-        f"<td>{fr(r['wind'], 0)} km/h {sector(r['wdir']) or ''}</td><td>{r['coef'] or '—'}</td></tr>" for r in rows)
+        f"<td>{fr(r['wind'], 0)} km/h {sector(r['wdir']) or ''}</td>" + (f"<td>{r['coef'] or '—'}</td>" if has_tides else "") + "</tr>" for r in rows)
     near = sorted((o for o in spots_meta if o["slug"] != slug), key=lambda o: hav(sp, o))[:6]
     nl = "".join(f'<li><a href="../{o["slug"]}/">{esc(o["name"])}<small>{round(hav(sp, o))} km · {esc(o["commune"])}</small></a></li>' for o in near)
-    lead = (f"Aujourd'hui à <b>{esc(name)}</b> : houle de <b>{fr(t['hs'])} m</b> toutes les <b>{fr(t['tp'], 0)} s</b>"
-            f"{' venant du ' + sector(t['dir']) if t['dir'] is not None else ''}, vent de {fr(t['wind'], 0)} km/h"
-            f"{' du ' + sector(t['wdir']) if t['wdir'] is not None else ''}"
-            f"{', coefficient de marée ' + str(t['coef']) if t['coef'] else ''}.") if t else ""
+    lead = (f"Prévision du {t['dm']} à <b>{esc(name)}</b> : hauteur significative médiane de <b>{fr(t['hs'])} m</b>, "
+            f"période médiane <b>{fr(t['tp'], 0)} s</b>"
+            f"{' · direction moyenne ' + sector(t['dir']) if t['dir'] is not None else ''}, vent médian {fr(t['wind'], 0)} km/h"
+            f"{' · ' + sector(t['wdir']) if t['wdir'] is not None else ''}."
+            ) if t else "Synthèse de la journée indisponible. Consulte les créneaux disponibles ci-dessous."
     buoy_line = ""
     try:
         g = payload.get("gascogne") or {}
@@ -322,10 +325,33 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
             if b is not None and dist(b) > 80:
                 b = None
         if b is not None:
-            buoy_line = (f'<p class="muted">{label} : <a href="../../bouees/{slugify(b["name"])}/">{esc(b["name"])}</a>, '
-                         f'à {round(dist(b))} km, dernière mesure {fr(b["latest"]["hs"])} m ({b["latest"]["time"][8:10]}/{b["latest"]["time"][5:7]} à {int(b["latest"]["time"][11:13])} h {b["latest"]["time"][14:16]}).</p>')
-    except Exception:
+            from . import bouees
+            L = b["latest"]
+            raw = L.get("time")
+            obs = timefmt.parse(raw)
+            bt = b.get("tz") or timefmt.place_tz(b["lat"], b["lon"])
+            obs_local = obs.astimezone(timefmt.zone(bt))
+            age = (generated.astimezone(timezone.utc) - obs.astimezone(timezone.utc)).total_seconds() / 3600
+            limit = bouees.station(b)["lim"]
+            source = (g.get("source") or "Source non précisée") if b["id"] == "gascogne" else bouees.station(b)["source"]
+            state = ("Heure du relevé incohérente" if age < 0 else
+                     "Mesure récente" if age < limit * 3 else
+                     "Mesure ancienne" if age < 48 else "Mesure de plus de 48 h")
+            age_text = "âge indéterminé" if age < 0 else f"{int(age * 60)} min" if age < 1 else f"{int(age)} h"
+            period = (f"Tp {fr(L['tp'])} s" if L.get("tp") is not None else
+                      f"Tm {fr(L['tm'])} s" if L.get("tm") is not None else "Période indisponible")
+            direction = sector(L.get("dir")) or "Direction indisponible"
+            buoy_line = (f'<section class="spot-observation" aria-label="Observation en mer">'
+                         f'<p class="muted"><b>Observation en mer — {label} : <a href="../../bouees/{slugify(b["name"])}/">{esc(b["name"])}</a></b><br>'
+                         f'Hauteur significative : <b>{fr(L["hs"])} m</b> · {period} · {direction}<br>'
+                         f'{esc(source)} · À {round(dist(b))} km · <time datetime="{esc(timefmt.fmt(obs, bt))}">{obs_local:%d/%m/%Y à %Hh%M}</time> ({esc(timefmt.tz_label(bt))}).<br>'
+                         f'{state} à la génération de cette page · {age_text}.<br>'
+                         'Hauteur significative mesurée à la bouée, pas la taille des vagues au bord. '
+                         '<a href="../../guide/lire-une-bouee/">Comprendre ce relevé</a></p></section>')
+    except (ValueError, TypeError, KeyError, AttributeError):
         buoy_line = ""
+    if not buoy_line:
+        buoy_line = '<p class="muted">Aucune observation de référence disponible pour cette fiche.</p>'
     from . import zones as _z
     zn = next((z for z in _z.ZONES if z["key"] == sp["region"]), None)
     zone_link = f'<p class="muted" style="margin-top:18px"><a href="../../{zn["slug"]}/">Météo surf {esc(zn["name"])} : tous les spots {zn["in"]}</a></p>' if zn else ""
@@ -349,10 +375,12 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
                       f'<p class="muted">Horaires indicatifs calculés pour {esc(td["port"]) if td.get("port") else "le port de référence"} (port de référence du spot).</p>')
     body = f"""<h1>Prévisions surf à {esc(full)}</h1>
 <p class="lead">{lead}</p>
+<p class="muted">Synthèse des prévisions entre 7 h et 20 h, à l’heure locale du spot. Hauteur significative au large, pas au déferlement.</p>
 <p><a class="cta" href="{app}">Voir les prévisions heure par heure</a></p>
-<p class="muted">{(esc(sp['type']) + ' · fond de ' + esc(sp['bottom'].lower()) + ' · ') if sp.get('type') and sp.get('bottom') else ''}{esc(sp['commune'])}, {esc(sp['region'])}. Mis à jour le {now:%d/%m/%Y à %Hh%M}.</p>
+<p class="muted">{(esc(sp['type']) + ' · fond de ' + esc(sp['bottom'].lower()) + ' · ') if sp.get('type') and sp.get('bottom') else ''}{esc(sp['commune'])}, {esc(sp['region'])}. Données générées le <time datetime="{esc(timefmt.fmt(generated, tz))}">{local_now:%d/%m/%Y à %Hh%M}</time> ({esc(timefmt.tz_label(tz))}).</p>
 {buoy_line}<h2>La semaine à {esc(name)}</h2>
-<table><thead><tr><th>Jour</th><th>Houle</th><th>Période</th><th>Vent</th><th>Coef.</th></tr></thead><tbody>{trs}</tbody></table>
+<table><thead><tr><th>Jour</th><th>Houle</th><th>Période</th><th>Vent</th>{"<th>Coef.</th>" if has_tides else ""}</tr></thead><tbody>{trs}</tbody></table>
+{"" if has_tides else '<p class="muted">Marées et coefficients non disponibles pour ce spot sur Houlalah.</p>'}
 <p class="muted"><a href="../../guide/comprendre-la-houle/">Comprendre la hauteur, la période et la direction de houle</a></p>
 {hours_html}{tides_html}
 {profile_html(sp, t)}
@@ -363,7 +391,7 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
          "isPartOf": {"@type": "WebSite", "name": BRAND, "url": site + "/"},
          "about": {"@type": "Place", "name": f"{name} (spot de surf)", "geo": {"@type": "GeoCoordinates", "latitude": sp["lat"], "longitude": sp["lon"]},
                    "address": {"@type": "PostalAddress", "addressLocality": sp["commune"], "addressRegion": sp["region"], "addressCountry": country_of(sp["region"])}},
-         "dateModified": now.strftime("%Y-%m-%dT%H:%M:00")},
+         "dateModified": timefmt.fmt(generated, tz)},
         {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
             {"@type": "ListItem", "position": 1, "name": BRAND, "item": site + "/"},
             {"@type": "ListItem", "position": 2, "name": "Spots de surf", "item": site + "/spots/"},
@@ -486,8 +514,8 @@ def llms_txt(site, spots):
     return f"""# {BRAND}
 
 > Prévisions surf gratuites pour {len(spots)} spots de la côte atlantique, de la Bretagne au Portugal : houle (hauteur, période,
-> direction), vent, marée et coefficient, croisées entre plusieurs modèles et comparées en direct aux mesures des bouées en mer.
-> Mises à jour toutes les heures. La hauteur affichée est celle de la houle au large, pas la taille des vagues au bord.
+> direction), vent, marée et coefficient lorsque disponibles. Les hauteurs prévues combinent plusieurs modèles ; les dernières mesures disponibles des bouées permettent de les confronter aux observations.
+> Données actualisées régulièrement selon les sources. La hauteur affichée est celle de la houle au large, pas la taille des vagues au bord.
 
 ## Pages principales
 - [Carte de la côte et prévisions]({site}/)

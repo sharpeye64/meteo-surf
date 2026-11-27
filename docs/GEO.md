@@ -83,3 +83,7 @@ Ajout d'un résumé HTML visible, daté (heure de Paris selon contrat actuel #2)
 La PR #16 a publié l’index et les trois guides. Le contrôle HTTP a confirmé leurs canoniques et leur présence dans le sitemap et dans `llms.txt`. Leur indexation effective et les citations des assistants restent à mesurer.
 
 Le lot suivant place un lien vers le guide de lecture des bouées sous le dernier relevé et un lien vers le guide sur la houle sous le tableau hebdomadaire des spots. Le test hors ligne vérifie les liens dans le corps des pages de Cap Ferret et de Lacanau et la présence des destinations générées.
+
+## Fiches de spots : précision des informations (en test)
+
+La synthèse journalière indique la médiane des prévisions entre 7 h et 20 h. Les titres ne promettent plus de marées lorsqu’elles sont absentes ; le tableau retire alors le coefficient. L’observation de référence précise la hauteur, la période et la direction disponibles, la source, la distance, le fuseau et l’âge au moment de génération. Aucun nouveau CSS, aucune modification du moteur météo, des routes ou de la consommation API. Tests ajoutés ; CI et aperçu à vérifier avant fusion.
