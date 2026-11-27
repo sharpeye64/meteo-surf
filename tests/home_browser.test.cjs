@@ -7,6 +7,16 @@ const path = require('node:path');
 const os = require('node:os');
 const src=fs.readdirSync(os.tmpdir()).filter(x=>x.startsWith('houlalah-test-')).map(x=>path.join(os.tmpdir(),x)).sort((a,b)=>fs.statSync(b).mtimeMs-fs.statSync(a).mtimeMs)[0];
 assert(src,'Exécuter tests.test_offline avant ce test');
+// La CI teste aussi une seconde génération pour l'archive #1 : le forecast de référence
+// peut avoir été restauré après ce test. Ne jamais mélanger ces fixtures.
+const fcPath=path.join(src,'data/forecast.json'), ixPath=path.join(src,'data/home-index.json');
+const fc=JSON.parse(fs.readFileSync(fcPath)), ix=JSON.parse(fs.readFileSync(ixPath));
+if(fc.meta.generated!==ix.meta.generated){
+  console.log('Fixture archive : génération index',ix.meta.generated,'forecast',fc.meta.generated);
+  // Reconstituer uniquement le dérivé de la fixture à partir du forecast restauré.
+  require('node:child_process').execFileSync('python',['-c','import json,sys; from pathlib import Path; from tools.benchmark_home_index import compact,encode; Path(sys.argv[2]).write_bytes(encode(compact(json.loads(Path(sys.argv[1]).read_text()))))',fcPath,ixPath]);
+}
+assert.equal(JSON.parse(fs.readFileSync(ixPath)).meta.generated,fc.meta.generated);
 const server=http.createServer((req,res)=>{
   const p=new URL(req.url,'http://localhost').pathname;
   const rel=p==='/'?'index.html':p.slice(1);
