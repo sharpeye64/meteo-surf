@@ -1,5 +1,6 @@
 import { tMs } from './time';
-import { BUOY_ONLY, candidates, Fresh, freshState, liveLim, pickRef, WIND_WORD, WindCat, windCat } from './rules';
+import { ageWords, BUOY_ONLY, candidates, Fresh, freshState, liveLim, pickRef, WIND_WORD, WindCat, windCat } from './rules';
+export { dayTxt } from './rules';
 export { windCat, WIND_WORD } from './rules';
 export type { Fresh, WindCat } from './rules';
 // Données de l'appli : les fichiers allégés que le robot publie avec le site (web/data/app/).
@@ -86,8 +87,12 @@ export const isLive = (b: { id: string; lim?: number | null; time: string; silen
 /** Bouée de référence d'un spot : MÊME règle que le site (src/rules.ts : candidates + pickRef ; web/index.html : buoyChoices +
  *  pickBuoy) : Landes (Cap Ferret au nord, Gascogne ailleurs, D9), Sainte-Barbe réservée à son spot, puis la plus proche en
  *  direct à 60 km au plus, puis la plus proche de moins de 6 h, puis la plus fraîche. Distances depuis le point du spot (pt). */
+/** Point du spot pour les distances aux bouées : point de prévision (« pt ») si le point affiché est recalé sur la côte. */
+export const spotPoint = (spot: SpotLite) => ({ name: spot.name, region: spot.region, lat: spot.pt ? spot.pt[0] : spot.lat, lon: spot.pt ? spot.pt[1] : spot.lon });
+export { hav } from './rules';
+
 export function refBuoy(buoys: Buoy[], spot: SpotLite): { b: Buoy; k: number } | null {
-  const s = { name: spot.name, region: spot.region, lat: spot.pt ? spot.pt[0] : spot.lat, lon: spot.pt ? spot.pt[1] : spot.lon };
+  const s = spotPoint(spot);
   const list = candidates(s, buoys.map(b => ({ ...b, kind: buoyKind(b), ageH: ageH(b.time), lim: liveLim(b) })));
   const r = pickRef(list);
   return r ? { b: r.b, k: r.km } : null;
@@ -95,12 +100,6 @@ export function refBuoy(buoys: Buoy[], spot: SpotLite): { b: Buoy; k: number } |
 
 // âge d'une mesure en INSTANTS (issue #2) : heures publiées avec décalage ; l'ancien format est lu comme heure de Paris
 export const ageH = (t: string) => (Date.now() - tMs(t)) / 36e5;
-/** « le 18/11 » : date d'une mesure (bouée muette). */
-export const dayTxt = (t: string) => `le ${t.slice(8, 10)}/${t.slice(5, 7)}`;
-export function ageTxt(t: string) {
-  const h = ageH(t);
-  // comme le site (pvFresh) : « à l'instant » sous 12 min, puis les minutes sous 1 h (avant : « à l'instant » jusqu'à 59 min) ;
-  // au-delà de 2 jours (bouée muette, en panne) : la date de la dernière mesure, plus parlante que « il y a 5 j »
-  return h < 0.2 ? "à l'instant" : h < 1 ? `il y a ${Math.round(h * 60)} min` : h < 48 ? `il y a ${Math.round(h)} h` : dayTxt(t);
-}
+/** Âge d'une mesure en mots (règle commune : src/rules.ts, ageWords) ; heure incohérente ou illisible dite comme telle. */
+export const ageTxt = (t: string) => ageWords(ageH(t), t);
 export const JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];

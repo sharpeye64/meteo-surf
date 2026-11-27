@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
-import { ageTxt, Buoy, buoyFits, dayTxt, BuoySheet, fr, freshOf, Index, isLive, km, loadBuoy, perTxt, refBuoy, sector } from './data';
+import { ageTxt, Buoy, buoyFits, dayTxt, BuoySheet, fr, freshOf, hav, Index, isLive, loadBuoy, perTxt, refBuoy, sector, spotPoint } from './data';
+import { useReloaded } from './useReloaded';
 import { tMs } from './time';
 import { Blink } from './Live';
 import { useBarSpace } from './TabBar';
@@ -46,17 +47,20 @@ export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]
   const spot = favs.map(f => index.spots.find(s => s.slug === f)).find(Boolean);
   const fresh = index.buoys.filter(isLive).length;
 
+  const minute = Math.floor(Date.now() / 6e4);   // la bouée de référence dépend de l'âge des mesures : recalculée chaque minute
   const mine = useMemo(() => {
     if (!spot) return null;
-    const all = index.buoys.filter(b => buoyFits(b, spot.name)).map(b => ({ b, k: km(spot, b) })).sort((x, y) => x.k - y.k);
-    // bouée de référence : même règle que le site (src/rules.ts), Landes et Sainte-Barbe compris
-    const r = refBuoy(index.buoys, spot);
-    const main = r || all[0];
-    const others = all.filter(x => x.b.id !== main.b.id && x.k < 200).slice(0, 4);
+    const p = spotPoint(spot);   // distances depuis le point de prévision, comme la règle commune
+    const all = index.buoys.filter(b => buoyFits(b, spot.name)).map(b => ({ b, k: hav(p, b) })).sort((x, y) => x.k - y.k);
+    // bouée de référence : même règle que le site (src/rules.ts), Landes et Sainte-Barbe compris ; aucune bouée utilisable
+    // (aucune mesure, heures incohérentes) : pas de bouée mise en avant, jamais une bouée prise au hasard
+    const main = refBuoy(index.buoys, spot);
+    const others = all.filter(x => x.b.id !== main?.b.id && x.k < 200).slice(0, 4);
     const off = all.find(x => x.b.large);
-    if (off && off.b.id !== main.b.id && !others.some(x => x.b.id === off.b.id)) others.push(off);
+    if (off && off.b.id !== main?.b.id && !others.some(x => x.b.id === off.b.id)) others.push(off);
     return { main, others };
-  }, [index, spot]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, spot, minute]);
 
   const zones = useMemo(() => ZONES.map(z => ({ z, list: index.buoys.filter(b => zone(b) === z).sort(z === 'Espagne' ? alongSpain : (a, b) => b.lat - a.lat) })).filter(x => x.list.length), [index]);
   const M = mine?.main;
@@ -91,6 +95,19 @@ export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]
             </View>
           )}
         </View>
+      ) : spot ? (
+        <View>
+          <Text style={st.lbl}>Pour {spot.name}</Text>
+          <View style={[st.hero, { gap: 6 }]}>
+            <Text style={st.heroK}>AUCUNE BOUÉE</Text>
+            <Text style={st.heroEmpty}>Aucune bouée n’a de mesure exploitable autour de ce spot pour le moment.</Text>
+          </View>
+          {!!mine?.others.length && (
+            <View style={st.group}>
+              {mine.others.map((x, i) => <BuoyLine key={x.b.id} b={x.b} i={i + 1} first={i === 0} note={`${x.b.large ? 'au large' : 'à la côte'} · ${Math.round(x.k)} km`} onOpen={onOpen} />)}
+            </View>
+          )}
+        </View>
       ) : (
         <View style={[st.hero, { gap: 6 }]}>
           <Text style={st.heroK}>VOTRE SPOT</Text>
@@ -112,9 +129,7 @@ export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]
 /** Page d'une bouée : relevé actuel, courbe 48 h mesuré / prévu, records, derniers relevés, spots autour. */
 export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => void; onSpot: (slug: string) => void }) {
   const pad = useBarSpace();
-  const [d, setD] = useState<BuoySheet | null>(null);
-  const [err, setErr] = useState(false);
-  useEffect(() => { loadBuoy(buoy.slug).then(r => setD(r.data)).catch(() => setErr(true)); }, [buoy.slug]);
+  const { data: d, offline, err } = useReloaded<BuoySheet>(loadBuoy, buoy.slug);   // redemandée au retour (reprise réseau)
   const L = d?.latest, live = !!(d && L && freshOf({ id: d.id, lim: d.lim, time: L.time, silent: d.silent }) === 'live');
 
   return (
@@ -129,6 +144,7 @@ export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => v
         </View>
       ) : (
         <ScrollView contentContainerStyle={{ paddingBottom: pad + 10 }}>
+          {offline && <Text style={st.off}>hors connexion · dernière version reçue</Text>}
           <View style={[st.card, { backgroundColor: C.sandCard }]}>
             <View style={st.nowRow}>
               <View style={[st.lamp, !live && { backgroundColor: C.sandMuted }]} />
@@ -227,6 +243,7 @@ function Chart({ d }: { d: BuoySheet }) {
 }
 
 const st = themed(() => StyleSheet.create({
+  off: { fontFamily: F.tB, fontSize: 12, color: C.coral, marginHorizontal: 20, marginTop: 8 },   // même style que « hors connexion » de l'accueil
   lbl: { fontFamily: F.tX, fontSize: 11.5, letterSpacing: 1.3, textTransform: 'uppercase', color: C.gold, marginHorizontal: 20, marginTop: 14, marginBottom: 10 },
   hero: { marginHorizontal: 16, borderRadius: 26, padding: 18, backgroundColor: C.sandCard },
   heroTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },

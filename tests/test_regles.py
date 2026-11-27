@@ -26,7 +26,8 @@ for f in C["fresh"]:
     if f.get("robot") is False:
         continue
     lim = f.get("lim") or bouees.station({"id": f["id"]})["lim"]
-    t = (now_utc - timedelta(hours=f["age"])).astimezone(timefmt.zone(timefmt.PARIS)).isoformat(timespec="seconds")   # à la seconde : cas limites exacts
+    t = ("heure illisible" if f["age"] is None else
+         (now_utc - timedelta(hours=f["age"])).astimezone(timefmt.zone(timefmt.PARIS)).isoformat(timespec="seconds"))   # à la seconde : cas limites exacts
     eq(f"fraîcheur {f['id']} {f['age']} h" + (f" lim {f['lim']}" if f.get("lim") else ""), bouees.fresh_state(now, t, lim), f["want"])
 eq("fraîcheur : heure illisible → muette", bouees.fresh_state(now, "n'importe quoi", 1), "off")
 for x in C["sector"]:

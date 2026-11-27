@@ -3746,7 +3746,7 @@ function tideFactor(pref, phase, rising){
 }
 function windInfo(v, dir, off){
   /* règle commune site / appli / robot (issue #4, docs/regles-communes.md) : donnée absente = pas de qualification */
-  if(v==null||dir==null||off==null) return {f:1, label:null};
+  if(!Number.isFinite(v)||!Number.isFinite(dir)||!Number.isFinite(off)) return {f:1, label:null};
   const d = angDiff(dir, off);
   if(v<8) return {f:1, label:'lisse'};
   if(d<=45) return {f:v<35?1:0.7, label:'offshore'};
@@ -3759,8 +3759,10 @@ function bodySize(h){
   if(h<1.3) return 'à la poitrine'; if(h<1.7) return 'aux épaules'; if(h<2.2) return 'à la tête'; return 'au-dessus de la tête';
 }
 
+/* direction d'où vient un vent offshore pour ce spot ; orientation absente = null (jamais 180° ni NaN) : issue #4 */
+const spotOff=s=>s&&Number.isFinite(s.ori)?(s.ori+180)%360:null;
 function analyse(s, m, w){
-  const off = (s.ori+180)%360;
+  const off = spotOff(s);
   const t = m.hourly.time, hours=[];
   const lvl = m.hourly.sea_level_height_msl || [];
   for(let i=0;i<t.length;i++){
@@ -4434,8 +4436,8 @@ function buoyChoices(s){
   (state.offshore||[]).forEach(o=>{ if(o.latest&&o.latest.hs!=null){ const km=hav(s,o);
     if(o.id==='donostia'&&km>80) return;
     if(km>300||(/côte/.test(o.sub||'')&&km>130)) return;
-    out.push({key:o.id,name:o.name,sub:`${o.sub}, à ${Math.round(km)} km du spot`,kind:'large',L:o.latest,obs:o.obs||[],model:o.model||[],km,Tm:null}); } });
-  const coastEntry=(b,km)=>({key:b.id,name:b.name,sub:`à ${Math.round(km)} km du spot`,kind:'coast',L:b.latest,obs:b.obs||[],model:null,km,Tm:null});
+    out.push({key:o.id,name:o.name,sub:`${o.sub}, à ${Math.round(km)} km du spot`,kind:'large',L:o.latest,obs:o.obs||[],model:o.model||[],km,Tm:null,silent:!!o.silent}); } });
+  const coastEntry=(b,km)=>({key:b.id,name:b.name,sub:`à ${Math.round(km)} km du spot`,kind:'coast',L:b.latest,obs:b.obs||[],model:null,km,Tm:null,silent:!!b.silent});
   const c=nearestCoast(s); if(c) out.push(coastEntry(c.b,c.km));
   if(s.region==='Landes'){ const cf=(state.coast||[]).find(x=>x.name==='Cap Ferret'&&x.latest&&x.latest.hs!=null), k=cf&&hav(s,cf);   /* nord des Landes : Cap Ferret toujours proposée */
     if(cf&&k<=LANDES_CF_KM&&!out.some(o=>o.key===cf.id)) out.push(coastEntry(cf,k)); }
@@ -4462,11 +4464,15 @@ function prefRank(s,o){
 function pickBuoy(list){
   if(!list.length) return null;
   let want=state.radarView[list.spot]; if(want==='large') want='gascogne'; else if(want==='cote'){ const c=list.find(o=>o.kind==='coast'); want=c&&c.key; }
-  const mine=list.find(o=>o.key===want); if(mine) return mine;
-  const pf=list.filter(o=>o.pref!=null&&o.ageH<6).sort((x,y)=>x.pref-y.pref)[0]; if(pf) return pf;
-  const live=list.filter(o=>o.km<=60&&pvFresh(o.ageH,o.L.time,o.key).c==='live').sort((x,y)=>x.km-y.km)[0]; if(live) return live;
-  const fresh=list.filter(o=>o.ageH<6);
-  return fresh.length?fresh.sort((x,y)=>x.km-y.km)[0]:list.slice().sort((x,y)=>x.ageH-y.ageH)[0];
+  const mine=list.find(o=>o.key===want); if(mine) return mine;   /* choix fait à la main : respecté, même pour une bouée muette */
+  const ok=list.filter(pvUsable);
+  const pf=ok.filter(o=>o.pref!=null&&o.ageH<6).sort((x,y)=>x.pref-y.pref)[0]; if(pf) return pf;
+  const live=ok.filter(o=>o.km<=60&&pvFresh(o.ageH,o.L.time,o.key).c==='live').sort((x,y)=>x.km-y.km)[0]; if(live) return live;
+  const fresh=ok.filter(o=>o.ageH<6);
+  if(fresh.length) return fresh.sort((x,y)=>x.km-y.km)[0];
+  if(ok.length) return ok.slice().sort((x,y)=>x.ageH-y.ageH)[0];
+  /* tout est muet : la moins ancienne, affichée « aucune mesure depuis » ; une heure incohérente n'est jamais choisie */
+  return list.filter(o=>o.silent&&Number.isFinite(o.ageH)).sort((x,y)=>x.ageH-y.ageH)[0]||null;
 }
 function radarHtml_v1(s){
   const list=buoyChoices(s), cur=pickBuoy(list); if(!cur) return '';
@@ -5372,10 +5378,15 @@ const pvDir=(deg,col)=>deg==null?'':`<span class="pv-dir" title="Vient du ${sect
 /* cadence de publication : houlographes CANDHIS toutes les 30 min (« en direct » jusqu'à 1 h) ;
    bouées horaires (Météo-France 62001, Copernicus Marine) publiées avec 30 à 60 min de retard (« en direct » jusqu'à 2 h) */
 const pvLim=key=>/^0\d{4}$/.test(String(key||''))?1:2;
+/* bouée signalée muette par le robot (issue #4) : reconnue par son identifiant partout (choix, panneau, carte, survol) */
+const pvSilent=key=>key!=null&&[...(state.coast||[]),...(state.offshore||[])].some(b=>String(b.id)===String(key)&&b.silent);
+/* bouée utilisable pour un choix automatique : ni muette, ni heure illisible, ni datée de plus de 15 min dans le futur */
+const pvUsable=o=>!o.silent&&!pvSilent(o.key)&&Number.isFinite(o.ageH)&&o.ageH>=-0.25;
 function pvFresh(ageH,t,key){
-  /* règle commune site / appli / robot (issue #4) : tolérance d'horloge de 15 min ; au-delà, mesure « dans le futur » = jamais en direct */
-  if(!(ageH===ageH)) return {c:'off',t:'aucune mesure'};
-  if(ageH<-0.25) return {c:'old',t:stampTxt(t)};
+  /* règle commune site / appli / robot (issue #4) : tolérance d'horloge de 15 min ; au-delà, heure incohérente = indisponible */
+  if(!Number.isFinite(ageH)) return {c:'off',t:'heure inconnue'};
+  if(pvSilent(key)) return {c:'off',t:`aucune mesure depuis le ${dmy(t)}`};
+  if(ageH<-0.25) return {c:'off',t:'heure incohérente'};
   ageH=Math.max(0,ageH);
   const m=Math.max(1,Math.round(ageH*60)), lim=pvLim(key);
   if(ageH<0.2) return {c:'live',t:'En direct'};

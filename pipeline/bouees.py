@@ -186,13 +186,11 @@ CLOCK_SKEW_H = 0.25   # tolérance d'horloge : une mesure datée jusqu'à 15 min
 
 def fresh_state(now, t, lim=1):
     """Règle commune site / appli / robot (issue #4, docs/regles-communes.md ; site pvFresh, appli rules.freshState) :
-    en direct < lim, récente < 3 × lim, ancienne < 48 h, muette au-delà. Mesure datée de plus de 15 min dans le futur :
-    heure incohérente, « ancienne » (jamais en direct). Heure illisible : muette."""
+    en direct < lim, récente < 3 × lim, ancienne < 48 h, muette au-delà. Indisponible (« off ») aussi : heure illisible, ou
+    datée de plus de 15 min dans le futur (heure incohérente, jamais en direct)."""
     a = age_h(now, t)
-    if a == 999:
+    if a == 999 or a < -CLOCK_SKEW_H:
         return "off"
-    if a < -CLOCK_SKEW_H:
-        return "old"
     a = max(0.0, a)
     return "live" if a < lim else "recent" if a < 3 * lim else "old" if a < 48 else "off"
 

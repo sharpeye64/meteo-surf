@@ -4,6 +4,7 @@ import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
 import { ageTxt, Buoy, fr, isLive, loadSheet, perTxt, refBuoy, regionName, sector, Sheet, SpotLite, windCat, windText } from './data';
 import { partsIn, placeTz, tMs } from './time';
+import { useReloaded } from './useReloaded';
 import { useBarSpace } from './TabBar';
 import { C, F, isDark, periodCell, sizeCell, themed, windCell } from './theme';
 
@@ -14,13 +15,11 @@ const COL = 50;   // largeur d'une colonne de la frise horaire
 
 export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: Props) {
   const pad = useBarSpace();
-  const [sheet, setSheet] = useState<Sheet | null>(null);
-  const [err, setErr] = useState(false);
+  const { data: sheet, offline, err } = useReloaded<Sheet>(loadSheet, spot.slug);   // redemandée au retour (reprise réseau)
   const [day, setDay] = useState(0);
   const [hour, setHour] = useState<number | null>(null);
   const strip = useRef<{ scrollTo: (o: { x: number; animated?: boolean }) => void } | null>(null);
 
-  useEffect(() => { loadSheet(spot.slug).then(r => setSheet(r.data)).catch(() => setErr(true)); }, [spot.slug]);
 
   const days = useMemo(() => {
     if (!sheet) return [];
@@ -63,6 +62,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: pad + 20 }}>
+        {offline && <Text style={st.off}>hors connexion · dernière version reçue</Text>}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.days}>
           {days.map((x, i) => {
             const dd = at(x.idx[0]), mx = Math.max(...x.idx.map(j => sheet.hs[j] ?? 0)), on = i === day;
@@ -232,6 +232,7 @@ function Center({ onBack, name, loading, text }: { onBack: () => void; name: str
 }
 
 const st = themed(() => StyleSheet.create({
+  off: { fontFamily: F.tB, fontSize: 12, color: C.coral, marginHorizontal: 16, marginTop: 8 },   // même style que « hors connexion » de l'accueil
   bar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 8 },
   round: { width: 40, height: 40, borderRadius: 20, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center' },
   roundT: { fontFamily: F.tX, fontSize: 24, color: C.ink, marginTop: -2 },

@@ -12,14 +12,26 @@ export const liveLim = (b: { id?: string | null; lim?: number | null }) => (b.li
 
 export type Fresh = 'live' | 'recent' | 'old' | 'off';
 /** Tolérance d'horloge : une mesure datée jusqu'à 15 min dans le futur (horloge du téléphone en retard) vaut « à l'instant ».
- *  Au-delà, l'heure est incohérente : jamais « en direct ». */
+ *  Au-delà, l'heure est incohérente : la mesure est indisponible (jamais « en direct »). */
 export const CLOCK_SKEW_H = 0.25;
-/** en direct < lim, récente < 3 × lim, ancienne < 48 h, muette au-delà (ou bouée signalée muette par le robot). */
+/** en direct < lim, récente < 3 × lim, ancienne < 48 h, muette au-delà. Indisponible (« off ») aussi : bouée signalée muette
+ *  par le robot, heure illisible, heure datée de plus de 15 min dans le futur. */
 export function freshState(ageH: number, lim: number, silent = false): Fresh {
-  if (silent || !(ageH === ageH)) return 'off';
-  if (ageH < -CLOCK_SKEW_H) return 'old';
+  if (silent || !Number.isFinite(ageH) || ageH < -CLOCK_SKEW_H) return 'off';
   const a = Math.max(0, ageH);
   return a < lim ? 'live' : a < 3 * lim ? 'recent' : a < 48 ? 'old' : 'off';
+}
+/** Mesure utilisable pour un choix automatique : ni muette, ni heure illisible, ni datée de plus de 15 min dans le futur. */
+export const usable = (b: { ageH: number; silent?: boolean }) => !b.silent && Number.isFinite(b.ageH) && b.ageH >= -CLOCK_SKEW_H;
+/** « le 18/11 » : date (locale du lieu, telle qu'écrite) d'une mesure ancienne. */
+export const dayTxt = (t: string) => `le ${t.slice(8, 10)}/${t.slice(5, 7)}`;
+/** Âge d'une mesure en mots, comme le site : « à l'instant » sous 12 min, les minutes sous 1 h, les heures sous 48 h, puis la date.
+ *  Heure illisible : « heure inconnue » ; datée de plus de 15 min dans le futur : « heure incohérente » (jamais « à l'instant »). */
+export function ageWords(ageH: number, t: string) {
+  if (!Number.isFinite(ageH)) return 'heure inconnue';
+  if (ageH < -CLOCK_SKEW_H) return 'heure incohérente';
+  const h = Math.max(0, ageH);
+  return h < 0.2 ? "à l'instant" : h < 1 ? `il y a ${Math.round(h * 60)} min` : h < 48 ? `il y a ${Math.round(h)} h` : dayTxt(t);
 }
 
 // ---------- Direction en 16 secteurs (d'où vient la houle ou le vent) : site sector, robot seo.sector ----------
@@ -94,16 +106,18 @@ export function candidates<B extends RBuoy>(s: RSpot, buoys: B[]): Cand<B>[] {
   return out;
 }
 
-/** Bouée affichée par défaut (site : pickBuoy, hors choix fait à la main) :
+/** Bouée affichée par défaut (site : pickBuoy, hors choix fait à la main), parmi les bouées UTILISABLES (usable) :
  *  1. bouée de référence des Landes, si sa mesure a moins de 6 h ;
  *  2. la plus proche EN DIRECT (selon sa cadence), à 60 km au plus ;
  *  3. la plus proche dont la mesure a moins de 6 h ;
- *  4. sinon la plus fraîche. Une bouée muette n'est jamais choisie tant qu'une autre a une mesure. */
+ *  4. sinon la plus fraîche.
+ *  Aucune utilisable : la bouée muette la moins ancienne (affichée « pas de mesure depuis »), sinon aucune. Une heure
+ *  incohérente ou illisible n'est jamais choisie automatiquement. */
 export function pickRef<B extends RBuoy & { silent?: boolean }>(list: Cand<B>[]): Cand<B> | null {
-  if (!list.length) return null;
-  const pf = list.filter(o => o.pref != null && o.b.ageH < 6).sort((x, y) => x.pref! - y.pref!)[0]; if (pf) return pf;
-  const live = list.filter(o => o.km <= 60 && freshState(o.b.ageH, o.b.lim, o.b.silent) === 'live')[0]; if (live) return live;
-  const fresh = list.filter(o => o.b.ageH < 6 && !o.b.silent)[0]; if (fresh) return fresh;
-  const talk = list.filter(o => !o.b.silent);
-  return (talk.length ? talk : list).slice().sort((x, y) => x.b.ageH - y.b.ageH)[0];
+  const ok = list.filter(o => usable(o.b));
+  const pf = ok.filter(o => o.pref != null && o.b.ageH < 6).sort((x, y) => x.pref! - y.pref!)[0]; if (pf) return pf;
+  const live = ok.filter(o => o.km <= 60 && freshState(o.b.ageH, o.b.lim) === 'live')[0]; if (live) return live;
+  const fresh = ok.filter(o => o.b.ageH < 6)[0]; if (fresh) return fresh;
+  if (ok.length) return ok.slice().sort((x, y) => x.b.ageH - y.b.ageH)[0];
+  return list.filter(o => o.b.silent && Number.isFinite(o.b.ageH)).sort((x, y) => x.b.ageH - y.b.ageH)[0] || null;
 }

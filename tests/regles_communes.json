@@ -82,8 +82,8 @@
   {
    "id": "03302",
    "age": -1,
-   "want": "old",
-   "_note": "mesure 1 h dans le futur : jamais en direct"
+   "want": "off",
+   "_note": "mesure 1 h dans le futur : heure incohérente, indisponible (jamais en direct)"
   },
   {
    "id": "gascogne",
@@ -92,6 +92,12 @@
    "want": "off",
    "_note": "bouée signalée muette par le robot",
    "robot": false
+  },
+  {
+   "id": "03302",
+   "age": null,
+   "want": "off",
+   "_note": "heure illisible"
   }
  ],
  "wind": [
@@ -618,6 +624,146 @@
    },
    "ages": {},
    "want": null
+  },
+  {
+   "case": "Lacanau : Cap Ferret muette malgré un âge récent → Gascogne",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": {
+     "age": 0.5,
+     "silent": true
+    },
+    "gascogne": 3
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "Biscarrosse : référence Cap Ferret muette → Gascogne",
+   "spot": {
+    "name": "Biscarrosse",
+    "region": "Landes",
+    "lat": 44.444,
+    "lon": -1.255
+   },
+   "ages": {
+    "03302": {
+     "age": 1,
+     "silent": true
+    },
+    "gascogne": 2
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "Biscarrosse : tout muet → la moins ancienne, affichée muette",
+   "spot": {
+    "name": "Biscarrosse",
+    "region": "Landes",
+    "lat": 44.444,
+    "lon": -1.255
+   },
+   "ages": {
+    "03302": {
+     "age": 60,
+     "silent": true
+    },
+    "gascogne": {
+     "age": 50,
+     "silent": true
+    }
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "Lacanau : Cap Ferret datée 1 h dans le futur → Gascogne",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": -1,
+    "gascogne": 3
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "Lacanau : seule bouée, datée 1 h dans le futur → aucune",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": -1
+   },
+   "want": null
+  },
+  {
+   "case": "Lacanau : horloge en retard de 6 min → Cap Ferret en direct",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": -0.1,
+    "gascogne": 0.5
+   },
+   "want": "03302"
+  },
+  {
+   "case": "Biscarrosse : référence datée 2 h dans le futur → Gascogne",
+   "spot": {
+    "name": "Biscarrosse",
+    "region": "Landes",
+    "lat": 44.444,
+    "lon": -1.255
+   },
+   "ages": {
+    "03302": -2,
+    "gascogne": 1
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "Lacanau : heure illisible → Gascogne",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": {
+     "age": null
+    },
+    "gascogne": 4
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "Lacanau : seule bouée, heure illisible → aucune",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": {
+     "age": null
+    }
+   },
+   "want": null
   }
  ],
  "sector": [
@@ -656,6 +802,37 @@
   {
    "deg": 202.5,
    "want": "SSO"
+  }
+ ],
+ "ageWords": [
+  {
+   "age": 0.1,
+   "want": "à l'instant"
+  },
+  {
+   "age": 0.5,
+   "want": "il y a 30 min"
+  },
+  {
+   "age": 5,
+   "want": "il y a 5 h"
+  },
+  {
+   "age": 50,
+   "t": "2026-11-25T08:00+01:00",
+   "want": "le 25/11"
+  },
+  {
+   "age": -0.1,
+   "want": "à l'instant"
+  },
+  {
+   "age": -1,
+   "want": "heure incohérente"
+  },
+  {
+   "age": null,
+   "want": "heure inconnue"
   }
  ]
 }
