@@ -46,6 +46,13 @@ const server=http.createServer((req,res)=>{
    assert(!requests.some(x=>x.endsWith('/data/forecast.json')),'forecast chargé trop tôt');
    const compact=await page.evaluate(()=>HOME.data.map(s=>({n:s.n,hm:Object.values(s.hm).map(h=>[h.time,h.H,h.T,h.D,h.v,h.wd,h.wind??null])})));
    assert.equal(compact.length,214);
+   // Clic sur une vraie pastille groupée : le panneau doit s'ouvrir immédiatement.
+   await page.waitForFunction(()=>HOME.map&&Object.values(HOME.mk||{}).some(m=>{const el=m.getElement();return !el.hidden&&el.firstChild.classList.contains('ho-st');}));
+   const grouped=await page.evaluate(()=>{const m=Object.values(HOME.mk).find(m=>{const el=m.getElement();return !el.hidden&&el.firstChild.classList.contains('ho-st');});return m.getElement().firstChild.getAttribute('aria-label');});
+   await page.locator('.ho-m.ho-st').and(page.getByRole('button',{name:grouped,exact:true})).first().click({force:true});
+   await page.locator('#hoGo').waitFor({state:'visible'});
+   assert.equal(await page.evaluate(()=>HOME.data.find(s=>s.i===HOME.sel)?.n),grouped,'un clic sur la pile sélectionne le spot représenté');
+   console.log('OK premier clic sur groupe',mobile?'mobile':'desktop',grouped);
    const spot=await page.evaluate(()=>{const s=HOME.data.find(s=>s.n==='Lacanau');homeSpot(s,false);return s.n;});
    assert.equal(spot,'Lacanau');
    await page.locator('#hoNums').waitFor({state:'visible'});
