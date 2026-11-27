@@ -73,6 +73,22 @@ def check(site_dir, max_age_h=3.0):
                 errors.append(f"forecast.json : généré il y a {age:.1f} h (maximum {max_age_h} h)")
         except Exception:
             errors.append("forecast.json : heure de génération illisible")
+        # prévisions Open-Meteo : jamais plus vieilles que le mode dégradé ne l'autorise (issue #7)
+        from pipeline import omcache
+        groups = ((meta.get("api") or {}).get("openmeteo") or {}).get("groups") or {}
+        # âge maximal propre à chaque groupe : 12 h pour la météo, 24 h pour le soleil (qui doit en plus être du jour)
+        old = {g: s.get("age_h") for g, s in groups.items() if (s.get("age_h") or 0) > omcache.max_age_h(g)}
+        if old:
+            errors.append(f"prévisions trop anciennes : {old} (maximum {omcache.STALE_MAX_H:g} h, soleil {omcache.max_age_h('sun'):g} h)")
+        # soleil collecté la veille : toujours juste (calcul astronomique, réponse alignée PAR DATE dans openmeteo.fetch)
+        if groups:
+            om = meta["api"]["openmeteo"]
+            counts["forecast_max_age_h"] = max((s.get("age_h") or 0) for s in groups.values())
+            counts["openmeteo_requests"] = om.get("http_requests")
+            counts["openmeteo_from_cache"] = sum(s.get("source") == "cache" for s in groups.values())
+            counts["openmeteo_calls_h1"] = om.get("calls_if_per_request")
+            counts["openmeteo_calls_h2"] = om.get("calls_if_per_point")
+            counts["openmeteo_429"] = om.get("http_429")
         for k, v in (meta.get("errors") or {}).items():
             (errors if k in GENERATION_ERRORS else warnings).append(f"robot : {k} — {str(v)[:120]}")
 

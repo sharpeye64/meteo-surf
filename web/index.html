@@ -4879,7 +4879,7 @@ function render_v1(){
       <details class="allspots"><summary>Tous les spots <span class="cnt">(${state.data.length})</span></summary>
       <nav class="spotlinks" aria-label="Tous les spots">${(()=>{ const g={}; state.data.forEach(x=>{ (g[x.spot.region]=g[x.spot.region]||[]).push(x.spot); }); return Object.entries(g).map(([r,l])=>`<div><h3>${r}</h3>${l.map(sp=>`<a href="spots/${slugOf(sp.name)}/">${sp.name}</a>`).join('')}</div>`).join(''); })()}</nav></details>
       <p class="flinks"><a href="comment-ca-marche/">Comment ça marche</a> · <a href="a-propos/">À propos</a> · <a href="mentions-legales/">Mentions légales</a> · <a href="confidentialite/">Confidentialité</a></p>
-      ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}.</p>`:''}
+      ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}.${fcStaleNote()}</p>`:''}
     </footer>
   </div>`;
 
@@ -5425,6 +5425,9 @@ function pvScrollEdges(){
   document.addEventListener('pointerout',e=>{ const p=e.target.closest&&e.target.closest('.pv-bpl'); if(p&&!p.contains(e.relatedTarget)) p.querySelectorAll('.pv-btip,.pv-bguide').forEach(x=>x.classList.remove('on')); });
 })();
 /* haut de page : la lumière suit très légèrement l'heure du spot (aube, jour, crépuscule, nuit) */
+// Issue #7 : si Open-Meteo ne répondait pas, le robot a réutilisé des prévisions plus anciennes (mode dégradé, moins de 12 h) ;
+// les mesures des bouées, elles, sont à jour. On le dit, sans rien changer d'autre.
+function fcStaleNote(){const m=state.meta||{};if(!(m.errors&&m.errors.openmeteo_cache&&m.forecast_fetched))return '';const f=m.forecast_fetched;return ` Prévisions collectées le ${f.slice(8,10)}/${f.slice(5,7)} à ${f.slice(11,16).replace(':','h')} (service de prévision momentanément indisponible) ; mesures des bouées à jour.`}
 function pvSky(){
   const d=state.data&&state.data[state.spot], sun=d&&d.days[0]&&d.days[0].sun; if(!sun) return 'day';
   let h; try{ const p=new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'numeric',minute:'numeric',hourCycle:'h23'}).formatToParts(new Date()); h=+p.find(x=>x.type==='hour').value+(+p.find(x=>x.type==='minute').value)/60; }catch(e){ const n=new Date(); h=n.getHours()+n.getMinutes()/60; }
@@ -5472,7 +5475,7 @@ function render(){
     <section class="pv-card pv-hours" aria-labelledby="sHour">
       <h2 class="sr" id="sHour">${pvDayLong(day,k)}, heure par heure</h2>
       <div class="pv-head2">
-      <div class="pv-when"><span class="pv-wt"><i class="pv-ld" id="pvLd"></i><b id="pvWhen">—</b></span>${state.mode==='server'&&state.meta?`<span class="pv-upd" title="Prévisions calculées à ${state.meta.generated.slice(11,16).replace(':','h')}">${pvI('refresh')}${state.meta.generated.slice(11,16).replace(':','h')}</span>`:''}<button type="button" class="pv-tbtn pv-nowb" id="pvNow" hidden>Revenir à maintenant</button></div>
+      <div class="pv-when"><span class="pv-wt"><i class="pv-ld" id="pvLd"></i><b id="pvWhen">—</b></span>${state.mode==='server'&&state.meta?`<span class="pv-upd" title="Prévisions calculées à ${state.meta.generated.slice(11,16).replace(':','h')}${fcStaleNote()}">${pvI('refresh')}${state.meta.generated.slice(11,16).replace(':','h')}</span>`:''}<button type="button" class="pv-tbtn pv-nowb" id="pvNow" hidden>Revenir à maintenant</button></div>
       <div class="pv-sum" aria-live="polite">
         <div class="pv-b pv-bh"><div class="pv-k">${pvI('wave')}Houle</div><div class="pv-v" id="pvS">—</div><div class="pv-s" id="pvSd"></div>${pvEq(day)}<p class="pv-sf" id="pvSf"></p></div>
         <div class="pv-b pv-bw2"><div class="pv-k">${pvI('wind')}Vent</div><div class="pv-v" id="pvW">—</div><div class="pv-s" id="pvWd"></div><p class="pv-sf" id="pvWf"></p></div>
@@ -5505,7 +5508,7 @@ function render(){
       <nav class="spotlinks" aria-label="Tous les spots">${(()=>{ const g={}; state.data.forEach(x=>{ (g[x.spot.region]=g[x.spot.region]||[]).push(x.spot); }); return Object.entries(g).map(([r,l])=>`<div><h3>${r}</h3>${l.map(sp=>`<a href="spots/${slugOf(sp.name)}/">${sp.name}</a>`).join('')}</div>`).join(''); })()}</nav></details>
       <p class="flinks"><a href="comment-ca-marche/">Comment ça marche</a> · <a href="a-propos/">À propos</a> · <a href="mentions-legales/">Mentions légales</a> · <a href="confidentialite/">Confidentialité</a></p>
       ${pvDaSwitch()}
-      ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}.</p>`:''}
+      ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}.${fcStaleNote()}</p>`:''}
     </footer>
   </div>`;
   updateLive(); bind();

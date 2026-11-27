@@ -9,6 +9,7 @@ from pathlib import Path as _Path
 _OUT = _tempfile.mkdtemp(prefix="houlalah-test-")
 _os.environ["METEO_OUT_DIR"] = _OUT      # avant tout import de pipeline : config.OUT_DIR est lu à l'import
 _os.environ["METEO_TEST"] = "1"
+_os.environ["METEO_CACHE_DIR"] = _tempfile.mkdtemp(prefix="houlalah-cache-")   # cache Open-Meteo du test, vide au départ (issue #7)
 _WEB = _Path(__file__).resolve().parent.parent / "web"
 # instantané de TOUT web/ (chemin, taille, date) : on détecte aussi un fichier AJOUTÉ, même si web/ ne contient au départ
 # aucun fichier généré (cas du robot GitHub, où web/ ne contient que les sources du site)
@@ -52,12 +53,21 @@ def fake_get(url, params, tries=3):
             res = [{"hourly": {**hourly, "wave_height": [0.0] * len(tt)}}] + res[1:]
         return res
     hourly = {"time": TIMES}
+    models = [m for m in str(params.get("models", "")).split(",") if m]
     for _k, _l, api in config.WIND_MODELS:
-        hourly[f"wind_speed_10m_{api}"] = [10 + i % 12 for i in range(len(TIMES))]
+        if api not in models:
+            continue
+        sfx = f"_{api}" if len(models) > 1 else ""   # comme l'API : un seul modèle demandé = variables sans suffixe
+        hourly[f"wind_speed_10m{sfx}"] = [10 + i % 12 for i in range(len(TIMES))]
         if api == "meteofrance_seamless":  # AROME s'arrête avant la fin : le vent doit être complété par un autre modèle
-            hourly[f"wind_speed_10m_{api}"][-48:] = [None] * 48
-        hourly[f"wind_direction_10m_{api}"] = [100 if i % 24 < 12 else 280 for i in range(len(TIMES))]
-        hourly[f"wind_gusts_10m_{api}"] = [20] * len(TIMES)
+            hourly[f"wind_speed_10m{sfx}"][-48:] = [None] * 48
+        hourly[f"wind_direction_10m{sfx}"] = [100 if i % 24 < 12 else 280 for i in range(len(TIMES))]
+        hourly[f"wind_gusts_10m{sfx}"] = [20] * len(TIMES)
+    if "daily" not in params:
+        return [{"hourly": hourly}] * n
+    if not models:   # requête « soleil » sans modèle (issue #7) : variables sans suffixe, comme l'API
+        return [{"daily": {"time": [d[:10] for d in TIMES[::24]], "sunrise": [d[:10] + "T08:05" for d in TIMES[::24]],
+                           "sunset": [d[:10] + "T17:50" for d in TIMES[::24]]}}] * n
     # Comme l'API réelle avec plusieurs modèles : lever/coucher suffixés par modèle
     daily = {"time": [TIMES[i][:10] for i in range(0, len(TIMES), 24)],
              "sunrise_meteofrance_seamless": [d[:10] + "T08:05" for d in TIMES[::24]],
@@ -158,6 +168,8 @@ _hist = tempfile.mkdtemp()
 os.environ["METEO_HISTORY_DIR"] = _hist     # archive de test : jamais dans le vrai dossier history/
 os.environ["METEO_ARCHIVE"] = "1"
 openmeteo.get = fake_get
+from pipeline import omcache as _omc
+_omc.model_meta = lambda kind, name: {"last_run_availability_time": 1_700_000_000}   # métadonnées simulées, sans réseau
 marc.open_dataset = fake_marc
 buoy.requests.get = fake_buoy_get
 build.main()

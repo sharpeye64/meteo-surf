@@ -2,6 +2,11 @@
 
 Évolutions significatives, de la plus récente à la plus ancienne. Le détail technique fin est dans `CLAUDE.md` et l'historique git. Tags `avant-…` = point de retour avant un chantier.
 
+## 27/11/2026
+
+- **Quotas et cache Open-Meteo, issue #7** (branche `quotas-cache`, PR en revue, non publié) : mesure de chaque requête (dont les 429), cache des prévisions renouvelé à chaque nouveau run des modèles, vent séparé par modèle, mode dégradé signalé. Environ 3,3 fois moins d'appels, bouées inchangées. Voir [quotas-licences.md](quotas-licences.md).
+- **Sécurisation de la publication, issue #3** : publiée le 26/11 au soir (PR #11, fusion `56c4c91`).
+
 ## 26/11/2026
 
 - **Sécurisation de la publication, issue #3** (branche `securiser-publication`, PR en revue, non publié) : tests isolés hors de `web/`, marques de test, contrôle avant publication (`tools/check_site.py`), génération dans `_site/`, déploiement depuis `main` seulement, `health.json`. Voir [securisation-publication.md](securisation-publication.md).

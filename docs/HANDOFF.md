@@ -16,6 +16,7 @@ _Dernière mise à jour : 26/11/2026, par Claude Code._
 
 ## En cours
 
+- **Issue #7, branche `quotas-cache`** (PR ouverte pour revue, **non fusionnée**, repère `avant-quotas-cache`) : mesure de la consommation Open-Meteo, cache persistant (`pipeline/omcache.py`), comparatif `python -m tools.api_budget`, inventaire des licences : [quotas-licences.md](quotas-licences.md). **4 refus 429** vus sur un passage à cache vide.
 - **Issue #3, branche `securiser-publication`** (PR #11, corrigée après la revue de ChatGPT, validée par un vrai passage GitHub sans déploiement ; **non fusionnée**, repère `avant-securiser-publication`) : tests isolés dans un dossier temporaire, marques de test, contrôle avant publication `tools/check_site.py`, génération dans `_site/`, déploiement et archive depuis `main` seulement, `health.json`. Rapport et preuves : [securisation-publication.md](securisation-publication.md). Attend la revue de ChatGPT puis le « Oui, publie ».
 - **Branche `docs-onboarding`** (poussée, non fusionnée) : documentation commune. `securiser-publication` part de cette branche : la fusionner inclut aussi la documentation.
 - **Ordre retenu ensuite (non commencé)** : #7 quotas et cache → #2 heures et Portugal → #1 archives → #4, #6, #8 → #5, #9 après la collecte → #10 après les licences.

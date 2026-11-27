@@ -11,7 +11,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from . import appdata, buoy, candhis, config, ibi_buoys, safe, seo, history, marc, openmeteo, tides
+from . import appdata, buoy, candhis, config, ibi_buoys, omcache, safe, seo, history, marc, openmeteo, tides
 
 
 def log(msg):
@@ -74,7 +74,7 @@ def write_health(payload, spots):
         buoys.append({"id": str(b.get("id")), "name": b.get("name"), "last": t, "age_h": round((now - pd.Timestamp(t)) / pd.Timedelta("1h"), 1) if t else None,
                       "silent": bool(b.get("silent"))})
     health = {"generated": meta["generated"], "site": config.SITE_URL, "spots_expected": len(spots), "spots": len(payload.get("spots") or []),
-              "errors": {k: clean(v) for k, v in (meta.get("errors") or {}).items()}, "buoys": buoys}
+              "errors": {k: clean(v) for k, v in (meta.get("errors") or {}).items()}, "buoys": buoys, "api": meta.get("api")}
     if meta.get("_test"):
         health["_test"] = True
     (config.OUT_DIR / "health.json").write_text(json.dumps(health, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -87,8 +87,10 @@ def main():
     if config.TEST_RUN:
         meta["_test"] = True   # sources simulées : le contrôle de publication refuse ces données
 
+    omcache.reset()
     log("Open-Meteo : vagues, vent, eau, soleil")
     om, wave_labels = openmeteo.fetch(spots)
+    log("  " + ", ".join(f"{g} : {s['source']}" + (f" ({s['reason']})" if s.get("reason") else f" ({s.get('age_h')} h)") for g, s in sorted(omcache.STATE.items())))
     times = om[0]["marine"]["time"]
     meta["sources"]["openmeteo"] = list(wave_labels.values())
 
@@ -256,6 +258,24 @@ def main():
     meta["wind_models"] = [{"key": k, "label": l} for k, l, _a in config.WIND_MODELS]
     meta["buoy_correction"] = ratio
     payload = {"meta": meta, "gascogne": gascogne, "coast": coast, "offshore": offshore, "tide_coef": tide_coef, "reliability": reliability, "buoy_stats": history.buoy_stats(), "spots": out_spots}
+    # consommation Open-Meteo de ce passage et provenance des prévisions (issue #7) ; mode dégradé signalé
+    meta["api"] = omcache.summary()
+    # heure de COLLECTE des prévisions (≠ heure de génération en mode dégradé ; ≠ heure du run du modèle)
+    meta["forecast_fetched"] = meta["api"]["openmeteo"]["forecast_fetched"]
+    try:
+        meta["api"]["today"] = omcache.persist_daily(meta["api"], meta["generated"])
+    except Exception as e:   # compteurs : jamais bloquants
+        meta["errors"]["api_compteurs"] = str(e)[:200]
+    degraded = {g: s for g, s in omcache.STATE.items() if s.get("source") == "cache-dégradé"}
+    if degraded:
+        meta["errors"]["openmeteo_cache"] = "prévisions réutilisées (Open-Meteo indisponible) : " + ", ".join(f"{g} {s['age_h']} h" for g, s in sorted(degraded.items()))
+    u = meta["api"]["openmeteo"]
+    log(f"Open-Meteo : {u['requests']} requêtes, {u['attempts']} tentatives ({u['attempts_429']} refus 429, {u['attempts_5xx']} 5xx, "
+        f"{u['attempts_network']} réseau), {u['points']} points, {u['calls_if_per_request']} appels (par requête) / "
+        f"{u['calls_if_per_point']} (par point) acceptés ; collecte des prévisions {u['forecast_fetched']}")
+    if omcache.CHANGED:
+        omcache.CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        (omcache.CACHE_DIR / "CHANGED").write_text(meta["generated"], encoding="utf-8")
     config.OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     try:  # données allégées pour l'application mobile : jamais bloquant, et AVANT forecast.json pour que l'erreur y figure
         log(f"Appli mobile : {appdata.generate(spots, payload)} fiches de spots (web/data/app/)")
