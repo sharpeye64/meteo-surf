@@ -17,7 +17,7 @@ from pipeline import history
 def main(d):
     d = Path(d)
     cs = history.coast_summary(d)
-    print(f"Passages archivés : {cs['runs']}")
+    print(f"Passages archivés : {cs['runs']} (ancien format, sans doublon) ; {cs['runs_v2']} au format v2 (modèles et mélanges, issue #1)")
     for bid, v in cs["buoys"].items():
         print(f"  bouée {bid} : {v['n']} mesures horaires, du {v['first']} au {v['last']}")
     # Aperçu : écart (prévu − mesuré) à l'heure du passage, selon la période prévue (courte / moyenne / longue)
@@ -26,15 +26,13 @@ def main(d):
         for bid, rows in json.loads(f.read_text(encoding="utf-8")).items():
             obs.setdefault(bid, {}).update(rows)
     rows = []
-    for f in sorted((d / "coast_runs").glob("*.jsonl")) if (d / "coast_runs").exists() else []:
-        for line in f.read_text(encoding="utf-8").splitlines():
-            r = json.loads(line)
-            for bid, b in r["b"].items():
-                for k in range(0, len(b["hs"]), 1):
-                    t = _plus(r["t0"], k)
-                    o = obs.get(bid, {}).get(t)
-                    if o and b["hs"][k] is not None and b["tp"] and b["tp"][k] is not None and k <= 24:
-                        rows.append((bid, k, b["hs"][k], b["tp"][k], o["hs"], o.get("tp")))
+    for r in history.read_coast_runs(d):   # doublons ignorés (issue #1)
+        for bid, b in r["b"].items():
+            for k in range(0, len(b["hs"]), 1):
+                t = _plus(r["t0"], k)
+                o = obs.get(bid, {}).get(t)
+                if o and b["hs"][k] is not None and b["tp"] and b["tp"][k] is not None and k <= 24:
+                    rows.append((bid, k, b["hs"][k], b["tp"][k], o["hs"], o.get("tp")))
     if len(rows) < 30:
         print("Pas encore assez de couples prévision/mesure pour un aperçu (il en faut au moins 30).")
         return

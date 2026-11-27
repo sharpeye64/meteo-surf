@@ -61,12 +61,19 @@ WATCH = {
     "wind_ecmwf": [("api", "ecmwf_ifs025")],
     "sun": [],                                  # lever et coucher du soleil : calcul astronomique, une fois par jour
     "point": MARINE_ALL,                        # prévision au point d'une bouée (comparaison mesure / modèle)
+    # archive aux points des bouées (issue #1) : mêmes règles que les groupes dont elles reprennent la requête
+    "buoys_marine": MARINE_ALL,
+    "buoys_wave_mfwam": [("marine", "meteofrance_wave")],
+    "buoys_wave_ewam": [("marine", "dwd_ewam")],
+    "buoys_wave_ecmwf": [("marine", "ecmwf_wam025")],
+    "buoys_wave_gfs": [("marine", "ncep_gfswave025")],
 }
 WIND_ALL = [w for g in ("wind_arome", "wind_icon", "wind_gfs", "wind_ecmwf") for w in WATCH[g]]
 TTL_H = {"sun": 24.0}   # durée maximale propre à un groupe (sinon TTL_MAX_H) ; le changement de jour s'applique toujours
 
 USAGE = []        # une ligne par requête HTTP de DONNÉES envoyée à Open-Meteo (rempli par openmeteo.get)
 STATE = {}        # par groupe : provenance (api / cache / cache-dégradé), âge, raison
+CYCLES = {}       # par groupe : cycles des modèles au moment de la collecte (voir _runs) ; None = inconnu (ancien cache)
 CHANGED = False   # vrai si le cache a été modifié pendant ce passage (le workflow ne le sauvegarde que dans ce cas)
 _metas = {}
 META_CHECKS = {"ok": 0, "failed": 0}
@@ -74,7 +81,7 @@ META_CHECKS = {"ok": 0, "failed": 0}
 
 def reset():
     global CHANGED
-    USAGE.clear(); STATE.clear(); _metas.clear()
+    USAGE.clear(); STATE.clear(); CYCLES.clear(); _metas.clear()
     META_CHECKS.update(ok=0, failed=0)
     CHANGED = False
 
@@ -102,6 +109,18 @@ def _snapshot(watch, now):
         a = (m or {}).get("last_run_availability_time")
         snap[name] = int(a) if a and now >= a + SETTLE_S else None
     return snap
+
+
+def _runs(watch, now):
+    """Cycle (run) de chaque modèle surveillé, d'après ses métadonnées publiques, SEULEMENT s'il était disponible au moment de
+    la requête : {nom: {"init", "available", "step_s"}} (horodatages UNIX) ou None (inconnu). Archivé tel quel (issue #1) :
+    jamais d'heure d'émission déduite ou inventée."""
+    out = {}
+    for kind, name in watch:
+        m = model_meta(kind, name) or {}
+        a, i = m.get("last_run_availability_time"), m.get("last_run_initialisation_time")
+        out[name] = {"init": int(i), "available": int(a), "step_s": m.get("temporal_resolution_seconds")} if a and i and a <= now else None
+    return out
 
 
 def _key(url, params):
@@ -178,8 +197,10 @@ def cached_get(group, url, params, fetcher, watch_key=None):
     """Comme fetcher(url, params), mais réutilise la dernière réponse si aucun modèle concerné n'a publié depuis."""
     global CHANGED
     if not ENABLED:
-        STATE[group] = {"source": "api", "reason": "cache désactivé"}
-        return fetcher(url, params)
+        STATE[group] = {"source": "api", "fetched": time.time(), "reason": "cache désactivé"}
+        data = fetcher(url, params)
+        CYCLES[group] = _runs(WATCH[watch_key or group], time.time())
+        return data
     watch = WATCH[watch_key or group]
     now = time.time()
     key = _key(url, params)
@@ -187,6 +208,7 @@ def cached_get(group, url, params, fetcher, watch_key=None):
     reason = why_refresh(entry, key, watch, now, TTL_H.get(watch_key or group, TTL_MAX_H))
     if reason is None:
         STATE[group] = {"source": "cache", "fetched": entry["fetched"], "age_h": round((now - entry["fetched"]) / 3600, 2)}
+        CYCLES[group] = entry.get("cycles")
         return entry["data"]
     try:
         data = fetcher(url, params)
@@ -199,11 +221,14 @@ def cached_get(group, url, params, fetcher, watch_key=None):
             age = round((now - entry["fetched"]) / 3600, 2)
             STATE[group] = {"source": "cache-dégradé", "fetched": entry["fetched"], "age_h": age,
                             "reason": safe.public_error(f"Open-Meteo indisponible ({e})", 160)}
+            CYCLES[group] = entry.get("cycles")
             return entry["data"]
         raise
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     tmp = _path(group).with_suffix(".tmp")
-    tmp.write_text(json.dumps({"key": key, "fetched": now, "runs": _snapshot(watch, now), "data": data}, separators=(",", ":")), encoding="utf-8")
+    cycles = _runs(watch, now)
+    tmp.write_text(json.dumps({"key": key, "fetched": now, "runs": _snapshot(watch, now), "cycles": cycles, "data": data}, separators=(",", ":")), encoding="utf-8")
+    CYCLES[group] = cycles
     tmp.replace(_path(group))
     CHANGED = True
     STATE[group] = {"source": "api", "fetched": now, "age_h": 0.0, "reason": reason}
@@ -244,7 +269,8 @@ def summary():
         if st.get("fetched"):
             d["fetched"] = loc(st["fetched"])
         groups[g] = d
-    weather = [st["fetched"] for g, st in STATE.items() if g != "sun" and st.get("fetched")]
+    # prévisions PUBLIÉES seulement : les groupes de l'archive aux bouées (buoys_*, issue #1) ne servent pas à l'affichage
+    weather = [st["fetched"] for g, st in STATE.items() if g != "sun" and not g.startswith("buoys_") and st.get("fetched")]
     return {
         "openmeteo": {
             "requests": len(u),                          # requêtes logiques

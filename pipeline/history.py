@@ -34,16 +34,57 @@ def archiving_enabled():
 
 
 def _read_runs(d, since):
-    runs = []
+    """Passages archivés depuis `since`. Doublons ignorés (premier gardé) : avant l'issue #1, le robot archivait souvent deux fois
+    la même heure (deux passages dans l'heure d'archive), ce qui comptait ces heures deux fois dans la fiabilité."""
+    runs, seen = [], set()
     for f in sorted((d / "runs").glob("*.jsonl")):
         for line in f.read_text(encoding="utf-8").splitlines():
             try:
                 r = json.loads(line)
             except ValueError:
                 continue
-            if r.get("issued", "") >= since:
+            if r.get("issued", "") >= since and r.get("issued") not in seen:
+                seen.add(r.get("issued"))
                 runs.append(r)
     return runs
+
+
+def _has_issued(f, issued):
+    if not f.exists():
+        return False
+    needle = f'"issued":"{issued}"'
+    with open(f, encoding="utf-8") as fh:
+        return any(needle in line for line in fh)
+
+
+def already(d, issued):
+    """Heure déjà archivée dans les anciens formats (runs/ et coast_runs/) ?"""
+    d = Path(d)
+    return _has_issued(d / "runs" / f"{issued[:7]}.jsonl", issued) and _has_issued(d / "coast_runs" / f"{issued[:7]}.jsonl", issued)
+
+
+def slice_from(hourly, from_local, hours=97, extra=False):
+    """Découpe d'une série Open-Meteo à partir de `from_local` (même règle qu'avant l'issue #1 : première heure >= from_local).
+    extra : période et direction aussi (format coast_runs)."""
+    from .openmeteo import valid_hs
+    t = hourly.get("time") or []
+    i = next((j for j, x in enumerate(t) if x >= from_local), None)
+    if i is None:
+        return None
+    hs = valid_hs(hourly["wave_height"][i:i + hours])
+    if not any(x is not None for x in hs):
+        return None
+    out = {"t0": t[i], "hs": hs}
+    if extra:
+        sl = lambda k: [None if x is None else round(float(x), 2) for x in (hourly.get(k) or [])[i:i + hours]]
+        out = {"t0": t[i], "hs": hs, "tp": sl("wave_period"), "dir": sl("wave_direction")}
+    return out
+
+
+def record_obs(gascogne_obs, buoys, d=None):
+    """Mesures seules (Gascogne et bouées côtières) : fusion par heure, sans effet si on les écrit deux fois."""
+    record(None, None, gascogne_obs, d)
+    record_coast(None, None, buoys, d)
 
 
 def _read_obs(d):
@@ -62,7 +103,7 @@ def record(issued, forecasts, obs_hourly, d=None):
     d = Path(d) if d else history_dir()
     (d / "runs").mkdir(parents=True, exist_ok=True)
     (d / "obs").mkdir(parents=True, exist_ok=True)
-    if forecasts:
+    if forecasts and not _has_issued(d / "runs" / f"{issued[:7]}.jsonl", issued):   # sans doublon (issue #1)
         t0s = {v["t0"] for v in forecasts.values()}
         line = {"issued": issued, "t0": sorted(t0s)[0],
                 "models": {k: [None if x is None else round(float(x), 2) for x in v["hs"]] for k, v in forecasts.items()}}
@@ -144,7 +185,7 @@ def record_coast(issued, forecasts, buoys, d=None):
     d = Path(d) if d else history_dir()
     (d / "coast_runs").mkdir(parents=True, exist_ok=True)
     (d / "coast_obs").mkdir(parents=True, exist_ok=True)
-    if forecasts:
+    if forecasts and not _has_issued(d / "coast_runs" / f"{issued[:7]}.jsonl", issued):   # sans doublon (issue #1)
         t0 = sorted(v["t0"] for v in forecasts.values())[0]
         line = {"issued": issued, "t0": t0, "b": {k: {"hs": v["hs"], "tp": v.get("tp"), "dir": v.get("dir")} for k, v in forecasts.items()}}
         with open(d / "coast_runs" / f"{issued[:7]}.jsonl", "a", encoding="utf-8") as fh:
@@ -163,6 +204,22 @@ def record_coast(issued, forecasts, buoys, d=None):
             cur.setdefault(bid, {}).update(rows)
             cur[bid] = dict(sorted(cur[bid].items()))
         f.write_text(json.dumps(cur, separators=(",", ":")), encoding="utf-8")
+
+
+def read_coast_runs(d=None):
+    """Passages coast_runs (ancien format), doublons ignorés (premier gardé, voir _read_runs)."""
+    d = Path(d) if d else history_dir()
+    out, seen = [], set()
+    for f in sorted((d / "coast_runs").glob("*.jsonl")) if (d / "coast_runs").exists() else []:
+        for line in f.read_text(encoding="utf-8").splitlines():
+            try:
+                r = json.loads(line)
+            except ValueError:
+                continue
+            if r.get("issued") not in seen:
+                seen.add(r.get("issued"))
+                out.append(r)
+    return out
 
 
 def coast_rows(ids, d=None):
@@ -195,8 +252,8 @@ def coast_summary(d=None):
             if ks:
                 o["first"] = min(filter(None, [o["first"], ks[0]]))
                 o["last"] = max(filter(None, [o["last"], ks[-1]]))
-    runs = sum(len(f.read_text(encoding="utf-8").splitlines()) for f in (d / "coast_runs").glob("*.jsonl")) if (d / "coast_runs").exists() else 0
-    return {"buoys": out, "runs": runs}
+    from . import archive
+    return {"buoys": out, "runs": len(read_coast_runs(d)), "runs_v2": len(archive.read(d))}
 
 
 def buoy_stats(d=None, days_shown=30):

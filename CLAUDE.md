@@ -130,6 +130,7 @@ n'est pas développeur : expliquer en français, simplement, une étape à la fo
   (hauteur, Hmax, période, direction, eau : `history/coast_obs/`) et la prévision au même point (hauteur, période, direction sur 96 h :
   `history/coast_runs/`). Bilan : `python -m tools.coast_report history/`. Objectif : après ≥ 30 jours, apprendre par bouée la relation
   prévu (hauteur, période) → mesuré près du bord, puis seulement afficher une « taille au bord ». Ne rien afficher avant validation.
+- Archive v2 (issue #1, `pipeline/archive.py`, `docs/archive-modeles.md`) : `history/buoy_runs/AAAA-MM.jsonl`, une ligne par heure d'archive (sans doublon) : modèles un par un, MARC (≤ 6 km), mélanges brut et corrigé (`pipeline/melange.py`, même calcul que la prévision publiée), cycle des modèles lu dans les métadonnées Open-Meteo (jamais inventé), heures avec décalage. 5 requêtes groupées (22 bouées), via le cache. Les anciens fichiers (`runs/`, `coast_runs/`) gardent leur format ; leurs doublons d'avant sont ignorés à la lecture.
 - Haut de page : une seule pastille de fiabilité en mots simples (« Prévision fiable / assez fiable / incertaine », info-bulle), plus
   de « Accord des modèles », de « 4 modèles de houle… », de « Fiabilité mesurée… » ni de bouton « Lancer la journée ».
 

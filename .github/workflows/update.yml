@@ -50,6 +50,8 @@ jobs:
         run: python -m tests.test_alignement
       - name: Contrat horaire du robot (France, Portugal, changements d'heure)
         run: python -m tests.test_heures
+      - name: Archive des modèles aux points des bouées (issue #1 ; anciennes archives, doublons, mélanges)
+        run: python -m tests.test_archive
       - uses: actions/setup-node@v4
         with:
           node-version: "24"

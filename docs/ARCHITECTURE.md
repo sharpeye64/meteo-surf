@@ -51,6 +51,8 @@ Il n'y a **aucun serveur** à maintenir : tout est généré par le robot puis s
 | `ibi_buoys.py` | 14 bouées Copernicus Marine In Situ (Espagne, Portugal) |
 | `tides.py` | Marées harmoniques, coefficient (Brest) |
 | `history.py` | Archive « prévision contre réalité » (branche `history`) et calcul de fiabilité |
+| `archive.py` | Archive v2 aux points des bouées : modèles, MARC, mélanges brut et corrigé, provenance (issue #1, `docs/archive-modeles.md`) |
+| `melange.py` | Mélange des modèles et correction par la bouée : le calcul de la prévision publiée, partagé avec l'archive |
 | `appdata.py` | Fichiers allégés pour l'application (`web/data/app/`) |
 | `seo.py`, `bouees.py`, `zones.py`, `pages.py`, `seotext.py`, `share.py` | Pages statiques (spots, bouées, régions, pages de texte), sitemap, images de partage |
 | `config.py` | Réglages : modèles et poids, bouées, fuseau (`Europe/Paris`), adresse du site |

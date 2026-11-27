@@ -49,8 +49,10 @@ def fake_get(url, params, tries=3):
                   "sea_level_height_msl": [math.sin(i / 12.42 * 2 * math.pi) for i in range(len(tt))],
                   "sea_surface_temperature": [16.8] * len(tt)}
         res = [{"hourly": hourly}] * n
-        if params.get("models") == "ncep_gfswave025":  # maille « terre » : 0,00 m sur tout le premier point
-            res = [{"hourly": {**hourly, "wave_height": [0.0] * len(tt)}}] + res[1:]
+        if params.get("models") == "ncep_gfswave025":  # maille « terre » : 0,00 m sur tout le premier point, et au point de Gascogne
+            lats = str(params["latitude"]).split(",")
+            res = [{"hourly": {**hourly, "wave_height": [0.0] * len(tt)}} if (j == 0 or float(la) == config.GASCOGNE["lat"]) else r
+                   for j, (la, r) in enumerate(zip(lats, res))]
         return res
     hourly = {"time": TIMES}
     models = [m for m in str(params.get("models", "")).split(",") if m]
