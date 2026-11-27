@@ -192,7 +192,7 @@ w0 = data["spots"][0]["wind"]["wind_speed_10m"]
 assert all(v is not None for v in w0), "le vent doit être complété quand AROME s'arrête"
 assert data["spots"][0]["marine"]["secondary_swell_wave_height"][0] == 0.4
 d0 = data["spots"][0]["daily"]
-assert d0["sunrise"][0].endswith("T08:05") and d0["sunset"][0].endswith("T17:50") and len(d0) == 3, d0.keys()
+assert d0["sunrise"][0][11:16] == "08:05" and d0["sunset"][0][11:16] == "17:50" and len(d0) == 3, d0.keys()
 # --- archive prévision/réalité : le passage a été enregistré, la fiabilité est « en cours de collecte »
 from pathlib import Path
 from pipeline import history

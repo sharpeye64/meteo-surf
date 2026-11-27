@@ -58,6 +58,13 @@ def check(site_dir, max_age_h=3.0):
     if fc:
         meta = fc.get("meta") or {}
         gen = meta.get("generated")
+        # contrat horaire (issue #2) : toutes les heures publiées portent leur décalage
+        from pipeline import timefmt
+        if (meta.get("time") or {}).get("version") != timefmt.VERSION:
+            errors.append("forecast.json : contrat horaire absent (meta.time.version)")
+        left = timefmt.naive_strings(fc)
+        if left:
+            errors.append(f"forecast.json : {len(left)} heure(s) sans décalage (ex. {left[:3]})")
         names = [s.get("name", "") for s in fc.get("spots") or []]
         got = {slugify(n) for n in names}
         counts["spots_forecast"] = len(got)
@@ -95,6 +102,9 @@ def check(site_dir, max_age_h=3.0):
     # 2. données de l'application : index, fiches de spots et de bouées, identifiants internes, séries
     idx = _json(d / "data" / "app" / "index.json", errors, "appli index.json")
     if idx:
+        from pipeline import timefmt
+        if timefmt.naive_strings(idx):
+            errors.append("appli : heures sans décalage dans index.json (contrat horaire)")
         alist = [s.get("slug") for s in idx.get("spots") or []]
         aslugs = set(alist)
         counts["app_spots"] = len(aslugs)

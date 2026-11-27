@@ -35,6 +35,7 @@
 | `src/theme.ts` | Deux palettes (clair, sombre) de mêmes clés ; styles via `themed(() => StyleSheet.create(...))` |
 
 ## Règles
+- **Heures** (issue #2) : toujours passer par `src/time.ts` (`tMs`, `partsIn`, `placeTz`), jamais `new Date(t + ':00')` ni `getHours()` du téléphone. Affichage à l'heure du spot (champ `tz`). Voir [heures.md](heures.md).
 
 - **Couleurs** : toujours passer par `C` (theme.ts). Une couleur en dur casse le mode sombre.
 - **Mode sombre** : automatique, il suit le réglage du téléphone (`userInterfaceStyle: automatic`).

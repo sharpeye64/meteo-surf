@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
 import { ageH, ageTxt, Buoy, buoyFits, dayTxt, BuoySheet, fr, Index, km, loadBuoy, perTxt, prefBuoy, sector } from './data';
+import { tMs } from './time';
 import { Blink } from './Live';
 import { useBarSpace } from './TabBar';
 import { C, F, themed } from './theme';
@@ -203,7 +204,7 @@ function Tile({ k, v, s, dir, light }: { k: string; v: string; s?: string; dir?:
 /** Courbe : trait plein = mesure de la bouée, tirets dorés = prévision au même endroit, trait vertical = maintenant. */
 function Chart({ d }: { d: BuoySheet }) {
   const W = 330, H = 150, P = { l: 26, r: 8, t: 10, b: 20 };
-  const ts = (t: string) => new Date(t + ':00').getTime();
+  const ts = (t: string) => tMs(t);   // instants exacts (issue #2)
   const obs = d.obs.filter(o => o.hs != null), mod = d.model.filter(m => m.hs != null);
   if (obs.length < 2) return <Text style={st.legS}>Pas assez de relevés récents.</Text>;
   const t0 = ts(obs[0].t), t1 = Math.max(ts(obs[obs.length - 1].t), mod.length ? ts(mod[mod.length - 1].t) : 0);

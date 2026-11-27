@@ -4,6 +4,8 @@
 
 ## 27/11/2026
 
+- **Heures explicites, issue #2** (branche `heures-locales`, PR en revue, non publié) : ISO 8601 avec décalage à l'heure du lieu, Portugal à l'heure de Lisbonne, lecture des deux formats (site, appli), correction du décalage unique des séries Open-Meteo. Voir [heures.md](heures.md).
+- **Issue #7 publiée** (PR #12).
 - **Quotas et cache Open-Meteo, issue #7** (branche `quotas-cache`, PR en revue, non publié) : mesure de chaque requête (dont les 429), cache des prévisions renouvelé à chaque nouveau run des modèles, vent séparé par modèle, mode dégradé signalé. Environ 3,3 fois moins d'appels, bouées inchangées. Voir [quotas-licences.md](quotas-licences.md).
 - **Sécurisation de la publication, issue #3** : publiée le 26/11 au soir (PR #11, fusion `56c4c91`).
 

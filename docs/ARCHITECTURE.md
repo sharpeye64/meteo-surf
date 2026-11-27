@@ -59,7 +59,7 @@ Il n'y a **aucun serveur** à maintenir : tout est généré par le robot puis s
 **Règles du robot**
 - **Publication contrôlée** (issue #3, [securisation-publication.md](securisation-publication.md)) : sur GitHub, le robot génère dans `_site/` (`METEO_OUT_DIR`), puis `python -m tools.check_site _site` vérifie spots, bouées, fiches de l'appli, sitemap, canoniques, JSON et absence de données de test. Refus = pas d'envoi, la version en ligne reste. Seule `main` déploie.
 - **Résilience** : toute source sauf Open-Meteo peut échouer sans bloquer la génération. Les erreurs sont listées dans `meta.errors`. Une bouée absente est reprise depuis l'archive (`build.keep_silent`), puis marquée muette au-delà de 48 h.
-- **Heures** : toutes les heures sont converties en **heure de Paris** (`config.TIMEZONE`). Le robot GitHub tourne en UTC : la génération des pages utilise `seo.paris_now()`.
+- **Heures** : en interne, le robot calcule en heure de Paris (`config.TIMEZONE`, `seo.paris_now()`, car il tourne en UTC). À la publication, `timefmt.localize` écrit chaque instant en ISO 8601 **avec décalage**, à l'heure locale du lieu (Portugal : Lisbonne). Voir [heures.md](heures.md).
 - **Pas de données inventées** : une donnée absente n'est pas affichée, ou est signalée comme absente.
 
 ## Le site (`web/index.html`)

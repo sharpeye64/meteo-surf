@@ -11,7 +11,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from . import appdata, buoy, candhis, config, ibi_buoys, omcache, safe, seo, history, marc, openmeteo, tides
+from . import appdata, buoy, candhis, config, ibi_buoys, omcache, safe, seo, history, marc, openmeteo, tides, timefmt
 
 
 def log(msg):
@@ -131,6 +131,7 @@ def main():
 
     log("Bouées du large fraîches (Bilbao-Vizcaya, Donostia)")
     offshore = []
+    model_offsets = {}
     try:
         offshore, oerr = ibi_buoys.fetch_all()
         for k, v in oerr.items():
@@ -139,6 +140,7 @@ def main():
             try:
                 m = openmeteo.model_at_point(b["lat"], b["lon"])
                 b["model"] = [{"t": t, "hs": h} for t, h in zip(m["time"], m["wave_height"]) if h is not None]
+                model_offsets[str(b["id"])] = m.get("_utc_offset")   # pour écrire ces heures au contrat horaire (issue #2)
             except Exception as e:
                 b["model"] = []
                 meta["errors"][f"ibi_model_{b['id']}"] = str(e)[:200]
@@ -276,6 +278,11 @@ def main():
     if omcache.CHANGED:
         omcache.CACHE_DIR.mkdir(parents=True, exist_ok=True)
         (omcache.CACHE_DIR / "CHANGED").write_text(meta["generated"], encoding="utf-8")
+    # CONTRAT HORAIRE v2 (issue #2) : tout ce qui est publié à partir d'ici (forecast.json, appli, pages, health.json) porte
+    # des instants ISO 8601 avec décalage, à l'heure locale du lieu. Les calculs ci-dessus restent faits sur les heures internes.
+    payload["_model_offsets"] = model_offsets
+    payload = timefmt.localize(payload, spots, openmeteo.LAST_OFFSET_S, openmeteo.LAST_SUN_OFFSET_S)
+    meta = payload["meta"]
     config.OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     try:  # données allégées pour l'application mobile : jamais bloquant, et AVANT forecast.json pour que l'erreur y figure
         log(f"Appli mobile : {appdata.generate(spots, payload)} fiches de spots (web/data/app/)")

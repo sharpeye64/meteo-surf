@@ -4391,9 +4391,10 @@ function nearestCoast(s){
   return best.km>130?null:best;
 }
 function stampTxt(t){
-  const d=new Date(t+':00'), n=new Date(), dd=Math.round((new Date(n.getFullYear(),n.getMonth(),n.getDate())-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);
-  const hh=d.getHours()+'h'+(d.getMinutes()?String(d.getMinutes()).padStart(2,'0'):'');
-  return dd<=0?`aujourd’hui ${hh}`:dd===1?`hier ${hh}`:`${DAYS_LONG[d.getDay()]} ${hh}`;
+  // jour et heure À L'HEURE DU LIEU de la mesure (issue #2) : « aujourd'hui » se juge dans ce fuseau, pas celui de l'appareil
+  const off=tOffMin(t), today=new Date(Date.now()+off*6e4).toISOString().slice(0,10), dd=Math.round((Date.parse(today)-Date.parse(t.slice(0,10)))/864e5);
+  const hh=(+t.slice(11,13))+'h'+(+t.slice(14,16)?t.slice(14,16):'');
+  return dd<=0?`aujourd’hui ${hh}`:dd===1?`hier ${hh}`:`${DAYS_LONG[new Date(t.slice(0,10)+'T12:00Z').getUTCDay()]} ${hh}`;
 }
 /* « 18/11 » : pour une bouée muette depuis plusieurs jours */
 function dmy(t){ return t.slice(8,10)+'/'+t.slice(5,7); }
@@ -4405,8 +4406,8 @@ const BI={
 function dirIcon(dir){ return `<svg width="26" height="26" viewBox="-13 -13 26 26" aria-hidden="true"><circle r="11.5" fill="none" stroke="currentColor" stroke-opacity=".35"/><g style="transform:rotate(${((dir+180)%360).toFixed(0)}deg)"><path d="M0 -8V7M-4.5 -3.5L0 -8L4.5 -3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`; }
 function buoyChart(obs,fc,label){
   if(obs.length<4) return '<p class="bnote">Pas assez de mesures récentes pour tracer la courbe.</p>';
-  const all=[...obs.map(o=>o.hs),...fc.map(o=>o.hs)], mx=Math.max(0.5,Math.max(...all)*1.15), t0=new Date(obs[0].t).getTime(), t1=new Date(obs[obs.length-1].t).getTime();
-  const X=t=>((new Date(t).getTime()-t0)/(t1-t0||1)*300), Y=v=>(100-(v/mx)*90);
+  const all=[...obs.map(o=>o.hs),...fc.map(o=>o.hs)], mx=Math.max(0.5,Math.max(...all)*1.15), t0=tMs(obs[0].t), t1=tMs(obs[obs.length-1].t);
+  const X=t=>((tMs(t)-t0)/(t1-t0||1)*300), Y=v=>(100-(v/mx)*90);
   const po=obs.map(o=>X(o.t).toFixed(1)+' '+Y(o.hs).toFixed(1)).join(' L'), pf=fc.map(o=>X(o.t).toFixed(1)+' '+Y(o.hs).toFixed(1)).join(' L');
   const last=obs[obs.length-1];
   return `<div class="bplot"><span class="byl top">${fmt(mx)} m</span><span class="byl bot">0</span>
@@ -4439,7 +4440,7 @@ function buoyChoices(s){
   out.forEach(o=>{ o.pref=prefRank(s,o); });
   out.sort((x,y)=>x.km-y.km);
   if(out.length>5){ const keep=out.filter((o,i)=>i<5||o.pref!=null); while(keep.length>5){ const j=keep.map(o=>o.pref==null).lastIndexOf(true); if(j<0) break; keep.splice(j,1); } out.length=0; out.push(...keep); }   /* les 5 bouées les plus proches suffisent (en gardant la bouée de référence) */
-  out.forEach(o=>{ o.ageH=(new Date()-new Date(o.L.time+':00'))/36e5; });
+  out.forEach(o=>{ o.ageH=(new Date()-tDate(o.L.time))/36e5; });
   out.spot=s.name;
   return out;
 }
@@ -4467,11 +4468,11 @@ function radarHtml_v1(s){
   const L=cur.L, view=cur.kind==='coast'?'cote':'large', Tm=(!L.tp&&cur.Tm)?cur.Tm:null;
   let obs=cur.obs, fc, fNow, fLabel;
   if(cur.kind==='coast'){
-    const d=state.data[state.spot], byT={}; d.hours.forEach(h=>{ if(h.H!=null) byT[h.time.slice(0,13)]=h.H; });
-    fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null); fNow=byT[L.time.slice(0,13)]; fLabel=`Notre prévision à ${s.name}`;
+    const d=state.data[state.spot], byT={}; d.hours.forEach(h=>{ if(h.H!=null) byT[tKey(h.time)]=h.H; });
+    fc=obs.map(o=>({t:o.t,hs:byT[tKey(o.t)]})).filter(o=>o.hs!=null); fNow=byT[tKey(L.time)]; fLabel=`Notre prévision à ${s.name}`;
   } else {
-    const byT={}; (cur.model||[]).forEach(m=>byT[m.t.slice(0,13)]=m.hs);
-    fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null); fNow=byT[L.time.slice(0,13)]; fLabel='Prévision des modèles à la bouée';
+    const byT={}; (cur.model||[]).forEach(m=>byT[tKey(m.t)]=m.hs);
+    fc=obs.map(o=>({t:o.t,hs:byT[tKey(o.t)]})).filter(o=>o.hs!=null); fNow=byT[tKey(L.time)]; fLabel='Prévision des modèles à la bouée';
   }
   const ageH=cur.ageH, fresh=ageH<3?'ok':ageH<8?'mid':'old';
   const cmpMax=Math.max(0.5,L.hs,fNow||0)*1.1;
@@ -4780,8 +4781,9 @@ function render_v1(){
   const isFav=state.fav.includes(s.name), sst=d.hours.find(h=>h.sst!=null)?.sst;
   const now=new Date();
   { const rs0=day.sun?hDec(day.sun.rise):8, ss0=day.sun?hDec(day.sun.set):18;
-    state.hour = k===0 ? clamp(now.getHours()+Math.round(now.getMinutes()/15)/4, Math.ceil(rs0), Math.floor(ss0)) : 10;
-    const rawNow=now.getHours()+now.getMinutes()/60; state.liveHour=state.hour; state.live = k===0 && rawNow>=Math.ceil(rs0) && rawNow<=Math.floor(ss0)+.99; }
+    const nl=tzNow(placeTz(s));   // heure du spot (issue #2)
+    state.hour = k===0 ? clamp(nl.h+Math.round(nl.m/15)/4, Math.ceil(rs0), Math.floor(ss0)) : 10;
+    const rawNow=nl.h+nl.m/60; state.liveHour=state.hour; state.live = k===0 && rawNow>=Math.ceil(rs0) && rawNow<=Math.floor(ss0)+.99; }
   if(day.sun){ ocean.rise=hDec(day.sun.rise); ocean.set=hDec(day.sun.set); }
   const dayLabel = k===0?'Aujourd’hui':k===1?'Demain':DAYS_LONG[new Date(day.date+'T12:00').getDay()].replace(/^./,c=>c.toUpperCase());
   const hrs=day.list.filter(h=>h.hour>=6&&h.hour<=21);
@@ -4879,7 +4881,7 @@ function render_v1(){
       <details class="allspots"><summary>Tous les spots <span class="cnt">(${state.data.length})</span></summary>
       <nav class="spotlinks" aria-label="Tous les spots">${(()=>{ const g={}; state.data.forEach(x=>{ (g[x.spot.region]=g[x.spot.region]||[]).push(x.spot); }); return Object.entries(g).map(([r,l])=>`<div><h3>${r}</h3>${l.map(sp=>`<a href="spots/${slugOf(sp.name)}/">${sp.name}</a>`).join('')}</div>`).join(''); })()}</nav></details>
       <p class="flinks"><a href="comment-ca-marche/">Comment ça marche</a> · <a href="a-propos/">À propos</a> · <a href="mentions-legales/">Mentions légales</a> · <a href="confidentialite/">Confidentialité</a></p>
-      ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}.${fcStaleNote()}</p>`:''}
+      ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${genLocal().dm} à ${genLocal().hm}.${fcStaleNote()}</p>`:''}
     </footer>
   </div>`;
 
@@ -4909,7 +4911,7 @@ function v5Compass(deg,color){
 V5I.buoy = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15a7 7 0 0 1 14 0zM12 8V4M3 19c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/></svg>';
 function buoySpark(cur){
   try{
-    const L=cur.L, t1=new Date(L.time+':00').getTime(), obs=(cur.obs||[]).filter(o=>o.hs!=null&&t1-new Date(o.t.length<=16?o.t+':00':o.t).getTime()<=24*36e5);
+    const L=cur.L, t1=tDate(L.time).getTime(), obs=(cur.obs||[]).filter(o=>o.hs!=null&&t1-tDate(o.t).getTime()<=24*36e5);
     if(obs.length<4) return '';
     const P=[]; const n=Math.min(13,obs.length); for(let i=0;i<n;i++) P.push(obs[Math.round(i*(obs.length-1)/(n-1))].hs);
     const W=150,H=56, mx=Math.max(...P), mn=Math.min(...P), y=v=>H-10-(v-mn+.05)/(mx-mn+.1)*(H-24), x=i=>4+i*(W-16)/(P.length-1);
@@ -5037,7 +5039,7 @@ function pvDayTab(x,j,k){
 /* ---------- bouée du résumé (dorée) ---------- */
 function pvSparkObs(cur){
   try{
-    const t1=new Date(cur.L.time+':00').getTime(), obs=(cur.obs||[]).filter(o=>o.hs!=null&&t1-new Date(o.t.length<=16?o.t+':00':o.t).getTime()<=24*36e5);
+    const t1=tDate(cur.L.time).getTime(), obs=(cur.obs||[]).filter(o=>o.hs!=null&&t1-tDate(o.t).getTime()<=24*36e5);
     if(obs.length<4) return '';
     const W=120,H=40, mx=Math.max(...obs.map(o=>o.hs)), mn=Math.min(...obs.map(o=>o.hs)), X=i=>(2+i*(W-8)/(obs.length-1)).toFixed(1), Y=v=>(H-6-(v-mn+.05)/(mx-mn+.1)*(H-14)).toFixed(1);
     const d=obs.map((o,i)=>(i?'L':'M')+X(i)+' '+Y(o.hs)).join(''), l=obs[obs.length-1];
@@ -5181,8 +5183,8 @@ function pvChartBind(){
 function pvBuoyChart(obs,fc,label){
   if(obs.length<4) return '<p class="pv-fn">Pas assez de mesures récentes pour tracer la courbe.</p>';
   const all=[...obs.map(o=>o.hs),...fc.map(o=>o.hs)], top=pvNice(Math.max(1,Math.max(...all)*1.12));
-  const t0=new Date(obs[0].t).getTime(), t1=new Date(obs[obs.length-1].t).getTime(), span=Math.round((t1-t0)/36e5);
-  const X=t=>((new Date(t).getTime()-t0)/(t1-t0||1)*1000).toFixed(1), Y=v=>(150-(v/top)*138).toFixed(1);
+  const t0=tMs(obs[0].t), t1=tMs(obs[obs.length-1].t), span=Math.round((t1-t0)/36e5);
+  const X=t=>((tMs(t)-t0)/(t1-t0||1)*1000).toFixed(1), Y=v=>(150-(v/top)*138).toFixed(1);
   const P=a=>a.map((o,i)=>(i?'L':'M')+X(o.t)+' '+Y(o.hs)).join('');
   const last=obs[obs.length-1], ly=+Y(last.hs), mx=obs.reduce((a,o)=>o.hs>a.hs?o:a,obs[0]);
   PV.bch={obs,fc,t0,t1,Y};
@@ -5196,11 +5198,11 @@ function radarHtml(s){
   const L=cur.L, Tm=(!L.tp&&cur.Tm)?cur.Tm:null;
   let obs=cur.obs, fc, fLabel;
   if(cur.kind==='coast'){
-    const d=state.data[state.spot], byT={}; d.hours.forEach(h=>{ if(h.H!=null) byT[h.time.slice(0,13)]=h.H; });
-    fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null); fLabel=`Prévu à ${s.name}`;
+    const d=state.data[state.spot], byT={}; d.hours.forEach(h=>{ if(h.H!=null) byT[tKey(h.time)]=h.H; });
+    fc=obs.map(o=>({t:o.t,hs:byT[tKey(o.t)]})).filter(o=>o.hs!=null); fLabel=`Prévu à ${s.name}`;
   } else {
-    const byT={}; (cur.model||[]).forEach(m=>byT[m.t.slice(0,13)]=m.hs);
-    fc=obs.map(o=>({t:o.t,hs:byT[o.t.slice(0,13)]})).filter(o=>o.hs!=null); fLabel='Prévu à la bouée';
+    const byT={}; (cur.model||[]).forEach(m=>byT[tKey(m.t)]=m.hs);
+    fc=obs.map(o=>({t:o.t,hs:byT[tKey(o.t)]})).filter(o=>o.hs!=null); fLabel='Prévu à la bouée';
   }
   const tog=list.length>1?`<div class="pv-tabs pv-bsel" role="group" aria-label="Choisir la bouée">${list.map(o=>`<button type="button" data-rv="${o.key}" aria-pressed="${o.key===cur.key}"${pvFresh(o.ageH,o.L.time,o.key).c==='live'?' class="lv"':''}>${o.name}</button>`).join('')}</div>`:'';
   const per=L.tp?Math.round(L.tp):(Tm?Math.round(Tm):null);
@@ -5412,10 +5414,10 @@ function pvScrollEdges(){
   const move=e=>{
     const p=e.target.closest&&e.target.closest('.pv-bpl'), B=PV.bch; if(!p||!B||!B.obs.length) return;
     const r=p.getBoundingClientRect(), x=clamp((e.clientX-r.left)/r.width,0,1), tt=B.t0+x*(B.t1-B.t0);
-    const o=B.obs.reduce((a,b)=>Math.abs(new Date(b.t)-tt)<Math.abs(new Date(a.t)-tt)?b:a,B.obs[0]), f=B.fc.find(z=>z.t===o.t);
+    const o=B.obs.reduce((a,b)=>Math.abs(tMs(b.t)-tt)<Math.abs(tMs(a.t)-tt)?b:a,B.obs[0]), f=B.fc.find(z=>z.t===o.t);
     let tip=p.querySelector('.pv-btip'), g=p.querySelector('.pv-bguide');
     if(!tip){ tip=document.createElement('div'); tip.className='pv-btip'; p.appendChild(tip); g=document.createElement('i'); g.className='pv-bguide'; p.appendChild(g); }
-    const px=(new Date(o.t)-B.t0)/(B.t1-B.t0||1);
+    const px=(tMs(o.t)-B.t0)/(B.t1-B.t0||1);
     tip.innerHTML=`<b>${fm(o.t)}</b><span class="o">Mesuré <em>${fmt(o.hs)} m</em></span>${f?`<span class="f">Prévu <em>${fmt(f.hs)} m</em></span>`:''}`;
     tip.classList.add('on'); g.classList.add('on'); g.style.left=(px*100).toFixed(2)+'%'; g.style.setProperty('--y',(+B.Y(o.hs)/152*100).toFixed(1)+'%');
     tip.style.left=clamp(px*r.width,tip.offsetWidth/2+4,r.width-tip.offsetWidth/2-4)+'px';
@@ -5427,10 +5429,29 @@ function pvScrollEdges(){
 /* haut de page : la lumière suit très légèrement l'heure du spot (aube, jour, crépuscule, nuit) */
 // Issue #7 : si Open-Meteo ne répondait pas, le robot a réutilisé des prévisions plus anciennes (mode dégradé, moins de 12 h) ;
 // les mesures des bouées, elles, sont à jour. On le dit, sans rien changer d'autre.
-function fcStaleNote(){const m=state.meta||{};if(!(m.errors&&m.errors.openmeteo_cache&&m.forecast_fetched))return '';const f=m.forecast_fetched;return ` Prévisions collectées le ${f.slice(8,10)}/${f.slice(5,7)} à ${f.slice(11,16).replace(':','h')} (service de prévision momentanément indisponible) ; mesures des bouées à jour.`}
+// ===== CONTRAT HORAIRE (issue #2) =====
+// Heures publiées par le robot : « 2026-11-27T10:00+01:00 » = heure LOCALE du lieu + décalage (instant exact, quel que soit
+// le fuseau de l'appareil). Ancien format sans décalage (« 2026-11-27T10:00 ») = heure de Paris, EXPLICITEMENT : jamais le
+// fuseau de l'appareil. Les 16 premiers caractères restent l'heure locale affichable (t.slice(11,16)).
+const T_OFF=/([+-]\d\d:\d\d|Z)$/;
+function tzOffMs(tz,ms){ const p={}; new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric'}).formatToParts(new Date(ms)).forEach(x=>p[x.type]=x.value); return Date.UTC(+p.year,+p.month-1,+p.day,(+p.hour)%24,+p.minute)-Math.floor(ms/6e4)*6e4; }
+function tMs(t){ if(!t) return NaN; if(T_OFF.test(t)) return Date.parse(t); const g=Date.parse((t.length===10?t+'T12:00':t.slice(0,16))+'Z'); if(isNaN(g)) return NaN;
+  // heure de Paris sans décalage : parmi les deux décalages possibles, l'instant valide le plus tôt (heure répétée d'octobre : la 1re, comme le robot) ;
+  // heure inexistante (mars) : décalage d'avant le changement
+  const oa=tzOffMs('Europe/Paris',g-432e5), ob=tzOffMs('Europe/Paris',g+432e5), ok=[oa,ob].filter(o=>tzOffMs('Europe/Paris',g-o)===o).map(o=>g-o);
+  return ok.length?Math.min(...ok):g-oa; }
+function tDate(t){ return new Date(tMs(t)); }
+function tKey(t){ const ms=tMs(t); return isNaN(ms)?String(t).slice(0,13):new Date(ms).toISOString().slice(0,13); }   // heure absolue (UTC), pour rapprocher deux séries
+function tOffMin(t){ const m=String(t).match(/([+-])(\d\d):(\d\d)$/); if(m) return (m[1]==='-'?-1:1)*(+m[2]*60+(+m[3])); if(/Z$/.test(t)) return 0; return Math.round(tzOffMs('Europe/Paris',tMs(t))/6e4); }
+function placeTz(s){ return (s&&s.tz)||(s&&s.region&&/^Portugal/.test(s.region)?'Europe/Lisbon':'Europe/Paris'); }
+function tzNow(tz){ const p={}; new Intl.DateTimeFormat('en-US',{timeZone:tz||'Europe/Paris',hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).formatToParts(new Date()).forEach(x=>p[x.type]=x.value); return {date:`${p.year}-${p.month}-${p.day}`,h:(+p.hour)%24,m:+p.minute}; }
+function tzParts(ms,tz){ const p={}; new Intl.DateTimeFormat('en-US',{timeZone:tz||'Europe/Paris',hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).formatToParts(new Date(ms)).forEach(x=>p[x.type]=x.value); return {date:`${p.year}-${p.month}-${p.day}`,h:(+p.hour)%24,m:+p.minute,wd:new Date(`${p.year}-${p.month}-${p.day}T12:00Z`).getUTCDay(),d:+p.day}; }
+// heure de génération à l'heure DU SPOT affiché (Lisbonne au Portugal) — issue #2
+function genLocal(){ const g=(state.meta||{}).generated, s=state.data&&state.data[state.spot]&&state.data[state.spot].spot; const ms=tMs(g); if(!g||isNaN(ms)) return {dm:'',hm:''}; const p=tzParts(ms,placeTz(s)); return {dm:`${p.date.slice(8,10)}/${p.date.slice(5,7)}`, hm:`${p.h}h${String(p.m).padStart(2,'0')}`}; }
+function fcStaleNote(){const m=state.meta||{};if(!(m.errors&&m.errors.openmeteo_cache&&m.forecast_fetched))return '';const s=state.data&&state.data[state.spot]&&state.data[state.spot].spot, p=tzParts(tMs(m.forecast_fetched),placeTz(s));return ` Prévisions collectées le ${p.date.slice(8,10)}/${p.date.slice(5,7)} à ${p.h}h${String(p.m).padStart(2,'0')} (service de prévision momentanément indisponible) ; mesures des bouées à jour.`}
 function pvSky(){
   const d=state.data&&state.data[state.spot], sun=d&&d.days[0]&&d.days[0].sun; if(!sun) return 'day';
-  let h; try{ const p=new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'numeric',minute:'numeric',hourCycle:'h23'}).formatToParts(new Date()); h=+p.find(x=>x.type==='hour').value+(+p.find(x=>x.type==='minute').value)/60; }catch(e){ const n=new Date(); h=n.getHours()+n.getMinutes()/60; }
+  let h; try{ const p=new Intl.DateTimeFormat('fr-FR',{timeZone:placeTz(d.spot),hour:'numeric',minute:'numeric',hourCycle:'h23'}).formatToParts(new Date()); h=+p.find(x=>x.type==='hour').value+(+p.find(x=>x.type==='minute').value)/60; }catch(e){ const n=new Date(); h=n.getHours()+n.getMinutes()/60; }
   const r=hDec(sun.rise), s=hDec(sun.set);
   if(h<r-.75||h>s+.75) return 'night';
   if(h<r+1) return 'dawn';
@@ -5445,8 +5466,9 @@ function render(){
   try{ if(window.__gcSpot!==undefined && window.__gcSpot!==s.name && !BOOT_HOME && window.goatcounter && goatcounter.count) goatcounter.count({path:'/?spot='+slugOf(s.name), title:document.title}); window.__gcSpot=s.name; }catch(e){}
   const isFav=state.fav.includes(s.name), sst=d.hours.find(h=>h.sst!=null)?.sst, now=new Date();
   { const rs0=day.sun?hDec(day.sun.rise):8, ss0=day.sun?hDec(day.sun.set):18;
-    state.hour = k===0 ? clamp(now.getHours()+Math.round(now.getMinutes()/15)/4, Math.ceil(rs0), Math.floor(ss0)) : 10;
-    const rawNow=now.getHours()+now.getMinutes()/60; state.liveHour=state.hour; state.live = k===0 && rawNow>=Math.ceil(rs0) && rawNow<=Math.floor(ss0)+.99; }
+    const nl=tzNow(placeTz(s));   // heure du spot (issue #2)
+    state.hour = k===0 ? clamp(nl.h+Math.round(nl.m/15)/4, Math.ceil(rs0), Math.floor(ss0)) : 10;
+    const rawNow=nl.h+nl.m/60; state.liveHour=state.hour; state.live = k===0 && rawNow>=Math.ceil(rs0) && rawNow<=Math.floor(ss0)+.99; }
   if(day.sun){ ocean.rise=hDec(day.sun.rise); ocean.set=hDec(day.sun.set); }
   const hrs=day.list.filter(h=>h.hour>=6&&h.hour<=21), cam=camFor(s), dark=document.documentElement.dataset.theme==='dark';
   const kind=!s.generic&&s.type?[s.type,s.bottom?'fond '+s.bottom.toLowerCase():null].filter(Boolean).join(', '):null;
@@ -5475,7 +5497,7 @@ function render(){
     <section class="pv-card pv-hours" aria-labelledby="sHour">
       <h2 class="sr" id="sHour">${pvDayLong(day,k)}, heure par heure</h2>
       <div class="pv-head2">
-      <div class="pv-when"><span class="pv-wt"><i class="pv-ld" id="pvLd"></i><b id="pvWhen">—</b></span>${state.mode==='server'&&state.meta?`<span class="pv-upd" title="Prévisions calculées à ${state.meta.generated.slice(11,16).replace(':','h')}${fcStaleNote()}">${pvI('refresh')}${state.meta.generated.slice(11,16).replace(':','h')}</span>`:''}<button type="button" class="pv-tbtn pv-nowb" id="pvNow" hidden>Revenir à maintenant</button></div>
+      <div class="pv-when"><span class="pv-wt"><i class="pv-ld" id="pvLd"></i><b id="pvWhen">—</b></span>${state.mode==='server'&&state.meta?`<span class="pv-upd" title="Prévisions calculées à ${genLocal().hm}${fcStaleNote()}">${pvI('refresh')}${genLocal().hm}</span>`:''}<button type="button" class="pv-tbtn pv-nowb" id="pvNow" hidden>Revenir à maintenant</button></div>
       <div class="pv-sum" aria-live="polite">
         <div class="pv-b pv-bh"><div class="pv-k">${pvI('wave')}Houle</div><div class="pv-v" id="pvS">—</div><div class="pv-s" id="pvSd"></div>${pvEq(day)}<p class="pv-sf" id="pvSf"></p></div>
         <div class="pv-b pv-bw2"><div class="pv-k">${pvI('wind')}Vent</div><div class="pv-v" id="pvW">—</div><div class="pv-s" id="pvWd"></div><p class="pv-sf" id="pvWf"></p></div>
@@ -5508,7 +5530,7 @@ function render(){
       <nav class="spotlinks" aria-label="Tous les spots">${(()=>{ const g={}; state.data.forEach(x=>{ (g[x.spot.region]=g[x.spot.region]||[]).push(x.spot); }); return Object.entries(g).map(([r,l])=>`<div><h3>${r}</h3>${l.map(sp=>`<a href="spots/${slugOf(sp.name)}/">${sp.name}</a>`).join('')}</div>`).join(''); })()}</nav></details>
       <p class="flinks"><a href="comment-ca-marche/">Comment ça marche</a> · <a href="a-propos/">À propos</a> · <a href="mentions-legales/">Mentions légales</a> · <a href="confidentialite/">Confidentialité</a></p>
       ${pvDaSwitch()}
-      ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${state.meta.generated.slice(8,10)}/${state.meta.generated.slice(5,7)} à ${state.meta.generated.slice(11,16).replace(':','h')}.${fcStaleNote()}</p>`:''}
+      ${state.mode==='server'&&state.meta?`<p class="fgen">Données mises à jour le ${genLocal().dm} à ${genLocal().hm}.${fcStaleNote()}</p>`:''}
     </footer>
   </div>`;
   updateLive(); bind();
@@ -5704,8 +5726,8 @@ const HO_I={
 };
 const hoIc=k=>k==='T'?'<svg class="pv-i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M10 2.8h4M12 2.8V6M18.2 6.8l1.4-1.4"/></svg>':pvI(k==='H'?'wave':'wind');
 const hoFc=b=>pvFresh(hoAge(b.L),b.L.time,b.id).c;
-const hoAge=L=>(Date.now()-new Date(L.time+':00').getTime())/36e5;
-const hoKey=t=>t.slice(0,13);
+const hoAge=L=>(Date.now()-tDate(L.time).getTime())/36e5;
+const hoKey=t=>{ const ms=tMs(t); if(isNaN(ms)) return String(t).slice(0,13); const p=tzParts(ms,'Europe/Paris'); return p.date+'T'+String(p.h).padStart(2,'0'); };   // heure de Paris DE L'INSTANT : même instant pour un spot français et un spot portugais (issue #2)
 const hoDays=['Dim.','Lun.','Mar.','Mer.','Jeu.','Ven.','Sam.'], hoDaysL=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 const hoMob=()=>innerWidth<760;
 function homeData(){
@@ -5713,7 +5735,7 @@ function homeData(){
     return {i,n:d.spot.name,c:d.spot.commune||'',r:d.spot.region,lat:d.spot.mlat??d.spot.lat,lon:d.spot.mlon??d.spot.lon,hm}; }).sort((a,b)=>b.lat-a.lat);
 }
 function homeTimes(){
-  const n=new Date(), p=v=>String(v).padStart(2,'0'), now=`${n.getFullYear()}-${p(n.getMonth()+1)}-${p(n.getDate())}T${p(n.getHours())}`;
+  const n=tzParts(Date.now(),'Europe/Paris'), now=n.date+'T'+String(n.h).padStart(2,'0');
   const ref=state.data.find(d=>d.hours.length>100)||state.data[0];
   const T=[...new Set(ref.hours.map(h=>hoKey(h.time)))].sort().filter(t=>t>=now);
   return T.length?T:[now];
@@ -5729,10 +5751,12 @@ function homeBuoys(){
 }
 function homeBuoyPos(key){ if(key==='gascogne') return {lat:+state.gascogne.lat,lon:+state.gascogne.lon}; const b=[...(state.coast||[]),...(state.offshore||[])].find(x=>x.id===key); return b?{lat:+b.lat,lon:+b.lon}:null; }
 function homeIsNow(){ return HOME.ti===0; }
-function homeWhen(short){ const t=HOME.T[HOME.ti], d=new Date(t+':00:00'), n=new Date(), tm=new Date(n); tm.setDate(n.getDate()+1);
+function homeWhen(short){ const t=HOME.T[HOME.ti];
   if(homeIsNow()) return 'Maintenant';
-  const day=d.toDateString()===n.toDateString()?'Aujourd’hui':d.toDateString()===tm.toDateString()?'Demain':(short?hoDays[d.getDay()]:hoDaysL[d.getDay()])+' '+d.getDate();
-  return `${day} · ${d.getHours()}h`; }
+  // clé absolue → jour et heure de Paris (la carte couvre plusieurs fuseaux : on garde une seule horloge, celle de Paris)
+  const ms=tMs(t+':00'), d=tzParts(ms,'Europe/Paris'), n=tzParts(Date.now(),'Europe/Paris'), tm=tzParts(Date.now()+864e5,'Europe/Paris');
+  const day=d.date===n.date?'Aujourd’hui':d.date===tm.date?'Demain':(short?hoDays[d.wd]:hoDaysL[d.wd])+' '+d.d;
+  return `${day} · ${d.h}h`; }
 const hoPer=L=>L.tp?Math.round(L.tp)+' s':L.tm?Math.round(L.tm)+' s moy.':'';
 
 async function homeOpen(fromSpot){
@@ -6058,7 +6082,7 @@ function homeSpotPanel(s){
   if(mob){ homeSheet(html,'ho-sh-spot'); document.getElementById('hoBody').hidden=true; } else { const B=document.getElementById('hoBody'); B.hidden=false; B.innerHTML=html; }
   homeSpotNums(s);
   document.getElementById('hoFv').onclick=e=>{ const on=!state.fav.includes(s.n); state.fav=on?[...state.fav,s.n]:state.fav.filter(x=>x!==s.n); saveFav(); const b=e.currentTarget; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); b.setAttribute('aria-label',on?'Retirer de mes spots':'Ajouter à mes spots'); homeMarks(); };
-  document.getElementById('hoGo').onclick=()=>{ const t=HOME.T[HOME.ti], di=d.days.findIndex(x=>x.date===t.slice(0,10)); homeClose(); go(s.i); if(!homeIsNow()&&di>0){ state.day=di; render(); state.hour=+t.slice(11,13); updateLive(); } };
+  document.getElementById('hoGo').onclick=()=>{ const t=HOME.T[HOME.ti], lp=tzParts(tMs(t+':00'),placeTz(d.spot)), di=d.days.findIndex(x=>x.date===lp.date); homeClose(); go(s.i); if(!homeIsNow()&&di>0){ state.day=di; render(); state.hour=lp.h; updateLive(); } };   // heure du spot choisie sur la carte (Paris) → heure locale du spot
   { const m=document.getElementById('hoMs'); if(m&&cur) m.onclick=()=>{ const b=HOME.bu.find(x=>x.id===cur.key)||HOME.bu.find(x=>x.n===cur.name); if(b) homeBuoy(b); }; }
 }
 function homeSpotNums(s){

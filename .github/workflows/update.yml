@@ -48,6 +48,19 @@ jobs:
         run: python -m tests.test_cache
       - name: Alignement horaire des prévisions (panne partielle, minuit)
         run: python -m tests.test_alignement
+      - name: Contrat horaire du robot (France, Portugal, changements d'heure)
+        run: python -m tests.test_heures
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Heures du site et de l'appli dans 4 fuseaux de téléphone (issue #2)
+        run: |
+          for tz in Europe/Paris Europe/Lisbon America/New_York Asia/Tokyo; do
+            echo "::group::fuseau $tz"
+            TZ=$tz node tests/heures_site.test.js
+            TZ=$tz node tests/heures_app.test.mjs
+            echo "::endgroup::"
+          done
   build:
     needs: surete
     # pas de vraie génération pour une pull request (ni appel aux API, ni archive, ni publication)

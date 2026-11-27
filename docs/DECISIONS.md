@@ -128,8 +128,10 @@
 - **Mise en œuvre** : canonique posée par un script d'en-tête (pas de balise contradictoire dans le HTML initial), tenue à jour par l'application.
 - **Écarté** : `noindex` sur ces adresses, et le maintien de la canonique vers `/`.
 
-### D21 — Heure de Paris partout
-- **Pourquoi** : toutes les sources sont converties en `Europe/Paris`. Le robot tourne en UTC, et `datetime.now()` faussait l'âge des mesures d'une heure (corrigé le 26/11).
+### D21 — Heures explicites, à l'heure locale du lieu (révisée le 27/11/2026, issue #2)
+- **Avant** : « heure de Paris partout », implicite (chaînes sans décalage, lues dans le fuseau de l'appareil).
+- **Maintenant** : chaque instant publié porte son **décalage** (ISO 8601) et s'écrit à l'**heure locale du lieu** (fuseau IANA `tz` : Paris, Madrid, Lisbonne). Le **Portugal s'affiche à l'heure de Lisbonne** (arbitrage du porteur, 26/11/2026). La carte de l'accueil, multi-fuseaux, garde l'heure de Paris et le même instant pour tous. Les anciennes données sans décalage sont lues comme heure de Paris, jamais dans le fuseau de l'appareil.
+- **Pourquoi** : âges, comparaisons et « maintenant » justes quel que soit le fuseau du visiteur ou du lieu, changements d'heure compris. Détail : [heures.md](heures.md).
 
 ### D22 — Pas de lecture des sites tiers non autorisés
 - Allosurf, surf-report, Meteociel et Surf-Forecast (pour les mesures), ainsi que Tourisme Landes : non utilisés.

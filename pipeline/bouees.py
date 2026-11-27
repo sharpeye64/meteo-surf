@@ -173,9 +173,11 @@ def station(b):
 
 
 def age_h(now, t):
+    """Âge d'une mesure : instants exacts (issue #2), l'heure publiée portant son décalage ; `now` naïf = heure de Paris."""
+    from . import timefmt
     try:
-        return (now - datetime.strptime(t[:16], "%Y-%m-%dT%H:%M")).total_seconds() / 3600
-    except ValueError:
+        return timefmt.age_h(t, now)
+    except (ValueError, TypeError):
         return 999
 
 
@@ -191,9 +193,8 @@ def is_fresh(now, t, lim=1):
 
 
 def age_txt(now, t):
-    try:
-        h = (now - datetime.strptime(t[:16], "%Y-%m-%dT%H:%M")).total_seconds() / 3600
-    except ValueError:
+    h = age_h(now, t)
+    if h == 999:
         return ""
     if h < 1:
         return "à l'instant"
@@ -363,7 +364,7 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
     data = {"b": {"n": name, "lat": b["lat"], "lon": b["lon"], "hs": L["hs"]}, "base": base,
             "s": [{"n": s["name"], "slug": s["slug"], "lat": s["lat"], "lon": s["lon"], "h": s["h"]} for k, s in near]}
     body = f"""<p class="crumb"><a href="{base}">{BRAND}</a> › <a href="../">Bouées</a> › <b>{esc(name)}</b></p>
-<span class="live{' on' if is_fresh(now, L['time'], S['lim']) else ''}{' off' if not working else ''}">Mesure réelle · <span id="bage" data-lim="{S['lim']}" data-t="{esc(L["time"][:16])}">{esc(age_txt(now, L["time"]))}</span></span>
+<span class="live{' on' if is_fresh(now, L['time'], S['lim']) else ''}{' off' if not working else ''}">Mesure réelle · <span id="bage" data-lim="{S['lim']}" data-t="{esc(L["time"])}">{esc(age_txt(now, L["time"]))}</span></span>
 <h1>{"Bouée houlographe " + esc(DE.get(name, "de " + name)) if houlo else "Bouée " + esc(name)}</h1>
 <p class="muted">{("Houlographe du réseau CANDHIS (Cerema) · station " + esc(S["ident"].replace("CANDHIS ", "")) + " · ") if houlo else esc(b["sub"][:1].upper() + b["sub"][1:]) + " · " + esc(S["ident"]) + " · "}{fr(abs(b["lat"]), 2)} °N, {fr(abs(b["lon"]), 2)} °{"O" if b["lon"] < 0 else "E"} · {esc(S["cadence"])}</p>
 {stale}

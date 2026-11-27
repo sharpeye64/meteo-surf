@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
 import { ageH, ageTxt, Buoy, buoyFits, fr, km, loadSheet, perTxt, prefBuoy, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { partsIn, placeTz, tMs } from './time';
 import { useBarSpace } from './TabBar';
 import { C, F, isDark, periodCell, sizeCell, themed, windCell } from './theme';
 
@@ -24,9 +25,9 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
   const days = useMemo(() => {
     if (!sheet) return [];
     const out: { date: string; idx: number[] }[] = [];
-    const t0 = new Date(sheet.t0 + ':00').getTime();
+    const t0 = tMs(sheet.t0), tz = placeTz(sheet);   // jours à l'heure du spot (Lisbonne au Portugal), pas du téléphone
     sheet.hs.forEach((_, i) => {
-      const key = new Date(t0 + i * 36e5).toDateString();
+      const key = partsIn(t0 + i * 36e5, tz).date;
       if (!out.length || out[out.length - 1].date !== key) out.push({ date: key, idx: [] });
       out[out.length - 1].idx.push(i);
     });
@@ -36,17 +37,17 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
   if (err) return <Center onBack={onBack} name={spot.name} text="Fiche indisponible. Vérifie la connexion." />;
   if (!sheet || !days.length) return <Center onBack={onBack} name={spot.name} loading />;
 
-  const t0 = new Date(sheet.t0 + ':00').getTime();
-  const at = (i: number) => new Date(t0 + i * 36e5);
+  const t0 = tMs(sheet.t0), tz = placeTz(sheet);
+  const at = (i: number) => partsIn(t0 + i * 36e5, tz);   // heure du spot (issue #2)
   const nowI = Math.max(0, Math.min(sheet.hs.length - 1, Math.floor((Date.now() - t0) / 36e5)));
   const d = days[day];
-  const hrs = d.idx.filter(i => { const h = at(i).getHours(); return h >= 6 && h <= 21; });
-  const def = day === 0 ? (hrs.find(i => i >= nowI) ?? hrs[hrs.length - 1]) : (hrs.find(i => at(i).getHours() >= 10) ?? hrs[0]);
+  const hrs = d.idx.filter(i => { const h = at(i).h; return h >= 6 && h <= 21; });
+  const def = day === 0 ? (hrs.find(i => i >= nowI) ?? hrs[hrs.length - 1]) : (hrs.find(i => at(i).h >= 10) ?? hrs[0]);
   const sel = hour != null && d.idx.includes(hour) ? hour : def;
   const isNow = day === 0 && sel === nowI;
   const rel = windRel(sheet.wdir[sel], sheet.ori);
-  const tides = (sheet.tide?.extremes || []).filter(e => new Date(e.t + ':00').toDateString() === d.date);
-  const sunI = sheet.sun ? sheet.sun.time.findIndex(x => new Date(x + 'T12:00').toDateString() === d.date) : -1;
+  const tides = (sheet.tide?.extremes || []).filter(e => partsIn(tMs(e.t), tz).date === d.date);
+  const sunI = sheet.sun ? sheet.sun.time.findIndex(x => x === d.date) : -1;   // dates locales du spot
   // Bouée de comparaison : la plus proche en direct (moins de 2 h, à moins de 60 km), sinon de moins de 6 h, sinon la plus proche.
   const cands = buoys.filter(b => buoyFits(b, spot.name)).map(b => ({ b, k: km(spot, b) })).filter(x => x.k < 130).sort((a, b) => a.k - b.k);
   const pb = prefBuoy(buoys, spot);   // Landes : Cap Ferret au nord, Gascogne ailleurs
@@ -69,8 +70,8 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
             const dd = at(x.idx[0]), mx = Math.max(...x.idx.map(j => sheet.hs[j] ?? 0)), on = i === day;
             return (
               <Pressable key={x.date} onPress={() => { setDay(i); setHour(null); strip.current?.scrollTo({ x: 0, animated: false }); }} style={[st.day, on && st.dayOn]}>
-                <Text style={[st.dayJ, on && { color: C.onInk2 }]}>{i === 0 ? 'AUJ.' : J[dd.getDay()]}</Text>
-                <Text style={[st.dayN, on && { color: C.onInk }]}>{dd.getDate()}</Text>
+                <Text style={[st.dayJ, on && { color: C.onInk2 }]}>{i === 0 ? 'AUJ.' : J[dd.wd]}</Text>
+                <Text style={[st.dayN, on && { color: C.onInk }]}>{dd.d}</Text>
                 <Text style={[st.dayH, on && { color: C.onInk }]}>{fr(mx)}<Text style={st.dayU}> m</Text></Text>
               </Pressable>
             );
@@ -80,7 +81,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
         <View style={st.card}>
           <View style={st.nowRow}>
             <View style={[st.dot, !isNow && { backgroundColor: C.ink3 }]} />
-            <Text style={st.nowT}>{isNow ? 'MAINTENANT' : day === 0 ? "AUJOURD'HUI" : J[at(sel).getDay()]} · {at(sel).getHours()} H</Text>
+            <Text style={st.nowT}>{isNow ? 'MAINTENANT' : day === 0 ? "AUJOURD'HUI" : J[at(sel).wd]} · {at(sel).h} H</Text>
           </View>
           <View style={st.tiles}>
             <View style={st.tile}>
@@ -114,7 +115,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
             <View>
             <View style={{ flexDirection: 'row', gap: 4 }}>
             {hrs.map(i => {
-              const on = i === sel, h = at(i).getHours();
+              const on = i === sel, h = at(i).h;
               return (
                 <Pressable key={i} onPress={() => setHour(i)} style={st.col}>
                   <Text style={[st.hh, on && { color: C.ink }]}>{h}h</Text>
@@ -139,7 +140,7 @@ export default function SpotSheet({ spot, buoys, fav, onFav, onBack, onBuoy }: P
 
         {near && (
           <Pressable onPress={() => onBuoy?.(near.b)} style={({ pressed }) => [st.card, { backgroundColor: C.sandCard }, pressed && { opacity: 0.85 }]}>
-            <View style={st.nowRow}><View style={[st.dot, (Date.now() - new Date(near.b.time + ':00').getTime()) / 36e5 >= 2 && { backgroundColor: C.sandMuted }]} /><Text style={[st.nowT, { color: C.sandText }]}>MESURE RÉELLE · BOUÉE {near.b.name.toUpperCase()}</Text></View>
+            <View style={st.nowRow}><View style={[st.dot, ageH(near.b.time) >= 2 && { backgroundColor: C.sandMuted }]} /><Text style={[st.nowT, { color: C.sandText }]}>MESURE RÉELLE · BOUÉE {near.b.name.toUpperCase()}</Text></View>
             <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 8 }}>
               <Text style={[st.big, { color: C.sandText }]}>{fr(near.b.hs)}<Text style={st.bigU}> m</Text></Text>
               <Text style={[st.tileS, { color: C.sandText, marginBottom: 8 }]}>{perTxt(near.b) ? `${perTxt(near.b)} · ` : ''}{near.b.dir != null ? sector(near.b.dir) + ' · ' : ''}{Math.round(near.k)} km</Text>
@@ -163,12 +164,12 @@ function waterRange(w: (number | null)[]) {
 /** Petit carré Soleil : arc avec la position du soleil (aujourd'hui), lever et coucher. */
 function SunTile({ sun, today }: { sun: { rise: string; set: string } | null; today: boolean }) {
   if (!sun) return <View style={[st.tile, { backgroundColor: C.sunTile }]} />;
-  const rise = new Date(sun.rise + ':00'), set = new Date(sun.set + ':00');
-  const f = today ? (Date.now() - rise.getTime()) / (set.getTime() - rise.getTime()) : null;
+  const rise = tMs(sun.rise), set = tMs(sun.set);
+  const f = today ? (Date.now() - rise) / (set - rise) : null;
   const up = f != null && f >= 0 && f <= 1;
   const R = 24, cx = 30, cy = 27, a = Math.PI * (1 - (up ? f! : 0));
   const sx = cx + R * Math.cos(a), sy = cy - R * Math.sin(a);
-  const t = (d: Date) => `${d.getHours()}h${String(d.getMinutes()).padStart(2, '0')}`;
+  const t = (s: string) => `${+s.slice(11, 13)}h${s.slice(14, 16)}`;   // heure locale du spot, écrite dans la chaîne
   return (
     <View style={[st.tile, { backgroundColor: C.sunTile }]}>
       <Text style={[st.tileK, { color: C.sandMuted }]}>SOLEIL</Text>
@@ -177,7 +178,7 @@ function SunTile({ sun, today }: { sun: { rise: string; set: string } | null; to
         {up && <Path d={`M${cx - R} ${cy} A${R} ${R} 0 0 1 ${sx.toFixed(1)} ${sy.toFixed(1)}`} stroke="#b8892f" strokeWidth={2} fill="none" strokeLinecap="round" />}
         {up && <Circle cx={sx} cy={sy} r={4} fill="#f2b632" stroke="#fff" strokeWidth={1.5} />}
       </Svg>
-      <Text style={[st.tileS, { color: C.sandMuted }]} numberOfLines={1} adjustsFontSizeToFit>{t(rise)} · {t(set)}</Text>
+      <Text style={[st.tileS, { color: C.sandMuted }]} numberOfLines={1} adjustsFontSizeToFit>{t(sun.rise)} · {t(sun.set)}</Text>
     </View>
   );
 }
@@ -196,7 +197,7 @@ function TideRow({ sheet, hrs, sel, t0 }: { sheet: Sheet; hrs: number[]; sel: nu
   const vs = pts.map(p => p[1]), mn = Math.min(...vs), mx = Math.max(...vs);
   const y = (v: number) => 8 + (1 - (v - mn) / Math.max(0.01, mx - mn)) * (TIDE_H - 16);
   const d = pts.map(([f, v], k) => `${k ? 'L' : 'M'}${x(f).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-  const ext = (sheet.tide?.extremes || []).map(e => ({ ...e, f: (new Date(e.t + ':00').getTime() - t0) / 36e5 })).filter(e => e.f >= a - 0.5 && e.f <= b + 0.5);
+  const ext = (sheet.tide?.extremes || []).map(e => ({ ...e, f: (tMs(e.t) - t0) / 36e5 })).filter(e => e.f >= a - 0.5 && e.f <= b + 0.5);
   return (
     <Svg width={W} height={TIDE_H} style={{ marginTop: 4 }}>
       <Path d={`${d} L${x(pts[pts.length - 1][0]).toFixed(1)},${TIDE_H} L${x(pts[0][0]).toFixed(1)},${TIDE_H} Z`} fill={C.tideFill} />
@@ -204,7 +205,7 @@ function TideRow({ sheet, hrs, sel, t0 }: { sheet: Sheet; hrs: number[]; sel: nu
       <Line x1={x(sel)} y1={0} x2={x(sel)} y2={TIDE_H} stroke={C.ink} strokeWidth={1} strokeDasharray="2 3" />
       {ext.map(e => {
         const v = at(e.f) ?? e.h, cy = y(v), pm = e.type === 'PM';
-        const d2 = new Date(e.t + ':00'), lab = `${e.type} ${d2.getHours()}h${String(d2.getMinutes()).padStart(2, '0')}`;
+        const lab = `${e.type} ${+e.t.slice(11, 13)}h${e.t.slice(14, 16)}`;
         const tx = Math.min(W - 30, Math.max(30, x(e.f)));
         return (
           <G key={e.t}>
