@@ -12,28 +12,32 @@ HOW = {
     "desc": "D'où viennent les prévisions de houle, de vent et de marée de Houlalah, comment elles sont corrigées avec les bouées et comment leur fiabilité est mesurée.",
     "h1": "Comment ça marche",
     "body": """
-<p class="lead">Houlalah ne produit pas ses propres modèles : il croise plusieurs prévisions publiques, les corrige avec des mesures réelles et dit ce qu'il en est de leur fiabilité. Voici d'où vient chaque chiffre.</p>
+<p class="lead">Houlalah est un service indépendant de prévisions surf de la Bretagne au Portugal. Il combine plusieurs estimations de hauteur significative de vagues en mer et affiche les observations des bouées avec leur date de mesure. Voici comment lire ces données, comment elles sont calculées et quelles sont leurs limites.</p>
 
 <h2>La houle : plusieurs modèles croisés</h2>
-<p>La hauteur, la période et la direction de la houle viennent d'un mélange de modèles : Météo-France MFWAM, DWD EWAM, ECMWF WAM et NOAA GFS-Wave (via Open-Meteo), plus le modèle côtier Ifremer MARC (grille d'environ 3,7 km sur le golfe de Gascogne). Quand les modèles disent la même chose, l'accord est fort. Quand ils divergent, l'écart est affiché sous le grand chiffre du haut de page.</p>
+<p>La hauteur significative des vagues est calculée par moyenne pondérée des modèles disponibles : Météo-France MFWAM, DWD EWAM, ECMWF WAM et NOAA GFS-Wave, accessibles via <a href="https://open-meteo.com/en/docs/marine-weather-api">Open-Meteo</a>, et le modèle côtier <a href="https://marc.ifremer.fr/">Ifremer MARC</a> lorsqu'il couvre le point de prévision. Les poids sont renormalisés selon les valeurs disponibles. La période, la direction et les composantes de houle proviennent de la prévision marine de référence d'Open-Meteo : elles ne font pas l'objet de la même moyenne pondérée. L'accord entre modèles décrit leur dispersion, pas une probabilité que la prévision soit exacte.</p>
 
 <h2>Le vent</h2>
-<p>Le vent vient du modèle Météo-France AROME, comparé à DWD ICON, NOAA GFS et ECMWF IFS. AROME ne va pas au-delà de 4 jours environ : au-delà, la prévision bascule sur ICON, et la fiabilité baisse.</p>
+<p>Le vent privilégie la prévision Météo-France, avec un repli sur DWD ICON, ECMWF IFS puis NOAA GFS lorsque des valeurs manquent. La comparaison de ces modèles aide à repérer leurs divergences ; elle ne mesure pas à elle seule leur erreur réelle.</p>
 
 <h2>Les bouées : la mesure réelle</h2>
 <ul>
-<li><b>Bouée Gascogne (Météo-France, 62001)</b> : au large, à environ 300 km de la côte. Elle voit la houle arriver bien avant la côte. Elle mesure toutes les heures, avec environ 1 h de retard. Quand les modèles s'écartent de sa mesure, nos prévisions sont corrigées sur les 24 heures suivantes.</li>
-<li><b>Bouées côtières CANDHIS (Cerema)</b> : Cap Ferret, Anglet, Saint-Jean-de-Luz. Mesures toutes les 30 minutes, fraîches. Le site compare la mesure de la bouée la plus proche du spot avec sa prévision. Ces mesures en temps réel ne sont pas validées.</li>
+<li><b>Bouée Gascogne (Météo-France, 62001)</b> : station au large. Lorsque la mesure permet de calculer une correction, le moteur ajuste la hauteur prévue avec un rapport mesure/prévision dont l'effet décroît jusqu'à zéro sur 24 heures à partir de la mesure. Cette correction est actuellement appliquée aux spots du catalogue ; son bénéfice selon les régions reste à évaluer.</li>
+<li><b>Houlographes CANDHIS (Cerema)</b> : les stations côtières fournissent normalement des mesures toutes les 30 minutes. Les autres stations sont notamment accessibles via Copernicus Marine. La fraîcheur dépend de la dernière mesure reçue et de la cadence de chaque station. Une station interrompue peut afficher des mesures anciennes ; les observations en temps réel peuvent être provisoires.</li>
 </ul>
+<p>Consultez les <a href="../bouees/">mesures des bouées</a> pour retrouver la station, la hauteur, la période, la direction lorsqu'elle est disponible, la source et l'heure de mesure.</p>
+
+<h2>Que signifie la hauteur significative Hs ?</h2>
+<p>La hauteur significative caractérise un état de mer : elle correspond approximativement à la moyenne du tiers des vagues les plus hautes. Elle ne représente ni la hauteur de chaque vague ni la taille des vagues qui déferlent sur une plage. Le relief sous-marin, l'exposition du spot, la période et la marée influencent notamment le déferlement. Une observation à une bouée ne constitue donc pas une mesure au bord.</p>
 
 <h2>La marée et le coefficient</h2>
-<p>Les horaires de pleine et de basse mer sont calculés par méthode harmonique à partir de mesures officielles des marégraphes REFMAR (Shom) à Socoa et à Boucau-Bayonne. Sur des mesures indépendantes, l'écart moyen d'heure est d'environ 5 minutes. Le coefficient est calculé à partir de la marée de Brest, avec un écart moyen d'environ 2 points par rapport à la valeur officielle. Ces valeurs sont indicatives : à vérifier avant de sortir.</p>
+<p>Les horaires de pleine et de basse mer sont issus de calculs harmoniques indépendants à partir de mesures REFMAR (Shom), pour les spots associés à un port de référence. Le coefficient est estimé à partir de la marée de Brest. Les horaires ne sont pas disponibles pour tous les spots. Ces calculs indicatifs ne constituent pas les prédictions officielles du Shom.</p>
 
 <h2>La fiabilité, mesurée</h2>
-<p>À chaque mise à jour, les prévisions sont archivées. Elles sont ensuite comparées à la mesure réelle de la bouée à 24, 48, 72 et 96 heures d'avance, sur les 30 derniers jours. Le résultat apparaît en bas de la page d'accueil dès qu'il y a assez de mesures. Houlalah ne dit jamais si les conditions sont « bonnes » : c'est à toi de juger, avec des données dont on connaît la précision.</p>
+<p>Les archives permettent actuellement de comparer des hauteurs prévues au point de la bouée Gascogne avec ses mesures, aux échéances de 24, 48, 72 et 96 heures, sur une fenêtre de 30 jours. L'écart absolu moyen indique l'amplitude moyenne de l'erreur, et le biais moyen indique une tendance à surestimer ou sous-estimer. Les résultats ne sont calculés que si suffisamment de comparaisons sont disponibles. Ils ne constituent pas une validation de la hauteur au bord ni du mélange corrigé sur chaque spot. Une comparaison complète des modèles à d'autres bouées reste un chantier en cours.</p>
 
 <h2>Mises à jour et limites</h2>
-<p>Les prévisions sont recalculées toutes les heures environ. Ce sont des estimations : un modèle ne voit ni un banc de sable qui a bougé ni une rafale locale. Elles ne remplacent ni un coup d'œil sur place ni les consignes de sécurité des plages surveillées.</p>
+<p>Le robot actualise régulièrement les données. La date de génération du site, la date de récupération d'une prévision et la date d'observation à une bouée ne sont pas nécessairement identiques. Les prévisions sont des estimations : un modèle ne voit ni un banc de sable qui a bougé ni une rafale locale. Elles ne remplacent ni un coup d'œil sur place ni les consignes de sécurité des plages surveillées.</p>
 """,
 }
 
@@ -92,16 +96,16 @@ ABOUT = {
     "h1": f"À propos de {BRAND}",
     "type": "AboutPage",
     "body": f"""
-<p class="lead">{BRAND} donne des prévisions surf gratuites pour plus de 200 spots de la côte atlantique, de la Bretagne au Portugal, et les compare en direct aux mesures des bouées en mer.</p>
+<p class="lead">{BRAND} donne des prévisions surf gratuites pour plus de 200 spots de la côte atlantique, de la Bretagne au Portugal, et permet de les confronter aux observations des bouées en mer.</p>
 
 <h2>Pourquoi {BRAND}</h2>
-<p>Une prévision de houle reste une estimation. Pour savoir si elle tient la route, le plus simple est de la confronter à ce que mesurent réellement les bouées. {BRAND} affiche donc, à côté de chaque prévision, la dernière mesure de la bouée la plus pertinente, son âge, et l'écart observé entre prévu et mesuré. À chacun ensuite de se faire sa propre idée : le site ne donne pas d'avis sur les conditions.</p>
+<p>Une prévision de houle reste une estimation. Pour savoir si elle tient la route, le plus simple est de la confronter à ce que mesurent réellement les bouées. {BRAND} affiche donc, à côté de chaque prévision, la dernière mesure disponible d'une bouée de référence, son âge et, lorsque les données le permettent, une comparaison entre prévision et mesure. À chacun ensuite de se faire sa propre idée : le site ne donne pas d'avis sur les conditions.</p>
 
 <h2>Ce que vous trouvez sur le site</h2>
 <ul>
-<li>La houle (hauteur, période, direction), le vent, la marée et le coefficient, heure par heure sur 7 jours, pour chaque spot.</li>
-<li>Les mesures des bouées en direct, de la Bretagne au Portugal, avec leur historique récent.</li>
-<li>Des prévisions croisées entre plusieurs modèles, mises à jour toutes les heures.</li>
+<li>Les prévisions de houle (hauteur, période, direction) et de vent, heure par heure sur 7 jours, ainsi que les marées et le coefficient lorsqu'ils sont disponibles.</li>
+<li>Les <a href="../bouees/">mesures des bouées</a>, de la Bretagne au Portugal, avec leur fraîcheur et leur historique récent lorsqu'il est disponible.</li>
+<li>Des prévisions de hauteur croisées entre plusieurs modèles, actualisées régulièrement.</li>
 </ul>
 <p>Le détail des sources et des calculs est sur la page <a href="../comment-ca-marche/">Comment ça marche</a>.</p>
 
