@@ -297,7 +297,7 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
     app = f"../../?spot={slug}"
     trs = "".join(
         f"<tr><td>{r['label']} {r['dm']}</td><td>{fr(r['hmin'])}–{fr(r['hmax'])} m</td><td>{fr(r['tp'], 0)} s {sector(r['dir']) or ''}</td>"
-        f"<td>{fr(r['wind'], 0)} km/h {sector(r['wdir']) or ''}</td><td>{r['coef'] or '—'}</td></tr>" for r in rows)
+        f"<td>{fr(r['wind'], 0)} km/h {sector(r['wdir']) or ''}</td>" + (f"<td>{r['coef'] or '—'}</td>" if has_tides else "") + "</tr>" for r in rows)
     near = sorted((o for o in spots_meta if o["slug"] != slug), key=lambda o: hav(sp, o))[:6]
     nl = "".join(f'<li><a href="../{o["slug"]}/">{esc(o["name"])}<small>{round(hav(sp, o))} km · {esc(o["commune"])}</small></a></li>' for o in near)
     lead = (f"Prévision du {t['dm']} à <b>{esc(name)}</b> : hauteur significative médiane de <b>{fr(t['hs'])} m</b>, "
@@ -331,8 +331,9 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
             obs = timefmt.parse(raw)
             bt = b.get("tz") or timefmt.place_tz(b["lat"], b["lon"])
             obs_local = obs.astimezone(timefmt.zone(bt))
-            age = (timefmt.now().astimezone(timezone.utc) - obs.astimezone(timezone.utc)).total_seconds() / 3600
+            age = (generated.astimezone(timezone.utc) - obs.astimezone(timezone.utc)).total_seconds() / 3600
             limit = bouees.station(b)["lim"]
+            source = (g.get("source") or "Source non précisée") if b["id"] == "gascogne" else bouees.station(b)["source"]
             state = ("Heure du relevé incohérente" if age < 0 else
                      "Mesure récente" if age < limit * 3 else
                      "Mesure ancienne" if age < 48 else "Mesure de plus de 48 h")
@@ -343,7 +344,7 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
             buoy_line = (f'<section class="spot-observation" aria-label="Observation en mer"><p class="spot-obs-kicker">OBSERVATION EN MER</p>'
                          f'<h2>{label} : <a href="../../bouees/{slugify(b["name"])}/">{esc(b["name"])}</a></h2>'
                          f'<p class="spot-obs-values"><b>{fr(L["hs"])} m</b> · {period} · {direction}</p>'
-                         f'<p>À {round(dist(b))} km · <time datetime="{esc(timefmt.fmt(obs, bt))}">{obs_local:%d/%m/%Y à %Hh%M}</time> ({esc(timefmt.tz_label(bt))}).</p>'
+                         f'<p>{esc(source)} · À {round(dist(b))} km · <time datetime="{esc(timefmt.fmt(obs, bt))}">{obs_local:%d/%m/%Y à %Hh%M}</time> ({esc(timefmt.tz_label(bt))}).</p>'
                          f'<p>{state} à la génération de cette page · {age_text}.</p>'
                          '<p>Hauteur significative mesurée à la bouée, pas la taille des vagues au bord.</p>'
                          '<p><a href="../../guide/lire-une-bouee/">Comprendre ce relevé</a></p></section>')
@@ -376,9 +377,9 @@ def spot_page(site, sp, spots_meta, payload, now, og_image=None):
 <p class="lead">{lead}</p>
 <p class="muted">Synthèse des prévisions entre 7 h et 20 h, à l’heure locale du spot. Hauteur significative au large, pas au déferlement.</p>
 <p><a class="cta" href="{app}">Voir les prévisions heure par heure</a></p>
-<p class="muted">{(esc(sp['type']) + ' · fond de ' + esc(sp['bottom'].lower()) + ' · ') if sp.get('type') and sp.get('bottom') else ''}{esc(sp['commune'])}, {esc(sp['region'])}. Prévisions générées le <time datetime="{esc(timefmt.fmt(generated, tz))}">{local_now:%d/%m/%Y à %Hh%M}</time> ({esc(timefmt.tz_label(tz))}).</p>
+<p class="muted">{(esc(sp['type']) + ' · fond de ' + esc(sp['bottom'].lower()) + ' · ') if sp.get('type') and sp.get('bottom') else ''}{esc(sp['commune'])}, {esc(sp['region'])}. Données générées le <time datetime="{esc(timefmt.fmt(generated, tz))}">{local_now:%d/%m/%Y à %Hh%M}</time> ({esc(timefmt.tz_label(tz))}).</p>
 {buoy_line}<h2>La semaine à {esc(name)}</h2>
-<table><thead><tr><th>Jour</th><th>Houle</th><th>Période</th><th>Vent</th><th>Coef.</th></tr></thead><tbody>{trs}</tbody></table>
+<table><thead><tr><th>Jour</th><th>Houle</th><th>Période</th><th>Vent</th>{"<th>Coef.</th>" if has_tides else ""}</tr></thead><tbody>{trs}</tbody></table>
 {"" if has_tides else '<p class="muted">Marées et coefficients non disponibles pour ce spot sur Houlalah.</p>'}
 <p class="muted"><a href="../../guide/comprendre-la-houle/">Comprendre la hauteur, la période et la direction de houle</a></p>
 {hours_html}{tides_html}
@@ -513,8 +514,8 @@ def llms_txt(site, spots):
     return f"""# {BRAND}
 
 > Prévisions surf gratuites pour {len(spots)} spots de la côte atlantique, de la Bretagne au Portugal : houle (hauteur, période,
-> direction), vent, marée et coefficient, croisées entre plusieurs modèles et comparées en direct aux mesures des bouées en mer.
-> Mises à jour toutes les heures. La hauteur affichée est celle de la houle au large, pas la taille des vagues au bord.
+> direction), vent, marée et coefficient lorsque disponibles. Les hauteurs prévues combinent plusieurs modèles ; les dernières mesures disponibles des bouées permettent de les confronter aux observations.
+> Données actualisées régulièrement selon les sources. La hauteur affichée est celle de la houle au large, pas la taille des vagues au bord.
 
 ## Pages principales
 - [Carte de la côte et prévisions]({site}/)
