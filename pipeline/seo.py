@@ -197,7 +197,7 @@ def page(site, title, desc, canonical, body, jsonld, base="../../", extra_css=""
 <style>{CSS}{extra_css}</style>{ld}</head><body><div class="band">
 <header><a class="brand" href="{base}"><img class="mk" src="{base}brand/symbol.svg" alt="" height="26"><img class="bw" src="{base}brand/wordmark.svg" alt="{BRAND}" height="15"></a><a class="top" href="{base}{top[1]}">{top[0]}</a></header></div><main>
 <div class="prose">{body}</div>
-<footer><nav aria-label="Informations"><a href="{base}comment-ca-marche/">Comment ça marche</a> · <a href="{base}a-propos/">À propos</a> · <a href="{base}mentions-legales/">Mentions légales</a> · <a href="{base}confidentialite/">Confidentialité</a></nav><br>Prévisions calculées à partir de plusieurs modèles (Météo-France, DWD, ECMWF, NOAA, Ifremer) via Open-Meteo, corrigées avec les bouées. Estimations : à confirmer sur place. {BRAND} est un prototype non commercial.</footer>
+<footer><nav aria-label="Informations"><a href="{base}guide/">Comprendre la houle</a> · <a href="{base}comment-ca-marche/">Comment ça marche</a> · <a href="{base}a-propos/">À propos</a> · <a href="{base}mentions-legales/">Mentions légales</a> · <a href="{base}confidentialite/">Confidentialité</a></nav><br>Prévisions calculées à partir de plusieurs modèles (Météo-France, DWD, ECMWF, NOAA, Ifremer) via Open-Meteo, corrigées avec les bouées. Estimations : à confirmer sur place. {BRAND} est un prototype non commercial.</footer>
 </main></body></html>"""
 
 
@@ -429,7 +429,7 @@ def generate(payload, out_dir=None, site=None):
     from . import pages
     for spec in pages.ALL:
         d = root / spec["slug"]
-        d.mkdir(exist_ok=True)
+        d.mkdir(parents=True, exist_ok=True)
         (d / "index.html").write_text(pages.render(site, spec), encoding="utf-8")
     try:
         from . import bouees
@@ -490,6 +490,10 @@ def llms_txt(site, spots):
 - [Bouées de houle en direct]({site}/bouees/)
 - [Comment {BRAND} calcule ses prévisions]({site}/comment-ca-marche/)
 - [À propos]({site}/a-propos/)
+- [Comprendre la houle : guides]({site}/guide/)
+- [Lire une bouée houlographe]({site}/guide/lire-une-bouee/)
+- [Hauteur, période et direction]({site}/guide/comprendre-la-houle/)
+- [Modèles de houle]({site}/guide/modeles-meteo-surf/)
 
 ## Régions
 {regions}
