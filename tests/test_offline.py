@@ -28,7 +28,8 @@ from pipeline import build, buoy, config, history, marc, openmeteo
 
 assert config.OUT_DIR == _Path(_OUT) and config.TEST_RUN, "le test doit écrire dans un dossier temporaire"
 
-start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+_fixture_now = pd.Timestamp.now("UTC")  # mêmes mesures aux deux passages, même si une heure s’écoule
+start = _fixture_now.tz_convert(config.TIMEZONE).tz_localize(None).normalize().to_pydatetime()
 TIMES = [(start + timedelta(hours=h)).strftime("%Y-%m-%dT%H:%M") for h in range(24 * config.FORECAST_DAYS)]
 
 
@@ -100,7 +101,7 @@ class FakeResp:
 def fake_copernicus_nc():
     """Fichier au format Copernicus In Situ : variables (TIME, DEPTH) + drapeaux QC."""
     import os, tempfile
-    now = pd.Timestamp.now("UTC").floor("h").tz_localize(None)
+    now = _fixture_now.floor("h").tz_localize(None)
     t = pd.date_range(now - pd.Timedelta(hours=47), now, freq="h")
     n = len(t)
     hs = np.array([1.6 + 0.05 * math.sin(h) for h in range(n)])[:, None]
@@ -121,7 +122,7 @@ def fake_copernicus_nc():
 def fake_ibi_nc():
     """Fichier Copernicus d'une bouée du large livrée toutes les heures (variables VHM0, VTPK, VMDR, TEMP, VZMX)."""
     import os, tempfile
-    now = pd.Timestamp.now("UTC").floor("h").tz_localize(None)
+    now = _fixture_now.floor("h").tz_localize(None)
     t = pd.date_range(now.normalize(), now, freq="h")
     n = len(t)
     col = lambda v: np.full((n, 1), v, dtype=float)
@@ -135,7 +136,7 @@ def fake_ibi_nc():
 
 
 def fake_candhis_html(*a, **k):
-    now = pd.Timestamp.now("UTC").floor("30min")
+    now = _fixture_now.floor("30min")
     rows = "".join(
         f"<tr><td><span>{(now - pd.Timedelta(minutes=30 * i)):%d/%m/%Y} </span></td><td><span>{(now - pd.Timedelta(minutes=30 * i)):%H:%M} </span></td>"
         f"<td><span>{1.2 + 0.1 * math.sin(i / 3):.1f} </span></td><td><span>2.0 </span></td><td><span>9.5 </span></td><td><span>290 </span></td><td><span>20 </span></td><td><span>16.5 </span></td></tr>"
@@ -156,7 +157,7 @@ def fake_buoy_get(url, *a, **k):
 
 
 def fake_ndbc(*a, **k):
-    now = pd.Timestamp.now('UTC').floor("h")
+    now = _fixture_now.floor("h")
     lines = ["#YY  MM DD hh mm WDIR WSPD GST  WVHT   DPD   APD MWD   PRES  ATMP  WTMP  DEWP  VIS PTDY  TIDE",
              "#yr  mo dy hr mn degT m/s  m/s     m   sec   sec degT   hPa  degC  degC  degC  nmi  hPa    ft"]
     for h in range(0, 48):
@@ -338,9 +339,12 @@ for _spec in _content_pages.ALL:
 print("SEO OK :", len(data["spots"]), "pages de spots + index + sitemap ;", _nb, "pages de bouées")
 
 # Secours : Copernicus indisponible → NOAA NDBC.
-buoy.requests.get = lambda url, *a, **k: FakeResp(status_code=503) if "cloudferro" in url else fake_ndbc()
-g = buoy.fetch([{"name": "x", "lat": 43.5, "lon": -1.5}])
-assert g["source"] == "NOAA NDBC" and g["latest"]["hs"] > 0
+# requests est un module partagé : le faux secours ne doit pas contaminer les tests suivants.
+from unittest.mock import patch
+with patch.object(buoy.requests, "get", side_effect=lambda url, *a, **k: FakeResp(status_code=503) if "cloudferro" in url else fake_ndbc()):
+    g = buoy.fetch([{"name": "x", "lat": 43.5, "lon": -1.5}])
+    assert g["source"] == "NOAA NDBC" and g["latest"]["hs"] > 0
+assert buoy.requests.get is fake_buoy_get, "le secours NDBC ne doit pas contaminer les autres tests"
 print("bouée OK (Copernicus + secours NDBC)")
 
 # Records et moyennes des bouées (archive locale du test)
@@ -448,6 +452,9 @@ _gen = (_seo.generate, _ad.generate)
 _seo.generate, _ad.generate = (lambda payload: 0), (lambda spots, payload: 0)   # pages déjà vérifiées plus haut : on gagne du temps
 build.main()
 _without = json.loads((config.OUT_DIR / "data" / "forecast.json").read_text())
+assert _with["gascogne"]["source"] == _without["gascogne"]["source"] == "Copernicus Marine"
+assert _with["gascogne"]["latest"] == _without["gascogne"]["latest"], "mesures de comparaison différentes"
+assert _with["meta"]["buoy_correction"] == _without["meta"]["buoy_correction"], "correction de comparaison différente"
 _seo.generate, _ad.generate = _gen
 for _f, _b in _keep.items():
     _f.write_bytes(_b)
