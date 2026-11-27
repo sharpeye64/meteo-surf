@@ -126,7 +126,7 @@ GUIDE_BUOY = {
     "desc": "Comprendre la hauteur significative, la période, la direction et la fraîcheur des mesures de houle avant de les comparer aux prévisions.",
     "h1": "Comment lire une bouée houlographe ?",
     "body": """
-<p class="muted">GUIDE · OBSERVATIONS EN MER</p>
+<p class="muted">GUIDE · OBSERVATIONS EN MER</p><p><a href="../">Tous les guides</a></p>
 <p class="lead">Une bouée décrit l'état de la mer à son emplacement. Pour interpréter une mesure, lis ensemble la hauteur significative, la période, la direction et l'heure du relevé.</p>
 <dl class="fiche"><div><dt>Hauteur significative</dt><dd>Hs · en mètres</dd></div><div><dt>Période et direction</dt><dd>Tp / Tm · secteur</dd></div><div><dt>Fraîcheur</dt><dd>Date et heure</dd></div></dl>
 <h2>Hauteur significative ou vague maximale ?</h2>
@@ -145,7 +145,72 @@ GUIDE_BUOY = {
 """,
 }
 
-ALL = [HOW, ABOUT, LEGAL, PRIVACY, GUIDE_BUOY]
+GUIDE_INDEX = {
+    "slug": "guide",
+    "title": "Comprendre la houle : les guides Houlalah",
+    "desc": "Lire les houlographes, comprendre la houle et interpréter les différences entre modèles de prévision marine.",
+    "h1": "Comprendre la houle",
+    "type": "CollectionPage",
+    "body": """
+<p class="lead">Des repères techniques pour confronter les prévisions à la réalité de l'océan. À chacun de faire sa propre lecture des conditions.</p>
+<ul class="near">
+<li><a href="lire-une-bouee/"><b>Lire une bouée houlographe</b><small>Mesures, période, direction et fraîcheur</small></a></li>
+<li><a href="comprendre-la-houle/"><b>Hauteur, période et direction</b><small>Interpréter les composantes de l'état de mer</small></a></li>
+<li><a href="modeles-meteo-surf/"><b>Les modèles de houle</b><small>Résolution, échéance et divergence</small></a></li>
+</ul>
+<h2>De la théorie aux observations</h2>
+<p>Retrouve les <a href="../bouees/">mesures des bouées</a>, les <a href="../spots/">prévisions par spot</a> et <a href="../comment-ca-marche/">la méthode Houlalah</a>.</p>
+""",
+}
+
+GUIDE_SWELL = {
+    "slug": "guide/comprendre-la-houle",
+    "title": "Houle : hauteur, période et direction | Houlalah",
+    "desc": "Comprendre la hauteur significative, la période, la direction et les composantes de houle pour interpréter une prévision surf.",
+    "h1": "Hauteur, période et direction de houle",
+    "body": """
+<p class="muted">GUIDE · ÉTAT DE MER</p><p><a href="../">Tous les guides</a></p>
+<p class="lead">Une hauteur seule ne suffit pas à décrire la houle. La période renseigne sur son échelle temporelle, la direction sur sa provenance et les composantes sur la coexistence de plusieurs trains de vagues.</p>
+<dl class="fiche"><div><dt>Hauteur</dt><dd>Hs · mètres</dd></div><div><dt>Période</dt><dd>Secondes</dd></div><div><dt>Direction</dt><dd>Provenance</dd></div></dl>
+<h2>Hauteur significative et énergie</h2>
+<p>La hauteur significative décrit statistiquement l'état de mer. Dans les approximations usuelles en eau profonde, l'énergie moyenne des vagues par unité de surface est proportionnelle au carré de leur hauteur significative. Ce n'est pas une prédiction de la hauteur d'une vague individuelle.</p>
+<h2>Pourquoi la période change la lecture</h2>
+<p>La période exprime une durée en secondes. En eau profonde, pour des vagues de gravité linéaires, les composantes de période plus longue se propagent plus rapidement. À hauteur significative comparable, deux états de mer peuvent donc présenter des flux d'énergie différents. La période de pic et la période moyenne sont des statistiques distinctes.</p>
+<h2>Direction et exposition</h2>
+<p>La direction de provenance indique d'où viennent les vagues. Une houle peut être atténuée derrière un cap, ou être réorientée par la réfraction lorsque la profondeur diminue. La direction au large ne permet pas à elle seule de prévoir le déferlement sur un banc de sable.</p>
+<h2>Houle primaire, secondaire et mer du vent</h2>
+<p>La mer du vent correspond aux vagues générées par le vent local ; la houle peut avoir quitté sa zone de génération. Plusieurs systèmes peuvent coexister. Les hauteurs significatives des composantes ne s'additionnent pas directement : pour des composantes indépendantes, leurs énergies s'ajoutent.</p>
+<h2>Passer de la prévision à l'observation</h2>
+<p>Compare les mêmes variables à la même heure et au même emplacement, en vérifiant la fraîcheur de la mesure. La hauteur au large ne représente pas la hauteur au bord.</p>
+<p><a href="../lire-une-bouee/">Lire une bouée houlographe</a> · <a href="../modeles-meteo-surf/">Comprendre les modèles</a></p>
+<h2>Sources</h2><p><a href="https://www.ndbc.noaa.gov/">NOAA National Data Buoy Center</a> · <a href="https://open-meteo.com/en/docs/marine-weather-api">Open-Meteo, variables marines</a> · <a href="../../comment-ca-marche/">Méthode Houlalah</a>.</p>
+""",
+}
+
+GUIDE_MODELS = {
+    "slug": "guide/modeles-meteo-surf",
+    "title": "Modèles de houle : MFWAM, EWAM, WAM, GFS-Wave et MARC | Houlalah",
+    "desc": "Comprendre pourquoi les modèles de houle divergent, comment Houlalah combine les hauteurs prévues et comment les confronter aux bouées.",
+    "h1": "Comprendre les modèles de houle",
+    "body": """
+<p class="muted">GUIDE · PRÉVISIONS MARINES</p><p><a href="../">Tous les guides</a></p>
+<p class="lead">Deux modèles peuvent annoncer des hauteurs différentes au même endroit et à la même heure. Leur accord est une information utile, mais il ne constitue pas une preuve d'exactitude.</p>
+<h2>Quels modèles utilise Houlalah ?</h2>
+<p>Le moteur combine les hauteurs significatives disponibles de Météo-France MFWAM, DWD EWAM, ECMWF WAM, NOAA GFS-Wave et Ifremer MARC dans sa zone de couverture. Les quatre premiers sont accessibles via Open-Meteo. Les poids sont renormalisés selon les données disponibles ; la période, la direction et les composantes proviennent de la prévision marine de référence.</p>
+<h2>Pourquoi les prévisions divergent-elles ?</h2>
+<p>Les modèles diffèrent notamment par leurs champs de vent, leurs grilles, leurs conditions initiales et la représentation des processus physiques. La résolution et la représentation de la côte influencent la valeur calculée près du littoral. Une maille plus fine n'est pas une garantie d'erreur plus faible.</p>
+<h2>Heure de collecte et échéance</h2>
+<p>Un modèle est recalculé par cycles. L'heure de collecte d'une réponse n'est pas nécessairement celle de l'initialisation du modèle. L'échéance est le délai séparant l'initialisation de l'heure prévue ; elle doit être distinguée de l'âge de la donnée affichée.</p>
+<h2>Accord des modèles et erreur réelle</h2>
+<p>Des modèles proches peuvent partager un biais. Pour mesurer l'erreur, il faut comparer des prévisions archivées à des observations correspondant au même point, à la même heure et à une échéance connue. L'écart absolu moyen et le biais répondent à deux questions différentes : amplitude de l'erreur et tendance à surestimer ou sous-estimer.</p>
+<h2>La correction par les bouées</h2>
+<p>Houlalah utilise les observations de Gascogne pour ajuster ses hauteurs prévues lorsque les données le permettent. Cette correction ne démontre pas à elle seule une amélioration à tous les spots. Consulte la <a href="../../comment-ca-marche/">méthode Houlalah</a> pour le fonctionnement en vigueur et ses limites.</p>
+<p><a href="../lire-une-bouee/">Lire une bouée</a> · <a href="../comprendre-la-houle/">Comprendre les variables de houle</a></p>
+<h2>Sources</h2><p><a href="https://open-meteo.com/en/docs/marine-weather-api">Open-Meteo, modèles marins</a> · <a href="https://open-meteo.com/en/docs/model-updates">Cycles de mise à jour</a> · <a href="https://marc.ifremer.fr/">Ifremer MARC</a>.</p>
+""",
+}
+
+ALL = [HOW, ABOUT, LEGAL, PRIVACY, GUIDE_INDEX, GUIDE_BUOY, GUIDE_SWELL, GUIDE_MODELS]
 
 
 def render(site, spec):
