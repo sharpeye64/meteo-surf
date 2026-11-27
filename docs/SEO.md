@@ -48,3 +48,7 @@
   - quoi : `/es/`, `/pt/`, `/en/`, générés par le même robot, gabarits traduits par une personne, `hreflang` réciproques ;
   - dans quel ordre : espagnol (Pays basque espagnol, Cantabrie, Asturies, Galice), puis portugais, puis anglais ;
   - à quelle condition : commencer par la langue qui a déjà des impressions dans Search Console.
+
+## Visibilité dans les assistants IA
+
+Chantier #13 : voir [GEO.md](GEO.md) pour l'audit initial du 27/11/2026, les sources officielles et le protocole de suivi. Branche dédiée, non publiée. Les résultats du panel de questions restent à mesurer.

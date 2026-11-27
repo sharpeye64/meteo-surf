@@ -261,6 +261,13 @@ assert "<h1>Bouée houlographe du Cap Ferret</h1>" in bp and "CANDHIS 03302" in 
 assert '"@type": "Dataset"' in bp and "../../spots/" in bp and "?spot=" not in bp.split("Spots autour")[1].split("Bouées voisines")[0]
 assert "Heure par heure" in pg and "Marées à Lacanau" in pg, "page spot : heure par heure et marées"
 assert "Les bouées" in (config.OUT_DIR / "bouees" / "index.html").read_text(encoding="utf-8")
+# GEO : mesure datée, source visible et distinction entre mer au large et vagues au bord.
+assert '<time datetime="' in bp and "heure de Paris" in bp and "Date / heure (Paris)" in bp
+assert "Dernière mesure disponible" in bp and "la méthode Houlalah" in bp
+assert "pas la hauteur des vagues au bord" in bp
+_method = (config.OUT_DIR / "comment-ca-marche" / "index.html").read_text(encoding="utf-8")
+assert "ne font pas l'objet de la même moyenne pondérée" in _method
+assert "ne constituent pas une validation" in _method
 print("SEO OK :", len(data["spots"]), "pages de spots + index + sitemap ;", _nb, "pages de bouées")
 
 # Secours : Copernicus indisponible → NOAA NDBC.

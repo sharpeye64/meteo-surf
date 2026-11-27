@@ -279,7 +279,9 @@ def rows_html(obs, upto, skip=0):
         prev = lst[i + 1] if i + 1 < len(lst) else None
         dd = (o["hs"] - prev["hs"]) if prev and o.get("hs") is not None and prev.get("hs") is not None else 0
         tr = "" if abs(dd) < 0.05 else ('<span class="tr u">▲</span>' if dd > 0 else '<span class="tr d">▼</span>')
-        lab = ("Dernier relevé · " + hour_label(o["t"])) if i == 0 else hour_label(o["t"])
+        t = o["t"][:16]
+        label = f"{t[8:10]}/{t[5:7]} {t[11:16]}"
+        lab = ("Dernier relevé · " + label) if i == 0 else label
         out.append(f'<tr class="{"now" if i == 0 else ""}"><td>{lab}</td><td class="h">{fr(o["hs"])} m{tr}</td><td>{fr(o.get("hmax"))} m</td>'
                    f'<td>{fr(o.get("tp"))} s</td><td>{sector(o.get("dir")) or "—"} {arrow(o.get("dir"), 18)}</td><td>{sst_txt(o.get("sst"))} °C</td></tr>')
     return "".join(out)
@@ -296,12 +298,12 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
     if b["model"]:
         by = {m["t"][:13]: m["hs"] for m in b["model"] if m.get("hs") is not None}
         fc = [by.get(o["t"][:13]) for o in obs]
-        label = "Notre prévision au même endroit"
+        label = "Prévision de référence au point de la bouée"
     if not any(v is not None for v in fc) and spots:
         s0 = min(spots, key=lambda s: hav(b, s))
         if hav(b, s0) < 40:
             fc = [s0["by"].get(o["t"][:13]) for o in obs]
-            label = f"Notre prévision à {s0['name']}"
+            label = f"Prévision au spot {s0['name']} (point différent)"
     near = sorted(((hav(b, s), s) for s in spots), key=lambda x: x[0])
     kept = []   # spots espacés d'au moins 4 km : sinon une zone dense (Anglet) donne 7 points collés
     for k, s in near:
@@ -331,13 +333,24 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
     else:
         desc = fit_desc(f"Dernières mesures de la {wl} ({S['ident']}), {when} : {vals}. Historique, records et bouées voisines à jour.",
                         f"Dernières mesures de la {wl}, {when} : {vals}. Historique et bouées voisines à jour.")
+    # Résumé visible et daté : ne jamais présenter une ancienne mesure comme la houle actuelle.
+    t_obs = L["time"][:16]
+    date_obs = f"{t_obs[8:10]}/{t_obs[5:7]}/{t_obs[:4]} à {t_obs[11:16]}"
+    period = (f" ; période de pic {fr(L['tp'])} s" if L.get("tp") is not None else
+              f" ; période moyenne {fr(L['tm'])} s" if L.get("tm") is not None else "")
+    direction = f" ; direction {sector(L['dir'])} ({fr(L['dir'], 0)}°)" if L.get("dir") is not None else ""
+    status = "Dernière mesure disponible"
+    summary = (f'<p class="lead">{esc(status)} pour la station {esc(S["ident"])} : '
+               f'<time datetime="{esc(t_obs)}">{esc(date_obs)}</time> (heure de Paris), '
+               f'hauteur significative {fr(L["hs"])} m{period}{direction}. '
+               f'Source : {esc(S["source"])}. Cette valeur décrit la mer à la bouée, pas la hauteur des vagues au bord.</p>')
     canonical = f"{site}/bouees/{slug}/"
     base = "../../"
     chips = "".join(f'<li><a href="{base}spots/{s["slug"]}/"><i class="dot" style="background:{spot_color(s["h"])}"></i><span><b>{esc(s["name"])}</b> <small>{round(k)} km</small></span><span class="v">{fr(s["h"])} m</span></a></li>' for k, s in near)
     ochips = "".join(f'<li><a href="../{o["slug"]}/"><span aria-hidden="true">⚓</span><span><b>{esc(o["name"])}</b> <small>{round(k)} km</small></span><span class="v">{fr(o["L"]["hs"])} m</span></a></li>' for k, o in others)
     cg = (f'<div><span class="k">Vague max</span><b>{fr(L.get("hmax"))}<i> m</i></b></div><div><span class="k">Période</span><b>{fr(L.get("tp"))}<i> s</i></b></div>'
           f'<div><span class="k">Direction</span><b>{sector(L.get("dir")) or "—"} {arrow(L.get("dir"), 26)}</b></div><div><span class="k">Eau</span><b>{sst_txt(L.get("sst"))}<i> °C</i></b></div>')
-    head = "".join(f"<th>{h}</th>" for h in ("Heure", "Hauteur", "Max", "Période", "Direction", "Eau"))
+    head = "".join(f"<th>{h}</th>" for h in ("Date / heure (Paris)", "Hauteur", "Max", "Période", "Direction", "Eau"))
     stale = ""
     if not working:
         alt = [(k, o) for k, o in others if fresh_state(now, o["L"]["time"], station(o)["lim"]) in ("live", "recent")][:3]
@@ -354,6 +367,7 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
 <h1>{"Bouée houlographe " + esc(DE.get(name, "de " + name)) if houlo else "Bouée " + esc(name)}</h1>
 <p class="muted">{("Houlographe du réseau CANDHIS (Cerema) · station " + esc(S["ident"].replace("CANDHIS ", "")) + " · ") if houlo else esc(b["sub"][:1].upper() + b["sub"][1:]) + " · " + esc(S["ident"]) + " · "}{fr(abs(b["lat"]), 2)} °N, {fr(abs(b["lon"]), 2)} °{"O" if b["lon"] < 0 else "E"} · {esc(S["cadence"])}</p>
 {stale}
+{summary}
 <div class="bh"><div class="mapbox"><div id="bmap"></div></div>
 <div class="cur"><span class="k">{"Dernière mesure de houle" if working else "Dernière mesure reçue"}</span><div><div class="big">{fr(L["hs"])}<small> m</small></div><div class="when">Hauteur significative des vagues</div></div><div class="cg">{cg}</div></div></div>
 <h2>Historique de la hauteur de houle (48 h)</h2><div class="bcard">{chart_svg(obs, fc, label)}</div>
@@ -362,7 +376,7 @@ def buoy_page(site, b, allb, spots, now, og_image=None):
 {stats_html(b.get("st"))}
 <h2>Spots autour de la bouée</h2><ul class="chips">{chips}</ul>
 <h2>Bouées voisines</h2><ul class="chips">{ochips}</ul>
-<p class="muted" style="margin-top:26px">La bouée mesure la mer à l'endroit où elle est placée, pas la taille des vagues sur un spot précis. Prévisions : voir la page de chaque spot.</p>
+<p class="muted" style="margin-top:26px">La bouée mesure la mer à l'endroit où elle est placée, pas la taille des vagues sur un spot précis. Prévisions : voir la page de chaque spot. Pour comprendre la hauteur significative, les modèles et les limites des comparaisons, consulter <a href="../../comment-ca-marche/">la méthode Houlalah</a>.</p>
 {src}
 <script type="application/json" id="bdata">{json.dumps(data, ensure_ascii=False)}</script><script>{MAP_JS}</script>"""
     ld = [{"@context": "https://schema.org", "@type": "WebPage", "name": title, "description": desc, "url": canonical, "inLanguage": "fr",
