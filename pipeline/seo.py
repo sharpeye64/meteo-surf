@@ -429,7 +429,7 @@ def generate(payload, out_dir=None, site=None):
     from . import pages
     for spec in pages.ALL:
         d = root / spec["slug"]
-        d.mkdir(exist_ok=True)
+        d.mkdir(parents=True, exist_ok=True)
         (d / "index.html").write_text(pages.render(site, spec), encoding="utf-8")
     try:
         from . import bouees
