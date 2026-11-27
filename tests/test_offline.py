@@ -419,9 +419,15 @@ _with = json.loads((config.OUT_DIR / "data" / "forecast.json").read_text())
 (_Path(_hist) / "forecast_archive_on.json").write_text(json.dumps(_with), encoding="utf-8")   # pour comparer à un autre commit
 print("forecast.json (archive activée) gardé pour comparaison :", _Path(_hist) / "forecast_archive_on.json")
 _os.environ["METEO_ARCHIVE"] = "0"
+# le site du premier passage reste celui que d'autres tests réutilisent (simulate_pannes) : ses fichiers sont remis ensuite
+_keep = {f: f.read_bytes() for f in (config.OUT_DIR / "data" / "forecast.json", config.OUT_DIR / "health.json")}
+_gen = (_seo.generate, _ad.generate)
 _seo.generate, _ad.generate = (lambda payload: 0), (lambda spots, payload: 0)   # pages déjà vérifiées plus haut : on gagne du temps
 build.main()
 _without = json.loads((config.OUT_DIR / "data" / "forecast.json").read_text())
+_seo.generate, _ad.generate = _gen
+for _f, _b in _keep.items():
+    _f.write_bytes(_b)
 _r = _cf.compare(_with, _without)
 assert not _r["diffs"] and _r["spots"] == (214, 214) and _r["global"][0] == _r["global"][1], _r["diffs"][:5]
 print("prévision publiée identique archive activée / désactivée :", _r["spots"][0], "spots, empreinte", _r["global"][0][:16])
