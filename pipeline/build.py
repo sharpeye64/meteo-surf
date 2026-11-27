@@ -260,12 +260,19 @@ def main():
     payload = {"meta": meta, "gascogne": gascogne, "coast": coast, "offshore": offshore, "tide_coef": tide_coef, "reliability": reliability, "buoy_stats": history.buoy_stats(), "spots": out_spots}
     # consommation Open-Meteo de ce passage et provenance des prévisions (issue #7) ; mode dégradé signalé
     meta["api"] = omcache.summary()
+    # heure de COLLECTE des prévisions (≠ heure de génération en mode dégradé ; ≠ heure du run du modèle)
+    meta["forecast_fetched"] = meta["api"]["openmeteo"]["forecast_fetched"]
+    try:
+        meta["api"]["today"] = omcache.persist_daily(meta["api"], meta["generated"])
+    except Exception as e:   # compteurs : jamais bloquants
+        meta["errors"]["api_compteurs"] = str(e)[:200]
     degraded = {g: s for g, s in omcache.STATE.items() if s.get("source") == "cache-dégradé"}
     if degraded:
         meta["errors"]["openmeteo_cache"] = "prévisions réutilisées (Open-Meteo indisponible) : " + ", ".join(f"{g} {s['age_h']} h" for g, s in sorted(degraded.items()))
     u = meta["api"]["openmeteo"]
-    log(f"Open-Meteo : {u['http_requests']} requêtes, {u['points']} points, {u['calls_if_per_request']} appels (par requête) / "
-        f"{u['calls_if_per_point']} (par point), {u['retries']} reprises, {u['http_429']} refus 429")
+    log(f"Open-Meteo : {u['requests']} requêtes, {u['attempts']} tentatives ({u['attempts_429']} refus 429, {u['attempts_5xx']} 5xx, "
+        f"{u['attempts_network']} réseau), {u['points']} points, {u['calls_if_per_request']} appels (par requête) / "
+        f"{u['calls_if_per_point']} (par point) acceptés ; collecte des prévisions {u['forecast_fetched']}")
     if omcache.CHANGED:
         omcache.CACHE_DIR.mkdir(parents=True, exist_ok=True)
         (omcache.CACHE_DIR / "CHANGED").write_text(meta["generated"], encoding="utf-8")

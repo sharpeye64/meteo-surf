@@ -46,6 +46,8 @@ jobs:
         run: python -m tests.panne_bout_en_bout
       - name: Cache des prévisions Open-Meteo (issue #7)
         run: python -m tests.test_cache
+      - name: Alignement horaire des prévisions (panne partielle, minuit)
+        run: python -m tests.test_alignement
   build:
     needs: surete
     # pas de vraie génération pour une pull request (ni appel aux API, ni archive, ni publication)
@@ -75,10 +77,18 @@ jobs:
       - name: Récupérer le cache des prévisions Open-Meteo
         # prévisions déjà reçues : réutilisées tant qu'aucun modèle n'a publié de nouveau run (pipeline/omcache.py, issue #7)
         uses: actions/cache/restore@v4
+        continue-on-error: true   # service de cache en panne : on redemande tout, la génération continue
         with:
           path: .cache/openmeteo
           key: openmeteo-${{ github.ref_name }}-${{ github.run_id }}
           restore-keys: openmeteo-${{ github.ref_name }}-
+      - name: Récupérer les compteurs Open-Meteo du jour
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: .cache/usage
+          key: omusage-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: omusage-${{ github.ref_name }}-
       - name: Construire forecast.json
         env:
           METEO_SITE_URL: "https://houlalah.fr"
@@ -100,9 +110,17 @@ jobs:
         # seulement s'il a changé (nouveau run d'un modèle) : pas de copie inutile à chaque passage
         if: hashFiles('.cache/openmeteo/CHANGED') != ''
         uses: actions/cache/save@v4
+        continue-on-error: true   # un échec de sauvegarde ne bloque jamais une génération valide
         with:
           path: .cache/openmeteo
           key: openmeteo-${{ github.ref_name }}-${{ github.run_id }}
+      - name: Sauvegarder les compteurs Open-Meteo du jour
+        if: hashFiles('.cache/usage/*.json') != ''
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: .cache/usage
+          key: omusage-${{ github.ref_name }}-${{ github.run_id }}
       - name: Contrôler le site avant publication
         # refuse un site incomplet, incohérent ou contenant des données de test : la publication n'a pas lieu
         # et GitHub Pages garde la dernière version valide (tools/check_site.py, issue #3)

@@ -39,11 +39,16 @@ En moyenne, **56 passages par jour**, de 7,4 min en médiane. Un passage annulé
   - **H1 « par requête »** : chaque requête compte une fois ;
   - **H2 « par point »** : chaque lieu de la requête compte.
 - **Limites gratuites** : 600 appels par minute, 5 000 par heure, 10 000 par jour, 300 000 par mois.
+- Le **calculateur** de la page tarifs comporte un champ **« Locations »** (vérifié le 27/11/2026 dans le code de la page) : le nombre de lieux entre bien dans le calcul. C'est un argument de plus pour H2, sans la règle exacte.
 - La lecture des métadonnées des modèles n'est pas comptée dans les limites journalières et mensuelles (https://open-meteo.com/en/docs/model-updates). La page ne parle pas des limites par minute ou par heure.
 
 ## 2. Ce que fait ce lot
 
 ### Mesure à chaque passage
+- **Requêtes logiques et tentatives HTTP** sont comptées séparément (`requests`, `attempts`, `attempts_ok`, `attempts_429`, `attempts_5xx`, `attempts_network`).
+- Les poids H1 et H2 ne portent que sur les tentatives **acceptées**. Le poids des tentatives refusées est donné à part (`calls_if_per_point_refused`) : on ne suppose pas qu'un refus soit facturé.
+- **Compteurs du jour** (`meta.api.today`, `.cache/usage/AAAA-MM-JJ.json`) : cumulés d'un passage à l'autre et conservés par `actions/cache`. C'est un dispositif **au mieux** : un cache peut être évincé. Ces compteurs ne prouvent pas le respect des quotas ; seul Open-Meteo connaît son propre décompte.
+
 `openmeteo.get` enregistre chaque requête : API, nombre de points, nombre de variables, jours demandés, essais, codes HTTP (dont 429 et 5xx). Le résumé est écrit dans `forecast.json` (`meta.api`), dans `health.json` (`api`), dans le journal du robot et dans le résumé du contrôle avant publication. Il contient, pour chaque groupe de requêtes, la provenance (`api`, `cache` ou `cache-dégradé`), l'âge et la raison d'un nouvel appel. Il ne contient ni adresse ni paramètre.
 
 ### Cache persistant (`pipeline/omcache.py`)
@@ -52,7 +57,9 @@ En moyenne, **56 passages par jour**, de 7,4 min en médiane. Un passage annulé
 - **Vent séparé par modèle** : AROME, ICON, GFS et ECMWF ont chacun leur requête, redemandée quand **ce** modèle publie. Avant, la publication d'un seul modèle obligeait à tout redemander. Le lever et le coucher du soleil (calcul astronomique) sont redemandés une fois par jour.
 - **Conservation** : le cache vit dans `.cache/openmeteo/` (ignoré par git). Dans GitHub Actions, `actions/cache` le restaure au début de chaque passage et ne le sauvegarde que s'il a changé. Chaque branche a son propre cache.
 - **Mode dégradé explicite** : si Open-Meteo ne répond pas, une réponse en cache de **moins de 12 h** est réutilisée et signalée (`openmeteo_cache` dans `meta.errors`, avertissement du contrôle, provenance « cache-dégradé »). Le site continue alors de publier des **bouées à jour**. Au-delà de 12 h, la génération échoue comme avant, et le site garde sa dernière version. Le contrôle avant publication refuse toute prévision de plus de 12 h.
-- **Désactivation** : `METEO_CACHE=0` rétablit exactement le comportement d'avant (tout redemander).
+- **Désactivation** : `METEO_CACHE=0` fait tout redemander à chaque passage. Le vent reste toutefois en une requête par modèle : ce n'est **pas** exactement le regroupement d'avant ce lot.
+- **Validation** : une réponse n'est mise en cache, puis réutilisée, que si elle est complète (des lieux, un axe `time`, des séries de même longueur). Un cache abîmé est ignoré.
+- **Service de cache GitHub en panne** : la restauration et la sauvegarde ne bloquent jamais une génération valide (`continue-on-error`). Sans cache, tout est simplement redemandé.
 
 ### Ce qui ne change pas
 - **Bouées** : même cadence (chaque passage, environ toutes les 30 min). CANDHIS, Copernicus et Météo-France sont lus à chaque passage, sans cache.
@@ -60,8 +67,24 @@ En moyenne, **56 passages par jour**, de 7,4 min en médiane. Un passage annulé
 - **Marées** : calcul harmonique local, sans appel. Il n'y a rien à mettre en cache.
 - Même rythme du robot, mêmes heures (#2), même application.
 
+### Alignement horaire (corrigé après la revue de la PR #12)
+Avant ce correctif, les séries étaient combinées **par position** : la n-ième valeur du vent avec la n-ième valeur de la mer. Or, en mode dégradé juste après minuit, une réponse reprise du cache de la veille commence 24 h plus tôt que les autres. Désormais, toutes les séries sont replacées **sur leurs heures réelles** : mer, 4 modèles de vagues, 4 modèles de vent (et donc le mélange et MARC, qui suivent cet axe). L'axe commun est celui de la réponse la plus récente. Le soleil est replacé **par date**.
+- Chaque groupe doit couvrir l'heure actuelle et les 48 h suivantes, sinon le passage échoue et le site garde sa version.
+- Le décalage d'un groupe (par exemple 24 h) est noté dans `meta.api`.
+- Test intégré `tests/test_alignement.py` : passage à 23 h 50 puis à 0 h 20 ; vent GFS et soleil en panne, repris de la veille ; réponse AROME plus courte ; modèle de vagues sur 30 h refusé ; réponse abîmée refusée.
+- L'heure d'été et d'hiver n'est pas traitée ici : c'est l'issue #2.
+
+### Âge des prévisions par groupe (corrigé après la revue)
+Le contrôle avant publication applique **12 h** aux prévisions météo et **24 h** au lever et au coucher du soleil. Un soleil collecté la veille reste juste, puisqu'il est replacé par date. Testé : un passage à 15 h ou à 23 h avec le soleil du matin et une météo fraîche est publié ; un soleil de plus de 24 h ou une météo de plus de 12 h est refusé.
+
+### Mode dégradé visible (corrigé après la revue)
+- `forecast.json` et `health.json` contiennent `meta.forecast_fetched` : l'heure de **collecte** la plus ancienne des prévisions météo. Ce n'est ni l'heure de génération, ni l'heure du run du modèle.
+- `data/app/index.json` contient `forecast_fetched` et `forecast_degraded`, pour un affichage futur dans l'application. L'appli elle-même n'est pas modifiée.
+- Sur le site, en mode dégradé, le pied de page et l'info-bulle « mis à jour » disent : « Prévisions collectées le … (service de prévision momentanément indisponible) ; mesures des bouées à jour ».
+- Toutes les raisons publiées (`meta.api`) passent par `safe.public_error` : testé avec une fausse clé, une adresse avec identifiants et un paramètre.
+
 ### Fraîcheur : aucune dégradation, par construction
-Avant, chaque passage redemandait tout, mais Open-Meteo ne renvoie des valeurs différentes qu'après la publication d'un nouveau run. Avec le cache, un nouveau run est pris **au premier passage qui suit sa disponibilité**, exactement comme avant. S'il a moins de 10 min (délai conseillé par Open-Meteo pour que tous ses serveurs l'aient), il est redemandé une seconde fois au passage suivant. Les seuls cas où une prévision peut être plus ancienne que la plus récente disponible :
+Avant, chaque passage redemandait tout, mais Open-Meteo ne renvoie des valeurs différentes qu'après la publication d'un nouveau run. Avec le cache, un nouveau run d'un modèle **surveillé** est pris **au premier passage qui suit sa disponibilité**, exactement comme avant. **Réserve** : Open-Meteo précise que le « best match » n'est pas directement lié aux runs individuels (https://open-meteo.com/en/docs/model-updates). Pour la requête « marine » (best match), la surveillance de ses modèles est une approximation, bornée par le filet de 6 h. L'âge affiché est l'âge de collecte de la réponse, pas celui du run. S'il a moins de 10 min (délai conseillé par Open-Meteo pour que tous ses serveurs l'aient), il est redemandé une seconde fois au passage suivant. Les seuls cas où une prévision peut être plus ancienne que la plus récente disponible :
 - un modèle intermédiaire non listé dans les métadonnées surveillées : le filet de 6 h borne l'écart, et il est rattrapé dès qu'un autre modèle du groupe publie ;
 - le mode dégradé (Open-Meteo en panne) : avant, il n'y avait alors **aucune** publication.
 
@@ -143,8 +166,11 @@ Ici, « licence des données » veut dire le droit de réutiliser les valeurs, e
 |---|---|---|---|---|
 | **A. Aujourd'hui** (gratuit, sans pub) | — | gratuit si H1 ; si H2, au-dessus du gratuit (≈ 2,2 M par mois avant, ≈ 0,7 M après) | GitHub Pages gratuit | — |
 | **B. Dons, « tip jar »** | bouton de don | toujours non commercial (dons permis) | GitHub Pages permet les boutons de don | — |
-| **C. Publicité ou abonnement** | site ou appli commerciale | **forfait Standard au minimum** (1 M par mois suffit après ce lot, même en H2). Prix sur devis, non affiché | hébergement commercial à prévoir (Pages exclu pour une activité commerciale) | stores (Apple 99 $ par an, déjà prévu), CGU et RGPD à revoir |
-| **D. Widget chez un professionnel (#10)** | données affichées chez un tiers | commercial, donc forfait payant ; le widget lit nos fichiers, pas l'API | bande passante selon le trafic (100 Go par mois sur Pages) | attribution CC BY à reprendre dans le widget |
+| **C. Publicité ou abonnement** | site ou appli commerciale | **forfait Standard au minimum**. 1 M par mois suffirait après ce lot en H2 **sous conditions** : estimation de journée type, reprises en plus (les 429 observés), archive #1 en plus, et **appels directs des navigateurs** en secours (`loadLive`, si `forecast.json` manque), qui ne passent pas par le robot. Prix sur devis, non affiché | hébergement commercial à prévoir (Pages exclu pour une activité commerciale) | stores (Apple 99 $ par an, déjà prévu), CGU et RGPD à revoir |
+| **D1. Widget « mesures seules » chez un professionnel (#10)** | mesures des bouées uniquement | aucune donnée Open-Meteo : seules les licences des bouées (Etalab, Copernicus) et leurs attributions s'appliquent | Pages : trafic du widget | — |
+| **D2. Widget « prévisions » chez un professionnel** | prévisions affichées chez un tiers | usage commercial, donc forfait payant Open-Meteo ; le widget lit nos fichiers, pas l'API | bande passante selon le trafic (100 Go par mois sur Pages) | attribution CC BY à reprendre dans le widget |
 | **E. Archives (#1)** | 21 bouées × modèles, un passage sur trois | ≈ 0 en plus si regroupées en une requête à plusieurs points (H1), environ 200 à 300 appels par jour (H2) | stockage sur la branche `history` | — |
+
+Ces conclusions sont **conditionnelles** : elles reposent sur des estimations et sur des conditions lues le 27/11/2026, pas sur une validation des fournisseurs.
 
 **Aucun achat, abonnement ni contact n'a été fait.** Contacter Open-Meteo (règle multi-lieux, devis) ou le Cerema (jeton API) reste une décision du porteur.

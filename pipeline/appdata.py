@@ -148,7 +148,11 @@ def generate(spots, payload):
     buoys = _buoys(payload)
     for bu in buoys:
         bu["slug"] = slugify(bu["name"])
-    meta = {"v": VERSION, "generated": payload["meta"]["generated"], "spots": index, "buoys": buoys}
+    meta = {"v": VERSION, "generated": payload["meta"]["generated"], "spots": index, "buoys": buoys,
+            # issue #7 : heure de collecte des prévisions (plus ancienne que « generated » en mode dégradé) ; les mesures des
+            # bouées, elles, datent toujours de « generated »
+            "forecast_fetched": payload["meta"].get("forecast_fetched") or payload["meta"]["generated"],
+            "forecast_degraded": "openmeteo_cache" in (payload["meta"].get("errors") or {})}
     if config.TEST_RUN:
         meta["_test"] = True   # refusé par le contrôle de publication (tools/check_site.py)
     (tmp / "index.json").write_text(json.dumps(meta, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

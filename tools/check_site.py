@@ -76,9 +76,11 @@ def check(site_dir, max_age_h=3.0):
         # prévisions Open-Meteo : jamais plus vieilles que le mode dégradé ne l'autorise (issue #7)
         from pipeline import omcache
         groups = ((meta.get("api") or {}).get("openmeteo") or {}).get("groups") or {}
-        old = {g: s.get("age_h") for g, s in groups.items() if (s.get("age_h") or 0) > omcache.STALE_MAX_H}
+        # âge maximal propre à chaque groupe : 12 h pour la météo, 24 h pour le soleil (qui doit en plus être du jour)
+        old = {g: s.get("age_h") for g, s in groups.items() if (s.get("age_h") or 0) > omcache.max_age_h(g)}
         if old:
-            errors.append(f"prévisions trop anciennes (> {omcache.STALE_MAX_H:g} h) : {old}")
+            errors.append(f"prévisions trop anciennes : {old} (maximum {omcache.STALE_MAX_H:g} h, soleil {omcache.max_age_h('sun'):g} h)")
+        # soleil collecté la veille : toujours juste (calcul astronomique, réponse alignée PAR DATE dans openmeteo.fetch)
         if groups:
             om = meta["api"]["openmeteo"]
             counts["forecast_max_age_h"] = max((s.get("age_h") or 0) for s in groups.values())

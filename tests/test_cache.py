@@ -38,7 +38,7 @@ def fetcher(url, params):
     if down["on"]:
         raise RuntimeError("Open-Meteo : échec après 5 essais (HTTP 503)")
     calls.append(params.get("models", "best"))
-    return [{"hourly": {"t": clock["t"]}}]
+    return [{"hourly": {"time": ["2026-11-27T00:00"], "v": [clock["t"]]}}]
 
 
 P = {"latitude": "44.0", "longitude": "-1.3", "hourly": "wave_height", "forecast_days": 7}
@@ -107,6 +107,56 @@ try:
 except RuntimeError:
     expect("panne Open-Meteo, cache de 13 h → échec (le site garde sa version)", "échec", "échec")
 down["on"] = False
+
+# mode dégradé : le message public ne contient jamais l'adresse ni la clé de l'exception (revue de la PR #12, point 3)
+FAKE = "FAUSSECLE-0123456789abcdef"
+os.environ["METEOFRANCE_APIKEY"] = FAKE
+
+
+def leaky(url, params):
+    raise RuntimeError(f"GET https://robot:motdepasse@api.exemple.test/v1/marine?apikey={FAKE}&x=1 Authorization: Bearer {FAKE}")
+
+
+clock["t"] += 7 * 3600   # le cache doit être redemandé (> 6 h) : la requête échoue, le cache (< 12 h) est repris
+omcache.cached_get("marine", "u", P2, fetcher)   # rafraîchit le cache à cette heure
+clock["t"] += 7 * 3600
+omcache.reset()
+omcache.cached_get("marine", "u", P2, leaky)
+import json as _json  # noqa: E402
+pub = _json.dumps(omcache.summary(), ensure_ascii=False)
+expect("mode dégradé : aucune fausse clé, aucun identifiant, aucun paramètre dans le résumé public",
+       [x in pub for x in (FAKE, "motdepasse", "x=1")], [False, False, False])
+expect("… mais la cause reste lisible", "Open-Meteo indisponible" in pub and "api.exemple.test" in pub, True)
+os.environ.pop("METEOFRANCE_APIKEY", None)
+
+# soleil : un cache de la veille reste utilisable (calcul astronomique, réponse alignée par date) jusqu'à 24 h en panne
+down["on"] = True
+omcache.reset()
+sun_p = {"latitude": "44", "daily": "sunrise,sunset"}
+down["on"] = False
+clock["t"] = datetime(2026, 12, 3, 7, 0, tzinfo=ZoneInfo("Europe/Paris")).timestamp()
+omcache.cached_get("sun", "u", sun_p, fetcher)
+clock["t"] = datetime(2026, 12, 3, 22, 0, tzinfo=ZoneInfo("Europe/Paris")).timestamp()
+omcache.cached_get("sun", "u", sun_p, fetcher)
+expect("soleil : cache de 15 h le même jour → réutilisé normalement", omcache.STATE["sun"]["source"], "cache")
+down["on"] = True
+clock["t"] = datetime(2026, 12, 4, 6, 0, tzinfo=ZoneInfo("Europe/Paris")).timestamp()
+try:
+    omcache.cached_get("sun", "u", sun_p, fetcher)
+    expect("soleil en panne le lendemain, cache de 23 h → repris (limite 24 h)", omcache.STATE["sun"]["source"], "cache-dégradé")
+except RuntimeError:
+    expect("soleil en panne le lendemain, cache de 23 h → repris (limite 24 h)", "échec", "cache-dégradé")
+clock["t"] = datetime(2026, 12, 4, 8, 0, tzinfo=ZoneInfo("Europe/Paris")).timestamp()
+try:
+    omcache.cached_get("sun", "u", sun_p, fetcher)
+    expect("soleil en panne, cache de 25 h → échec", "repris", "échec")
+except RuntimeError:
+    expect("soleil en panne, cache de 25 h → échec", "échec", "échec")
+down["on"] = False
+
+# cache abîmé sur le disque : ignoré, redemandé
+(omcache.CACHE_DIR / "marine.json").write_text('{"key":"x","fetched":0,"data":[{"hourly":{"time":["a","b"],"v":[1]}}]}', encoding="utf-8")
+expect("cache abîmé sur le disque → ignoré, redemandé", run("marine", P2)[0], 1)
 
 
 def refused(url, params):

@@ -98,6 +98,25 @@ results = [
     case("valeur exacte d'un secret dans une page", lambda d: (os.environ.__setitem__("METEOFRANCE_APIKEY", "FAUSSECLE-0123456789abcdef"), sub("spots/lacanau/index.html", "<head>", "<head><!-- FAUSSECLE-0123456789abcdef -->")(d)), False, "secret"),
 ]
 os.environ.pop("METEOFRANCE_APIKEY", None)
+
+
+def set_group(g, **kw):
+    def fn(j):
+        j["meta"].setdefault("api", {}).setdefault("openmeteo", {}).setdefault("groups", {})
+        grp = j["meta"]["api"]["openmeteo"]["groups"]
+        grp.setdefault("marine", {"source": "api", "age_h": 0.0})
+        grp[g] = {**grp.get(g, {}), **kw}
+    return jset("data/forecast.json", fn)
+
+
+# issue #7 : âge des prévisions par groupe (météo 12 h, soleil 24 h)
+results += [
+    case("passage à 15 h avec le soleil du matin (15 h) et une météo fraîche", set_group("sun", source="cache", age_h=15.0), True),
+    case("soleil de 23 h, météo fraîche", set_group("sun", source="cache", age_h=23.0), True),
+    case("soleil de plus de 24 h", set_group("sun", source="cache-dégradé", age_h=25.0), False, "trop anciennes"),
+    case("météo (mer) de 13 h en mode dégradé", set_group("marine", source="cache-dégradé", age_h=13.0), False, "trop anciennes"),
+    case("météo (vent) de 11 h en mode dégradé : publiée, signalée", lambda d: (set_group("wind_gfs", source="cache-dégradé", age_h=11.0)(d), jset("data/forecast.json", lambda j: j["meta"]["errors"].update(openmeteo_cache="prévisions réutilisées : wind_gfs 11 h"))(d)), True),
+]
 # fraîcheur : une génération vieille de 5 h est refusée avec la limite de 3 h
 d = base.parent / "vieux"; shutil.rmtree(d, ignore_errors=True); shutil.copytree(base, d)
 for rel, key in (("data/forecast.json", "meta"), ("data/app/index.json", None)):

@@ -9,14 +9,18 @@ sait grâce aux métadonnées publiques d'Open-Meteo (`/data/<modèle>/static/me
 journalières et mensuelles » d'après https://open-meteo.com/en/docs/model-updates). On redemande aussi :
   - si les paramètres changent (spots ajoutés, variables…), au changement de jour (heure de Paris), ou après 6 h (filet) ;
   - après 1 h si les métadonnées sont illisibles (on ne sait pas : on reste prudent).
-Un nouveau run est pris au premier passage qui suit sa disponibilité, comme avant : la fraîcheur des prévisions ne recule
-pas. S'il a moins de 10 min (délai conseillé par Open-Meteo pour que tous ses serveurs l'aient), il est redemandé une fois
-au passage suivant.
+Un nouveau run d'un modèle SURVEILLÉ est pris au premier passage qui suit sa disponibilité, comme avant. S'il a moins de
+10 min (délai conseillé par Open-Meteo pour que tous ses serveurs l'aient), il est redemandé une fois au passage suivant.
+Limite : Open-Meteo précise que le « best match » n'est pas directement lié aux runs individuels
+(https://open-meteo.com/en/docs/model-updates). Pour la requête « marine » (best match), la surveillance des modèles qui
+la composent est donc une approximation, bornée par le filet de 6 h. L'âge affiché est l'âge de COLLECTE de la réponse,
+pas l'âge du run du modèle.
 Mode dégradé : si Open-Meteo ne répond pas, une réponse en cache de moins de 12 h est réutilisée et SIGNALÉE (âge et
 provenance dans forecast.json et health.json). Au-delà, la génération échoue comme avant et le site garde sa version.
 
 Le cache vit dans `.cache/openmeteo/` (ou METEO_CACHE_DIR) ; dans GitHub Actions il est conservé d'un passage à l'autre
-par actions/cache. METEO_CACHE=0 désactive le cache (comportement d'avant).
+par actions/cache. METEO_CACHE=0 désactive le cache : tout est redemandé à chaque passage (mais le vent reste en une requête par modèle,
+contrairement à avant ce lot).
 """
 import hashlib
 import json
@@ -28,12 +32,13 @@ from zoneinfo import ZoneInfo
 
 import requests
 
-from . import config
+from . import config, safe
 
 CACHE_DIR = Path(os.environ.get("METEO_CACHE_DIR") or (config.ROOT / ".cache" / "openmeteo"))
 ENABLED = os.environ.get("METEO_CACHE", "1") != "0"
 TTL_MAX_H = 6.0       # filet de sécurité : jamais plus de 6 h sans redemander
 TTL_UNKNOWN_H = 1.0   # métadonnées illisibles : on redemande au bout d'1 h
+USAGE_DIR = CACHE_DIR.parent / "usage"   # compteurs journaliers (conservés par actions/cache, au mieux : voir docs/quotas-licences.md)
 STALE_MAX_H = 12.0    # mode dégradé : âge maximal d'une prévision réutilisée si Open-Meteo est en panne
 SETTLE_S = 600        # Open-Meteo conseille d'attendre 10 min après la disponibilité d'un run
 
@@ -139,9 +144,32 @@ def _path(group):
     return CACHE_DIR / f"{group}.json"
 
 
+def valid(data):
+    """Réponse exploitable : liste non vide de lieux, chacun avec des séries de la même longueur que son axe « time »."""
+    if not isinstance(data, list) or not data:
+        return False
+    for pt in data:
+        blocks = [pt.get(k) for k in ("hourly", "daily") if isinstance(pt, dict) and pt.get(k) is not None]
+        if not blocks:
+            return False
+        for b in blocks:
+            t = b.get("time") if isinstance(b, dict) else None
+            if not isinstance(t, list) or not t:
+                return False
+            if any(isinstance(v, list) and len(v) != len(t) for k, v in b.items() if k != "time"):
+                return False
+    return True
+
+
+def max_age_h(group):
+    """Âge maximal publiable d'une réponse : 24 h pour le soleil (calcul astronomique), 12 h pour la météo (mode dégradé)."""
+    return TTL_H.get(group, STALE_MAX_H)
+
+
 def _load(group):
     try:
-        return json.loads(_path(group).read_text(encoding="utf-8"))
+        e = json.loads(_path(group).read_text(encoding="utf-8"))
+        return e if valid(e.get("data")) else None   # cache abîmé : ignoré, comme s'il n'existait pas
     except Exception:
         return None
 
@@ -162,12 +190,15 @@ def cached_get(group, url, params, fetcher, watch_key=None):
         return entry["data"]
     try:
         data = fetcher(url, params)
+        if not valid(data):
+            raise RuntimeError("Open-Meteo : réponse incomplète (séries vides ou de longueurs différentes)")
     except ValueError:
         raise   # requête refusée (nom de modèle inconnu…) : pas de repli, l'appelant essaie le nom suivant
     except Exception as e:
-        if entry and entry.get("key") == key and (now - entry["fetched"]) / 3600 <= STALE_MAX_H:
+        if entry and entry.get("key") == key and (now - entry["fetched"]) / 3600 <= max_age_h(watch_key or group):
             age = round((now - entry["fetched"]) / 3600, 2)
-            STATE[group] = {"source": "cache-dégradé", "fetched": entry["fetched"], "age_h": age, "reason": f"Open-Meteo indisponible ({str(e)[:80]})"}
+            STATE[group] = {"source": "cache-dégradé", "fetched": entry["fetched"], "age_h": age,
+                            "reason": safe.public_error(f"Open-Meteo indisponible ({e})", 160)}
             return entry["data"]
         raise
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
@@ -198,21 +229,62 @@ def record(url, params, attempts, statuses):
 
 
 def summary():
-    """Résumé public (sans adresse ni paramètre) : écrit dans forecast.json (meta.api) et health.json."""
+    """Résumé public (sans adresse ni paramètre ; raisons passées par safe.public_error) : forecast.json (meta.api) et health.json.
+    « requests » = requêtes logiques ; « attempts » = tentatives HTTP réellement envoyées (reprises comprises). Les poids sont
+    séparés selon l'issue de chaque tentative : on ne suppose PAS qu'un refus 429 ou une coupure réseau soit facturé."""
     u = USAGE
-    groups = {g: {k: v for k, v in s.items() if k != "fetched"} | ({"fetched": datetime.fromtimestamp(s["fetched"], ZoneInfo(config.TIMEZONE)).strftime("%Y-%m-%dT%H:%M")} if s.get("fetched") else {})
-              for g, s in sorted(STATE.items())}
+    att = [(x, st) for x in u for st in (x["statuses"] or [0])]
+    ok = [(x, st) for x, st in att if st == 200]
+    tz = ZoneInfo(config.TIMEZONE)
+    loc = lambda ts: datetime.fromtimestamp(ts, tz).strftime("%Y-%m-%dT%H:%M")
+    groups = {}
+    for g, st in sorted(STATE.items()):
+        d = {k: (safe.public_error(v, 160) if k == "reason" else v) for k, v in st.items() if k != "fetched"}
+        if st.get("fetched"):
+            d["fetched"] = loc(st["fetched"])
+        groups[g] = d
+    weather = [st["fetched"] for g, st in STATE.items() if g != "sun" and st.get("fetched")]
     return {
         "openmeteo": {
-            "http_requests": len(u),
+            "requests": len(u),                          # requêtes logiques
+            "http_requests": len(u),                     # (ancien nom, gardé) = requêtes logiques
+            "attempts": len(att),                        # tentatives HTTP envoyées, reprises comprises
+            "attempts_ok": len(ok),
+            "attempts_429": sum(st == 429 for _x, st in att),
+            "attempts_5xx": sum(isinstance(st, int) and st >= 500 for _x, st in att),
+            "attempts_network": sum(st == 0 for _x, st in att),
             "points": sum(x["points"] for x in u),
-            "calls_if_per_request": round(sum(x["w_request"] for x in u), 1),   # hypothèse 1 : une requête = un appel (fractions pour > 10 variables)
-            "calls_if_per_point": round(sum(x["w_points"] for x in u), 1),      # hypothèse 2 : chaque lieu compte
-            "retries": sum(x["attempts"] - 1 for x in u),
-            "http_429": sum(s == 429 for x in u for s in x["statuses"]),
-            "http_5xx": sum(s >= 500 for x in u for s in x["statuses"] if isinstance(s, int)),
+            "calls_if_per_request": round(sum(x["w_request"] for x, _st in ok), 1),    # H1, tentatives acceptées
+            "calls_if_per_point": round(sum(x["w_points"] for x, _st in ok), 1),       # H2, tentatives acceptées
+            "calls_if_per_point_refused": round(sum(x["w_points"] for x, st in att if st != 200), 1),   # si les refus comptaient
+            "retries": len(att) - len(u),
+            "http_429": sum(st == 429 for _x, st in att),
+            "http_5xx": sum(isinstance(st, int) and st >= 500 for _x, st in att),
             "meta_checks": dict(META_CHECKS),
             "cache": "on" if ENABLED else "off",
+            "forecast_fetched": loc(min(weather)) if weather else None,   # collecte la plus ANCIENNE des prévisions météo
             "groups": groups,
         }
     }
+
+
+def persist_daily(summary_, generated):
+    """Compteurs du jour (heure de Paris), cumulés d'un passage à l'autre dans USAGE_DIR ; 31 jours gardés.
+    Conservés par actions/cache : au mieux (un cache peut être évincé)."""
+    om = summary_["openmeteo"]
+    day = generated[:10]
+    USAGE_DIR.mkdir(parents=True, exist_ok=True)
+    f = USAGE_DIR / f"{day}.json"
+    try:
+        cur = json.loads(f.read_text(encoding="utf-8"))
+    except Exception:
+        cur = {"day": day, "runs": 0}
+    cur["runs"] += 1
+    for k in ("requests", "attempts", "attempts_ok", "attempts_429", "attempts_5xx", "attempts_network", "points",
+              "calls_if_per_request", "calls_if_per_point", "calls_if_per_point_refused"):
+        cur[k] = round(cur.get(k, 0) + (om.get(k) or 0), 1)
+    cur["last"] = generated
+    f.write_text(json.dumps(cur, separators=(",", ":")), encoding="utf-8")
+    for old in sorted(USAGE_DIR.glob("*.json"))[:-31]:
+        old.unlink()
+    return cur
