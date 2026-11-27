@@ -268,6 +268,11 @@ assert "pas la hauteur des vagues au bord" in bp
 _method = (config.OUT_DIR / "comment-ca-marche" / "index.html").read_text(encoding="utf-8")
 assert "ne font pas l'objet de la même moyenne pondérée" in _method
 assert "ne constituent pas une validation" in _method
+_guide = (config.OUT_DIR / "guide" / "lire-une-bouee" / "index.html").read_text(encoding="utf-8")
+assert "Comment lire une bouée houlographe ?" in _guide
+assert "../../bouees/" in _guide and "../../brand/symbol.svg" in _guide
+assert "/guide/lire-une-bouee/" in (config.OUT_DIR / "sitemap.xml").read_text(encoding="utf-8")
+assert "guide/lire-une-bouee/" in _method
 print("SEO OK :", len(data["spots"]), "pages de spots + index + sitemap ;", _nb, "pages de bouées")
 
 # Secours : Copernicus indisponible → NOAA NDBC.
