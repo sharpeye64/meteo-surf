@@ -31,7 +31,9 @@
 | `src/SpotSheet.tsx` | Fiche d'un spot : 4 carrés (houle, vent, eau, soleil), frise horaire avec la courbe de marée alignée, PM/BM à leur heure |
 | `src/TabBar.tsx` | Barre d'onglets flottante (`useBarSpace()`) |
 | `src/Live.tsx` | Pastille « en direct » qui clignote |
-| `src/data.ts` | Chargement, favoris, règles bouée / spot (`buoyFits`, `prefBuoy`, `perTxt`) |
+| `src/data.ts` | Chargement, favoris, fraîcheur et bouée de référence (`freshOf`, `isLive`, `refBuoy`, `perTxt`) |
+| `src/cache.ts`, `src/reload.ts`, `src/useReloaded.ts`, `src/selection.ts` | Copie hors connexion protégée contre les réponses dans le désordre, rechargement des fiches au retour au premier plan, sélection jour / heure gardée par instant (issue #4) |
+| `src/rules.ts` | **Règles métier communes avec le site et le robot**, sans dépendance : fraîcheur selon la cadence, vent, secteurs, bouée de référence ([regles-communes.md](regles-communes.md)) |
 | `src/theme.ts` | Deux palettes (clair, sombre) de mêmes clés ; styles via `themed(() => StyleSheet.create(...))` |
 
 ## Règles
@@ -39,7 +41,8 @@
 
 - **Couleurs** : toujours passer par `C` (theme.ts). Une couleur en dur casse le mode sombre.
 - **Mode sombre** : automatique, il suit le réglage du téléphone (`userInterfaceStyle: automatic`).
-- **Bouée de référence** : mêmes règles que le site (`buoyFits`, `prefBuoy` : Landes, Sainte-Barbe).
+- **Règles métier** (issue #4) : fraîcheur selon la cadence de chaque station, vent, secteurs et bouée de référence passent par `src/rules.ts`. Ce sont les mêmes règles que le site, vérifiées sur les mêmes cas (`tests/regles_communes.json`). Ne jamais écrire de seuil en dur (`ageH < 2`…) dans un écran. Voir [regles-communes.md](regles-communes.md).
+- **Âges** : recalculés chaque minute et au retour au premier plan. Les données sont alors redemandées (`App.tsx`).
 - **Période de Gascogne** : c'est une période moyenne, écrite « 9 s moy. ».
 - **Icône et écran de démarrage** « A · Nuit » : `python -m tools.app_icons`. Ils sont invisibles dans Expo Go.
 
@@ -50,7 +53,7 @@
 
 ## Limitations et écarts connus
 
-- **Fraîcheur des bouées** : l'application utilise ses propres seuils (« en direct » < 2 h, référence < 6 h). Elle ne suit pas encore la règle « selon la cadence » du site (< 1 h pour CANDHIS). **À aligner.**
+- **Valeurs « maintenant » de l'index** : elles sont calculées à l'heure de la génération. Hors connexion, avec un index ancien, elles datent de cette heure-là (voir [regles-communes.md](regles-communes.md), écarts connus).
 - **Design** : l'application n'a pas encore reçu la direction Premium Ocean (palette « Nuit » d'origine).
 - **Fonctionnalités** : pas d'alertes, pas de widgets. Elles sont prévues après la vraie version installée, et ce sont elles qui justifient une application.
 - **Android** : pour une vraie version Android, il faudra installer `expo-system-ui` (mode sombre automatique), avec l'accord du porteur.

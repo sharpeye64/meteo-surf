@@ -3,7 +3,7 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, Vie
 import Svg, { Circle, G, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
 import Brand from './Brand';
-import { ageH, ageTxt, Buoy, country, fr, Index, km, loadSheet, perTxt, regionName, sector, Sheet, SpotLite, windRel } from './data';
+import { ageTxt, Buoy, country, fr, Index, isLive, km, loadSheet, perTxt, regionName, sector, Sheet, SpotLite } from './data';
 import { hhIn, partsIn, placeTz, tMs } from './time';
 import { Blink } from './Live';
 import { SpotRow } from './SpotList';
@@ -39,7 +39,7 @@ export default function Home({ index, favs, offline, refreshing, onRefresh, onOp
   }, [index, q]);
 
   const near = useMemo(() => (hero ? index.spots.filter(s => s.slug !== hero.slug).map(s => ({ s, d: km(hero, s) })).sort((a, b) => a.d - b.d).slice(0, 8).map(x => x.s) : []), [index, hero]);
-  const live = index.buoys.filter(b => ageH(b.time) < 2);
+  const live = index.buoys.filter(isLive);   // en direct selon la cadence de chaque station (src/rules.ts)
 
   // Régions du nord au sud, rangées par pays.
   const regions = useMemo(() => {

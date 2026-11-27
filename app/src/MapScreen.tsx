@@ -6,7 +6,7 @@ import MapView, { MapType, Marker, Region } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import Brand from './Brand';
-import { ageH, Buoy, fr, Index, perTxt, SpotLite } from './data';
+import { ageH, Buoy, fr, freshOf, Index, isLive, perTxt, SpotLite } from './data';
 import { partsIn } from './time';
 import { Pulse } from './Live';
 import { FLOAT_BAR_H } from './TabBar';
@@ -32,7 +32,7 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
   const sat = type === SAT;
   const toggleType = () => { const n = sat ? PLAN : SAT; setType(n); AsyncStorage.setItem(KEY, n === SAT ? 'sat' : 'plan').catch(() => {}); };
 
-  const live = index.buoys.filter(b => ageH(b.time) < 2).length;
+  const live = index.buoys.filter(isLive).length;
   const bottom = Math.max(ins.bottom, 10) + FLOAT_BAR_H + 14;
 
   // Tous les spots sont toujours sur la carte. Une seule pastille chiffrée par case de la grille (bouées d'abord, puis les
@@ -101,7 +101,7 @@ export default function MapScreen({ index, onSpot, onBuoy }: Props) {
           );
         })}
         {index.buoys.map((b, i) => {
-          const old = ageH(b.time) >= 6, fresh = ageH(b.time) < 2, lab = buoyLab.has(b.id);
+          const f = freshOf(b), old = f === 'old' || f === 'off', fresh = f === 'live', lab = buoyLab.has(b.id);   // cadence de la station (src/rules.ts)
           return (
             <Marker key={`${b.id}:${lab}:${isDark() ? 'd' : 'l'}`} identifier={`b:${b.id}`} coordinate={{ latitude: b.lat, longitude: b.lon }} onPress={() => open(`b:${b.id}`)}
               tracksViewChanges={!old} anchor={{ x: 0.5, y: lab ? 0.3 : 0.5 }} zIndex={10}>

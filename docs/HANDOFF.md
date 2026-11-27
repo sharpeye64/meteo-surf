@@ -1,6 +1,6 @@
 # HANDOFF — état du projet (à garder court)
 
-_Dernière mise à jour : 27/11/2026 pour l'issue #1 (archive des modèles), par Claude Code._
+_Dernière mise à jour : 27/11/2026 pour l'issue #4 (règles communes site / appli), par Claude Code._
 
 ## Point SEO/GEO
 
@@ -21,6 +21,11 @@ _Dernière mise à jour : 27/11/2026 pour l'issue #1 (archive des modèles), par
 
 ## En cours
 
+- **Issue #4, branche `regles-communes`** (PR en revue, **non publiée**, repère `avant-regles-communes`) : mêmes règles sur le site, dans l'appli et dans le robot.
+  - Règles harmonisées : fraîcheur des bouées selon la cadence (1 h / 3 h CANDHIS, 2 h / 6 h horaires), qualification du vent, secteurs, bouée de référence.
+  - Les mêmes cas sont testés sur les trois (`tests/regles_communes.json`).
+  - 10 écarts corrigés, 5 écarts connus documentés ([regles-communes.md](regles-communes.md)). Aucun changement visuel.
+  - Ne touche pas au chargement de l'accueil (#6, ChatGPT).
 - **Issue #1, branche `archive-modeles`** (PR en revue, **non publiée**, repère `avant-archive-modeles`) : archive v2 aux points des 22 bouées (`history/buoy_runs/`) avec les modèles un par un, MARC, mélanges brut et corrigé, provenance et cycle des modèles, heures avec décalage. 5 requêtes groupées au lieu de 25, fin des doublons (≈ 40 % des passages archivés deux fois avant). Anciennes archives intactes, prévision publiée identique. [archive-modeles.md](archive-modeles.md).
 - **Issue #2 publiée** (PR #17, fusion `68cac65`) ; production vérifiée : contrat v2, Portugal à l'heure de Lisbonne, aucune heure sans décalage. Reste : l'appli sur un vrai téléphone (Expo Go). [heures.md](heures.md).
 - **Issue #7 publiée** (PR #12, fusion `d0cd73d`) ; premier passage de production vérifié : cache, compteurs, cohérence des séries.
@@ -33,7 +38,7 @@ _Dernière mise à jour : 27/11/2026 pour l'issue #1 (archive des modèles), par
 ## Problèmes ouverts
 
 1. **Pages non indexées** : 66 dans Search Console. Il faut l'**export** des URL concernées pour traiter les 21 groupes de spots à prévision identique (`docs/seo-corrections-2026-11-26.md`, section 5).
-2. **Application mobile** : ses seuils de fraîcheur des bouées ne suivent pas encore la règle « selon la cadence » du site.
+2. **Application mobile** : les valeurs « maintenant » de l'index datent de la génération ; hors connexion, avec un index ancien, elles sont décalées (voir [regles-communes.md](regles-communes.md)).
 3. **Poids** : `forecast.json` (6,5 Mo) est trop lourd pour l'accueil.
 4. **Code mort dans `web/index.html`** : fonctions `*_v1`, directions artistiques B et C, ancien océan WebGL.
 5. **Bouées muettes** : Anglet depuis le 18/11, Cabo Silleiro depuis le 21/11. C'est côté source, pas un bug du robot.

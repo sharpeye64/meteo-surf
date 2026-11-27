@@ -1,0 +1,874 @@
+{
+ "_doc": "Cas communs aux règles métier du site (web/index.html), de l'appli (app/src/rules.ts) et du robot (pipeline). Issue #4, docs/regles-communes.md. Attendus écrits à la main d'après la règle documentée, jamais recalculés par une implémentation.",
+ "fresh": [
+  {
+   "id": "03302",
+   "age": 0,
+   "want": "live"
+  },
+  {
+   "id": "03302",
+   "age": 0.99,
+   "want": "live"
+  },
+  {
+   "id": "03302",
+   "age": 1.0,
+   "want": "recent"
+  },
+  {
+   "id": "03302",
+   "age": 2.99,
+   "want": "recent"
+  },
+  {
+   "id": "03302",
+   "age": 3.0,
+   "want": "old"
+  },
+  {
+   "id": "03302",
+   "age": 47.9,
+   "want": "old"
+  },
+  {
+   "id": "03302",
+   "age": 48,
+   "want": "off"
+  },
+  {
+   "id": "gascogne",
+   "age": 1.99,
+   "want": "live"
+  },
+  {
+   "id": "gascogne",
+   "age": 2.0,
+   "want": "recent"
+  },
+  {
+   "id": "gascogne",
+   "age": 5.99,
+   "want": "recent"
+  },
+  {
+   "id": "gascogne",
+   "age": 6.0,
+   "want": "old"
+  },
+  {
+   "id": "6200024",
+   "age": 1.5,
+   "want": "live"
+  },
+  {
+   "id": "leixoes",
+   "age": 2.5,
+   "want": "recent"
+  },
+  {
+   "id": "6200024",
+   "lim": 1,
+   "age": 1.5,
+   "want": "recent",
+   "_note": "lim du robot prioritaire"
+  },
+  {
+   "id": "03302",
+   "age": -0.1,
+   "want": "live",
+   "_note": "horloge en retard de 6 min : tolérée"
+  },
+  {
+   "id": "03302",
+   "age": -1,
+   "want": "off",
+   "_note": "mesure 1 h dans le futur : heure incohérente, indisponible (jamais en direct)"
+  },
+  {
+   "id": "gascogne",
+   "age": 0.5,
+   "silent": true,
+   "want": "off",
+   "_note": "bouée signalée muette par le robot",
+   "robot": false
+  },
+  {
+   "id": "03302",
+   "age": null,
+   "want": "off",
+   "_note": "heure illisible"
+  }
+ ],
+ "wind": [
+  {
+   "v": 7.9,
+   "wdir": 270,
+   "ori": 270,
+   "want": "lisse"
+  },
+  {
+   "v": 8,
+   "wdir": 90,
+   "ori": 270,
+   "want": "offshore"
+  },
+  {
+   "v": 20,
+   "wdir": 135,
+   "ori": 270,
+   "want": "offshore"
+  },
+  {
+   "v": 20,
+   "wdir": 136,
+   "ori": 270,
+   "want": "side-off"
+  },
+  {
+   "v": 20,
+   "wdir": 170,
+   "ori": 270,
+   "want": "side-off"
+  },
+  {
+   "v": 20,
+   "wdir": 171,
+   "ori": 270,
+   "want": "de côté"
+  },
+  {
+   "v": 20,
+   "wdir": 210,
+   "ori": 270,
+   "want": "de côté"
+  },
+  {
+   "v": 20,
+   "wdir": 211,
+   "ori": 270,
+   "want": "onshore"
+  },
+  {
+   "v": 20,
+   "wdir": 270,
+   "ori": 270,
+   "want": "onshore"
+  },
+  {
+   "v": 20,
+   "wdir": 190,
+   "ori": 10,
+   "want": "offshore"
+  },
+  {
+   "v": 20,
+   "wdir": 175,
+   "ori": 350,
+   "want": "offshore"
+  },
+  {
+   "v": 20,
+   "wdir": 5,
+   "ori": 350,
+   "want": "onshore"
+  },
+  {
+   "v": 20,
+   "wdir": 45,
+   "ori": 315,
+   "want": "de côté",
+   "_note": "Grande Plage, vent de NE"
+  },
+  {
+   "v": null,
+   "wdir": 90,
+   "ori": 270,
+   "want": null,
+   "_note": "vitesse absente : pas « lisse »"
+  },
+  {
+   "v": 20,
+   "wdir": null,
+   "ori": 270,
+   "want": null
+  },
+  {
+   "v": 20,
+   "wdir": 90,
+   "ori": null,
+   "want": null
+  }
+ ],
+ "stations": [
+  {
+   "id": "gascogne",
+   "name": "Gascogne",
+   "sub": "au large, Météo-France 62001",
+   "lat": 45.2,
+   "lon": -5.0,
+   "kind": "gascogne"
+  },
+  {
+   "id": "03302",
+   "name": "Cap Ferret",
+   "sub": "sur la côte",
+   "lat": 44.6525,
+   "lon": -1.4467,
+   "kind": "coast"
+  },
+  {
+   "id": "06402",
+   "name": "Anglet",
+   "sub": "sur la côte",
+   "lat": 43.5322,
+   "lon": -1.615,
+   "kind": "coast"
+  },
+  {
+   "id": "06403",
+   "name": "Saint-Jean-de-Luz",
+   "sub": "sur la côte",
+   "lat": 43.4083,
+   "lon": -1.6817,
+   "kind": "coast"
+  },
+  {
+   "id": "04403",
+   "name": "Plateau du Four",
+   "sub": "sur la côte",
+   "lat": 47.239,
+   "lon": -2.787,
+   "kind": "coast"
+  },
+  {
+   "id": "02911",
+   "name": "Les Pierres Noires",
+   "sub": "sur la côte",
+   "lat": 48.2903,
+   "lon": -4.9683,
+   "kind": "coast"
+  },
+  {
+   "id": "02922",
+   "name": "Île de Batz",
+   "sub": "sur la côte",
+   "lat": 48.7283,
+   "lon": -4.0717,
+   "kind": "coast"
+  },
+  {
+   "id": "05602",
+   "name": "Belle-Île",
+   "sub": "sur la côte",
+   "lat": 47.285,
+   "lon": -3.285,
+   "kind": "coast"
+  },
+  {
+   "id": "6200024",
+   "name": "Bilbao-Vizcaya",
+   "sub": "au large, Espagne",
+   "lat": 43.65,
+   "lon": -3.04,
+   "kind": "offshore"
+  },
+  {
+   "id": "donostia",
+   "name": "Donostia",
+   "sub": "au large, Saint-Sébastien",
+   "lat": 43.57,
+   "lon": -2.01,
+   "kind": "offshore"
+  },
+  {
+   "id": "bilbao-cote",
+   "name": "Bilbao (côte)",
+   "sub": "sur la côte, Biscaye",
+   "lat": 43.4,
+   "lon": -3.13,
+   "kind": "offshore"
+  },
+  {
+   "id": "pasaia",
+   "name": "Pasaia (côte)",
+   "sub": "sur la côte, Guipuscoa",
+   "lat": 43.363,
+   "lon": -1.889,
+   "kind": "offshore"
+  },
+  {
+   "id": "gijon",
+   "name": "Gijón",
+   "sub": "sur la côte, Asturies",
+   "lat": 43.62,
+   "lon": -5.66,
+   "kind": "offshore"
+  },
+  {
+   "id": "6200025",
+   "name": "Cabo Peñas",
+   "sub": "au large, Asturies",
+   "lat": 43.754,
+   "lon": -6.165,
+   "kind": "offshore"
+  },
+  {
+   "id": "6200082",
+   "name": "Estaca de Bares",
+   "sub": "au large, Galice",
+   "lat": 44.123,
+   "lon": -7.659,
+   "kind": "offshore"
+  },
+  {
+   "id": "6201070",
+   "name": "A Coruña",
+   "sub": "sur la côte, Galice",
+   "lat": 43.35,
+   "lon": -8.55,
+   "kind": "offshore"
+  },
+  {
+   "id": "6200083",
+   "name": "Cabo Vilano-Sisargas",
+   "sub": "au large, Galice",
+   "lat": 43.495,
+   "lon": -9.213,
+   "kind": "offshore"
+  },
+  {
+   "id": "6200084",
+   "name": "Cabo Silleiro",
+   "sub": "au large, Galice",
+   "lat": 42.119,
+   "lon": -9.429,
+   "kind": "offshore"
+  },
+  {
+   "id": "leixoes",
+   "name": "Leixões",
+   "sub": "sur la côte, Portugal",
+   "lat": 41.317,
+   "lon": -8.983,
+   "kind": "offshore"
+  },
+  {
+   "id": "6200199",
+   "name": "Nazaré (large)",
+   "sub": "au large, Portugal",
+   "lat": 39.56,
+   "lon": -9.21,
+   "kind": "offshore"
+  },
+  {
+   "id": "sines",
+   "name": "Sines",
+   "sub": "sur la côte, Portugal",
+   "lat": 37.921,
+   "lon": -8.929,
+   "kind": "offshore"
+  },
+  {
+   "id": "faro",
+   "name": "Faro",
+   "sub": "sur la côte, Algarve",
+   "lat": 36.905,
+   "lon": -7.898,
+   "kind": "offshore"
+  }
+ ],
+ "pick": [
+  {
+   "case": "Lacanau : Cap Ferret en direct",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": 0.5,
+    "gascogne": 0.5,
+    "donostia": 0.5
+   },
+   "want": "03302",
+   "cands": [
+    "03302",
+    "gascogne"
+   ]
+  },
+  {
+   "case": "Lacanau : Cap Ferret récente (1,5 h), Gascogne en direct mais à 300 km",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": 1.5,
+    "gascogne": 0.5
+   },
+   "want": "03302"
+  },
+  {
+   "case": "Grande Plage : Anglet récente, Pasaia en direct à 30 km → Pasaia",
+   "spot": {
+    "name": "La Grande Plage",
+    "region": "Pays Basque",
+    "lat": 43.484,
+    "lon": -1.558
+   },
+   "ages": {
+    "06402": 1.5,
+    "pasaia": 0.5,
+    "donostia": 0.5,
+    "gascogne": 0.5
+   },
+   "want": "pasaia"
+  },
+  {
+   "case": "Grande Plage : Anglet en direct",
+   "spot": {
+    "name": "La Grande Plage",
+    "region": "Pays Basque",
+    "lat": 43.484,
+    "lon": -1.558
+   },
+   "ages": {
+    "06402": 0.5,
+    "pasaia": 0.5,
+    "donostia": 0.5,
+    "gascogne": 0.5
+   },
+   "want": "06402"
+  },
+  {
+   "case": "Hendaye : la bouée abritée de Saint-Jean-de-Luz est exclue",
+   "spot": {
+    "name": "Hendaye",
+    "region": "Pays Basque",
+    "lat": 43.373,
+    "lon": -1.775
+   },
+   "ages": {
+    "06403": 0.5,
+    "06402": 0.5
+   },
+   "want": "06402",
+   "cands": [
+    "06402"
+   ]
+  },
+  {
+   "case": "Sainte Barbe : sa bouée abritée",
+   "spot": {
+    "name": "Sainte Barbe",
+    "region": "Pays Basque",
+    "lat": 43.3982,
+    "lon": -1.6618
+   },
+   "ages": {
+    "06403": 0.5,
+    "06402": 0.5
+   },
+   "want": "06403",
+   "cands": [
+    "06403"
+   ]
+  },
+  {
+   "case": "Biscarrosse (Landes nord) : Cap Ferret de 4 h reste la référence",
+   "spot": {
+    "name": "Biscarrosse",
+    "region": "Landes",
+    "lat": 44.444,
+    "lon": -1.255
+   },
+   "ages": {
+    "03302": 4,
+    "gascogne": 0.5,
+    "06402": 0.5
+   },
+   "want": "03302"
+  },
+  {
+   "case": "Biscarrosse : Cap Ferret trop ancienne → Gascogne",
+   "spot": {
+    "name": "Biscarrosse",
+    "region": "Landes",
+    "lat": 44.444,
+    "lon": -1.255
+   },
+   "ages": {
+    "03302": 7,
+    "gascogne": 1
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "Biscarrosse : tout ancien → la plus fraîche",
+   "spot": {
+    "name": "Biscarrosse",
+    "region": "Landes",
+    "lat": 44.444,
+    "lon": -1.255
+   },
+   "ages": {
+    "03302": 8,
+    "gascogne": 7
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "La Gravière (Landes sud) : Gascogne par défaut, même si Anglet est en direct",
+   "spot": {
+    "name": "La Gravière",
+    "region": "Landes",
+    "lat": 43.665,
+    "lon": -1.445
+   },
+   "ages": {
+    "06402": 0.5,
+    "gascogne": 1
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "La Gravière : Gascogne trop ancienne → Anglet en direct",
+   "spot": {
+    "name": "La Gravière",
+    "region": "Landes",
+    "lat": 43.665,
+    "lon": -1.445
+   },
+   "ages": {
+    "06402": 0.5,
+    "gascogne": 7
+   },
+   "want": "06402"
+  },
+  {
+   "case": "Lacanau : tout ancien → la plus fraîche",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": 10,
+    "gascogne": 20
+   },
+   "want": "03302"
+  },
+  {
+   "case": "Lacanau : Cap Ferret muette → Gascogne",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": {
+     "age": 100,
+     "silent": true
+    },
+    "gascogne": 30
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "Supertubos : Nazaré (horaire) de 1,5 h = en direct ; Leixões trop loin",
+   "spot": {
+    "name": "Supertubos",
+    "region": "Portugal Centre",
+    "lat": 39.36101,
+    "lon": -9.37938
+   },
+   "ages": {
+    "6200199": 1.5,
+    "leixoes": 0.5
+   },
+   "want": "6200199",
+   "cands": [
+    "6200199"
+   ]
+  },
+  {
+   "case": "Lacanau : Cap Ferret sans hauteur → exclue",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": {
+     "age": 0.5,
+     "hs": null
+    },
+    "gascogne": 0.5
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "aucune bouée",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {},
+   "want": null
+  },
+  {
+   "case": "Lacanau : Cap Ferret muette malgré un âge récent → Gascogne",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": {
+     "age": 0.5,
+     "silent": true
+    },
+    "gascogne": 3
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "Biscarrosse : référence Cap Ferret muette → Gascogne",
+   "spot": {
+    "name": "Biscarrosse",
+    "region": "Landes",
+    "lat": 44.444,
+    "lon": -1.255
+   },
+   "ages": {
+    "03302": {
+     "age": 1,
+     "silent": true
+    },
+    "gascogne": 2
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "Biscarrosse : tout muet → la moins ancienne, affichée muette",
+   "spot": {
+    "name": "Biscarrosse",
+    "region": "Landes",
+    "lat": 44.444,
+    "lon": -1.255
+   },
+   "ages": {
+    "03302": {
+     "age": 60,
+     "silent": true
+    },
+    "gascogne": {
+     "age": 50,
+     "silent": true
+    }
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "Lacanau : Cap Ferret datée 1 h dans le futur → Gascogne",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": -1,
+    "gascogne": 3
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "Lacanau : seule bouée, datée 1 h dans le futur → aucune",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": -1
+   },
+   "want": null
+  },
+  {
+   "case": "Lacanau : horloge en retard de 6 min → Cap Ferret en direct",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": -0.1,
+    "gascogne": 0.5
+   },
+   "want": "03302"
+  },
+  {
+   "case": "Biscarrosse : référence datée 2 h dans le futur → Gascogne",
+   "spot": {
+    "name": "Biscarrosse",
+    "region": "Landes",
+    "lat": 44.444,
+    "lon": -1.255
+   },
+   "ages": {
+    "03302": -2,
+    "gascogne": 1
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "Lacanau : heure illisible → Gascogne",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": {
+     "age": null
+    },
+    "gascogne": 4
+   },
+   "want": "gascogne"
+  },
+  {
+   "case": "Lacanau : seule bouée, heure illisible → aucune",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": {
+     "age": null
+    }
+   },
+   "want": null
+  },
+  {
+   "case": "Lacanau : seule bouée, muette ET datée 1 h dans le futur → aucune",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": {
+     "age": -1,
+     "silent": true
+    }
+   },
+   "want": null
+  },
+  {
+   "case": "Lacanau : muette datée dans le futur + autre muette valide → la muette valide",
+   "spot": {
+    "name": "Lacanau",
+    "region": "Gironde",
+    "lat": 45.001,
+    "lon": -1.2025
+   },
+   "ages": {
+    "03302": {
+     "age": -1,
+     "silent": true
+    },
+    "gascogne": {
+     "age": 70,
+     "silent": true
+    }
+   },
+   "want": "gascogne"
+  }
+ ],
+ "sector": [
+  {
+   "deg": 0,
+   "want": "N"
+  },
+  {
+   "deg": 11.2,
+   "want": "N"
+  },
+  {
+   "deg": 11.25,
+   "want": "NNE"
+  },
+  {
+   "deg": 348.75,
+   "want": "N"
+  },
+  {
+   "deg": 348.7,
+   "want": "NNO"
+  },
+  {
+   "deg": 270,
+   "want": "O"
+  },
+  {
+   "deg": -45,
+   "want": "NO"
+  },
+  {
+   "deg": 405,
+   "want": "NE"
+  },
+  {
+   "deg": 202.5,
+   "want": "SSO"
+  }
+ ],
+ "ageWords": [
+  {
+   "age": 0.1,
+   "want": "à l'instant"
+  },
+  {
+   "age": 0.5,
+   "want": "il y a 30 min"
+  },
+  {
+   "age": 5,
+   "want": "il y a 5 h"
+  },
+  {
+   "age": 50,
+   "t": "2026-11-25T08:00+01:00",
+   "want": "le 25/11"
+  },
+  {
+   "age": -0.1,
+   "want": "à l'instant"
+  },
+  {
+   "age": -1,
+   "want": "heure incohérente"
+  },
+  {
+   "age": null,
+   "want": "heure inconnue"
+  }
+ ]
+}
