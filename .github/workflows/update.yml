@@ -26,7 +26,7 @@ concurrency:
 jobs:
   surete:
     # tests de sûreté (issue #3) : sources simulées, aucun appel réseau, rien n'est publié. Bloquent la suite s'ils échouent.
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Playwright 1.58.2 ne prend pas en charge Ubuntu 26.04
     timeout-minutes: 15
     permissions:
       contents: read
