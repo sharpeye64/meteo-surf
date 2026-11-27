@@ -5939,12 +5939,12 @@ function homeCluster(){
     el.hidden=false; const bu=HOME.bu.find(x=>x.id===id), p=map.project([bu.lon,bu.lat]), sel=HOME.selB&&HOME.selB.id===id;
     const hit=!sel&&groups.some(g=>Math.abs(g.p.x-p.x)<(lo?34:46)&&Math.abs(g.p.y-p.y)<(mob?32:24)); el.classList.toggle('is-under',hit); });   /* bouées toujours visibles ; sur un spot, compactes et dessous */
   groups.forEach(g=>{ HOME.mk[g.s.i].getElement().firstChild.classList.toggle('ho-st',g.m.length>1); g.el=HOME.mk[g.s.i].getElement(); });
-  groups.filter(g=>g.m.length>1).forEach(g=>{ const b=g.el.firstChild;
-    b.dataset.n=g.m.length; b.onmouseenter=null;
-    b.title=`${g.m.length} spots ici, dont ${g.s.n} (la plus haute valeur) : zoomer pour les voir`;
-    b.onclick=e=>{ e.stopPropagation(); const bb=g.m.reduce((a,s)=>[Math.min(a[0],s.lon),Math.min(a[1],s.lat),Math.max(a[2],s.lon),Math.max(a[3],s.lat)],[999,99,-999,-99]);
-      map.fitBounds([[bb[0],bb[1]],[bb[2],bb[3]]],{padding:homePad(70),maxZoom:Math.max(z+1.8,10),duration:700}); }; });
-  groups.filter(g=>g.m.length===1).forEach(g=>{ const b=g.el.firstChild, s=g.s; b.title=''; b.onclick=e=>{ e.stopPropagation(); homeSpot(s,!hoMob()); }; });
+  // La pastille représente un spot précis, même quand d'autres spots sont regroupés.
+  // Un clic sélectionne immédiatement ce spot ; le zoom reste une aide à la navigation.
+  groups.forEach(g=>{ const b=g.el.firstChild, s=g.s;
+    if(g.m.length>1){ b.dataset.n=g.m.length; b.title=`${s.n} · ${g.m.length} spots proches`; }
+    else { delete b.dataset.n; b.title=''; }
+    b.onclick=e=>{ e.stopPropagation(); homeTipHide(); homeSpot(s,!hoMob()); }; });
 }
 function homePad(extra){
   if(hoMob()) return {top:150,bottom:190,left:36,right:36};
