@@ -17,7 +17,7 @@ export const TABS: { k: Tab; label: string; href: '/' | '/macote' | '/bouees' }[
 ];
 
 /** Hauteur de la pilule ; les écrans placent leurs commandes au-dessus. */
-export const FLOAT_BAR_H = 66;
+export const FLOAT_BAR_H = 60;
 export const barBottom = (insetBottom: number) => Math.max(insetBottom - 8, 14);
 
 /** Place à laisser en bas des écrans qui défilent, pour que la fin du contenu ne reste pas cachée sous la pilule. */
