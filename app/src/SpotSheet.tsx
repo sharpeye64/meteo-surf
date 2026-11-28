@@ -111,14 +111,17 @@ export default function SpotSheet({ spot }: { spot: SpotLite }) {
           <View style={st.heroSep} />
           <View style={st.heroCol}>
             <Text style={st.heroK}>Marée</Text>
+            {nextTide && partsIn(tMs(nextTide.t), tz).date !== d.date && <Text style={st.heroDay}>{word(partsIn(tMs(nextTide.t), tz).date)?.toLowerCase() ?? JOUR[partsIn(tMs(nextTide.t), tz).wd]}</Text>}
             <Text style={st.heroV}>{nextTide ? hhIn(tMs(nextTide.t), tz) : '—'}</Text>
             <Text style={st.heroS} numberOfLines={1}>{nextTide ? `${nextTide.type === 'PM' ? 'pleine mer' : 'basse mer'}${nextTide.h != null ? ` · ${fr(nextTide.h)} m` : ''}` : 'indicative'}</Text>
           </View>
         </View>
 
+        <Text style={st.daysCap}>Houle la plus haute de 6 h à 21 h, en mètres</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.days}>
           {days.map((x, i) => {
-            const dd = at(x.idx[0]), mx = Math.max(...x.idx.map(j => sheet.hs[j] ?? 0)), on = i === day;
+            const dl = x.idx.filter(j => { const h = at(j).h; return h >= 6 && h <= 21; });
+            const dd = at(x.idx[0]), mx = Math.max(...(dl.length ? dl : x.idx).map(j => sheet.hs[j] ?? 0)), on = i === day;
             return (
               <Pressable key={x.date} onPress={() => { if (on) return; Haptics.selectionAsync().catch(() => {}); setPick({ date: x.date, ms: null }); strip.current?.scrollTo({ x: 0, animated: false }); }}
                 style={[st.day, on && st.dayOn]} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={`${word(x.date) ?? JOUR[dd.wd]} ${dd.d}, houle la plus haute de 6 h à 21 h : ${fr(mx)} mètre`}>
@@ -146,10 +149,10 @@ export default function SpotSheet({ spot }: { spot: SpotLite }) {
                 {cols.map(i => {
                   const on = i === sel, h = at(i).h, c = windCat(sheet.wind[i], sheet.wdir[i], sheet.ori);
                   return (
-                    <Pressable key={i} onPress={() => choose(i)} style={[st.col, night(i) && { opacity: 0.42 }]}
-                      accessibilityLabel={`${h} heures : houle ${fr(sheet.hs[i])} mètre, ${sheet.tp[i] != null ? Math.round(sheet.tp[i]!) + ' secondes' : ''}, vent ${fr(sheet.wind[i], 0)} kilomètres heure${c ? ', ' + WIND_WORD[c] : ''}`}
+                    <Pressable key={i} onPress={() => choose(i)} style={[st.col, night(i) && st.nightCol]}
+                      accessibilityLabel={`${h} heures${night(i) ? ', de nuit' : ''} : houle ${fr(sheet.hs[i])} mètre, ${sheet.tp[i] != null ? Math.round(sheet.tp[i]!) + ' secondes' : ''}, vent ${fr(sheet.wind[i], 0)} kilomètres heure${c ? ', ' + WIND_WORD[c] : ''}`}
                       accessibilityState={{ selected: on }}>
-                      <Text style={[st.hh, on && st.hhOn]}>{h}h</Text>
+                      <Text style={[st.hh, night(i) && st.hhNight, on && st.hhOn]}>{night(i) && !on ? '☾ ' : ''}{h}h</Text>
                       <View style={[st.cell, { height: 44, backgroundColor: sizeCell(sheet.hs[i]) }, on && st.cellOn]}>
                         <Text style={st.cBig}>{fr(sheet.hs[i])}</Text>
                         <Arrow dir={sheet.dir[i]} size={9} color={C.ink} />
@@ -280,20 +283,24 @@ const st = themed(() => StyleSheet.create({
   heroCol: { flex: 1, minWidth: 0, paddingHorizontal: 8 },
   heroSep: { width: StyleSheet.hairlineWidth, backgroundColor: C.line },
   heroK: { fontFamily: F.tX, fontSize: 10, letterSpacing: 1, color: C.ink3, textTransform: 'uppercase' },
+  heroDay: { fontFamily: F.tX, fontSize: 10.5, color: C.ink2, marginTop: 3, marginBottom: -4 },
   heroV: { fontFamily: F.numX, fontSize: 24, color: C.ink, letterSpacing: -1, marginTop: 4 },
   heroU: { fontFamily: F.tB, fontSize: 11.5, letterSpacing: 0 },
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
   heroS: { fontFamily: F.tB, fontSize: 12, color: C.ink2, flexShrink: 1 },
-  days: { paddingHorizontal: 12, paddingTop: 14, paddingBottom: 6, gap: 6 },
-  day: { width: 54, paddingVertical: 8, borderRadius: 18, alignItems: 'center', backgroundColor: C.card },
+  daysCap: { fontFamily: F.tB, fontSize: 11, color: C.ink3, marginHorizontal: 18, marginTop: 14 },
+  days: { paddingHorizontal: 12, paddingTop: 6, paddingBottom: 4, gap: 5 },
+  day: { width: 47, paddingVertical: 6, borderRadius: 16, alignItems: 'center', backgroundColor: C.card },
   dayOn: { backgroundColor: C.night },
   dayJ: { fontFamily: F.tX, fontSize: 9.5, letterSpacing: 0.8, color: C.ink3 },
-  dayN: { fontFamily: F.numX, fontSize: 18, color: C.ink, marginTop: 1 },
-  dayH: { fontFamily: F.tX, fontSize: 11, color: C.ink2, marginTop: 1 },
+  dayN: { fontFamily: F.numX, fontSize: 16, color: C.ink },
+  dayH: { fontFamily: F.tX, fontSize: 10.5, color: C.ink2 },
   gridWrap: { flexDirection: 'row', marginTop: 8, paddingLeft: 10 },
   labels: { width: 30, gap: 4 },
   lab: { fontFamily: F.tB, fontSize: 9.5, color: C.ink3, paddingTop: 2, lineHeight: 14 },
-  col: { width: COL, gap: 4 },
+  col: { width: COL, gap: 4, borderRadius: 12 },
+  nightCol: { backgroundColor: C.soft },
+  hhNight: { color: C.ink3, fontFamily: F.tB },
   hh: { fontFamily: F.tX, fontSize: 11.5, color: C.ink2, textAlign: 'center', height: 22, lineHeight: 22, borderRadius: 11, overflow: 'hidden' },
   hhOn: { backgroundColor: C.night, color: C.onNight },
   cell: { borderRadius: 10, alignItems: 'center', justifyContent: 'center', gap: 1, overflow: 'hidden' },

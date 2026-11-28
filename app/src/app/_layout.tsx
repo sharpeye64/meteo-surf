@@ -13,7 +13,7 @@ import { C, isDark, setMode } from '../theme';
 
 const SHEET = {
   presentation: 'formSheet' as const,
-  sheetAllowedDetents: [0.55, 0.94],
+  sheetAllowedDetents: [0.55, 1.0],   // 1.0 = grand cran iOS : plein écran sous la barre d'état (demande du porteur)
   sheetInitialDetentIndex: 1,
   sheetGrabberVisible: true,
   sheetCornerRadius: 30,
