@@ -4,6 +4,15 @@
 
 ## 28/11/2026
 
+- **Appli iOS, itération 4** (branche `appli-experience`, PR #23, non fusionnée), après le test sur iPhone et la revue de René :
+  - données anciennes expliquées : le script de test servait les fichiers du PC ; il lit maintenant la production ;
+  - jours et « Aujourd'hui » calculés d'après la vraie date ;
+  - âge des données affiché partout ;
+  - bouée de référence stable ;
+  - carte à trois niveaux de lecture, sans chevauchement ;
+  - Ma côte avec une frise sur 48 h ;
+  - retouches de la fiche spot et de l'onglet Bouées.
+  - Voir [appli-experience.md](appli-experience.md), section 12.
 - **Appli iOS, chantier #8, première version fonctionnelle** (branche `appli-experience`, PR #23 en brouillon, **non fusionnée**) : passage à Expo Router ; carte seule en accueil (Houle / Période / Vent, me localiser, mémoire de la zone) ; fiches spot et bouée en panneau natif ; grande frise ; Ma côte ; recherche ; comparateur libre ; Premium Ocean ; retours haptiques ; « réduire les animations » respecté. À tester sur iPhone avec Expo Go.
 
 ## 27/11/2026

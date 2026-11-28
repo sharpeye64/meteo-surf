@@ -32,6 +32,9 @@
 | `src/Search.tsx` | Recherche (spots, bouées, communes, régions ; parcours par pays et région). `?pick=1` : ajoute au comparateur |
 | `src/Comparer.tsx` | Comparateur, indépendant de la PR #21 : jour et heure libres (instant absolu, heure locale de chaque spot), Houle / Période / Vent et marée, sans classement |
 | `src/BuoyScreens.tsx` | Onglet « Bouées » et page d'une bouée |
+| `src/density.ts` | Densité de la carte : trois niveaux de lecture, collisions, regroupements par région (testé) |
+| `src/series.ts` | Lecture exacte des séries, jours civils, « Aujourd'hui / Demain », âge des données (testé) |
+| `src/Stamp.tsx` | Cartouche « Prévision … · calculée il y a … », avertissement si en retard ou ancienne |
 | `src/TabBar.tsx` | Pilule flottante, bulle bleu nuit qui glisse (`useBarSpace()`, `barBottom`, `FLOAT_BAR_H`) |
 | `src/Live.tsx` | Pastille « en direct » qui clignote |
 | `src/data.ts` | Chargement, favoris, fraîcheur et bouée de référence (`freshOf`, `isLive`, `refBuoy`, `perTxt`) |
@@ -52,7 +55,10 @@
 
 ## Tester
 
-- **Sur l'iPhone** : `& .\app\tester-sur-telephone.ps1`, dans un onglet du panneau Terminal. Le script lance le serveur de données du PC (`tools/serveur_local.py web 8766`), puis Metro (port 8082). Le PC et le téléphone doivent être sur le même Wi-Fi.
+- **Sur l'iPhone** : lancer `& "C:\Users\andre\Downloads\meteo-surf\meteo-surf\app\tester-sur-telephone.ps1"` dans un onglet du panneau Terminal.
+  - Par défaut, l'appli lit les **données de production** (houlalah.fr).
+  - `-Local` : elle lit les fichiers générés sur le PC (`tools/serveur_local.py web 8766`), qui peuvent avoir des heures de retard. C'était la cause des captures du 28/11.
+  - Metro tourne sur le port 8082. Le PC et le téléphone doivent être sur le même Wi-Fi.
 - **Aperçu web** : configuration `appli-web` (port 8081) de `.claude/launch.json`.
 
 ## Limitations et écarts connus

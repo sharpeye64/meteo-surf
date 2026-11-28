@@ -221,3 +221,79 @@ Proposition : un **seul** fichier compact, servi au site et à l'appli. La forme
 | Vérifier par la bouée | courbe et légende de provenance ; fraîcheur selon la cadence |
 | Réseau faible | mode avion : favoris lisibles, âge de réception ; retour du réseau |
 | Accessibilité | VoiceOver (repères, frise), Dynamic Type, cibles ≥ 44 px, « Réduire les animations » |
+
+## 12. Itération 4 (28/11/2026) : retours du test iPhone et revue technique de René
+
+Commits `d881649` à `dd08f91` sur `appli-experience` (PR #23, brouillon). Rien n'est fusionné ni publié.
+
+### P0 — Fraîcheur et fiabilité des données
+- **Cause réelle des captures** (prévision de la veille à 19 h, aucune bouée en direct, « Aujourd'hui 27 ») : `app/tester-sur-telephone.ps1` servait les fichiers **générés sur le PC** (`web/data/app`, dernière génération le 27/11 à 19 h 47), pas ceux de houlalah.fr. La production, elle, était fraîche (générée à 11 h 47, bouées de 11 h 30). Le cache de l'appli n'est pas en cause : il passe toujours d'abord par le réseau.
+  - Le script lit désormais **la production par défaut**. Avec `-Local`, il sert les fichiers du PC et affiche leur date.
+  - L'option `--clear` est ajoutée, car l'adresse des données est fixée au moment de la compilation.
+- **Défauts réels révélés, corrigés sans masquer le problème** :
+  - La fiche appelait « Aujourd'hui » le **premier jour de la série**. Désormais, les jours partent de la vraie date à l'heure du spot, et « Aujourd'hui » / « Demain » sont calculés (`src/series.ts`).
+  - **L'âge des données** (génération par le robot) s'affiche sur la carte, dans Ma côte et dans la fiche, et il est recalculé chaque minute (`Stamp.tsx`, `useDataAge`) :
+    - « en retard » au-delà de 3 h ;
+    - « ancienne » au-delà de 6 h ;
+    - « hors connexion » quand c'est le cas.
+  - La bouée de la fiche annonçait « Mesure de maintenant » pour une mesure vieille de 17 h. Elle dit désormais « Mesure en direct » ou « Dernière mesure ».
+  - **Bouée de référence instable** : à âge égal, le choix dépendait de la milliseconde du calcul. Au même moment, la fiche affichait Anglet et Ma côte la Gascogne. `refBuoy` prend désormais une seule heure de référence ; à égalité, la plus proche l'emporte. **À vérifier sur le site** (`pickBuoy`, non modifié car hors périmètre).
+- **Revue de René** :
+  - valeur lue seulement à un **échantillon exact** (à 1 s près), sinon « heure indisponible » ;
+  - jours **civils** de Paris dans le comparateur (passages à l'heure d'été et d'hiver) ;
+  - pas de barre pour une valeur nulle ;
+  - une comparaison vidée reste vide ;
+  - graphe de la bouée : **mesuré en or, prévu en bleu nuit pointillé**, prévision coupée au cadre, provenance dite ;
+  - couleurs des cartes de bouée centralisées (`buoySurface`, `measureOnBuoy`…).
+
+### P0 — Carte
+- **Trois niveaux de lecture** (`src/density.ts`, testé) :
+  - **Loin** : un regroupement par région, avec le nom, le nombre de spots et la fourchette des valeurs avec l'unité. Un toucher zoome sur la région.
+  - **Milieu** : des pastilles choisies pour ne pas se chevaucher (favoris d'abord, puis plus forte valeur) ; les autres spots restent des points touchables.
+  - **Près** : des pastilles détaillées (nom et valeurs) ; à défaut de place, une pastille simple, puis un point.
+- **Sans clignotement** :
+  - le placement se calcule par palier de zoom, avec une marge de tolérance : déplacer la carte ne le recalcule pas ;
+  - chaque repère garde une clé stable et ne bouge pas, seul son aspect change ;
+  - les repères sont figés et ne se redessinent que pendant 0,7 s après un changement d'aspect.
+- **Bouées** : leurs points sont réservés en premier et ne sont jamais cachés par un spot. Leur étiquette or ne s'affiche que s'il reste de la place, car les spots sont l'objet de l'écran.
+- **Unités** partout (m, s, km/h).
+- **Fond de carte (position défendue)** : plan épuré par défaut, où les pastilles sont plus lisibles ; satellite à un toucher. La clé mémorisée est renouvelée pour que tout le monde reparte sur le plan.
+- **Barres du bas** : une seule rangée (Houle / Période / Vent et « Me localiser ») au lieu de deux étages ; la pilule d'onglets passe de 66 à 60 px.
+- **Mesuré sur les vraies données** (iPhone de 393 px de large) :
+  - côte entière : 12 regroupements, dont 3 réduits ;
+  - Landes et Pays basque (niveau milieu) : 56 spots, dont 4 en pastille et 52 en point ;
+  - Hossegor (niveau près) : 17 spots, dont 4 pastilles détaillées, 1 pastille simple et 12 points.
+  - **Position défendue** : au niveau milieu, peu de pastilles mais lisibles, plutôt que beaucoup qui se chevauchent. Le détail vient en zoomant.
+
+### P1 — Ma côte
+- Tableau de bord : pour chaque favori, la prévision de l'heure, une **mini-frise des 48 h** et la dernière mesure de sa bouée avec son âge.
+  - La mini-frise compte une colonne toutes les 3 h : barre de houle (de 0 à 3 m), filet d'orientation du vent, jours marqués.
+- « + Ajouter un spot » ouvre la recherche en mode favori. « Comparer » est en haut de l'écran.
+- **Aucune requête en plus** : une fiche reste partagée pendant 10 min entre le préchargement, Ma côte et le comparateur (`loadSheetShared`).
+- **Non fait** : l'ordre personnalisable des favoris (remarque de René). Je le propose pour l'itération suivante.
+
+### P1 — Fiche spot
+- Sélecteur de jours plus compact, avec la légende « Houle la plus haute de 6 h à 21 h, en mètres ».
+- Heures de nuit lisibles : bande discrète et lune, valeurs à plein contraste. Avant, la colonne était délavée à 42 %.
+- La marée du lendemain est dite comme telle.
+- Le panneau se déploie en plein écran (grand cran iOS).
+
+### P2 — Bouées
+- La fraîcheur se voit d'un coup d'œil :
+  - en direct : feu vert, mention « en direct », pastille or ;
+  - ancienne : pastille neutre, âge en couleur d'avertissement.
+- Unités dans les pastilles.
+- Fond sable conservé : il est de la famille de l'or, donc de la mesure.
+
+### Tests
+- `tests/heures_app.test.mjs`, dans 4 fuseaux : échantillon exact, valeurs avant et après la série, minutes décalées, 25/10 et 29/03, Paris et Lisbonne, jours civils, âge des données.
+- `tests/regles_app.test.mjs` : niveaux de la carte, marge de tolérance, collisions, obstacles, repli, regroupements.
+- Vérifications : `tsc`, `expo-doctor`, `tests.test_regles`, `tests.test_offline`.
+- Aperçu web au format iPhone : Ma côte, fiche (jours, nuit, avertissement), bouées, comparateur.
+
+### Limites
+- **Non vérifié sur iPhone** :
+  - le rendu de la carte : regroupements, absence de clignotement, fluidité avec 236 repères ;
+  - le grand cran du panneau ;
+  - VoiceOver.
+- La carte ne s'affiche pas dans l'aperçu web : son placement n'a été vérifié que par le calcul.
