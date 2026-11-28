@@ -10,7 +10,9 @@
 
 - **Expo SDK 58**, React Native 0.88, React 19, TypeScript.
 - **Avant tout code Expo** : lire [app/AGENTS.md](../app/AGENTS.md). Il faut se référer aux docs versionnées et ajouter les paquets avec `npx expo install`.
-- **Navigation maison** (onglets et pile d'écrans dans `App.tsx`), **sans Expo Router**. Attention : `app/AGENTS.md` décrit Expo Router de façon générique, mais ce projet ne l'utilise pas.
+- **Expo Router** (chantier #8, branche `appli-experience`) : routes dans `src/app/`. Trois onglets (`(tabs)/index` Carte, `macote`, `bouees`) avec la pilule flottante (`Tabs` de `expo-router/ui`), fiches `spot/[slug]` et `bouee/[slug]` en **panneau natif à crans** (`formSheet`, crans 55 % et 94 %) par-dessus la carte, `recherche` (panneau), `comparer` (écran). Liens profonds : `houlalah://spot/<slug>`, `houlalah://bouee/<slug>`.
+- **État partagé** : `src/store.tsx` (index, favoris, comparaison, « réduire les animations », horloge à la minute dans un contexte séparé).
+- **Modules Expo** ajoutés (tous présents dans Expo Go) : `expo-router`, `expo-location` (position demandée seulement au toucher « Me localiser »), `expo-haptics`, `react-native-screens`.
 - **Carte** : `react-native-maps` (pas de carte dans l'aperçu web). Polices Unbounded et Manrope (`@expo-google-fonts`). Stockage : `@react-native-async-storage/async-storage` (favoris).
 - **Vérifier** avec `npx tsc --noEmit` dans `app/`.
 
@@ -24,12 +26,13 @@
 
 | Fichier | Rôle |
 |---|---|
-| `src/Home.tsx` | Onglet « Spots » (« Mon tableau ») : recherche, votre spot en grand avec une mini-frise, spots autour, bouées en direct, côte par pays et région |
-| `src/MapScreen.tsx` | Onglet « Carte » : plein écran, satellite ou plan, tous les spots, bouées qui pulsent |
-| `src/BuoyScreens.tsx` | Onglet « Bouées » (« Autour de mon spot », puis par zone) et page d'une bouée |
-| `src/SpotList.tsx` | Onglet « Favoris » |
-| `src/SpotSheet.tsx` | Fiche d'un spot : 4 carrés (houle, vent, eau, soleil), frise horaire avec la courbe de marée alignée, PM/BM à leur heure |
-| `src/TabBar.tsx` | Barre d'onglets flottante (`useBarSpace()`) |
+| `src/MapScreen.tsx` | Accueil = la carte seule : Houle / Période / Vent en bas, me localiser, recherche et fond de carte en haut, « Autour de vous » à la demande. Zone, fond et donnée mémorisés ; repères figés (`tracksViewChanges=false`) |
+| `src/SpotSheet.tsx` | Fiche d'un spot : Houle / Vent / Marée en tête, jours, grande frise 6 h-21 h (nuit grisée, filet d'orientation du vent, rafales, courbe de marée), phrases factuelles, bouée de référence = mesure de maintenant ; favori et comparaison |
+| `src/MaCote.tsx` | Onglet « Ma côte » : vos favoris avec la prévision de l'heure et la mesure de leur bouée ; « Comparer mes spots » |
+| `src/Search.tsx` | Recherche (spots, bouées, communes, régions ; parcours par pays et région). `?pick=1` : ajoute au comparateur |
+| `src/Comparer.tsx` | Comparateur, indépendant de la PR #21 : jour et heure libres (instant absolu, heure locale de chaque spot), Houle / Période / Vent et marée, sans classement |
+| `src/BuoyScreens.tsx` | Onglet « Bouées » et page d'une bouée |
+| `src/TabBar.tsx` | Pilule flottante, bulle bleu nuit qui glisse (`useBarSpace()`, `barBottom`, `FLOAT_BAR_H`) |
 | `src/Live.tsx` | Pastille « en direct » qui clignote |
 | `src/data.ts` | Chargement, favoris, fraîcheur et bouée de référence (`freshOf`, `isLive`, `refBuoy`, `perTxt`) |
 | `src/cache.ts`, `src/reload.ts`, `src/useReloaded.ts`, `src/selection.ts` | Copie hors connexion protégée contre les réponses dans le désordre, rechargement des fiches au retour au premier plan, sélection jour / heure gardée par instant (issue #4) |
@@ -42,7 +45,8 @@
 - **Couleurs** : toujours passer par `C` (theme.ts). Une couleur en dur casse le mode sombre.
 - **Mode sombre** : automatique, il suit le réglage du téléphone (`userInterfaceStyle: automatic`).
 - **Règles métier** (issue #4) : fraîcheur selon la cadence de chaque station, vent, secteurs et bouée de référence passent par `src/rules.ts`. Ce sont les mêmes règles que le site, vérifiées sur les mêmes cas (`tests/regles_communes.json`). Ne jamais écrire de seuil en dur (`ageH < 2`…) dans un écran. Voir [regles-communes.md](regles-communes.md).
-- **Âges** : recalculés chaque minute et au retour au premier plan. Les données sont alors redemandées (`App.tsx`).
+- **Âges** : recalculés chaque minute et au retour au premier plan. Les données sont alors redemandées (`src/store.tsx`, `useMinute()`).
+- **Animations** : bulle d'onglet, feux « en direct » et ondes s'arrêtent si l'iPhone demande de réduire les animations (`reduceMotion`). Retour haptique léger sur les choix.
 - **Période de Gascogne** : c'est une période moyenne, écrite « 9 s moy. ».
 - **Icône et écran de démarrage** « A · Nuit » : `python -m tools.app_icons`. Ils sont invisibles dans Expo Go.
 
@@ -54,7 +58,7 @@
 ## Limitations et écarts connus
 
 - **Valeurs « maintenant » de l'index** : elles sont calculées à l'heure de la génération. Hors connexion, avec un index ancien, elles datent de cette heure-là (voir [regles-communes.md](regles-communes.md), écarts connus).
-- **Design** : l'application n'a pas encore reçu la direction Premium Ocean (palette « Nuit » d'origine).
+- **Design** : direction Premium Ocean appliquée sur la branche `appli-experience` (non fusionnée). Les moments futurs sur la carte viendront après la stabilisation du contrat de la PR #21 (adaptateur `home-index.json` v1 côté appli).
 - **Fonctionnalités** : pas d'alertes, pas de widgets. Elles sont prévues après la vraie version installée, et ce sont elles qui justifient une application.
 - **Android** : pour une vraie version Android, il faudra installer `expo-system-ui` (mode sombre automatique), avec l'accord du porteur.
 - **Webcams** : liens externes seulement, comme sur le site.

@@ -21,7 +21,7 @@ _Dernière mise à jour : 27/11/2026 pour le chantier #8 (appli iOS : audit et v
 
 ## En cours
 
-- **Chantier #8, branche `appli-experience`** (repère `avant-appli-experience`) : audit de l'appli et vision iOS, **en attente de validation par le porteur avant toute modification majeure** ; maquettes iPhone 15 Pro avec des valeurs réelles. Rien n'est développé dans l'interface. [appli-experience.md](appli-experience.md).
+- **Chantier #8, branche `appli-experience`** (repère `avant-appli-experience`, PR #23 brouillon) : itération 3 validée, **première version fonctionnelle développée** (Expo Router, carte d'accueil, fiches en panneau natif, Ma côte, recherche, comparateur). **Ne pas fusionner** avant la revue technique de René et les premiers tests du porteur sur iPhone. Plus tard : moments futurs sur la carte via un adaptateur `home-index.json` v1 (PR #21, égalité stricte des générations). [appli-experience.md](appli-experience.md), [MOBILE_APP.md](MOBILE_APP.md).
 - **Issue #4 publiée** (PR #22, fusion `283e9cc`, production vérifiée : `lim`, `kind`, `pt` dans les données de l'appli, bouée muette signalée) : mêmes règles sur le site, dans l'appli et dans le robot.
   - Règles harmonisées : fraîcheur des bouées selon la cadence (1 h / 3 h CANDHIS, 2 h / 6 h horaires), qualification du vent, secteurs, bouée de référence.
   - Les mêmes cas sont testés sur les trois (`tests/regles_communes.json`).

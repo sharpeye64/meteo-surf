@@ -2,6 +2,10 @@
 
 Évolutions significatives, de la plus récente à la plus ancienne. Le détail technique fin est dans `CLAUDE.md` et l'historique git. Tags `avant-…` = point de retour avant un chantier.
 
+## 28/11/2026
+
+- **Appli iOS, chantier #8, première version fonctionnelle** (branche `appli-experience`, PR #23 en brouillon, **non fusionnée**) : passage à Expo Router ; carte seule en accueil (Houle / Période / Vent, me localiser, mémoire de la zone) ; fiches spot et bouée en panneau natif ; grande frise ; Ma côte ; recherche ; comparateur libre ; Premium Ocean ; retours haptiques ; « réduire les animations » respecté. À tester sur iPhone avec Expo Go.
+
 ## 27/11/2026
 
 - **Appli iOS, chantier #8** (branche `appli-experience`) : audit, vision et maquettes iPhone 15 Pro (carte d'accueil, panneau à crans, Ma côte, comparer demain matin, bouée mesurée / prévue, hors connexion). En attente de validation. Voir [appli-experience.md](appli-experience.md).
