@@ -5,7 +5,9 @@ import Arrow from './Arrow';
 import { ageTxt, Buoy, buoyFits, dayTxt, BuoySheet, fr, freshOf, hav, Index, isLive, loadBuoy, perTxt, refBuoy, sector, spotPoint } from './data';
 import { useReloaded } from './useReloaded';
 import { tMs } from './time';
+import Info from './Info';
 import { Blink } from './Live';
+import { useMinute } from './store';
 import { useBarSpace } from './TabBar';
 import { C, F, themed } from './theme';
 
@@ -25,17 +27,21 @@ function Lamp({ b, i = 0 }: { b: Buoy; i?: number }) {
   return f === 'live' ? <Blink size={9} delay={(i % 3) * 450} /> : <View style={[st.lamp, { backgroundColor: f === 'recent' ? C.sandB : C.lampOld }]} />;
 }
 
-/** Une ligne de bouée dans une carte groupée. */
+/** Une ligne de bouée dans une carte groupée. Fraîcheur visible d'un coup d'œil (P2 du porteur) : en direct = feu vert et
+ *  pastille or pleine ; récente = pastille or ; ancienne = pastille neutre et âge en couleur d'avertissement ; muette = grisée. */
 function BuoyLine({ b, i, note, first, onOpen }: { b: Buoy; i: number; note?: string; first?: boolean; onOpen: (b: Buoy) => void }) {
+  const f = freshOf(b), stale = f === 'old' || f === 'off';
   return (
     <Pressable onPress={() => onOpen(b)} style={({ pressed }) => [st.line, !first && st.sep, pressed && { opacity: 0.6 }]}>
       <Lamp b={b} i={i} />
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text style={st.name} numberOfLines={1}>{b.name}</Text>
-        <Text style={st.sub} numberOfLines={1}>{note ? `${note} · ` : ''}{b.silent ? `pas de mesure depuis ${dayTxt(b.time)}` : ageTxt(b.time)}</Text>
+        <Text style={st.sub} numberOfLines={1}>{note ? `${note} · ` : ''}<Text style={[f === 'live' && st.subLive, stale && st.subOld]}>{b.silent ? `pas de mesure depuis ${dayTxt(b.time)}` : f === 'live' ? `en direct · ${ageTxt(b.time)}` : ageTxt(b.time)}</Text></Text>
       </View>
-      {perTxt(b) ? <Text style={[st.metaT, b.silent && { opacity: 0.5 }]}>{perTxt(b)}</Text> : null}
-      <View style={[st.val, b.silent && { opacity: 0.45 }]}><Text style={st.valT}>{fr(b.hs)}</Text></View>
+      {perTxt(b) ? <Text style={[st.metaT, stale && { color: C.ink3 }]}>{perTxt(b)}</Text> : null}
+      <View style={[st.val, stale && st.valOld, b.silent && { opacity: 0.45 }]} accessibilityLabel={`${fr(b.hs)} mètre, ${f === 'live' ? 'en direct' : f === 'recent' ? 'mesure récente' : 'mesure ancienne'}`}>
+        <Text style={[st.valT, stale && { color: C.ink3 }]}>{fr(b.hs)}<Text style={st.valU}> m</Text></Text>
+      </View>
     </Pressable>
   );
 }
@@ -44,10 +50,11 @@ function BuoyLine({ b, i, note, first, onOpen }: { b: Buoy; i: number; note?: st
  *  proches avec leur distance, puis toutes les bouées rangées par zone, du nord au sud. */
 export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]; onOpen: (b: Buoy) => void }) {
   const pad = useBarSpace();
+  useMinute();   // fraîcheur et bouée de référence recalculées chaque minute
   const spot = favs.map(f => index.spots.find(s => s.slug === f)).find(Boolean);
   const fresh = index.buoys.filter(isLive).length;
 
-  const minute = Math.floor(Date.now() / 6e4);   // la bouée de référence dépend de l'âge des mesures : recalculée chaque minute
+  const minute = Math.floor(Date.now() / 6e4);   // la bouée de référence dépend de l'âge des mesures
   const mine = useMemo(() => {
     if (!spot) return null;
     const p = spotPoint(spot);   // distances depuis le point de prévision, comme la règle commune
@@ -69,7 +76,7 @@ export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]
     <ScrollView contentContainerStyle={{ paddingBottom: pad }}>
       <View style={{ paddingHorizontal: 20, paddingTop: 14, paddingBottom: 6 }}>
         <Text style={st.h1}>Bouées</Text>
-        <Text style={st.lead}>Mesures réelles en mer · {fresh} en direct sur {index.buoys.length}</Text>
+        <Text style={st.lead}>{fresh} en direct sur {index.buoys.length}</Text>
       </View>
 
       {spot && M ? (
@@ -87,7 +94,7 @@ export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]
                 {M.b.dir != null && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Arrow dir={M.b.dir} size={13} color={C.sandText} /><Text style={st.heroS}>{sector(M.b.dir)}</Text></View>}
               </View>
             </View>
-            <Text style={st.heroFoot}>Mesuré {ageTxt(M.b.time)}{M.b.sst != null ? ` · eau ${fr(M.b.sst, 0)} °C` : ''}   Voir la bouée ›</Text>
+            <Text style={[st.heroFoot, ['old', 'off'].includes(freshOf(M.b)) && { color: C.warn }]}>{ageTxt(M.b.time)}{M.b.sst != null ? ` · eau ${fr(M.b.sst, 0)} °C` : ''}  ›</Text>
           </Pressable>
           {!!mine!.others.length && (
             <View style={st.group}>
@@ -128,44 +135,49 @@ export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]
 
 /** Page d'une bouée : relevé actuel, courbe 48 h mesuré / prévu, records, derniers relevés, spots autour. */
 export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => void; onSpot: (slug: string) => void }) {
-  const pad = useBarSpace();
+  const pad = 40;   // panneau natif : pas de barre d'onglets dessous
+  useMinute();
   const { data: d, offline, err } = useReloaded<BuoySheet>(loadBuoy, buoy.slug);   // redemandée au retour (reprise réseau)
   const L = d?.latest, live = !!(d && L && freshOf({ id: d.id, lim: d.lim, time: L.time, silent: d.silent }) === 'live');
 
   return (
-    <View style={{ flex: 1 }}>
+    // Structure de panneau natif (comme src/SpotSheet.tsx, Panel) : une seule liste, premier enfant, barre collante et opaque.
+    <ScrollView style={{ flex: 1, backgroundColor: C.bg }} stickyHeaderIndices={[0]} contentInsetAdjustmentBehavior="never" automaticallyAdjustContentInsets={false}
+      contentContainerStyle={{ paddingBottom: pad + 10 }}>
       <View style={st.bar}>
-        <Pressable onPress={onBack} hitSlop={10} style={st.round} accessibilityLabel="Retour"><Text style={st.roundT}>‹</Text></Pressable>
+        <Pressable onPress={onBack} hitSlop={10} style={st.round} accessibilityLabel="Fermer"><Text style={st.roundT}>×</Text></Pressable>
         <View style={st.pill}><Text style={st.pillT} numberOfLines={1}>Bouée {buoy.name}</Text></View>
       </View>
       {!d ? (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ alignItems: 'center', paddingTop: 40 }}>
           {err ? <Text style={st.sub}>Relevés indisponibles. Vérifie la connexion.</Text> : <ActivityIndicator color={C.ink} />}
         </View>
       ) : (
-        <ScrollView contentContainerStyle={{ paddingBottom: pad + 10 }}>
+        <>
           {offline && <Text style={st.off}>hors connexion · dernière version reçue</Text>}
           <View style={[st.card, { backgroundColor: C.sandCard }]}>
             <View style={st.nowRow}>
               <View style={[st.lamp, !live && { backgroundColor: C.sandMuted }]} />
-              <Text style={st.nowT}>{live ? 'EN DIRECT' : 'DERNIÈRE MESURE'} · {ageTxt(L!.time).toUpperCase()}</Text>
+              <Text style={[st.nowT, !live && ['old', 'off'].includes(freshOf({ id: d.id, lim: d.lim, time: L!.time, silent: d.silent })) && { color: C.warn }]}>{live ? 'EN DIRECT' : 'DERNIÈRE MESURE'} · {ageTxt(L!.time).toUpperCase()}</Text>
+              <View style={{ flex: 1 }} />
+              <Info lines={[`${d.sub}.`, 'Hauteur significative mesurée en mer par la bouée : ce n’est pas la taille des vagues au bord.']} />
             </View>
             <Text style={st.big}>{fr(L!.hs)}<Text style={st.bigU}> m</Text></Text>
-            <Text style={st.bigS}>Hauteur significative mesurée{L!.hmax ? ` · vague max ${fr(L!.hmax)} m` : ''}</Text>
+            {!!L!.hmax && <Text style={st.bigS}>vague max {fr(L!.hmax)} m</Text>}
             <View style={st.tiles}>
               <Tile k={!L!.tp && L!.tm ? 'Période moy.' : 'Période'} v={L!.tp ? `${Math.round(L!.tp)} s` : L!.tm ? `${Math.round(L!.tm)} s` : '—'} />
               <Tile k="Direction" v={sector(L!.dir)} dir={L!.dir} />
               <Tile k="Eau" v={L!.sst != null ? `${fr(L!.sst, 1)} °C` : '—'} />
             </View>
-            <Text style={st.note}>{d.sub}. Mesure en mer : ce n'est pas la taille des vagues au bord.</Text>
           </View>
 
           <View style={st.card}>
-            <Text style={st.cardT}>48 heures : mesuré et prévu</Text>
+            <Text style={st.cardT}>48 heures</Text>
             <Chart d={d} />
             <View style={st.legRow}>
-              <View style={st.legI}><View style={[st.legL, { backgroundColor: C.ink }]} /><Text style={st.legS}>mesuré</Text></View>
-              <View style={st.legI}><View style={[st.legL, { backgroundColor: C.gold }]} /><Text style={st.legS}>prévu ({d.model_src})</Text></View>
+              <View style={st.legI}><View style={[st.legL, { backgroundColor: C.measure }]} /><Text style={st.legS}>mesuré (m)</Text></View>
+              <View style={st.legI}><View style={[st.legL, { backgroundColor: C.ink, opacity: 0.75 }]} /><Text style={st.legS}>prévu</Text></View>
+              <Info lines={[`Prévu : ${d.model_src}.`, 'C’est la prévision publiée aujourd’hui, pas celle faite avant chaque mesure.']} />
             </View>
           </View>
 
@@ -201,9 +213,9 @@ export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => v
               </View>
             </View>
           )}
-        </ScrollView>
+        </>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -221,9 +233,11 @@ function Tile({ k, v, s, dir, light }: { k: string; v: string; s?: string; dir?:
 function Chart({ d }: { d: BuoySheet }) {
   const W = 330, H = 150, P = { l: 26, r: 8, t: 10, b: 20 };
   const ts = (t: string) => tMs(t);   // instants exacts (issue #2)
-  const obs = d.obs.filter(o => o.hs != null), mod = d.model.filter(m => m.hs != null);
+  const obs = d.obs.filter(o => o.hs != null && Number.isFinite(ts(o.t)));
   if (obs.length < 2) return <Text style={st.legS}>Pas assez de relevés récents.</Text>;
-  const t0 = ts(obs[0].t), t1 = Math.max(ts(obs[obs.length - 1].t), mod.length ? ts(mod[mod.length - 1].t) : 0);
+  // prévision coupée au cadre : rien avant le premier relevé (revue de René : la courbe sortait de l'aire)
+  const t0 = ts(obs[0].t), mod = d.model.filter(m => m.hs != null && ts(m.t) >= t0);
+  const t1 = Math.max(ts(obs[obs.length - 1].t), mod.length ? ts(mod[mod.length - 1].t) : 0);
   const hmax = Math.max(1, ...obs.map(o => o.hs!), ...mod.map(m => m.hs!)) * 1.15;
   const X = (t: number) => P.l + ((t - t0) / Math.max(1, t1 - t0)) * (W - P.l - P.r), Y = (h: number) => H - P.b - (h / hmax) * (H - P.t - P.b);
   const line = (pts: { t: string; hs: number | null }[]) => pts.map((p, i) => `${i ? 'L' : 'M'}${X(ts(p.t)).toFixed(1)},${Y(p.hs!).toFixed(1)}`).join(' ');
@@ -233,9 +247,10 @@ function Chart({ d }: { d: BuoySheet }) {
       {ticks.map(v => <Line key={v} x1={P.l} x2={W - P.r} y1={Y(v)} y2={Y(v)} stroke={C.line} strokeWidth={1} />)}
       {ticks.map(v => <SvgText key={'t' + v} x={2} y={Y(v) + 4} fontSize={10} fontFamily={F.tB} fill={C.ink3}>{fr(v)}</SvgText>)}
       {now > P.l && now < W - P.r && <Line x1={now} x2={now} y1={P.t} y2={H - P.b} stroke={C.ink3} strokeDasharray="2,4" />}
-      {mod.length > 1 && <Path d={line(mod)} stroke={C.gold} strokeWidth={2} strokeDasharray="5,4" fill="none" />}
-      <Path d={line(obs)} stroke={C.ink} strokeWidth={2.4} fill="none" strokeLinejoin="round" />
-      <Circle cx={X(ts(obs[obs.length - 1].t))} cy={Y(obs[obs.length - 1].hs!)} r={4} fill={C.ink} />
+      {/* D4 / D11 : MESURÉ en or (trait plein), PRÉVU en bleu nuit pointillé */}
+      {mod.length > 1 && <Path d={line(mod)} stroke={C.ink} strokeWidth={1.8} strokeDasharray="5,4" fill="none" opacity={0.75} />}
+      <Path d={line(obs)} stroke={C.measure} strokeWidth={2.6} fill="none" strokeLinejoin="round" />
+      <Circle cx={X(ts(obs[obs.length - 1].t))} cy={Y(obs[obs.length - 1].hs!)} r={4} fill={C.measure} />
       <SvgText x={P.l} y={H - 4} fontSize={10} fontFamily={F.tB} fill={C.ink3}>{obs[0].t.slice(8, 10)}/{obs[0].t.slice(5, 7)} {obs[0].t.slice(11, 13)}h</SvgText>
       <SvgText x={Math.min(now, W - 40)} y={H - 4} fontSize={10} fontFamily={F.tB} fill={C.ink3}>maintenant</SvgText>
     </Svg>
@@ -267,15 +282,19 @@ const st = themed(() => StyleSheet.create({
   sub: { fontFamily: F.t, fontSize: 12.5, color: C.ink2, marginTop: 2 },
   val: { height: 36, minWidth: 54, paddingHorizontal: 12, borderRadius: 18, backgroundColor: C.pill, alignItems: 'center', justifyContent: 'center' },
   valT: { fontFamily: F.num, fontSize: 16, color: C.sandText, letterSpacing: -0.5 },
+  valU: { fontFamily: F.tX, fontSize: 10.5, letterSpacing: 0 },
+  valOld: { backgroundColor: C.soft },
+  subLive: { color: C.live, fontFamily: F.tX },
+  subOld: { color: C.warn },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
   metaT: { fontFamily: F.tB, fontSize: 11.5, color: C.ink2 },
-  bar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 8 },
+  bar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8, backgroundColor: C.bg },
   round: { width: 40, height: 40, borderRadius: 20, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center' },
   roundT: { fontFamily: F.tX, fontSize: 24, color: C.ink, marginTop: -2 },
   pill: { flex: 1, height: 40, borderRadius: 20, backgroundColor: C.card, justifyContent: 'center', paddingHorizontal: 16 },
   pillT: { fontFamily: F.num, fontSize: 15, color: C.ink, letterSpacing: -0.4 },
   card: { marginHorizontal: 12, marginTop: 10, padding: 16, borderRadius: 24, backgroundColor: C.card },
-  nowRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  nowRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 7 },
   nowT: { fontFamily: F.tX, fontSize: 11.5, letterSpacing: 1, color: C.sandText },
   big: { fontFamily: F.numX, fontSize: 56, color: C.sandText, letterSpacing: -2, marginTop: 6 },
   bigU: { fontFamily: F.tB, fontSize: 18, letterSpacing: 0 },
@@ -287,7 +306,7 @@ const st = themed(() => StyleSheet.create({
   tileS: { fontFamily: F.tB, fontSize: 11, color: C.ink2, marginTop: 2 },
   note: { fontFamily: F.t, fontSize: 12, color: C.sandMuted2, marginTop: 10 },
   cardT: { fontFamily: F.num, fontSize: 16, color: C.ink, letterSpacing: -0.3 },
-  legRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, marginTop: 6 },
+  legRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 14, marginTop: 6 },
   legI: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legL: { width: 16, height: 3, borderRadius: 2 },
   legS: { fontFamily: F.tB, fontSize: 11.5, color: C.ink2 },

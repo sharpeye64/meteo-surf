@@ -1,6 +1,7 @@
 // Test des heures de l'APPLICATION (issue #2), sans réseau :   node tests/heures_app.test.mjs   (Node ≥ 23 : lit le .ts)
 // Lancé sous plusieurs fuseaux de téléphone (TZ=…) : mêmes résultats partout, mêmes instants que le site et le robot.
 import { hhIn, partsIn, placeTz, tMs } from '../app/src/time.ts';
+import { addDays, agoWords, civilDays, dataAge, dayWord, valueAt } from '../app/src/series.ts';
 
 let fails = 0;
 const eq = (name, got, want) => { const ok = JSON.stringify(got) === JSON.stringify(want); if (!ok) fails++; console.log(`[${ok ? 'OK' : 'ÉCHEC'}] ${name} : ${JSON.stringify(got)}${ok ? '' : ' (attendu ' + JSON.stringify(want) + ')'}`); };

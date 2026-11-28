@@ -2,9 +2,24 @@
 
 Évolutions significatives, de la plus récente à la plus ancienne. Le détail technique fin est dans `CLAUDE.md` et l'historique git. Tags `avant-…` = point de retour avant un chantier.
 
+## 28/11/2026
+
+- **Appli iOS, itération 5** (PR #23, non fusionnée) : chevauchements au défilement dans les panneaux corrigés à la racine (liste en premier enfant, en-tête collant) ; anticollision de la carte étendue aux bouées et aux commandes flottantes ; échelle de la mini-frise de Ma côte. Voir [appli-experience.md](appli-experience.md), section 13.
+- **Appli iOS, itération 4** (branche `appli-experience`, PR #23, non fusionnée), après le test sur iPhone et la revue de René :
+  - données anciennes expliquées : le script de test servait les fichiers du PC ; il lit maintenant la production ;
+  - jours et « Aujourd'hui » calculés d'après la vraie date ;
+  - âge des données affiché partout ;
+  - bouée de référence stable ;
+  - carte à trois niveaux de lecture, sans chevauchement ;
+  - Ma côte avec une frise sur 48 h ;
+  - retouches de la fiche spot et de l'onglet Bouées.
+  - Voir [appli-experience.md](appli-experience.md), section 12.
+- **Appli iOS, chantier #8, première version fonctionnelle** (branche `appli-experience`, PR #23 en brouillon, **non fusionnée**) : passage à Expo Router ; carte seule en accueil (Houle / Période / Vent, me localiser, mémoire de la zone) ; fiches spot et bouée en panneau natif ; grande frise ; Ma côte ; recherche ; comparateur libre ; Premium Ocean ; retours haptiques ; « réduire les animations » respecté. À tester sur iPhone avec Expo Go.
+
 ## 27/11/2026
 
-- **Règles communes site / appli, issue #4** (branche `regles-communes`, PR en revue, non publiée ; repère `avant-regles-communes`) :
+- **Appli iOS, chantier #8** (branche `appli-experience`) : audit, vision et maquettes iPhone 15 Pro (carte d'accueil, panneau à crans, Ma côte, comparer demain matin, bouée mesurée / prévue, hors connexion). En attente de validation. Voir [appli-experience.md](appli-experience.md).
+- **Règles communes site / appli, issue #4** (publiée, PR #22, fusion `283e9cc`) :
   - fraîcheur des bouées selon la cadence de chaque station, qualification du vent, secteurs et bouée de référence identiques sur le site, dans l'appli et dans le robot ;
   - mêmes cas de test pour les trois ;
   - âges recalculés et données redemandées au retour dans l'appli ;
