@@ -26,17 +26,21 @@ function Lamp({ b, i = 0 }: { b: Buoy; i?: number }) {
   return f === 'live' ? <Blink size={9} delay={(i % 3) * 450} /> : <View style={[st.lamp, { backgroundColor: f === 'recent' ? C.sandB : C.lampOld }]} />;
 }
 
-/** Une ligne de bouée dans une carte groupée. */
+/** Une ligne de bouée dans une carte groupée. Fraîcheur visible d'un coup d'œil (P2 du porteur) : en direct = feu vert et
+ *  pastille or pleine ; récente = pastille or ; ancienne = pastille neutre et âge en couleur d'avertissement ; muette = grisée. */
 function BuoyLine({ b, i, note, first, onOpen }: { b: Buoy; i: number; note?: string; first?: boolean; onOpen: (b: Buoy) => void }) {
+  const f = freshOf(b), stale = f === 'old' || f === 'off';
   return (
     <Pressable onPress={() => onOpen(b)} style={({ pressed }) => [st.line, !first && st.sep, pressed && { opacity: 0.6 }]}>
       <Lamp b={b} i={i} />
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text style={st.name} numberOfLines={1}>{b.name}</Text>
-        <Text style={st.sub} numberOfLines={1}>{note ? `${note} · ` : ''}{b.silent ? `pas de mesure depuis ${dayTxt(b.time)}` : ageTxt(b.time)}</Text>
+        <Text style={st.sub} numberOfLines={1}>{note ? `${note} · ` : ''}<Text style={[f === 'live' && st.subLive, stale && st.subOld]}>{b.silent ? `pas de mesure depuis ${dayTxt(b.time)}` : f === 'live' ? `en direct · ${ageTxt(b.time)}` : ageTxt(b.time)}</Text></Text>
       </View>
-      {perTxt(b) ? <Text style={[st.metaT, b.silent && { opacity: 0.5 }]}>{perTxt(b)}</Text> : null}
-      <View style={[st.val, b.silent && { opacity: 0.45 }]}><Text style={st.valT}>{fr(b.hs)}</Text></View>
+      {perTxt(b) ? <Text style={[st.metaT, stale && { color: C.ink3 }]}>{perTxt(b)}</Text> : null}
+      <View style={[st.val, stale && st.valOld, b.silent && { opacity: 0.45 }]} accessibilityLabel={`${fr(b.hs)} mètre, ${f === 'live' ? 'en direct' : f === 'recent' ? 'mesure récente' : 'mesure ancienne'}`}>
+        <Text style={[st.valT, stale && { color: C.ink3 }]}>{fr(b.hs)}<Text style={st.valU}> m</Text></Text>
+      </View>
     </Pressable>
   );
 }
@@ -89,7 +93,7 @@ export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]
                 {M.b.dir != null && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Arrow dir={M.b.dir} size={13} color={C.sandText} /><Text style={st.heroS}>{sector(M.b.dir)}</Text></View>}
               </View>
             </View>
-            <Text style={st.heroFoot}>Mesuré {ageTxt(M.b.time)}{M.b.sst != null ? ` · eau ${fr(M.b.sst, 0)} °C` : ''}   Voir la bouée ›</Text>
+            <Text style={[st.heroFoot, ['old', 'off'].includes(freshOf(M.b)) && { color: C.warn }]}>{freshOf(M.b) === 'live' ? 'En direct · ' : ''}Mesuré {ageTxt(M.b.time)}{M.b.sst != null ? ` · eau ${fr(M.b.sst, 0)} °C` : ''}   Voir la bouée ›</Text>
           </Pressable>
           {!!mine!.others.length && (
             <View style={st.group}>
@@ -151,7 +155,7 @@ export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => v
           <View style={[st.card, { backgroundColor: C.sandCard }]}>
             <View style={st.nowRow}>
               <View style={[st.lamp, !live && { backgroundColor: C.sandMuted }]} />
-              <Text style={st.nowT}>{live ? 'EN DIRECT' : 'DERNIÈRE MESURE'} · {ageTxt(L!.time).toUpperCase()}</Text>
+              <Text style={[st.nowT, !live && ['old', 'off'].includes(freshOf({ id: d.id, lim: d.lim, time: L!.time, silent: d.silent })) && { color: C.warn }]}>{live ? 'EN DIRECT' : 'DERNIÈRE MESURE'} · {ageTxt(L!.time).toUpperCase()}</Text>
             </View>
             <Text style={st.big}>{fr(L!.hs)}<Text style={st.bigU}> m</Text></Text>
             <Text style={st.bigS}>Hauteur significative mesurée{L!.hmax ? ` · vague max ${fr(L!.hmax)} m` : ''}</Text>
@@ -274,6 +278,10 @@ const st = themed(() => StyleSheet.create({
   sub: { fontFamily: F.t, fontSize: 12.5, color: C.ink2, marginTop: 2 },
   val: { height: 36, minWidth: 54, paddingHorizontal: 12, borderRadius: 18, backgroundColor: C.pill, alignItems: 'center', justifyContent: 'center' },
   valT: { fontFamily: F.num, fontSize: 16, color: C.sandText, letterSpacing: -0.5 },
+  valU: { fontFamily: F.tX, fontSize: 10.5, letterSpacing: 0 },
+  valOld: { backgroundColor: C.soft },
+  subLive: { color: C.live, fontFamily: F.tX },
+  subOld: { color: C.warn },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
   metaT: { fontFamily: F.tB, fontSize: 11.5, color: C.ink2 },
   bar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8 },

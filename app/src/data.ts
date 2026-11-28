@@ -97,8 +97,9 @@ export const spotPoint = (spot: SpotLite) => ({ name: spot.name, region: spot.re
 export { hav } from './rules';
 
 export function refBuoy(buoys: Buoy[], spot: SpotLite): { b: Buoy; k: number } | null {
-  const s = spotPoint(spot);
-  const list = candidates(s, buoys.map(b => ({ ...b, kind: buoyKind(b), ageH: ageH(b.time), lim: liveLim(b) })));
+  const s = spotPoint(spot), now = Date.now();   // UNE heure pour toutes les bouées : à âge égal, la plus proche (tri stable),
+  // jamais un choix qui dépend de la milliseconde du calcul (vu le 28/11 : Anglet ou Gascogne selon l'écran)
+  const list = candidates(s, buoys.map(b => ({ ...b, kind: buoyKind(b), ageH: (now - tMs(b.time)) / 36e5, lim: liveLim(b) })));
   const r = pickRef(list);
   return r ? { b: r.b, k: r.km } : null;
 }
