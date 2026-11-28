@@ -61,13 +61,16 @@ export default function Search() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: C.bg }}>
-      <View style={st.field}>
+    // Même structure que la fiche (src/SpotSheet.tsx, Panel) : la liste est le premier enfant du panneau et le champ de
+    // recherche est son en-tête collant et opaque. Clavier : iOS ajoute lui-même l'inset sous la liste
+    // (automaticallyAdjustKeyboardInsets) pour que les derniers résultats restent atteignables au-dessus du clavier.
+    <ScrollView style={{ flex: 1, backgroundColor: C.bg }} stickyHeaderIndices={[0]} contentInsetAdjustmentBehavior="never" automaticallyAdjustContentInsets={false}
+      automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={{ paddingBottom: ins.bottom + 30 }}>
+      <View style={st.sticky}><View style={st.field}>
         <Svg width={18} height={18} viewBox="0 0 24 24"><Circle cx={11} cy={11} r={6.5} stroke={C.ink2} strokeWidth={2} fill="none" /><Path d="M16 16l4.5 4.5" stroke={C.ink2} strokeWidth={2} strokeLinecap="round" /></Svg>
         <TextInput value={q} onChangeText={setQ} autoFocus placeholder={picking ? 'Ajouter un spot à comparer' : addFav ? 'Ajouter un spot à Ma côte' : 'Spot, bouée, commune, région'} placeholderTextColor={C.ink3}
           style={st.input} autoCorrect={false} autoCapitalize="none" returnKeyType="search" clearButtonMode="while-editing" accessibilityLabel="Rechercher" />
-      </View>
-      <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={{ paddingBottom: ins.bottom + 30 }}>
+      </View></View>
         {res ? (
           <>
             {!res.spots.length && !res.buoys.length && <Text style={st.none}>Aucun résultat pour « {q.trim()} ».</Text>}
@@ -98,13 +101,13 @@ export default function Search() {
             ))}
           </View>
         ))}
-      </ScrollView>
-    </View>
+    </ScrollView>
   );
 }
 
 const st = themed(() => StyleSheet.create({
-  field: { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 14, marginTop: 22, marginBottom: 6, height: 50, borderRadius: 25, paddingHorizontal: 16, backgroundColor: C.card },
+  sticky: { backgroundColor: C.bg, paddingBottom: 6 },
+  field: { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 14, marginTop: 22, height: 50, borderRadius: 25, paddingHorizontal: 16, backgroundColor: C.card },
   input: { flex: 1, height: 50, fontFamily: F.t, fontSize: 16, color: C.ink },
   none: { fontFamily: F.t, fontSize: 14, color: C.ink2, textAlign: 'center', marginTop: 30 },
   country: { fontFamily: F.num, fontSize: 20, color: C.ink, letterSpacing: -0.6, marginHorizontal: 20, marginTop: 22 },

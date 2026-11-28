@@ -140,17 +140,19 @@ export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => v
   const L = d?.latest, live = !!(d && L && freshOf({ id: d.id, lim: d.lim, time: L.time, silent: d.silent }) === 'live');
 
   return (
-    <View style={{ flex: 1 }}>
+    // Structure de panneau natif (comme src/SpotSheet.tsx, Panel) : une seule liste, premier enfant, barre collante et opaque.
+    <ScrollView style={{ flex: 1, backgroundColor: C.bg }} stickyHeaderIndices={[0]} contentInsetAdjustmentBehavior="never" automaticallyAdjustContentInsets={false}
+      contentContainerStyle={{ paddingBottom: pad + 10 }}>
       <View style={st.bar}>
         <Pressable onPress={onBack} hitSlop={10} style={st.round} accessibilityLabel="Fermer"><Text style={st.roundT}>×</Text></Pressable>
         <View style={st.pill}><Text style={st.pillT} numberOfLines={1}>Bouée {buoy.name}</Text></View>
       </View>
       {!d ? (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ alignItems: 'center', paddingTop: 40 }}>
           {err ? <Text style={st.sub}>Relevés indisponibles. Vérifie la connexion.</Text> : <ActivityIndicator color={C.ink} />}
         </View>
       ) : (
-        <ScrollView contentContainerStyle={{ paddingBottom: pad + 10 }}>
+        <>
           {offline && <Text style={st.off}>hors connexion · dernière version reçue</Text>}
           <View style={[st.card, { backgroundColor: C.sandCard }]}>
             <View style={st.nowRow}>
@@ -209,9 +211,9 @@ export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => v
               </View>
             </View>
           )}
-        </ScrollView>
+        </>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -284,7 +286,7 @@ const st = themed(() => StyleSheet.create({
   subOld: { color: C.warn },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
   metaT: { fontFamily: F.tB, fontSize: 11.5, color: C.ink2 },
-  bar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8 },
+  bar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8, backgroundColor: C.bg },
   round: { width: 40, height: 40, borderRadius: 20, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center' },
   roundT: { fontFamily: F.tX, fontSize: 24, color: C.ink, marginTop: -2 },
   pill: { flex: 1, height: 40, borderRadius: 20, backgroundColor: C.card, justifyContent: 'center', paddingHorizontal: 16 },

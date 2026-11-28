@@ -66,9 +66,9 @@ export default function SpotSheet({ spot }: { spot: SpotLite }) {
     </View>
   );
 
-  if (err && !sheet) return <View style={st.page}>{head}<Text style={st.msg}>Fiche indisponible pour le moment. Vérifiez la connexion.</Text></View>;
+  if (err && !sheet) return <Panel head={head}><Text style={st.msg}>Fiche indisponible pour le moment. Vérifiez la connexion.</Text></Panel>;
   const t0 = sheet ? tMs(sheet.t0) : NaN, r = resolveSel(days, t0, pick);
-  if (!sheet || !r) return <View style={st.page}>{head}<ActivityIndicator style={{ marginTop: 40 }} color={C.ink} /></View>;
+  if (!sheet || !r) return <Panel head={head}><ActivityIndicator style={{ marginTop: 40 }} color={C.ink} /></Panel>;
 
   const tz = placeTz(sheet), day = r.dayI, d = days[day], today = partsIn(Date.now(), tz).date;
   const word = (date: string) => dayWord(date, today);
@@ -89,9 +89,7 @@ export default function SpotSheet({ spot }: { spot: SpotLite }) {
   const choose = (i: number) => { if (i === sel) return; Haptics.selectionAsync().catch(() => {}); setPick({ date: d.date, ms: t0 + i * 36e5 }); };
 
   return (
-    <View style={st.page}>
-      {head}
-      <ScrollView contentContainerStyle={{ paddingBottom: ins.bottom + 30 }} showsVerticalScrollIndicator={false}>
+    <Panel head={head} bottom={ins.bottom + 30}>
         <View style={st.whenRow}>
           {isNow ? <Blink size={7} color={C.ink} /> : <View style={[st.dot, { backgroundColor: C.ink3 }]} />}
           <Text style={st.whenT}>{isNow ? 'Maintenant' : `${word(d.date) ?? JOUR[at(sel).wd]} ${at(sel).d}`} · {at(sel).h} h</Text>
@@ -181,8 +179,22 @@ export default function SpotSheet({ spot }: { spot: SpotLite }) {
         {ref ? <RefBuoy b={ref.b} km={ref.k} /> : (
           <View style={st.card}><Text style={st.cardK}>Bouée de référence</Text><Text style={st.cardS}>Aucune bouée n’a de mesure exploitable autour de ce spot pour le moment.</Text></View>
         )}
-      </ScrollView>
-    </View>
+    </Panel>
+  );
+}
+
+/** Structure d'un panneau natif (formSheet iOS), corrigée après le test iPhone du 28/11 :
+ *  la liste qui défile est le PREMIER enfant de l'écran (règle d'Expo / react-native-screens : la ScrollView doit être
+ *  atteignable par le premier enfant à chaque niveau, sinon iOS ne relie pas le défilement au glissement du panneau), et
+ *  l'en-tête est DANS la liste, collant (stickyHeaderIndices) et opaque : rien ne peut défiler par-dessus ni dessous.
+ *  Aucun décalage d'écran automatique d'iOS dans un panneau (contentInsetAdjustmentBehavior="never"). */
+export function Panel({ head, bottom = 30, children }: { head: React.ReactNode; bottom?: number; children: React.ReactNode }) {
+  return (
+    <ScrollView style={st.page} stickyHeaderIndices={[0]} contentInsetAdjustmentBehavior="never" automaticallyAdjustContentInsets={false}
+      contentContainerStyle={{ paddingBottom: bottom }} showsVerticalScrollIndicator={false} directionalLockEnabled>
+      <View style={st.sticky}>{head}</View>
+      {children}
+    </ScrollView>
   );
 }
 
@@ -267,6 +279,7 @@ function TideRow({ sheet, hrs, sel, t0, tz }: { sheet: Sheet; hrs: number[]; sel
 
 const st = themed(() => StyleSheet.create({
   page: { flex: 1, backgroundColor: C.bg },
+  sticky: { backgroundColor: C.bg },
   head: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 18, paddingTop: 22, paddingBottom: 8 },
   name: { fontFamily: F.num, fontSize: 24, color: C.ink, letterSpacing: -0.8 },
   region: { fontFamily: F.tB, fontSize: 12.5, color: C.ink2, marginTop: 2 },
