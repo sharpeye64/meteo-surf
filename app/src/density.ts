@@ -75,3 +75,16 @@ export function clusters<T extends { region: string; lat: number; lon: number }>
     };
   });
 }
+
+/** Rectangle à l'ÉCRAN (px) d'un repère de taille b, pour la zone de carte visible r et un écran W × H. */
+export type View4 = { latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number };
+export function screenRect(lat: number, lon: number, b: Box, r: View4, W: number, H: number): [number, number, number, number] {
+  const merc = (la: number) => Math.log(Math.tan(Math.PI / 4 + (la * Math.PI) / 360));
+  const mT = merc(r.latitude + r.latitudeDelta / 2), mB = merc(r.latitude - r.latitudeDelta / 2);
+  const x = ((lon - (r.longitude - r.longitudeDelta / 2)) / r.longitudeDelta) * W + (b.dx ?? 0);
+  const y = ((mT - merc(lat)) / (mT - mB)) * H + (b.dy ?? 0);
+  return [x - b.w / 2, y - b.h / 2, x + b.w / 2, y + b.h / 2];
+}
+/** Le rectangle touche-t-il l'une des zones occupées par les commandes flottantes (recherche, boutons, barres) ? */
+export const underControls = (q: [number, number, number, number], zones: [number, number, number, number][]) =>
+  zones.some(z => q[0] < z[2] && q[2] > z[0] && q[1] < z[3] && q[3] > z[1]);

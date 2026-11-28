@@ -18,7 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import Arrow from './Arrow';
 import { Buoy, freshOf, fr, hav, perTxt, refBuoy, regionName, sector, SpotLite, spotPoint, WIND_WORD, windCat } from './data';
-import { bucketOf, Cluster, clusters, Item, Level, levelOf, place } from './density';
+import { Box, bucketOf, Cluster, clusters, Item, Level, levelOf, place, screenRect, underControls } from './density';
 import Stamp from './Stamp';
 import { useData, useMinute } from './store';
 import { barBottom, FLOAT_BAR_H } from './TabBar';
@@ -37,6 +37,7 @@ const COMPACT: Record<Mode, { w: number; h: number }> = { houle: { w: 96, h: 32 
 const DETAIL = { w: 124, h: 46 };
 const BUOY_DOT = { w: 18, h: 18 };
 const BUOY_LAB = { w: 88, h: 22, dy: 22 };
+const CLUSTER = { w: 142, h: 46 }, CLUSTER_S = { w: 106, h: 30 };   // mesurées sur iPhone (capture du 28/11)
 
 export default function MapScreen() {
   const { index: idx, offline, isFav, favs } = useData();
@@ -48,7 +49,7 @@ export default function MapScreen() {
   const [type, setType] = useState<MapType>(PLAN);
   const [mode, setModeState] = useState<Mode>('houle');
   const [me, setMe] = useState<{ lat: number; lon: number } | null>(null);
-  const [width, setWidth] = useState(393);
+  const [{ width, height }, setSize] = useState({ width: 393, height: 852 });
 
   useEffect(() => {
     AsyncStorage.multiGet([K.region, K.type, K.mode]).then(([[, r], [, t], [, m]]) => {
@@ -79,10 +80,16 @@ export default function MapScreen() {
 
   // placement : priorité aux favoris puis à la plus forte valeur ; les points des bouées sont des obstacles réservés
   const placed = useMemo(() => {
-    const px = width / Math.pow(2, bucket / 2);
+    // échelle PRUDENTE : celle du bout le plus dézoomé du palier (hystérésis de 0,85 demi-octave), pour qu'aucune
+    // collision ne réapparaisse quand l'écran réel est plus serré que le palier (vu le 28/11 : Vendée / Charentes)
+    const px = width / Math.pow(2, (bucket + 0.85) / 2);
     if (level === 'far') {
+      // loin : regroupements ET bouées dans le même placement (retour iPhone du 28/11 : des bouées recouvraient les
+      // regroupements des Landes, du Pays basque et du nord de l'Espagne) ; une bouée sans place n'est pas dessinée à
+      // cette échelle, elle réapparaît en zoomant
       const cl = clusters(index.spots, val);
-      const items: Item[] = cl.map(c => ({ id: c.region, lat: c.lat, lon: c.lon, prio: c.n, sizes: [{ w: 132, h: 46 }, { w: 70, h: 30 }] }));
+      const items: Item[] = cl.map(c => ({ id: c.region, lat: c.lat, lon: c.lon, prio: c.n, sizes: [CLUSTER, CLUSTER_S] }));
+      index.buoys.filter(b => fresh[b.id] !== 'off').forEach(b => items.push({ id: `b:${b.id}`, lat: b.lat, lon: b.lon, prio: -1, sizes: [BUOY_DOT] }));
       return { px, cl, at: place(items, px, 4) };
     }
     const shown = index.buoys.filter(b => fresh[b.id] !== 'off');
@@ -95,9 +102,26 @@ export default function MapScreen() {
     return { px, cl: [] as Cluster[], at: place(items, px, 3, obstacles) };
   }, [index, level, bucket, mode, width, favs, val, freshKey]);   // eslint-disable-line react-hooks/exhaustive-deps
 
-  // aspect changé (niveau, palier, donnée, thème, fraîcheur) : les repères se redessinent 0,7 s puis se figent
+  // Zones occupées par les commandes flottantes (recherche + cartouche en haut ; donnée, localiser et pilule en bas) :
+  // une étiquette qui tomberait dessous redevient un point (spot), une petite pastille (région) ou rien (étiquette de
+  // bouée). Calculé à la fin de chaque déplacement seulement (onRegionChangeComplete), jamais pendant le geste.
+  const bottom = barBottom(ins.bottom) + FLOAT_BAR_H + 8;
+  const masked = useMemo(() => {
+    const zones: [number, number, number, number][] = [[0, 0, width, ins.top + 6 + 48 + 8 + 26 + 4], [0, height - bottom - 44 - 6, width, height]];
+    const hit = (lat: number, lon: number, b: Box) => underControls(screenRect(lat, lon, b, reg, width, height), zones);
+    const out: string[] = [], { at, cl } = placed;
+    if (level === 'far') cl.forEach(c => { if (hit(c.lat, c.lon, at[c.region] === 0 ? CLUSTER : CLUSTER_S)) out.push(c.region); });
+    else {
+      index.spots.forEach(s => { const k = at[`s:${s.slug}`]; if (k >= 0 && hit(s.lat, s.lon, level === 'near' && k === 0 ? DETAIL : COMPACT[mode])) out.push(`s:${s.slug}`); });
+      index.buoys.forEach(b => { if (at[`b:${b.id}`] === 0 && hit(b.lat, b.lon, BUOY_LAB)) out.push(`b:${b.id}`); });
+    }
+    return out.sort().join('|');
+  }, [placed, reg, width, height, ins.top, bottom, level, mode, index]);
+  const isMasked = useMemo(() => new Set(masked ? masked.split('|') : []), [masked]);
+
+  // aspect changé (niveau, palier, donnée, thème, fraîcheur, masque) : les repères se redessinent 0,7 s puis se figent
   const [track, setTrack] = useState(true);
-  useEffect(() => { setTrack(true); const t = setTimeout(() => setTrack(false), 700); return () => clearTimeout(t); }, [placed, dark, sat]);
+  useEffect(() => { setTrack(true); const t = setTimeout(() => setTrack(false), 700); return () => clearTimeout(t); }, [placed, masked, dark, sat]);
 
   // toucher : un seul par repère (onPress du repère, onMarkerPress en secours), anti-doublon 600 ms
   const last = useRef(0);
@@ -135,19 +159,18 @@ export default function MapScreen() {
     const { at, cl } = placed;
     if (level === 'far') {
       return [
-        ...cl.map(c => <ClusterMark key={`r:${c.region}`} c={c} mode={mode} big={at[c.region] === 0} track={track} onPress={() => zoomTo(c)} />),
-        ...index.buoys.filter(b => fresh[b.id] !== 'off').map(b => <BuoyMark key={`b:${b.id}`} b={b} f={fresh[b.id]} label={false} track={track} onPress={() => open(`b:${b.id}`)} />),
+        ...cl.map(c => <ClusterMark key={`r:${c.region}`} c={c} mode={mode} big={at[c.region] === 0 && !isMasked.has(c.region)} track={track} onPress={() => zoomTo(c)} />),
+        ...index.buoys.filter(b => fresh[b.id] !== 'off' && at[`b:${b.id}`] === 0).map(b => <BuoyMark key={`b:${b.id}`} b={b} f={fresh[b.id]} label={false} track={track} onPress={() => open(`b:${b.id}`)} />),
       ];
     }
     return [
-      ...index.spots.map(s => <SpotMark key={`s:${s.slug}`} s={s} mode={mode} size={at[`s:${s.slug}`]} detail={level === 'near'} fav={isFav(s.slug)} track={track} onPress={() => open(`s:${s.slug}`)} />),
-      ...index.buoys.filter(b => fresh[b.id] !== 'off').map(b => <BuoyMark key={`b:${b.id}`} b={b} f={fresh[b.id]} label={at[`b:${b.id}`] === 0} track={track} onPress={() => open(`b:${b.id}`)} />),
+      ...index.spots.map(s => <SpotMark key={`s:${s.slug}`} s={s} mode={mode} size={isMasked.has(`s:${s.slug}`) ? -1 : at[`s:${s.slug}`]} detail={level === 'near'} fav={isFav(s.slug)} track={track} onPress={() => open(`s:${s.slug}`)} />),
+      ...index.buoys.filter(b => fresh[b.id] !== 'off').map(b => <BuoyMark key={`b:${b.id}`} b={b} f={fresh[b.id]} label={at[`b:${b.id}`] === 0 && !isMasked.has(`b:${b.id}`)} track={track} onPress={() => open(`b:${b.id}`)} />),
     ];
-  }, [placed, level, mode, track, index, fresh, isFav, open, zoomTo]);   // eslint-disable-line react-hooks/exhaustive-deps
+  }, [placed, isMasked, level, mode, track, index, fresh, isFav, open, zoomTo]);   // eslint-disable-line react-hooks/exhaustive-deps
 
-  const bottom = barBottom(ins.bottom) + FLOAT_BAR_H + 8;
   return (
-    <View style={StyleSheet.absoluteFill} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
+    <View style={StyleSheet.absoluteFill} onLayout={e => setSize({ width: e.nativeEvent.layout.width, height: e.nativeEvent.layout.height })}>
       <MapView ref={map} style={StyleSheet.absoluteFill} initialRegion={memRegion || START} onRegionChangeComplete={onRegion} mapType={type}
         userInterfaceStyle={dark ? 'dark' : 'light'} showsUserLocation={!!me} showsMyLocationButton={false}
         mapPadding={{ top: ins.top + 60, bottom: bottom + 50, left: 0, right: 0 }} onMarkerPress={e => { const id = e.nativeEvent.id; if (id && !id.startsWith('r:')) open(id); }}

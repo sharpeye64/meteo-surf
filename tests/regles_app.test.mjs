@@ -6,7 +6,7 @@ import { ageWords, candidates, freshState, liveLim, pickRef, sector, windCat } f
 import { createReloader } from '../app/src/reload.ts';
 import { createCachedLoader } from '../app/src/cache.ts';
 import { resolveSel } from '../app/src/selection.ts';
-import { bucketOf, clusters, levelOf, place } from '../app/src/density.ts';
+import { bucketOf, clusters, levelOf, place, screenRect, underControls } from '../app/src/density.ts';
 
 const C = JSON.parse(readFileSync(new URL('./regles_communes.json', import.meta.url), 'utf8'));
 let fails = 0;
@@ -45,6 +45,14 @@ eq('carte : palier de zoom stable aux petits pincements', [bucketOf(1.0), bucket
   eq('carte : repli sur la taille suivante', place(two, 393 / 0.5), { x: 0, y: 1 });
   const cl = clusters([{ region: 'Landes', lat: 44, lon: -1.3, hs: 1 }, { region: 'Landes', lat: 43.7, lon: -1.4, hs: 2 }, { region: 'Landes', lat: 43.85, lon: -1.35, hs: null }], s => s.hs);
   eq('carte : regroupement par région (spot central, fourchette, nombre)', cl.map(c => [c.region, c.lat, c.n, c.min, c.max]), [['Landes', 43.85, 3, 1, 2]]);
+  const R = { latitude: 44, longitude: -2, latitudeDelta: 2, longitudeDelta: 2 }, W = 400, H = 800;
+  const mid = screenRect(44, -2, { w: 20, h: 10 }, R, W, H);
+  eq('carte : position à l’écran (Mercator : centre un peu sous le milieu)', mid.map(Math.round), [190, 398, 210, 408]);
+  const top = screenRect(44.98, -2, { w: 90, h: 30 }, R, W, H), zones = [[0, 0, W, 110], [0, H - 140, W, H]];
+  eq('carte : pastille sous la recherche / au centre / sous les barres', [underControls(top, zones), underControls(mid, zones), underControls(screenRect(43.03, -2, { w: 90, h: 30 }, R, W, H), zones)], [true, false, true]);
+  // regroupements et bouées ensemble : une bouée posée sur une région n'est pas dessinée à cette échelle
+  const far = place([{ id: 'Landes', lat: 43.9, lon: -1.4, prio: 25, sizes: [{ w: 132, h: 46 }] }, { id: 'b:anglet', lat: 43.53, lon: -1.61, prio: -1, sizes: [{ w: 18, h: 18 }] }, { id: 'b:large', lat: 45, lon: -5, prio: -1, sizes: [{ w: 18, h: 18 }] }], 393 / 9.5, 4);
+  eq('carte (loin) : bouée sous un regroupement masquée, bouée au large gardée', [far['Landes'], far['b:anglet'], far['b:large']], [0, -1, 0]);
 }
 // ---------- reprise réseau d'une fiche (src/reload.ts) : mêmes demandes, réponses dans le désordre, panne partielle ----------
 const deferred = () => { let ok, ko; const p = new Promise((a, b) => { ok = a; ko = b; }); return { p, ok, ko }; };
