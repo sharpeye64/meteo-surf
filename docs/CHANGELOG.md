@@ -4,6 +4,7 @@
 
 ## 28/11/2026
 
+- **Appli iOS, itération 5** (PR #23, non fusionnée) : chevauchements au défilement dans les panneaux corrigés à la racine (liste en premier enfant, en-tête collant) ; anticollision de la carte étendue aux bouées et aux commandes flottantes ; échelle de la mini-frise de Ma côte. Voir [appli-experience.md](appli-experience.md), section 13.
 - **Appli iOS, itération 4** (branche `appli-experience`, PR #23, non fusionnée), après le test sur iPhone et la revue de René :
   - données anciennes expliquées : le script de test servait les fichiers du PC ; il lit maintenant la production ;
   - jours et « Aujourd'hui » calculés d'après la vraie date ;

@@ -297,3 +297,41 @@ Commits `d881649` à `dd08f91` sur `appli-experience` (PR #23, brouillon). Rien 
   - le grand cran du panneau ;
   - VoiceOver.
 - La carte ne s'affiche pas dans l'aperçu web : son placement n'a été vérifié que par le calcul.
+
+## 13. Itération 5 (28/11/2026) : stabilité des panneaux et de la carte
+
+Commits `b294478` à `be01e22`. Aucune nouvelle fonctionnalité, aucune refonte graphique (demande du porteur).
+
+### P0 — Régression du défilement dans les panneaux
+- **Ce que montrait l'iPhone** :
+  - dans la fiche spot, le bloc Houle / Vent / Marée, le titre du spot et la légende des jours se chevauchaient pendant le défilement ;
+  - dans la recherche, le titre « France » passait sur le champ de recherche, clavier ouvert.
+- **Cause** : dans les trois panneaux `formSheet` (fiche spot, recherche, bouée), l'en-tête était posé **à côté de** la liste qui défile, et avant elle. Or la documentation Expo / react-native-screens demande que la `ScrollView` soit atteignable en suivant **le premier enfant à chaque niveau** de l'écran. Sinon, iOS ne relie pas le défilement au panneau.
+  - Cette structure existait déjà dans l'itération 3.
+  - Seul changement de mise en page des panneaux entre les deux versions : le cran maximal est passé de 0,94 à 1,0. C'est ce qui a révélé le défaut dans la fiche ; dans la recherche, c'est l'ouverture du clavier.
+- **Correction structurelle**, sans marge ni décalage propre à un appareil :
+  - une seule `ScrollView` par panneau, premier enfant de l'écran ;
+  - l'en-tête est **dans** la liste, en en-tête collant (`stickyHeaderIndices`) et opaque : rien ne peut défiler par-dessus ;
+  - `contentInsetAdjustmentBehavior="never"` : pas de décalage automatique d'iOS dans un panneau.
+  - Pour la recherche : `automaticallyAdjustKeyboardInsets`, pour que les derniers résultats restent accessibles au-dessus du clavier, et fermeture du clavier quand on fait défiler.
+  - Composant commun `Panel` dans `src/SpotSheet.tsx` ; même structure dans `Search.tsx` et `BuoyScreens.tsx`.
+- **Gestes** :
+  - la liste étant le premier enfant, iOS la relie au panneau : le panneau ne se déplace qu'une fois la liste remontée tout en haut ;
+  - `directionalLockEnabled` : un glissement horizontal sur la frise ne fait pas défiler la page verticalement.
+
+### P1 — Carte : anticollision de tous les éléments visibles
+- **Vue de loin** : les regroupements par région **et** les bouées sont placés ensemble. Une bouée qui manquerait de place n'est pas dessinée à cette échelle et réapparaît en zoomant. Avant, des bouées recouvraient les regroupements des Landes, du Pays basque et du nord de l'Espagne.
+- **Échelle de placement prudente** : le placement est calculé à l'échelle la plus dézoomée du palier. Avant, l'écran réel pouvait être jusqu'à 34 % plus serré que le palier, d'où les pastilles Vendée et Charentes qui se touchaient.
+- Tailles réelles des pastilles de région, mesurées sur la capture iPhone.
+- **Commandes flottantes** : une étiquette qui tomberait sous la recherche, le cartouche, la barre de données, le bouton « Me localiser » ou la pilule redevient un point (spot), une petite pastille (région) ou disparaît (étiquette de bouée). Ce calcul n'est refait qu'à la fin d'un déplacement, jamais pendant le geste.
+
+### P1 — Ma côte
+- Échelle discrète de la mini-frise : « 3 m » en haut (ou le maximum s'il est plus haut), la moitié au milieu, « 0 » en bas. Cette échelle est cachée à VoiceOver, qui lit déjà « houle la plus haute … ».
+
+### Tests et limites
+- Tests ajoutés dans `tests/regles_app.test.mjs` : projection à l'écran (Mercator), zones des commandes, bouée sous un regroupement.
+- Également vérifiés : `tsc`, `expo-doctor`, aperçu web (défilement de la fiche et de la recherche avec leurs en-têtes collants).
+- **À confirmer sur iPhone** :
+  - le défilement et le glissement du panneau, en cran moyen et en plein écran ;
+  - le clavier dans la recherche ;
+  - l'absence de chevauchement sur la carte, notamment au pincement.
