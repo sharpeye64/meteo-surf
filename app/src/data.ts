@@ -43,6 +43,17 @@ const getJSON = createCachedLoader(async (path: string) => {
 export const loadIndex = () => getJSON<Index>('index.json', 'cache:index');
 export const loadBuoy = (slug: string) => getJSON<BuoySheet>(`bouees/${slug}.json`, `cache:buoy:${slug}`);
 export const loadSheet = (slug: string) => getJSON<Sheet>(`spots/${slug}.json`, `cache:spot:${slug}`);
+/** Même fiche, sans nouvelle requête si elle a été reçue il y a moins de 10 min (préchargement des favoris, Ma côte,
+ *  comparateur) : une seule demande réseau par fiche et par passage du robot, au lieu d'une par écran. */
+const memSheets = new Map<string, { at: number; p: Promise<{ data: Sheet; offline: boolean }> }>();
+export function loadSheetShared(slug: string, maxAgeMs = 6e5) {
+  const m = memSheets.get(slug);
+  if (m && Date.now() - m.at < maxAgeMs) return m.p;
+  const p = loadSheet(slug);
+  memSheets.set(slug, { at: Date.now(), p });
+  p.then(r => { if (r.offline) memSheets.delete(slug); }, () => memSheets.delete(slug));   // copie hors connexion ou échec : on réessaiera
+  return p;
+}
 
 export async function loadFavs(): Promise<string[]> {
   try { return JSON.parse((await AsyncStorage.getItem('favs')) || '[]'); } catch { return []; }

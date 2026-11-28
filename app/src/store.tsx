@@ -6,7 +6,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo, AppState } from 'react-native';
-import { Index, loadFavs, loadIndex, loadSheet, saveFavs } from './data';
+import { Index, loadFavs, loadIndex, loadSheetShared, saveFavs } from './data';
 import { createReloader } from './reload';
 import { dataAge, DataAge } from './series';
 import { tMs } from './time';
@@ -55,7 +55,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // Préchargement des fiches des favoris (réseau faible sur la côte) : à chaque nouvel index, une fois par favori.
   useEffect(() => {
     if (!index || offline) return;
-    favs.forEach((slug, i) => setTimeout(() => { loadSheet(slug).catch(() => {}); }, 400 * i));
+    favs.forEach((slug, i) => setTimeout(() => { loadSheetShared(slug).catch(() => {}); }, 400 * i));
   }, [index, offline, favs]);
 
   const toggleFav = useCallback((slug: string) => setFavs(f => {

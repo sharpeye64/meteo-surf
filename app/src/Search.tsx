@@ -1,5 +1,6 @@
 /** Recherche (panneau natif) : spots et bouées par nom, commune ou région, sans accents ni majuscules. Champ vide : la côte
- *  par pays et par région. Ouverte depuis le comparateur (`?pick=1`) : un toucher AJOUTE le spot à la comparaison et ferme. */
+ *  par pays et par région. Ouverte depuis le comparateur (`?pick=1`) : un toucher AJOUTE le spot à la comparaison et ferme ;
+ *  depuis Ma côte (`?pick=fav`) : un toucher l'ajoute aux favoris et ferme. */
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
@@ -14,9 +15,9 @@ const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCa
 const PAYS = ['France', 'Espagne', 'Portugal'];
 
 export default function Search() {
-  const { index, compare, setCompare } = useData();
+  const { index, compare, setCompare, isFav, toggleFav } = useData();
   const { pick } = useLocalSearchParams<{ pick?: string }>();
-  const picking = pick === '1';
+  const picking = pick === '1', addFav = pick === 'fav';
   const ins = useSafeAreaInsets();
   const [q, setQ] = useState('');
 
@@ -26,9 +27,9 @@ export default function Search() {
     const m = (s: string | undefined) => !!s && norm(s).includes(k);
     return {
       spots: index.spots.filter(s => m(s.name) || m(s.commune) || m(regionName(s.region))).slice(0, 30),
-      buoys: picking ? [] : index.buoys.filter(b => m(b.name) || m(b.sub)).slice(0, 8),
+      buoys: picking || addFav ? [] : index.buoys.filter(b => m(b.name) || m(b.sub)).slice(0, 8),
     };
-  }, [q, index, picking]);
+  }, [q, index, picking, addFav]);
 
   const regions = useMemo(() => {
     if (!index) return [];
@@ -41,11 +42,12 @@ export default function Search() {
 
   const openSpot = (s: SpotLite) => {
     Haptics.selectionAsync().catch(() => {});
+    if (addFav) { if (!isFav(s.slug)) toggleFav(s.slug); router.back(); return; }
     if (picking) { setCompare([...(compare ?? []).filter(x => x !== s.slug), s.slug]); router.back(); return; }
     router.replace({ pathname: '/spot/[slug]', params: { slug: s.slug } });
   };
   const row = (s: SpotLite) => {
-    const added = picking && !!compare?.includes(s.slug);
+    const added = (picking && !!compare?.includes(s.slug)) || (addFav && isFav(s.slug));
     return (
       <Pressable key={s.slug} onPress={() => openSpot(s)} style={({ pressed }) => [st.row, pressed && { opacity: 0.6 }]} accessibilityLabel={`${s.name}, ${regionName(s.region)}`}>
         <View style={[st.dot, { backgroundColor: sizeCell(s.now.hs) }]} />
@@ -62,7 +64,7 @@ export default function Search() {
     <View style={{ flex: 1, backgroundColor: C.bg }}>
       <View style={st.field}>
         <Svg width={18} height={18} viewBox="0 0 24 24"><Circle cx={11} cy={11} r={6.5} stroke={C.ink2} strokeWidth={2} fill="none" /><Path d="M16 16l4.5 4.5" stroke={C.ink2} strokeWidth={2} strokeLinecap="round" /></Svg>
-        <TextInput value={q} onChangeText={setQ} autoFocus placeholder={picking ? 'Ajouter un spot à comparer' : 'Spot, bouée, commune, région'} placeholderTextColor={C.ink3}
+        <TextInput value={q} onChangeText={setQ} autoFocus placeholder={picking ? 'Ajouter un spot à comparer' : addFav ? 'Ajouter un spot à Ma côte' : 'Spot, bouée, commune, région'} placeholderTextColor={C.ink3}
           style={st.input} autoCorrect={false} autoCapitalize="none" returnKeyType="search" clearButtonMode="while-editing" accessibilityLabel="Rechercher" />
       </View>
       <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={{ paddingBottom: ins.bottom + 30 }}>

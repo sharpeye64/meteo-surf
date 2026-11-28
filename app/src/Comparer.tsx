@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Arrow from './Arrow';
-import { fr, loadSheet, sector, Sheet, WIND_WORD, windCat } from './data';
+import { fr, loadSheetShared, sector, Sheet, WIND_WORD, windCat } from './data';
 import { useData } from './store';
 import { C, F, periodCell, sizeCell, themed } from './theme';
 import { civilDays, valueAt as sample } from './series';
@@ -34,7 +34,7 @@ export default function Comparer() {
     let alive = true;
     slugs.forEach(slug => {
       if (got[slug]?.sheet) return;
-      loadSheet(slug).then(r => { if (alive) setGot(g => ({ ...g, [slug]: { sheet: r.data, err: false } })); })
+      loadSheetShared(slug).then(r => { if (alive) setGot(g => ({ ...g, [slug]: { sheet: r.data, err: false } })); })
         .catch(() => { if (alive) setGot(g => ({ ...g, [slug]: { sheet: g[slug]?.sheet ?? null, err: true } })); });
     });
     return () => { alive = false; };
