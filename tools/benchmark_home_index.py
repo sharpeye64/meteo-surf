@@ -6,6 +6,8 @@ import gzip
 import json
 import sys
 from pathlib import Path
+from datetime import timezone
+from pipeline.timefmt import parse
 
 
 def compact(payload):
@@ -15,6 +17,12 @@ def compact(payload):
     for spot in payload["spots"]:
         m, w = spot["marine"], spot["wind"]
         t = tuple(m["time"])
+        # Le site détaillé associe les séries par indice : refuser une divergence
+        # plutôt que publier une carte qui ne correspondrait pas à la fiche.
+        marine_instants = [parse(x).astimezone(timezone.utc) for x in t]
+        wind_instants = [parse(x).astimezone(timezone.utc) for x in w["time"]]
+        if marine_instants != wind_instants or len(set(marine_instants)) != len(t):
+            raise ValueError(f"Axes horaires incohérents : {spot['name']}")
         if t not in time_ids:
             time_ids[t] = len(times)
             times.append(list(t))
@@ -48,7 +56,7 @@ def encode(obj):
 def benchmark(payload):
     a, b = encode(payload), encode(compact(payload))
     return {"full_bytes": len(a), "index_bytes": len(b),
-            "full_gzip_bytes": len(gzip.compress(a)), "index_gzip_bytes": len(gzip.compress(b))}
+            "full_gzip_bytes": len(gzip.compress(a, mtime=0)), "index_gzip_bytes": len(gzip.compress(b, mtime=0))}
 
 
 if __name__ == "__main__":
