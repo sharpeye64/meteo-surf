@@ -116,9 +116,16 @@ function Strip({ s }: { s: SpotLite }) {
   return (
     <View accessibilityLabel={`48 prochaines heures : houle la plus haute ${fr(max.hs)} mètre ${J[max.p.wd]} ${max.p.h} heures`}>
       <View style={st.strip}>
+        {/* échelle discrète des barres (retour du porteur) : haut = 3 m (ou le maximum s'il est plus haut), trait à mi-hauteur */}
+        <View style={st.scale} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <Text style={st.scaleT}>{fr(top, top % 1 ? 1 : 0)} m</Text>
+          <Text style={st.scaleT}>{fr(top / 2, (top / 2) % 1 ? 1 : 0)}</Text>
+          <Text style={st.scaleT}>0</Text>
+        </View>
         {cols.map((c, k) => (
           <View key={k} style={st.col}>
             <View style={st.barBox}>
+              <View style={st.mid} />
               {c.hs != null && <View style={[st.bar, { height: `${Math.max(4, (c.hs / top) * 100)}%`, backgroundColor: sizeCell(c.hs) }]} />}
             </View>
             <View style={[st.wind, { backgroundColor: cc(c.c) }]} />
@@ -150,6 +157,9 @@ const st = themed(() => StyleSheet.create({
   stripMsg: { fontFamily: F.tB, fontSize: 12, color: C.ink3, alignSelf: 'center' },
   col: { flex: 1, alignItems: 'stretch', gap: 2 },
   barBox: { height: 38, justifyContent: 'flex-end', borderRadius: 4, backgroundColor: C.soft, overflow: 'hidden' },
+  mid: { position: 'absolute', left: 0, right: 0, top: 19, height: StyleSheet.hairlineWidth, backgroundColor: C.line },
+  scale: { width: 24, height: 38, marginBottom: 20, justifyContent: 'space-between' },   // 20 = filet du vent + heures sous les barres
+  scaleT: { fontFamily: F.tB, fontSize: 8.5, lineHeight: 10, color: C.ink3 },
   bar: { borderRadius: 4 },
   wind: { height: 3, borderRadius: 2 },
   hh: { fontFamily: F.tB, fontSize: 9, color: C.ink3, textAlign: 'center', height: 13 },
