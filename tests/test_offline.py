@@ -189,6 +189,16 @@ if data.get("gascogne"):
 for _compact, _original in zip(_home["spots"], data["spots"]):
     assert _home["times"][_compact["time"]] == _original["marine"]["time"]
     assert [row[0] for row in _compact["rows"]] == _original["marine"]["wave_height"]
+# Un décalage d'une heure du vent doit être refusé, même si les longueurs concordent.
+from copy import deepcopy as _home_copy
+_bad_home = _home_copy(data)
+_bad_home["spots"][0]["wind"]["time"][0] = "2000-01-01T00:00+00:00"
+try:
+    _home_compact(_bad_home)
+except ValueError as _home_error:
+    assert "Axes horaires incohérents" in str(_home_error)
+else:
+    raise AssertionError("Index accueil : axe vent décalé accepté")
 print("BENCHMARK HOME INDEX:", _home_benchmark(data))
 
 s = data["spots"][0]
