@@ -41,11 +41,11 @@ export default function Search() {
 
   const openSpot = (s: SpotLite) => {
     Haptics.selectionAsync().catch(() => {});
-    if (picking) { setCompare([...compare.filter(x => x !== s.slug), s.slug]); router.back(); return; }
+    if (picking) { setCompare([...(compare ?? []).filter(x => x !== s.slug), s.slug]); router.back(); return; }
     router.replace({ pathname: '/spot/[slug]', params: { slug: s.slug } });
   };
   const row = (s: SpotLite) => {
-    const added = picking && compare.includes(s.slug);
+    const added = picking && !!compare?.includes(s.slug);
     return (
       <Pressable key={s.slug} onPress={() => openSpot(s)} style={({ pressed }) => [st.row, pressed && { opacity: 0.6 }]} accessibilityLabel={`${s.name}, ${regionName(s.region)}`}>
         <View style={[st.dot, { backgroundColor: sizeCell(s.now.hs) }]} />

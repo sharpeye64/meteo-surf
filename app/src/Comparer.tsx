@@ -13,21 +13,19 @@ import Arrow from './Arrow';
 import { fr, loadSheet, sector, Sheet, WIND_WORD, windCat } from './data';
 import { useData } from './store';
 import { C, F, periodCell, sizeCell, themed } from './theme';
+import { civilDays, valueAt as sample } from './series';
 import { hhIn, partsIn, placeTz, tMs } from './time';
 
 const J = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
 type Got = { sheet: Sheet | null; err: boolean };
 
-/** Valeur d'une série horaire à un instant (heure pleine la plus proche), ou null hors de la série. */
-export function valueAt(sheet: Sheet, key: 'hs' | 'tp' | 'dir' | 'wind' | 'wdir' | 'gust', ms: number): number | null {
-  const i = Math.round((ms - tMs(sheet.t0)) / 36e5), s = sheet[key];
-  return i >= 0 && i < s.length ? s[i] ?? null : null;
-}
+/** Valeur d'une série à un instant : échantillon EXACT seulement (src/series.ts), sinon null, dit « heure indisponible ». */
+const valueAt = (sheet: Sheet, key: 'hs' | 'tp' | 'dir' | 'wind' | 'wdir' | 'gust', ms: number) => sample(tMs(sheet.t0), sheet[key], ms);
 
 export default function Comparer() {
   const { index, compare, setCompare, favs } = useData();
   const ins = useSafeAreaInsets();
-  const slugs = compare.length ? compare : favs.slice(0, 3);
+  const slugs = compare ?? favs.slice(0, 3);   // jamais réglée : les favoris ; vidée par l'utilisateur : reste vide
   const spots = slugs.map(s => index?.spots.find(x => x.slug === s)).filter(Boolean) as NonNullable<typeof index>['spots'];
   const [got, setGot] = useState<Record<string, Got>>({});
   const [ms, setMs] = useState(() => Math.ceil(Date.now() / 36e5) * 36e5);
@@ -45,7 +43,8 @@ export default function Comparer() {
 
   const p = partsIn(ms, 'Europe/Paris');
   const start = Math.floor(Date.now() / 36e5) * 36e5, end = start + 7 * 24 * 36e5;
-  const days = useMemo(() => Array.from({ length: 7 }, (_, k) => partsIn(start + k * 864e5, 'Europe/Paris')), [start]);
+  // jours CIVILS de Paris (jamais par sauts de 24 h : changement d'heure), jour de semaine et numéro lus sur la date
+  const days = useMemo(() => civilDays(partsIn(start, 'Europe/Paris').date, 8).map(date => ({ date, d: +date.slice(8, 10), wd: new Date(`${date}T12:00:00Z`).getUTCDay() })), [start]);
   const step = (h: number) => { const n = Math.min(end, Math.max(start, ms + h * 36e5)); if (n !== ms) { Haptics.selectionAsync().catch(() => {}); setMs(n); } };
   const pickDay = (date: string) => {
     const n = tMs(`${date}T${String(p.h).padStart(2, '0')}:00`);   // même heure de Paris ce jour-là (changement d'heure compris)
@@ -76,7 +75,7 @@ export default function Comparer() {
             </Pressable>
           ))}
           {spots.length < 4 && (
-            <Pressable onPress={() => { if (!compare.length && slugs.length) setCompare(slugs); router.push({ pathname: '/recherche', params: { pick: '1' } }); }} style={[st.chip, st.chipAdd]} accessibilityLabel="Ajouter un spot">
+            <Pressable onPress={() => { if (compare == null && slugs.length) setCompare(slugs); router.push({ pathname: '/recherche', params: { pick: '1' } }); }} style={[st.chip, st.chipAdd]} accessibilityLabel="Ajouter un spot">
               <Text style={[st.chipT, { color: C.onNight }]}>+ Spot</Text>
             </Pressable>
           )}
@@ -109,7 +108,7 @@ export default function Comparer() {
             <Section title="Houle" sub="hauteur au large · écart au premier spot">
               {rows.map((r, k) => (
                 <Line key={r.s.slug} name={r.s.name} local={localHour(ms, r.tz)} state={r}>
-                  <Bar v={r.hs} max={hsMax} color={sizeCell(r.hs)} label={r.hs != null ? `${fr(r.hs)} m` : '—'} />
+                  <Bar v={r.hs} max={hsMax} color={sizeCell(r.hs)} label={r.hs != null ? `${fr(r.hs)} m` : 'heure indisponible'} />
                   <Text style={st.diff}>{k && r.hs != null && ref != null ? `${r.hs - ref >= 0 ? '+' : '−'}${fr(Math.abs(r.hs - ref))}` : ''}</Text>
                 </Line>
               ))}
@@ -117,7 +116,7 @@ export default function Comparer() {
             <Section title="Période" sub="et direction de la houle">
               {rows.map(r => (
                 <Line key={r.s.slug} name={r.s.name} local={localHour(ms, r.tz)} state={r}>
-                  <Bar v={r.tp} max={tpMax} color={periodCell(r.tp)} label={r.tp != null ? `${Math.round(r.tp)} s` : '—'} />
+                  <Bar v={r.tp} max={tpMax} color={periodCell(r.tp)} label={r.tp != null ? `${Math.round(r.tp)} s` : 'heure indisponible'} />
                   <View style={st.dirW}><Arrow dir={r.dir} size={11} color={C.ink2} /><Text style={st.diff}>{sector(r.dir)}</Text></View>
                 </Line>
               ))}
@@ -170,7 +169,8 @@ function Line({ name, local, state, children }: { name: string; local: string | 
 }
 
 function Bar({ v, max, color, label }: { v: number | null; max: number; color: string; label: string }) {
-  const w = v != null ? Math.max(0.04, Math.min(1, v / max)) : 0;
+  // barres depuis 0 : rien pour 0 ; un trait minimal (3 %) seulement pour une petite valeur strictement positive
+  const w = v != null && v > 0 ? Math.max(0.03, Math.min(1, v / max)) : 0;
   return (
     <View style={st.track}>
       <View style={[st.fill, { width: `${w * 100}%`, backgroundColor: color }]} />

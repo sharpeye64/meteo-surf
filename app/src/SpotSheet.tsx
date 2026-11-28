@@ -13,10 +13,11 @@ import Arrow from './Arrow';
 import { ageTxt, Buoy, freshOf, fr, loadSheet, perTxt, refBuoy, regionName, sector, Sheet, SpotLite, WIND_WORD, windCat, WindCat } from './data';
 import { Blink } from './Live';
 import { Pick, resolveSel } from './selection';
-import { useData, useMinute } from './store';
+import { useData, useDataAge, useMinute } from './store';
 import { C, F, periodCell, sizeCell, themed, windCell } from './theme';
 import { hhIn, partsIn, placeTz, tMs } from './time';
 import { useReloaded } from './useReloaded';
+import { agoWords, dayWord } from './series';
 
 const J = ['DIM', 'LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM'];
 const JOUR = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
@@ -25,12 +26,13 @@ const catCol = (c: WindCat | null) => (c === 'offshore' || c === 'side-off' ? C.
 
 export default function SpotSheet({ spot }: { spot: SpotLite }) {
   const { index, isFav, toggleFav, compare, setCompare } = useData();
-  useMinute();
+  const minute = useMinute();
+  const age = useDataAge();
   const ins = useSafeAreaInsets();
   const { data: sheet, offline, err } = useReloaded<Sheet>(loadSheet, spot.slug);
   const [pick, setPick] = useState<Pick>({ date: null, ms: null });
   const strip = useRef<{ scrollTo: (o: { x: number; animated?: boolean }) => void } | null>(null);
-  const fav = isFav(spot.slug), inCmp = compare.includes(spot.slug);
+  const fav = isFav(spot.slug), cmp = compare ?? [], inCmp = cmp.includes(spot.slug);
 
   const days = useMemo(() => {
     if (!sheet) return [];
@@ -41,16 +43,19 @@ export default function SpotSheet({ spot }: { spot: SpotLite }) {
       if (!out.length || out[out.length - 1].date !== key) out.push({ date: key, idx: [] });
       out[out.length - 1].idx.push(i);
     });
-    return out.slice(0, 7);
-  }, [sheet]);
+    // jours à partir d'AUJOURD'HUI à l'heure du spot (une fiche ancienne commence la veille : ces jours passés sont retirés)
+    const today = partsIn(minute * 6e4, tz).date, fut = out.filter(d => d.date >= today);
+    return (fut.length ? fut : out).slice(0, 7);
+  }, [sheet, minute]);
 
   const head = (
     <View style={st.head}>
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text style={st.name} numberOfLines={1} adjustsFontSizeToFit>{spot.name}</Text>
-        <Text style={st.region} numberOfLines={1}>{spot.commune ? `${spot.commune} · ` : ''}{regionName(spot.region)}{offline ? ' · hors connexion' : ''}</Text>
+        <Text style={st.region} numberOfLines={1}>{spot.commune ? `${spot.commune} · ` : ''}{regionName(spot.region)}</Text>
+        {(age.level !== 'ok' || offline) && <Text style={st.warnT}>{age.level === 'old' ? 'Données anciennes, calculées ' : 'Données calculées '}{agoWords(age.h)}{offline ? ' · hors connexion' : ''}</Text>}
       </View>
-      <Pressable onPress={() => { Haptics.selectionAsync().catch(() => {}); setCompare(inCmp ? compare.filter(s => s !== spot.slug) : [...compare, spot.slug]); }}
+      <Pressable onPress={() => { Haptics.selectionAsync().catch(() => {}); setCompare(inCmp ? cmp.filter(s => s !== spot.slug) : [...cmp, spot.slug]); }}
         style={({ pressed }) => [st.round, inCmp && st.roundOn, pressed && st.pressed]} accessibilityLabel={inCmp ? 'Retirer de la comparaison' : 'Ajouter à la comparaison'}>
         <Svg width={19} height={19} viewBox="0 0 24 24"><Path d="M6 20V10M12 20V4M18 20v-7" stroke={inCmp ? C.onNight : C.ink} strokeWidth={2.2} strokeLinecap="round" /></Svg>
       </Pressable>
@@ -65,14 +70,15 @@ export default function SpotSheet({ spot }: { spot: SpotLite }) {
   const t0 = sheet ? tMs(sheet.t0) : NaN, r = resolveSel(days, t0, pick);
   if (!sheet || !r) return <View style={st.page}>{head}<ActivityIndicator style={{ marginTop: 40 }} color={C.ink} /></View>;
 
-  const tz = placeTz(sheet), day = r.dayI, d = days[day];
+  const tz = placeTz(sheet), day = r.dayI, d = days[day], today = partsIn(Date.now(), tz).date;
+  const word = (date: string) => dayWord(date, today);
   const at = (i: number) => partsIn(t0 + i * 36e5, tz);
   const nowI = Math.max(0, Math.min(sheet.hs.length - 1, Math.floor((Date.now() - t0) / 36e5)));
   const hrs = d.idx.filter(i => { const h = at(i).h; return h >= 6 && h <= 21; });
   const cols = hrs.length ? hrs : d.idx;
-  const def = (day === 0 ? (cols.find(i => i >= nowI) ?? cols[cols.length - 1]) : (cols.find(i => at(i).h >= 10) ?? cols[0])) ?? d.idx[0];
+  const def = (d.date === today ? (cols.find(i => i >= nowI) ?? cols[cols.length - 1]) : (cols.find(i => at(i).h >= 10) ?? cols[0])) ?? d.idx[0];
   const sel = r.hourI != null && d.idx.includes(r.hourI) ? r.hourI : def;
-  const isNow = day === 0 && sel === nowI;
+  const isNow = d.date === today && sel === nowI;
   const sunI = sheet.sun ? sheet.sun.time.findIndex(x => x === d.date) : -1;
   const rise = sunI >= 0 ? tMs(sheet.sun!.sunrise[sunI]) : NaN, set = sunI >= 0 ? tMs(sheet.sun!.sunset[sunI]) : NaN;
   const night = (i: number) => Number.isFinite(rise) && (t0 + (i + 1) * 36e5 <= rise || t0 + i * 36e5 >= set);
@@ -88,7 +94,7 @@ export default function SpotSheet({ spot }: { spot: SpotLite }) {
       <ScrollView contentContainerStyle={{ paddingBottom: ins.bottom + 30 }} showsVerticalScrollIndicator={false}>
         <View style={st.whenRow}>
           {isNow ? <Blink size={7} color={C.ink} /> : <View style={[st.dot, { backgroundColor: C.ink3 }]} />}
-          <Text style={st.whenT}>{isNow ? 'Maintenant' : `${day === 0 ? 'Aujourd’hui' : JOUR[at(sel).wd]} ${at(sel).d}`} · {at(sel).h} h</Text>
+          <Text style={st.whenT}>{isNow ? 'Maintenant' : `${word(d.date) ?? JOUR[at(sel).wd]} ${at(sel).d}`} · {at(sel).h} h</Text>
         </View>
         <View style={st.hero}>
           <View style={st.heroCol}>
@@ -115,8 +121,8 @@ export default function SpotSheet({ spot }: { spot: SpotLite }) {
             const dd = at(x.idx[0]), mx = Math.max(...x.idx.map(j => sheet.hs[j] ?? 0)), on = i === day;
             return (
               <Pressable key={x.date} onPress={() => { if (on) return; Haptics.selectionAsync().catch(() => {}); setPick({ date: x.date, ms: null }); strip.current?.scrollTo({ x: 0, animated: false }); }}
-                style={[st.day, on && st.dayOn]} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={`${i === 0 ? 'Aujourd’hui' : JOUR[dd.wd] + ' ' + dd.d}, houle jusqu’à ${fr(mx)} mètre`}>
-                <Text style={[st.dayJ, on && { color: C.onNight }]}>{i === 0 ? 'AUJ.' : J[dd.wd]}</Text>
+                style={[st.day, on && st.dayOn]} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={`${word(x.date) ?? JOUR[dd.wd]} ${dd.d}, houle la plus haute de 6 h à 21 h : ${fr(mx)} mètre`}>
+                <Text style={[st.dayJ, on && { color: C.onNight }]}>{x.date === today ? 'AUJ.' : J[dd.wd]}</Text>
                 <Text style={[st.dayN, on && { color: C.onNight }]}>{dd.d}</Text>
                 <Text style={[st.dayH, on && { color: C.onNight }]}>{fr(mx)}</Text>
               </Pressable>
@@ -203,21 +209,22 @@ function Summary({ sheet, cols, tides, at, tz }: { sheet: Sheet; cols: number[];
   );
 }
 
-/** Bouée de référence (même règle que le site) : c'est la mesure de MAINTENANT, quelle que soit l'heure choisie. */
+/** Bouée de référence (même règle que le site) : sa DERNIÈRE mesure, quelle que soit l'heure choisie ; « en direct »
+ *  seulement si elle l'est selon la cadence de la station (jamais « maintenant » pour une mesure de 17 h). */
 function RefBuoy({ b, km }: { b: Buoy; km: number }) {
   const f = freshOf(b);
   return (
     <Pressable onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); router.push({ pathname: '/bouee/[slug]', params: { slug: b.slug } }); }}
-      style={({ pressed }) => [st.buoy, pressed && st.pressed]} accessibilityLabel={`Bouée ${b.name}, mesure de maintenant ${fr(b.hs)} mètre, ${ageTxt(b.time)}`}>
+      style={({ pressed }) => [st.buoy, pressed && st.pressed]} accessibilityLabel={`Bouée ${b.name}, ${f === 'live' ? 'mesure en direct' : 'dernière mesure'} ${fr(b.hs)} mètre, ${ageTxt(b.time)}`}>
       <View style={st.buoyTop}>
-        {f === 'live' ? <Blink size={8} color="#2fc48a" /> : <View style={[st.dot, { backgroundColor: 'rgba(243,239,230,0.35)' }]} />}
-        <Text style={st.buoyK} numberOfLines={1}>MESURE DE MAINTENANT · {b.name.toUpperCase()} · {Math.round(km)} KM</Text>
+        {f === 'live' ? <Blink size={8} color={C.liveOnBuoy} /> : <View style={[st.dot, { backgroundColor: C.onBuoy2 }]} />}
+        <Text style={st.buoyK} numberOfLines={1}>{f === 'live' ? 'MESURE EN DIRECT' : 'DERNIÈRE MESURE'} · {b.name.toUpperCase()} · {Math.round(km)} KM</Text>
       </View>
       <View style={st.buoyRow}>
         <Text style={st.buoyV}>{fr(b.hs)}<Text style={st.buoyU}> m</Text></Text>
         <View style={{ alignItems: 'flex-end', gap: 3 }}>
           {!!perTxt(b) && <Text style={st.buoyS}>{perTxt(b)}</Text>}
-          {b.dir != null && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Arrow dir={b.dir} size={11} color="#f2c66b" /><Text style={st.buoyS}>{sector(b.dir)}</Text></View>}
+          {b.dir != null && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Arrow dir={b.dir} size={11} color={C.measureOnBuoy} /><Text style={st.buoyS}>{sector(b.dir)}</Text></View>}
         </View>
       </View>
       <Text style={st.buoyF}>Mesuré {ageTxt(b.time)}, en mer{b.sst != null ? ` · eau ${fr(b.sst, 0)} °C` : ''} · voir la bouée ›</Text>
@@ -260,6 +267,7 @@ const st = themed(() => StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 18, paddingTop: 22, paddingBottom: 8 },
   name: { fontFamily: F.num, fontSize: 24, color: C.ink, letterSpacing: -0.8 },
   region: { fontFamily: F.tB, fontSize: 12.5, color: C.ink2, marginTop: 2 },
+  warnT: { fontFamily: F.tX, fontSize: 12, color: C.warn, marginTop: 3 },
   round: { width: 42, height: 42, borderRadius: 21, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center' },
   roundOn: { backgroundColor: C.night },
   star: { fontSize: 19, color: C.ink, marginTop: -1 },
@@ -302,12 +310,12 @@ const st = themed(() => StyleSheet.create({
   cardS: { fontFamily: F.t, fontSize: 13.5, color: C.ink2 },
   sum: { fontFamily: F.t, fontSize: 14, lineHeight: 20, color: C.ink },
   note: { fontFamily: F.tR, fontSize: 12, color: C.ink3, marginTop: 2 },
-  buoy: { marginHorizontal: 12, marginTop: 12, padding: 16, borderRadius: 24, backgroundColor: '#0b1b26' },
+  buoy: { marginHorizontal: 12, marginTop: 12, padding: 16, borderRadius: 24, backgroundColor: C.buoySurface },
   buoyTop: { flexDirection: 'row', alignItems: 'center', gap: 7 },
-  buoyK: { flex: 1, fontFamily: F.tX, fontSize: 10.5, letterSpacing: 0.9, color: 'rgba(243,239,230,0.78)' },
+  buoyK: { flex: 1, fontFamily: F.tX, fontSize: 10.5, letterSpacing: 0.9, color: C.onBuoy },
   buoyRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 8 },
-  buoyV: { fontFamily: F.numX, fontSize: 32, color: '#f2c66b', letterSpacing: -1.2 },
+  buoyV: { fontFamily: F.numX, fontSize: 32, color: C.measureOnBuoy, letterSpacing: -1.2 },
   buoyU: { fontFamily: F.tB, fontSize: 14, letterSpacing: 0 },
-  buoyS: { fontFamily: F.tX, fontSize: 13, color: '#f2c66b' },
-  buoyF: { fontFamily: F.t, fontSize: 12, color: 'rgba(243,239,230,0.7)', marginTop: 8 },
+  buoyS: { fontFamily: F.tX, fontSize: 13, color: C.measureOnBuoy },
+  buoyF: { fontFamily: F.t, fontSize: 12, color: C.onBuoy, marginTop: 8 },
 }));

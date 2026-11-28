@@ -8,12 +8,15 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, 
 import { AccessibilityInfo, AppState } from 'react-native';
 import { Index, loadFavs, loadIndex, loadSheet, saveFavs } from './data';
 import { createReloader } from './reload';
+import { dataAge, DataAge } from './series';
+import { tMs } from './time';
 
 type Data = {
   index: Index | null; offline: boolean; err: boolean; receivedAt: number | null;
   reload: () => Promise<void>;
   favs: string[]; toggleFav: (slug: string) => void; isFav: (slug: string) => boolean;
-  compare: string[]; setCompare: (s: string[]) => void;
+  /** null : comparaison jamais réglée (le comparateur propose alors les favoris) ; [] : l'utilisateur a tout retiré. */
+  compare: string[] | null; setCompare: (s: string[]) => void;
   reduceMotion: boolean;
 };
 const DataCtx = createContext<Data | null>(null);
@@ -26,7 +29,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [err, setErr] = useState(false);
   const [receivedAt, setReceivedAt] = useState<number | null>(null);
   const [favs, setFavs] = useState<string[]>([]);
-  const [compare, setCmp] = useState<string[]>([]);
+  const [compare, setCmp] = useState<string[] | null>(null);
   const [reduceMotion, setReduce] = useState(false);
   const [minute, setMinute] = useState(() => Math.floor(Date.now() / 6e4));
 
@@ -41,7 +44,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     reload();
     loadFavs().then(setFavs);
-    AsyncStorage.getItem(COMPARE_KEY).then(v => { try { const a = JSON.parse(v || '[]'); if (Array.isArray(a)) setCmp(a.slice(0, 4)); } catch {} }).catch(() => {});
+    AsyncStorage.getItem(COMPARE_KEY).then(v => { try { const a = v == null ? null : JSON.parse(v); if (Array.isArray(a)) setCmp(a.slice(0, 4)); } catch {} }).catch(() => {});
     AccessibilityInfo.isReduceMotionEnabled().then(setReduce).catch(() => {});
     const a11y = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
     const t = setInterval(() => setMinute(Math.floor(Date.now() / 6e4)), 15e3);
@@ -77,3 +80,9 @@ export function useData() {
 }
 /** Minute courante : à utiliser dans les écrans qui affichent un âge ou un état « en direct ». */
 export const useMinute = () => useContext(ClockCtx);
+/** Âge de l'index (heure de génération par le robot), recalculé chaque minute : « à l'heure », « en retard », « ancienne ». */
+export function useDataAge(): DataAge {
+  const { index } = useData();
+  const minute = useMinute();
+  return useMemo(() => dataAge(index?.generated, tMs, minute * 6e4), [index?.generated, minute]);
+}

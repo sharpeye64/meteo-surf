@@ -164,12 +164,13 @@ export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => v
           </View>
 
           <View style={st.card}>
-            <Text style={st.cardT}>48 heures : mesuré et prévu</Text>
+            <Text style={st.cardT}>Mesures des 48 h et prévision publiée</Text>
             <Chart d={d} />
             <View style={st.legRow}>
-              <View style={st.legI}><View style={[st.legL, { backgroundColor: C.ink }]} /><Text style={st.legS}>mesuré</Text></View>
-              <View style={st.legI}><View style={[st.legL, { backgroundColor: C.gold }]} /><Text style={st.legS}>prévu ({d.model_src})</Text></View>
+              <View style={st.legI}><View style={[st.legL, { backgroundColor: C.measure }]} /><Text style={st.legS}>mesuré (m)</Text></View>
+              <View style={st.legI}><View style={[st.legL, { backgroundColor: C.ink, opacity: 0.75 }]} /><Text style={st.legS} numberOfLines={2}>prévu ({d.model_src})</Text></View>
             </View>
+            <Text style={[st.legS, { marginTop: 6 }]}>La courbe prévue est celle publiée aujourd’hui, pas la prévision faite avant chaque mesure.</Text>
           </View>
 
           {d.stats && (
@@ -224,9 +225,11 @@ function Tile({ k, v, s, dir, light }: { k: string; v: string; s?: string; dir?:
 function Chart({ d }: { d: BuoySheet }) {
   const W = 330, H = 150, P = { l: 26, r: 8, t: 10, b: 20 };
   const ts = (t: string) => tMs(t);   // instants exacts (issue #2)
-  const obs = d.obs.filter(o => o.hs != null), mod = d.model.filter(m => m.hs != null);
+  const obs = d.obs.filter(o => o.hs != null && Number.isFinite(ts(o.t)));
   if (obs.length < 2) return <Text style={st.legS}>Pas assez de relevés récents.</Text>;
-  const t0 = ts(obs[0].t), t1 = Math.max(ts(obs[obs.length - 1].t), mod.length ? ts(mod[mod.length - 1].t) : 0);
+  // prévision coupée au cadre : rien avant le premier relevé (revue de René : la courbe sortait de l'aire)
+  const t0 = ts(obs[0].t), mod = d.model.filter(m => m.hs != null && ts(m.t) >= t0);
+  const t1 = Math.max(ts(obs[obs.length - 1].t), mod.length ? ts(mod[mod.length - 1].t) : 0);
   const hmax = Math.max(1, ...obs.map(o => o.hs!), ...mod.map(m => m.hs!)) * 1.15;
   const X = (t: number) => P.l + ((t - t0) / Math.max(1, t1 - t0)) * (W - P.l - P.r), Y = (h: number) => H - P.b - (h / hmax) * (H - P.t - P.b);
   const line = (pts: { t: string; hs: number | null }[]) => pts.map((p, i) => `${i ? 'L' : 'M'}${X(ts(p.t)).toFixed(1)},${Y(p.hs!).toFixed(1)}`).join(' ');
@@ -236,9 +239,10 @@ function Chart({ d }: { d: BuoySheet }) {
       {ticks.map(v => <Line key={v} x1={P.l} x2={W - P.r} y1={Y(v)} y2={Y(v)} stroke={C.line} strokeWidth={1} />)}
       {ticks.map(v => <SvgText key={'t' + v} x={2} y={Y(v) + 4} fontSize={10} fontFamily={F.tB} fill={C.ink3}>{fr(v)}</SvgText>)}
       {now > P.l && now < W - P.r && <Line x1={now} x2={now} y1={P.t} y2={H - P.b} stroke={C.ink3} strokeDasharray="2,4" />}
-      {mod.length > 1 && <Path d={line(mod)} stroke={C.gold} strokeWidth={2} strokeDasharray="5,4" fill="none" />}
-      <Path d={line(obs)} stroke={C.ink} strokeWidth={2.4} fill="none" strokeLinejoin="round" />
-      <Circle cx={X(ts(obs[obs.length - 1].t))} cy={Y(obs[obs.length - 1].hs!)} r={4} fill={C.ink} />
+      {/* D4 / D11 : MESURÉ en or (trait plein), PRÉVU en bleu nuit pointillé */}
+      {mod.length > 1 && <Path d={line(mod)} stroke={C.ink} strokeWidth={1.8} strokeDasharray="5,4" fill="none" opacity={0.75} />}
+      <Path d={line(obs)} stroke={C.measure} strokeWidth={2.6} fill="none" strokeLinejoin="round" />
+      <Circle cx={X(ts(obs[obs.length - 1].t))} cy={Y(obs[obs.length - 1].hs!)} r={4} fill={C.measure} />
       <SvgText x={P.l} y={H - 4} fontSize={10} fontFamily={F.tB} fill={C.ink3}>{obs[0].t.slice(8, 10)}/{obs[0].t.slice(5, 7)} {obs[0].t.slice(11, 13)}h</SvgText>
       <SvgText x={Math.min(now, W - 40)} y={H - 4} fontSize={10} fontFamily={F.tB} fill={C.ink3}>maintenant</SvgText>
     </Svg>

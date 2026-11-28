@@ -37,6 +37,9 @@ const LIGHT = {
   onInk: '#ffffff', onInk2: 'rgba(255,255,255,0.7)',
   cellU: 'rgba(16,32,44,0.7)',
   lampOld: '#c9c3b4',
+  // Surfaces « mesure en mer » (cartes bouée) : MÊMES valeurs en clair et en sombre, exception voulue (or = mesure, D11)
+  buoySurface: '#0b1b26', onBuoy: 'rgba(243,239,230,0.78)', onBuoy2: 'rgba(243,239,230,0.55)', measureOnBuoy: '#f2c66b', liveOnBuoy: '#2fc48a',
+  warn: '#a4501f', warnBg: '#f6dfcc',   // données anciennes (jamais une note de surf)
 };
 type Palette = typeof LIGHT;
 const DARK: Palette = {
@@ -75,6 +78,8 @@ const DARK: Palette = {
   onInk: '#0a1114', onInk2: 'rgba(10,17,20,0.7)',
   cellU: 'rgba(232,238,241,0.72)',
   lampOld: '#4a5357',
+  buoySurface: '#0b1b26', onBuoy: 'rgba(243,239,230,0.78)', onBuoy2: 'rgba(243,239,230,0.55)', measureOnBuoy: '#f2c66b', liveOnBuoy: '#2fc48a',
+  warn: '#f0a271', warnBg: '#3a2418',
 };
 
 export type Mode = 'light' | 'dark';

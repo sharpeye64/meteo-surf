@@ -11,22 +11,20 @@ import { Blink } from './Live';
 import { useData, useMinute } from './store';
 import { useBarSpace } from './TabBar';
 import { C, F, sizeCell, themed } from './theme';
-import { partsIn, tMs } from './time';
-
-const JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+import Stamp from './Stamp';
 
 export default function MaCote() {
-  const { index, favs, offline, setCompare } = useData();
+  const { index, favs, setCompare } = useData();
   useMinute();
   const ins = useSafeAreaInsets(), pad = useBarSpace();
   const spots = favs.map(f => index!.spots.find(s => s.slug === f)).filter((s): s is SpotLite => !!s);
-  const t = spots[0]?.now.t ?? index!.spots[0]?.now.t, p = t ? partsIn(tMs(t), 'Europe/Paris') : null;
+  const t = spots[0]?.now.t ?? index!.spots[0]?.now.t;
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: C.bg }} contentContainerStyle={{ paddingTop: ins.top + 14, paddingBottom: pad }}>
       <View style={st.top}>
         <Text style={st.h1}>Ma côte</Text>
-        <Text style={st.lead}>{p ? `Prévision de ${JOURS[p.wd]} ${p.h} h` : 'Prévision'}{offline ? ' · hors connexion' : ''}</Text>
+        <Stamp t={t} style={{ marginTop: 8 }} />
       </View>
 
       {spots.length ? spots.map(s => <FavCard key={s.slug} s={s} />) : (
@@ -73,7 +71,7 @@ function FavCard({ s }: { s: SpotLite }) {
         </View>
         {ref ? (
           <View style={[st.cell, st.buoy]}>
-            <View style={st.vRow}>{freshOf(ref.b) === 'live' ? <Blink size={6} color="#2fc48a" /> : null}<Text style={st.bk} numberOfLines={1}>{ref.b.name}</Text></View>
+            <View style={st.vRow}>{freshOf(ref.b) === 'live' ? <Blink size={6} color={C.liveOnBuoy} /> : null}<Text style={st.bk} numberOfLines={1}>{ref.b.name}</Text></View>
             <Text style={st.bv}>{fr(ref.b.hs)}<Text style={st.u}> m</Text></Text>
             <Text style={st.bs} numberOfLines={1}>{perTxt(ref.b) || ageTxt(ref.b.time)}</Text>
           </View>
@@ -101,10 +99,10 @@ const st = themed(() => StyleSheet.create({
   v: { fontFamily: F.num, fontSize: 16, color: C.ink, letterSpacing: -0.5 },
   u: { fontFamily: F.tB, fontSize: 10.5, letterSpacing: 0 },
   s: { fontFamily: F.tB, fontSize: 11.5, color: C.ink2 },
-  buoy: { backgroundColor: '#0b1b26' },
-  bk: { flexShrink: 1, fontFamily: F.tX, fontSize: 10, color: 'rgba(243,239,230,0.75)' },
-  bv: { fontFamily: F.num, fontSize: 16, color: '#f2c66b', letterSpacing: -0.5 },
-  bs: { fontFamily: F.tB, fontSize: 11, color: '#f2c66b' },
+  buoy: { backgroundColor: C.buoySurface },
+  bk: { flexShrink: 1, fontFamily: F.tX, fontSize: 10, color: C.onBuoy },
+  bv: { fontFamily: F.num, fontSize: 16, color: C.measureOnBuoy, letterSpacing: -0.5 },
+  bs: { fontFamily: F.tB, fontSize: 11, color: C.measureOnBuoy },
   empty: { marginHorizontal: 12, marginTop: 10, padding: 22, borderRadius: 26, backgroundColor: C.card, gap: 8 },
   emptyT: { fontFamily: F.num, fontSize: 18, color: C.ink, letterSpacing: -0.5 },
   emptyS: { fontFamily: F.t, fontSize: 14, lineHeight: 20, color: C.ink2 },
