@@ -153,3 +153,71 @@ Chaque étape est vérifiée sur iPhone avec Expo Go (`tester-sur-telephone.ps1`
 4. La **migration vers Expo Router** (socle technique, sans changement visuel).
 5. La **palette Premium Ocean** dans l'appli, en clair et en sombre.
 6. La **dépendance à l'index compact de René** pour les moments futurs sur la carte.
+
+## 11. Itération 3 (28/11/2026) : carte, fiche spot, comparateur
+
+Validé par le porteur :
+- la carte en accueil ;
+- trois onglets : Carte, Ma côte, Bouées ;
+- la barre en pilule flottante ;
+- le fond plan par défaut ;
+- Premium Ocean en clair et en sombre ;
+- Expo Router.
+
+Les maquettes de cette itération sont dans le canevas « Houlalah iOS — itération 3 ». Elles reprennent les valeurs réelles de la génération du 28/11 à 10 h 36.
+
+### Réponse aux deux revues de ChatGPT (PR #23)
+| Point | Position | Ce qui change |
+|---|---|---|
+| Panneau permanent contraire à D13 | **D'accord.** | Carte seule. La fiche d'un spot ou d'une bouée est un panneau **à la demande**, ouvert par **un seul toucher** sur le repère. « Autour de vous » n'apparaît qu'après « Me localiser » et se referme (variante A′). |
+| Or pour l'onglet actif | **D'accord**, l'or est réservé aux mesures. | Bulle active bleu nuit (crème en sombre). |
+| D5 sur la carte | **D'accord pour la houle.** Les repères portent **toujours** hauteur, période et direction. **Nuance** : en mode Vent, le repère montre le vent et l'orientation ; ajouter la houle surchargerait la carte. La fiche, ouverte en un toucher, rend les trois ensemble. | Repères « ↗ 2,2 14 s ». |
+| « Comparer demain matin » | **D'accord.** | « Comparer · dim. 7 h » ; moment libre (jour + heure). |
+| Fuseaux dans la comparaison | **D'accord** : un instant absolu, l'heure locale affichée pour chaque spot. | Supertubos : « 6 h à Lisbonne ». Marée affichée par port, jamais supposée commune. |
+| Géolocalisation | **D'accord** : demandée seulement au toucher de « Me localiser ». Sans autorisation ni favori : dernière zone, sinon toute la côte. | Aucun blocage au premier lancement. |
+| Liste de tous les spots et régions | **D'accord**, sans quatrième onglet. | Recherche vide = « Parcourir par pays et région ». |
+| Courbe prévu / mesuré de la bouée | **D'accord sur la provenance.** **Nuance** : la vraie comparaison « prévision faite avant la mesure » sera possible avec l'archive v2 (#1), après 30 jours. | Légende : « prévision actuelle au point le plus proche (spot Le Cap Ferret) ». |
+| Expo Router et carte gardée en vie | **D'accord** : prototype technique sur iPhone **avant** de migrer les écrans. | Étape 1 du plan, avec critères de réussite. |
+| Dépendance à la PR #21 | **D'accord, et on va plus loin** : le comparateur n'en a pas besoin. Il ne charge que 2 à 4 fiches (environ 10 Ko). Seuls les moments futurs sur la carte en dépendent. | Socle et comparateur sans #21 ; contrat proposé ci-dessous. |
+
+### Les trois écrans
+- **Carte** (A, recommandée) : la carte occupe tout l'écran. Les commandes sont en bas, dans la zone du pouce :
+  - une barre « Houle · Période · Vent » et « Maint. sam. 10 h » ;
+  - le bouton « Me localiser » à droite ;
+  - la pilule d'onglets.
+
+  Un toucher sur un repère ouvre sa fiche. Le moment (A″) s'ouvre dans la même barre : jours, réglette des heures avec la nuit grisée, lever et coucher du soleil. Sur un moment futur, la bouée passe en retrait.
+- **Fiche spot** (B) : le panneau monte presque en haut et ne laisse voir que le repère choisi. La frise est agrandie :
+  - colonnes de 46 px, cellule de houle de 50 px avec la flèche de direction ;
+  - période, vent avec sa direction et un trait de couleur pour l'orientation (offshore, de côté, onshore, lisse), rafales ;
+  - courbe de marée alignée sous les colonnes, heures de nuit grisées.
+
+  Sous la frise, deux phrases **factuelles** tirées des données (houle, vent), sans conseil. Puis la bouée de référence, avec la date de sa mesure.
+- **Comparateur** (C) : le moment est libre (jour + heure à une main) et les spots aussi, favoris ou non (« + Spot »).
+  - Une section par donnée : houle et direction, période, vent et marée.
+  - Pour la houle et la période, des barres à **la même échelle, partant de zéro** (les écarts ne sont pas grossis), et l'écart avec le premier spot.
+  - Pas de classement.
+
+### Contrat de données pour les moments futurs (à discuter avec ChatGPT, PR #21)
+Proposition : un **seul** fichier compact, servi au site et à l'appli. La forme de `home-index.json` (v1) est complétée de ce dont l'appli a besoin :
+```
+{ "v": 2, "generated": "<ISO avec décalage>", "step_h": 1,
+  "times": [["<t0 ISO avec décalage>", <n heures>], ...],      // axes partagés (instants exacts)
+  "columns": ["H", "T", "D", "v", "wd"],                         // houle m, période s, direction °, vent km/h, direction du vent °
+  "spots": [{ "slug", "name", "tz", "time": <indice d'axe>, "rows": [[H, T, D, v, wd] | null, ...] }] }
+```
+- Identifiant stable = `slug`, le même que `data/app` ; `null` = valeur absente.
+- L'appli ne l'utilise que si `generated` est égal ou plus récent que celui de son index ; sinon, repli sur « Maintenant ».
+- Écriture atomique ; version testée par les deux clients.
+
+**Mesure à faire avant de décider** : le poids compressé de ce fichier, comparé aux fiches, sur une connexion lente. Si le site garde `home-index.json` v1, l'appli peut aussi lire ce v1 à travers un petit adaptateur côté appli. Les deux options n'imposent aucun changement au moteur de prévision.
+
+### Tests prévus (en plus des tests de logique existants)
+| Parcours | Vérification sur iPhone (Expo Go) |
+|---|---|
+| Réveil | ouverture sur la dernière zone ; un toucher sur un repère ouvre la fiche ; temps d'ouverture mesuré |
+| Comparer | ajout d'un spot hors favoris ; changement d'heure ; Portugal à l'heure de Lisbonne |
+| Demain matin | moment futur sur la carte (après le contrat) ; bouée en retrait |
+| Vérifier par la bouée | courbe et légende de provenance ; fraîcheur selon la cadence |
+| Réseau faible | mode avion : favoris lisibles, âge de réception ; retour du réseau |
+| Accessibilité | VoiceOver (repères, frise), Dynamic Type, cibles ≥ 44 px, « Réduire les animations » |
