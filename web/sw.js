@@ -4,7 +4,7 @@
    - Les appels directs à Open-Meteo et les autres sites ne sont jamais enregistrés. */
 const VERSION = 'houlalah-v1';
 const CDN = ['cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'];
-const SHELL = ['./', 'brand/symbol.svg', 'brand/wordmark.svg', 'brand/favicon.svg', 'data/forecast.json'];
+const SHELL = ['./', 'brand/symbol.svg', 'brand/wordmark.svg', 'brand/favicon.svg', 'data/home-index.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => Promise.allSettled(SHELL.map(u => c.add(u)))).then(() => self.skipWaiting()));

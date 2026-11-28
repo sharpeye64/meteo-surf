@@ -177,6 +177,31 @@ marc.open_dataset = fake_marc
 buoy.requests.get = fake_buoy_get
 build.main()
 data = json.loads(config.OUTPUT_FILE.read_text())
+# Issue #6 : mesurer le prototype sans modifier le chargement du site.
+from tools.benchmark_home_index import compact as _home_compact, benchmark as _home_benchmark
+_home = _home_compact(data)
+assert json.loads((config.OUTPUT_FILE.parent / "home-index.json").read_text()) == _home
+assert len(_home["spots"]) == len(data["spots"])
+assert _home["meta"] == data["meta"]
+for _group in ("coast", "offshore"):
+    assert [b.get("latest") for b in _home[_group]] == [b.get("latest") for b in data[_group]]
+if data.get("gascogne"):
+    assert _home["gascogne"]["latest"] == data["gascogne"]["latest"]
+for _compact, _original in zip(_home["spots"], data["spots"]):
+    assert _home["times"][_compact["time"]] == _original["marine"]["time"]
+    assert [row[0] for row in _compact["rows"]] == _original["marine"]["wave_height"]
+# Un décalage d'une heure du vent doit être refusé, même si les longueurs concordent.
+from copy import deepcopy as _home_copy
+_bad_home = _home_copy(data)
+_bad_home["spots"][0]["wind"]["time"][0] = "2000-01-01T00:00+00:00"
+try:
+    _home_compact(_bad_home)
+except ValueError as _home_error:
+    assert "Axes horaires incohérents" in str(_home_error)
+else:
+    raise AssertionError("Index accueil : axe vent décalé accepté")
+print("BENCHMARK HOME INDEX:", _home_benchmark(data))
+
 s = data["spots"][0]
 print("modèles :", [m["key"] for m in data["meta"]["wave_models"]], "· correction bouée :", data["meta"]["buoy_correction"])
 print("bouée :", data["gascogne"]["latest"], "· trajet vers", s["name"], ":", data["gascogne"]["eta_hours"][s["name"]], "h")
@@ -447,7 +472,7 @@ _with = json.loads((config.OUT_DIR / "data" / "forecast.json").read_text())
 print("forecast.json (archive activée) gardé pour comparaison :", _Path(_hist) / "forecast_archive_on.json")
 _os.environ["METEO_ARCHIVE"] = "0"
 # le site du premier passage reste celui que d'autres tests réutilisent (simulate_pannes) : ses fichiers sont remis ensuite
-_keep = {f: f.read_bytes() for f in (config.OUT_DIR / "data" / "forecast.json", config.OUT_DIR / "health.json")}
+_keep = {f: f.read_bytes() for f in (config.OUT_DIR / "data" / "forecast.json", config.OUT_DIR / "data" / "home-index.json", config.OUT_DIR / "health.json")}
 _gen = (_seo.generate, _ad.generate)
 _seo.generate, _ad.generate = (lambda payload: 0), (lambda spots, payload: 0)   # pages déjà vérifiées plus haut : on gagne du temps
 build.main()

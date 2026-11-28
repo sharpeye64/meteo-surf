@@ -15,6 +15,7 @@ else:   # dernière sortie du test hors ligne
 print("sortie du test :", src)
 sys.path.insert(0, str(repo))
 from tools.check_site import check
+from tools.benchmark_home_index import compact, encode
 
 base = Path(tempfile.mkdtemp(prefix="houlalah-sim-")) / "base"
 shutil.copytree(repo / "web", base)            # sources du site (index.html, brand…) comme dans le workflow
@@ -35,10 +36,20 @@ for p in base.rglob("*.json"):
         p.write_text(json.dumps(j, ensure_ascii=False), encoding="utf-8")
 
 
-def case(name, mutate, expect_ok, must=None):
+# Les fixtures modifient volontairement forecast.json : reconstruire son dérivé pour les cas
+# qui ne testent pas une divergence de l'index lui-même.
+def sync_home(d):
+    p = d / 'data/forecast.json'
+    if p.exists():
+        (d / 'data/home-index.json').write_bytes(encode(compact(json.loads(p.read_text(encoding='utf-8')))))
+
+sync_home(base)
+
+def case(name, mutate, expect_ok, must=None, sync=True):
     d = base.parent / re.sub(r"\W+", "_", name)
     shutil.rmtree(d, ignore_errors=True); shutil.copytree(base, d)
     if mutate: mutate(d)
+    if sync: sync_home(d)
     ok, rep = check(d, max_age_h=None)
     hit = must is None or any(must in e for e in rep["errors"])
     res = "OK" if (ok == expect_ok and hit) else "ÉCHEC DU TEST"
@@ -66,6 +77,9 @@ def sub(rel, a, b):
 S = "https://houlalah.fr"
 results = [
     case("site de référence (marques de test retirées)", None, True),
+    case("index accueil absent", rm("data/home-index.json"), False, "home-index.json absent", sync=False),
+    case("index accueil autre génération", jset("data/home-index.json", lambda j: j["meta"].update(generated="2020-01-01T00:00+01:00")), False, "divergence", sync=False),
+    case("index accueil hauteur altérée", jset("data/home-index.json", lambda j: j["spots"][0]["rows"][0].__setitem__(0, 999)), False, "divergence", sync=False),
     case("panne d'une source (CANDHIS) : tolérée", jset("data/forecast.json", lambda j: j["meta"]["errors"].update(candhis="timeout")), True),
     case("données de test dans forecast.json", jset("data/forecast.json", lambda j: j["meta"].update(_test=True)), False, "test"),
     case("une page de test oubliée", sub("spots/lacanau/index.html", "<head>", '<head><meta name="houlalah-test" content="1">'), False, "test"),

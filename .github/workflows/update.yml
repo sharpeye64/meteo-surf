@@ -26,7 +26,7 @@ concurrency:
 jobs:
   surete:
     # tests de sûreté (issue #3) : sources simulées, aucun appel réseau, rien n'est publié. Bloquent la suite s'ils échouent.
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Playwright 1.58.2 ne prend pas en charge Ubuntu 26.04
     timeout-minutes: 15
     permissions:
       contents: read
@@ -69,6 +69,12 @@ jobs:
         run: |
           node tests/regles_site.test.js
           node tests/regles_app.test.mjs
+      - name: Tests navigateur accueil (desktop et mobile, données simulées)
+        if: github.event_name == 'pull_request'
+        run: |
+          npm install --no-save --package-lock=false playwright@1.58.2
+          npx playwright install --with-deps chromium
+          node tests/home_browser.test.cjs
   build:
     needs: surete
     # pas de vraie génération pour une pull request (ni appel aux API, ni archive, ni publication)

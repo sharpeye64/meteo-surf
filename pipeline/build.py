@@ -327,6 +327,9 @@ def main():
     # forecast.json réécrit avec les erreurs de génération (avant, l'erreur SEO n'y figurait jamais : le fichier était déjà écrit)
     meta["errors"] = {k: safe.public_error(v) for k, v in meta["errors"].items()}   # fichier public : jamais d'adresse complète ni de clé
     config.OUTPUT_FILE.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+    # Index cartographique expérimental : mêmes données et même génération, aucun appel réseau.
+    from tools.benchmark_home_index import compact, encode
+    (config.OUTPUT_FILE.parent / "home-index.json").write_bytes(encode(compact(payload)))
     write_health(payload, spots)
     size = config.OUTPUT_FILE.stat().st_size / 1024
     log(f"OK : {config.OUTPUT_FILE} ({size:.0f} Ko) · erreurs : {list(meta['errors']) or 'aucune'}")
