@@ -1,11 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleProp, ViewStyle } from 'react-native';
+import { useData } from './store';
 import { C } from './theme';
 
 /** Feu « en direct » qui clignote doucement, comme le bandeau des bouées du site (décalé selon `delay`). */
 export function Blink({ size = 8, color = C.live, delay = 0, style }: { size?: number; color?: string; delay?: number; style?: StyleProp<ViewStyle> }) {
   const v = useRef(new Animated.Value(1)).current;
+  const { reduceMotion } = useData();   // « Réduire les animations » de l'iPhone : feu fixe
   useEffect(() => {
+    if (reduceMotion) { v.setValue(1); return; }
     const a = Animated.loop(Animated.sequence([
       Animated.delay(delay),
       Animated.timing(v, { toValue: 0.25, duration: 700, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
@@ -14,14 +17,16 @@ export function Blink({ size = 8, color = C.live, delay = 0, style }: { size?: n
     ]));
     a.start();
     return () => a.stop();
-  }, [v, delay]);
+  }, [v, delay, reduceMotion]);
   return <Animated.View style={[{ width: size, height: size, borderRadius: size / 2, backgroundColor: color, opacity: v }, style]} />;
 }
 
 /** Onde qui s'élargit et s'efface autour d'une bouée sur la carte. */
 export function Pulse({ size = 20, color = C.live, delay = 0 }: { size?: number; color?: string; delay?: number }) {
   const v = useRef(new Animated.Value(0)).current;
+  const { reduceMotion } = useData();
   useEffect(() => {
+    if (reduceMotion) return;
     const a = Animated.loop(Animated.sequence([
       Animated.delay(delay),
       Animated.timing(v, { toValue: 1, duration: 1800, easing: Easing.out(Easing.quad), useNativeDriver: true }),
@@ -30,7 +35,8 @@ export function Pulse({ size = 20, color = C.live, delay = 0 }: { size?: number;
     ]));
     a.start();
     return () => a.stop();
-  }, [v, delay]);
+  }, [v, delay, reduceMotion]);
+  if (reduceMotion) return null;
   return (
     <Animated.View pointerEvents="none" style={{
       position: 'absolute', width: size, height: size, borderRadius: size / 2, backgroundColor: color,

@@ -6,6 +6,7 @@ import { ageTxt, Buoy, buoyFits, dayTxt, BuoySheet, fr, freshOf, hav, Index, isL
 import { useReloaded } from './useReloaded';
 import { tMs } from './time';
 import { Blink } from './Live';
+import { useMinute } from './store';
 import { useBarSpace } from './TabBar';
 import { C, F, themed } from './theme';
 
@@ -44,10 +45,11 @@ function BuoyLine({ b, i, note, first, onOpen }: { b: Buoy; i: number; note?: st
  *  proches avec leur distance, puis toutes les bouées rangées par zone, du nord au sud. */
 export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]; onOpen: (b: Buoy) => void }) {
   const pad = useBarSpace();
+  useMinute();   // fraîcheur et bouée de référence recalculées chaque minute
   const spot = favs.map(f => index.spots.find(s => s.slug === f)).find(Boolean);
   const fresh = index.buoys.filter(isLive).length;
 
-  const minute = Math.floor(Date.now() / 6e4);   // la bouée de référence dépend de l'âge des mesures : recalculée chaque minute
+  const minute = Math.floor(Date.now() / 6e4);   // la bouée de référence dépend de l'âge des mesures
   const mine = useMemo(() => {
     if (!spot) return null;
     const p = spotPoint(spot);   // distances depuis le point de prévision, comme la règle commune
@@ -128,14 +130,15 @@ export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]
 
 /** Page d'une bouée : relevé actuel, courbe 48 h mesuré / prévu, records, derniers relevés, spots autour. */
 export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => void; onSpot: (slug: string) => void }) {
-  const pad = useBarSpace();
+  const pad = 40;   // panneau natif : pas de barre d'onglets dessous
+  useMinute();
   const { data: d, offline, err } = useReloaded<BuoySheet>(loadBuoy, buoy.slug);   // redemandée au retour (reprise réseau)
   const L = d?.latest, live = !!(d && L && freshOf({ id: d.id, lim: d.lim, time: L.time, silent: d.silent }) === 'live');
 
   return (
     <View style={{ flex: 1 }}>
       <View style={st.bar}>
-        <Pressable onPress={onBack} hitSlop={10} style={st.round} accessibilityLabel="Retour"><Text style={st.roundT}>‹</Text></Pressable>
+        <Pressable onPress={onBack} hitSlop={10} style={st.round} accessibilityLabel="Fermer"><Text style={st.roundT}>×</Text></Pressable>
         <View style={st.pill}><Text style={st.pillT} numberOfLines={1}>Bouée {buoy.name}</Text></View>
       </View>
       {!d ? (
@@ -269,7 +272,7 @@ const st = themed(() => StyleSheet.create({
   valT: { fontFamily: F.num, fontSize: 16, color: C.sandText, letterSpacing: -0.5 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
   metaT: { fontFamily: F.tB, fontSize: 11.5, color: C.ink2 },
-  bar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 8 },
+  bar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8 },
   round: { width: 40, height: 40, borderRadius: 20, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center' },
   roundT: { fontFamily: F.tX, fontSize: 24, color: C.ink, marginTop: -2 },
   pill: { flex: 1, height: 40, borderRadius: 20, backgroundColor: C.card, justifyContent: 'center', paddingHorizontal: 16 },

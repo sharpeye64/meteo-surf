@@ -2,19 +2,24 @@
 // polices Unbounded (chiffres, titres) et Manrope (texte), cases colorées de la frise horaire.
 // Deux palettes de mêmes clés : claire, et sombre (fond nuit de l'icône et du site). L'appli suit le réglage du téléphone.
 const LIGHT = {
-  ink: '#10202c',
-  ink2: '#5b6b75',
-  ink3: '#8a98a0',
-  bg: '#eef1f2',
-  card: '#ffffff',
-  soft: '#f4f6f7',
-  line: 'rgba(16,32,44,0.10)',
+  ink: '#0b1b26',            // bleu nuit Premium Ocean (prévisions, textes)
+  ink2: '#5d6a70',
+  ink3: '#7d8a90',
+  bg: '#f3efe6',             // sable (fond)
+  card: '#fffdf8',           // crème (cartes)
+  soft: '#efe9dc',
+  line: 'rgba(11,27,38,0.10)',
+  night: '#0b1b26',          // surfaces nuit (bouées, bulle d'onglet active)
+  onNight: '#f3efe6',
+  measure: '#8a6418',        // or des MESURES réelles, sur clair (rien d'autre n'est doré)
+  measureOnNight: '#f2c66b',
   sand: '#e9c694',          // sable du logo (accent : anneaux des bouées, onglet actif)
   sandA: '#f4e2b8',
   sandB: '#e3c283',
   sandText: '#2a2112',
-  gold: '#b8892f',
-  live: '#2fb47c',
+  gold: '#8a6418',
+  live: '#12925a',
+  off: '#1f8a7c', side: '#5b6b75', on: '#c0582f',   // orientation du vent (comme le site)
   aqua: '#3f8f80',
   coral: '#c9644a',
   sandCard: '#e9c694',      // fond des grandes cartes sable (votre spot, bouée de votre spot)
@@ -27,26 +32,32 @@ const LIGHT = {
   creamText2: '#a89c7e',
   water: '#dcebf3', waterK: '#3d6a82', waterT: '#123c55',
   tideFill: '#e3ebf1',
-  glass: 'rgba(255,255,255,0.94)',   // boutons flottants et barre d'onglets
+  glass: 'rgba(255,253,248,0.94)',   // boutons flottants et barre d'onglets
+  map: '#b4ccd8',
   onInk: '#ffffff', onInk2: 'rgba(255,255,255,0.7)',
   cellU: 'rgba(16,32,44,0.7)',
   lampOld: '#c9c3b4',
 };
 type Palette = typeof LIGHT;
 const DARK: Palette = {
-  ink: '#e8eef1',
-  ink2: '#9fb0b8',
-  ink3: '#6c7f88',
-  bg: '#0a1114',
-  card: '#152026',
-  soft: '#1c2930',
-  line: 'rgba(232,238,241,0.10)',
+  ink: '#f3efe6',
+  ink2: '#aebac0',
+  ink3: '#7d8f98',
+  bg: '#0b1620',
+  card: '#16242c',
+  soft: '#1d2c35',
+  line: 'rgba(243,239,230,0.10)',
+  night: '#f3efe6',          // en sombre, la bulle active est crème
+  onNight: '#0b1b26',
+  measure: '#f2c66b',
+  measureOnNight: '#f2c66b',
   sand: '#e9c694',
   sandA: '#f4e2b8',
   sandB: '#c9a463',
   sandText: '#f1d9ad',
-  gold: '#d4a64a',
-  live: '#34c48a',
+  gold: '#f2c66b',
+  live: '#2fc48a',
+  off: '#4fc2b0', side: '#9fb0b8', on: '#e07a5f',
   aqua: '#5fb3a2',
   coral: '#e07a5f',
   sandCard: '#2a2318',
@@ -59,7 +70,8 @@ const DARK: Palette = {
   creamText2: '#8a7f66',
   water: '#122a3a', waterK: '#8bb6cc', waterT: '#d3e9f4',
   tideFill: '#1a2c38',
-  glass: 'rgba(21,32,38,0.95)',
+  glass: 'rgba(24,40,49,0.92)',
+  map: '#0c1e2a',
   onInk: '#0a1114', onInk2: 'rgba(10,17,20,0.7)',
   cellU: 'rgba(232,238,241,0.72)',
   lampOld: '#4a5357',

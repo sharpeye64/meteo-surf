@@ -34,6 +34,13 @@
           "resizeMode": "contain",
           "backgroundColor": "#0A1114"
         }
+      ],
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Houlalah utilise votre position seulement quand vous touchez « Me localiser », pour centrer la carte et montrer les spots autour de vous."
+        }
       ]
     ]
   }
