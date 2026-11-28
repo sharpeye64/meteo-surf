@@ -335,3 +335,22 @@ Commits `b294478` à `be01e22`. Aucune nouvelle fonctionnalité, aucune refonte 
   - le défilement et le glissement du panneau, en cran moyen et en plein écran ;
   - le clavier dans la recherche ;
   - l'absence de chevauchement sur la carte, notamment au pincement.
+
+### Montrer la donnée plutôt que la raconter (décision du porteur, 28/11)
+- **Fiche spot** :
+  - le bloc « La journée en bref » est supprimé : il répétait la frise en texte. La fiche se lit maintenant ainsi : conditions de l'heure choisie, jours, frise horaire, marée, puis la bouée de référence ;
+  - la légende des jours et le nom du port de marée sont passés derrière l'icône ⓘ, avec la mise en garde « hauteur au large, pas la taille au bord » ;
+  - le pied de la carte bouée se réduit à l'âge, l'eau et une flèche.
+- **Icône ⓘ** (`src/Info.tsx`) : elle déplie les mentions pédagogiques indispensables sous la rangée, à la demande. VoiceOver l'annonce comme « Explication » (dépliée ou non).
+- **Ma côte** : la phrase sous la mini-frise est retirée. L'échelle et les barres suffisent, et VoiceOver lit toujours le maximum.
+- **Bouées** :
+  - le chapeau devient « 3 en direct sur 22 » ;
+  - les pieds se réduisent à l'âge, l'eau et une flèche ;
+  - la page d'une bouée garde « vague max » ; la description de la station, la mise en garde et la provenance de la courbe prévue sont passées derrière l'icône ⓘ ;
+  - le titre du graphique devient « 48 heures ».
+- **Comparateur** : les sous-titres et la phrase finale sont retirés ; l'icône ⓘ explique l'écart au premier spot et la marée.
+- **Gardé volontairement** :
+  - le cartouche « Prévision … · calculée il y a … » : c'est une donnée de fiabilité, pas un récit ;
+  - « Données anciennes » quand c'est le cas ;
+  - les unités ;
+  - la légende des couleurs du vent (trois puces).

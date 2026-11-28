@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 import Arrow from './Arrow';
 import { ageTxt, Buoy, freshOf, fr, loadSheet, perTxt, refBuoy, regionName, sector, Sheet, SpotLite, WIND_WORD, windCat, WindCat } from './data';
+import Info from './Info';
 import { Blink } from './Live';
 import { Pick, resolveSel } from './selection';
 import { useData, useDataAge, useMinute } from './store';
@@ -83,7 +84,6 @@ export default function SpotSheet({ spot }: { spot: SpotLite }) {
   const rise = sunI >= 0 ? tMs(sheet.sun!.sunrise[sunI]) : NaN, set = sunI >= 0 ? tMs(sheet.sun!.sunset[sunI]) : NaN;
   const night = (i: number) => Number.isFinite(rise) && (t0 + (i + 1) * 36e5 <= rise || t0 + i * 36e5 >= set);
   const wc = windCat(sheet.wind[sel], sheet.wdir[sel], sheet.ori);
-  const tides = (sheet.tide?.extremes || []).filter(e => partsIn(tMs(e.t), tz).date === d.date);
   const nextTide = (sheet.tide?.extremes || []).find(e => tMs(e.t) >= t0 + sel * 36e5);
   const ref = index ? refBuoy(index.buoys, spot) : null;
   const choose = (i: number) => { if (i === sel) return; Haptics.selectionAsync().catch(() => {}); setPick({ date: d.date, ms: t0 + i * 36e5 }); };
@@ -115,7 +115,6 @@ export default function SpotSheet({ spot }: { spot: SpotLite }) {
           </View>
         </View>
 
-        <Text style={st.daysCap}>Houle la plus haute de 6 h à 21 h, en mètres</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.days}>
           {days.map((x, i) => {
             const dl = x.idx.filter(j => { const h = at(j).h; return h >= 6 && h <= 21; });
@@ -171,10 +170,13 @@ export default function SpotSheet({ spot }: { spot: SpotLite }) {
         </View>
         <View style={st.legend}>
           <Leg c={C.off} t="offshore" /><Leg c={C.side} t="de côté" /><Leg c={C.on} t="onshore" />
-          <Text style={st.legT}>· {sheet.tide ? `marée ${sheet.tide.label}` : 'marée indicative'}</Text>
+          <Info lines={[
+            'Houle : hauteur au large du spot, pas la taille des vagues au bord. À lire avec la période.',
+            'Sous chaque jour : houle la plus haute de 6 h à 21 h, en mètres.',
+            'Filet sous le vent : orientation du vent par rapport à la plage. Heures de nuit marquées ☾.',
+            sheet.tide ? `Marée : port de référence ${sheet.tide.label}.` : 'Marée indicative (modèle), sans port de référence.',
+          ]} />
         </View>
-
-        <Summary sheet={sheet} cols={cols} tides={tides} at={at} tz={tz} />
 
         {ref ? <RefBuoy b={ref.b} km={ref.k} /> : (
           <View style={st.card}><Text style={st.cardK}>Bouée de référence</Text><Text style={st.cardS}>Aucune bouée n’a de mesure exploitable autour de ce spot pour le moment.</Text></View>
@@ -202,27 +204,6 @@ function Leg({ c, t }: { c: string; t: string }) {
   return <View style={st.legI}><View style={[st.legD, { backgroundColor: c }]} /><Text style={st.legT}>{t}</Text></View>;
 }
 
-/** Quelques phrases FACTUELLES sur la journée (maximum de houle, vent le plus faible, marées) : pas d'avis, pas de note. */
-function Summary({ sheet, cols, tides, at, tz }: { sheet: Sheet; cols: number[]; tides: { t: string; type: string; h: number }[]; at: (i: number) => { h: number }; tz: string }) {
-  const ok = cols.filter(i => sheet.hs[i] != null);
-  if (!ok.length) return null;
-  const top = ok.reduce((a, b) => ((sheet.hs[b] ?? 0) > (sheet.hs[a] ?? 0) ? b : a));
-  const wOk = cols.filter(i => sheet.wind[i] != null);
-  const calm = wOk.length ? wOk.reduce((a, b) => ((sheet.wind[b] ?? 99) < (sheet.wind[a] ?? 99) ? b : a)) : null;
-  const cc = calm != null ? windCat(sheet.wind[calm], sheet.wdir[calm], sheet.ori) : null;
-  const lines = [
-    `Houle la plus haute vers ${at(top).h} h : ${fr(sheet.hs[top])} m${sheet.tp[top] != null ? `, ${Math.round(sheet.tp[top]!)} s` : ''}, ${sector(sheet.dir[top])}.`,
-    calm != null ? `Vent le plus faible vers ${at(calm).h} h : ${fr(sheet.wind[calm], 0)} km/h${cc ? ` (${WIND_WORD[cc].toLowerCase()})` : ''}.` : null,
-    tides.length ? `Marées : ${tides.map(e => `${e.type === 'PM' ? 'pleine mer' : 'basse mer'} ${hhIn(tMs(e.t), tz)}`).join(', ')}.` : null,
-  ].filter(Boolean) as string[];
-  return (
-    <View style={st.card}>
-      <Text style={st.cardK}>La journée en bref</Text>
-      {lines.map(l => <Text key={l} style={st.sum}>{l}</Text>)}
-      <Text style={st.note}>Hauteur au large du spot, pas la taille des vagues au bord : à lire avec la période.</Text>
-    </View>
-  );
-}
 
 /** Bouée de référence (même règle que le site) : sa DERNIÈRE mesure, quelle que soit l'heure choisie ; « en direct »
  *  seulement si elle l'est selon la cadence de la station (jamais « maintenant » pour une mesure de 17 h). */
@@ -242,7 +223,7 @@ function RefBuoy({ b, km }: { b: Buoy; km: number }) {
           {b.dir != null && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Arrow dir={b.dir} size={11} color={C.measureOnBuoy} /><Text style={st.buoyS}>{sector(b.dir)}</Text></View>}
         </View>
       </View>
-      <Text style={st.buoyF}>Mesuré {ageTxt(b.time)}, en mer{b.sst != null ? ` · eau ${fr(b.sst, 0)} °C` : ''} · voir la bouée ›</Text>
+      <Text style={st.buoyF}>{ageTxt(b.time)}{b.sst != null ? ` · eau ${fr(b.sst, 0)} °C` : ''}  ›</Text>
     </Pressable>
   );
 }
@@ -301,8 +282,7 @@ const st = themed(() => StyleSheet.create({
   heroU: { fontFamily: F.tB, fontSize: 11.5, letterSpacing: 0 },
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
   heroS: { fontFamily: F.tB, fontSize: 12, color: C.ink2, flexShrink: 1 },
-  daysCap: { fontFamily: F.tB, fontSize: 11, color: C.ink3, marginHorizontal: 18, marginTop: 14 },
-  days: { paddingHorizontal: 12, paddingTop: 6, paddingBottom: 4, gap: 5 },
+  days: { paddingHorizontal: 12, paddingTop: 14, paddingBottom: 4, gap: 5 },
   day: { width: 47, paddingVertical: 6, borderRadius: 16, alignItems: 'center', backgroundColor: C.card },
   dayOn: { backgroundColor: C.night },
   dayJ: { fontFamily: F.tX, fontSize: 9.5, letterSpacing: 0.8, color: C.ink3 },
@@ -328,8 +308,6 @@ const st = themed(() => StyleSheet.create({
   card: { marginHorizontal: 12, marginTop: 14, padding: 16, borderRadius: 24, backgroundColor: C.card, gap: 6 },
   cardK: { fontFamily: F.tX, fontSize: 10.5, letterSpacing: 1, color: C.ink3, textTransform: 'uppercase' },
   cardS: { fontFamily: F.t, fontSize: 13.5, color: C.ink2 },
-  sum: { fontFamily: F.t, fontSize: 14, lineHeight: 20, color: C.ink },
-  note: { fontFamily: F.tR, fontSize: 12, color: C.ink3, marginTop: 2 },
   buoy: { marginHorizontal: 12, marginTop: 12, padding: 16, borderRadius: 24, backgroundColor: C.buoySurface },
   buoyTop: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   buoyK: { flex: 1, fontFamily: F.tX, fontSize: 10.5, letterSpacing: 0.9, color: C.onBuoy },

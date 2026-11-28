@@ -5,6 +5,7 @@ import Arrow from './Arrow';
 import { ageTxt, Buoy, buoyFits, dayTxt, BuoySheet, fr, freshOf, hav, Index, isLive, loadBuoy, perTxt, refBuoy, sector, spotPoint } from './data';
 import { useReloaded } from './useReloaded';
 import { tMs } from './time';
+import Info from './Info';
 import { Blink } from './Live';
 import { useMinute } from './store';
 import { useBarSpace } from './TabBar';
@@ -75,7 +76,7 @@ export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]
     <ScrollView contentContainerStyle={{ paddingBottom: pad }}>
       <View style={{ paddingHorizontal: 20, paddingTop: 14, paddingBottom: 6 }}>
         <Text style={st.h1}>Bouées</Text>
-        <Text style={st.lead}>Mesures réelles en mer · {fresh} en direct sur {index.buoys.length}</Text>
+        <Text style={st.lead}>{fresh} en direct sur {index.buoys.length}</Text>
       </View>
 
       {spot && M ? (
@@ -93,7 +94,7 @@ export function BuoyList({ index, favs, onOpen }: { index: Index; favs: string[]
                 {M.b.dir != null && <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Arrow dir={M.b.dir} size={13} color={C.sandText} /><Text style={st.heroS}>{sector(M.b.dir)}</Text></View>}
               </View>
             </View>
-            <Text style={[st.heroFoot, ['old', 'off'].includes(freshOf(M.b)) && { color: C.warn }]}>{freshOf(M.b) === 'live' ? 'En direct · ' : ''}Mesuré {ageTxt(M.b.time)}{M.b.sst != null ? ` · eau ${fr(M.b.sst, 0)} °C` : ''}   Voir la bouée ›</Text>
+            <Text style={[st.heroFoot, ['old', 'off'].includes(freshOf(M.b)) && { color: C.warn }]}>{ageTxt(M.b.time)}{M.b.sst != null ? ` · eau ${fr(M.b.sst, 0)} °C` : ''}  ›</Text>
           </Pressable>
           {!!mine!.others.length && (
             <View style={st.group}>
@@ -158,25 +159,26 @@ export function BuoyPage({ buoy, onBack, onSpot }: { buoy: Buoy; onBack: () => v
             <View style={st.nowRow}>
               <View style={[st.lamp, !live && { backgroundColor: C.sandMuted }]} />
               <Text style={[st.nowT, !live && ['old', 'off'].includes(freshOf({ id: d.id, lim: d.lim, time: L!.time, silent: d.silent })) && { color: C.warn }]}>{live ? 'EN DIRECT' : 'DERNIÈRE MESURE'} · {ageTxt(L!.time).toUpperCase()}</Text>
+              <View style={{ flex: 1 }} />
+              <Info lines={[`${d.sub}.`, 'Hauteur significative mesurée en mer par la bouée : ce n’est pas la taille des vagues au bord.']} />
             </View>
             <Text style={st.big}>{fr(L!.hs)}<Text style={st.bigU}> m</Text></Text>
-            <Text style={st.bigS}>Hauteur significative mesurée{L!.hmax ? ` · vague max ${fr(L!.hmax)} m` : ''}</Text>
+            {!!L!.hmax && <Text style={st.bigS}>vague max {fr(L!.hmax)} m</Text>}
             <View style={st.tiles}>
               <Tile k={!L!.tp && L!.tm ? 'Période moy.' : 'Période'} v={L!.tp ? `${Math.round(L!.tp)} s` : L!.tm ? `${Math.round(L!.tm)} s` : '—'} />
               <Tile k="Direction" v={sector(L!.dir)} dir={L!.dir} />
               <Tile k="Eau" v={L!.sst != null ? `${fr(L!.sst, 1)} °C` : '—'} />
             </View>
-            <Text style={st.note}>{d.sub}. Mesure en mer : ce n'est pas la taille des vagues au bord.</Text>
           </View>
 
           <View style={st.card}>
-            <Text style={st.cardT}>Mesures des 48 h et prévision publiée</Text>
+            <Text style={st.cardT}>48 heures</Text>
             <Chart d={d} />
             <View style={st.legRow}>
               <View style={st.legI}><View style={[st.legL, { backgroundColor: C.measure }]} /><Text style={st.legS}>mesuré (m)</Text></View>
-              <View style={st.legI}><View style={[st.legL, { backgroundColor: C.ink, opacity: 0.75 }]} /><Text style={st.legS} numberOfLines={2}>prévu ({d.model_src})</Text></View>
+              <View style={st.legI}><View style={[st.legL, { backgroundColor: C.ink, opacity: 0.75 }]} /><Text style={st.legS}>prévu</Text></View>
+              <Info lines={[`Prévu : ${d.model_src}.`, 'C’est la prévision publiée aujourd’hui, pas celle faite avant chaque mesure.']} />
             </View>
-            <Text style={[st.legS, { marginTop: 6 }]}>La courbe prévue est celle publiée aujourd’hui, pas la prévision faite avant chaque mesure.</Text>
           </View>
 
           {d.stats && (
@@ -292,7 +294,7 @@ const st = themed(() => StyleSheet.create({
   pill: { flex: 1, height: 40, borderRadius: 20, backgroundColor: C.card, justifyContent: 'center', paddingHorizontal: 16 },
   pillT: { fontFamily: F.num, fontSize: 15, color: C.ink, letterSpacing: -0.4 },
   card: { marginHorizontal: 12, marginTop: 10, padding: 16, borderRadius: 24, backgroundColor: C.card },
-  nowRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  nowRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 7 },
   nowT: { fontFamily: F.tX, fontSize: 11.5, letterSpacing: 1, color: C.sandText },
   big: { fontFamily: F.numX, fontSize: 56, color: C.sandText, letterSpacing: -2, marginTop: 6 },
   bigU: { fontFamily: F.tB, fontSize: 18, letterSpacing: 0 },
@@ -304,7 +306,7 @@ const st = themed(() => StyleSheet.create({
   tileS: { fontFamily: F.tB, fontSize: 11, color: C.ink2, marginTop: 2 },
   note: { fontFamily: F.t, fontSize: 12, color: C.sandMuted2, marginTop: 10 },
   cardT: { fontFamily: F.num, fontSize: 16, color: C.ink, letterSpacing: -0.3 },
-  legRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, marginTop: 6 },
+  legRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 14, marginTop: 6 },
   legI: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legL: { width: 16, height: 3, borderRadius: 2 },
   legS: { fontFamily: F.tB, fontSize: 11.5, color: C.ink2 },

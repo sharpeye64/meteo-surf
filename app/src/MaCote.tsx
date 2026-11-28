@@ -133,7 +133,6 @@ function Strip({ s }: { s: SpotLite }) {
           </View>
         ))}
       </View>
-      <Text style={st.stripCap}>48 h · max. {fr(max.hs)} m{max.tp != null ? ` · ${Math.round(max.tp)} s` : ''} {J[max.p.wd]} {max.p.h} h</Text>
     </View>
   );
 }

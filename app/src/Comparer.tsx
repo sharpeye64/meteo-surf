@@ -11,6 +11,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Arrow from './Arrow';
 import { fr, loadSheetShared, sector, Sheet, WIND_WORD, windCat } from './data';
+import Info from './Info';
 import { useData } from './store';
 import { C, F, periodCell, sizeCell, themed } from './theme';
 import { civilDays, valueAt as sample } from './series';
@@ -105,7 +106,7 @@ export default function Comparer() {
           <View style={st.card}><Text style={st.empty}>Ajoutez des spots avec « + Spot », ou depuis le bouton Comparer d’une fiche.</Text></View>
         ) : (
           <>
-            <Section title="Houle" sub="hauteur au large · écart au premier spot">
+            <Section title="Houle" info={['Hauteur au large de chaque spot. À droite : écart avec le premier spot.', 'Barres à la même échelle, depuis zéro.']}>
               {rows.map((r, k) => (
                 <Line key={r.s.slug} name={r.s.name} local={localHour(ms, r.tz)} state={r}>
                   <Bar v={r.hs} max={hsMax} color={sizeCell(r.hs)} label={r.hs != null ? `${fr(r.hs)} m` : 'heure indisponible'} />
@@ -113,7 +114,7 @@ export default function Comparer() {
                 </Line>
               ))}
             </Section>
-            <Section title="Période" sub="et direction de la houle">
+            <Section title="Période">
               {rows.map(r => (
                 <Line key={r.s.slug} name={r.s.name} local={localHour(ms, r.tz)} state={r}>
                   <Bar v={r.tp} max={tpMax} color={periodCell(r.tp)} label={r.tp != null ? `${Math.round(r.tp)} s` : 'heure indisponible'} />
@@ -121,7 +122,7 @@ export default function Comparer() {
                 </Line>
               ))}
             </Section>
-            <Section title="Vent et marée" sub="orientation par rapport à la plage · marée du port de référence">
+            <Section title="Vent et marée" info={['Orientation du vent par rapport à chaque plage.', 'Marée : prochaine pleine (PM) ou basse mer (BM) au port de référence du spot, à son heure locale.']}>
               {rows.map(r => {
                 const c = windCat(r.wind, r.wdir, r.s.ori), col = c === 'offshore' || c === 'side-off' ? C.off : c === 'de côté' ? C.side : c === 'onshore' ? C.on : C.ink2;
                 const tide = r.sh?.tide?.extremes.find(e => tMs(e.t) >= ms);
@@ -137,7 +138,6 @@ export default function Comparer() {
                 );
               })}
             </Section>
-            <Text style={st.foot}>Même instant pour tous les spots. Pas de classement : c’est à vous de lire.</Text>
           </>
         )}
       </ScrollView>
@@ -147,11 +147,10 @@ export default function Comparer() {
 
 const localHour = (ms: number, tz: string) => (tz === 'Europe/Paris' ? null : `${hhIn(ms, tz)} sur place`);
 
-function Section({ title, sub, children }: { title: string; sub: string; children: React.ReactNode }) {
+function Section({ title, info, children }: { title: string; info?: string[]; children: React.ReactNode }) {
   return (
     <View style={st.card}>
-      <Text style={st.secT}>{title}</Text>
-      <Text style={st.secS}>{sub}</Text>
+      <View style={st.secHd}><Text style={st.secT}>{title}</Text>{info && <Info lines={info} />}</View>
       <View style={{ gap: 10, marginTop: 10 }}>{children}</View>
     </View>
   );
@@ -202,6 +201,7 @@ const st = themed(() => StyleSheet.create({
   card: { marginHorizontal: 12, marginTop: 14, padding: 16, borderRadius: 24, backgroundColor: C.card },
   empty: { fontFamily: F.t, fontSize: 14, color: C.ink2, lineHeight: 20 },
   secT: { fontFamily: F.num, fontSize: 16, color: C.ink, letterSpacing: -0.4 },
+  secHd: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 },
   secS: { fontFamily: F.tB, fontSize: 11.5, color: C.ink3, marginTop: 2 },
   lineN: { fontFamily: F.tX, fontSize: 13, color: C.ink },
   lineL: { fontFamily: F.tB, fontSize: 11.5, color: C.ink3 },
