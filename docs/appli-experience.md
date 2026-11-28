@@ -111,6 +111,7 @@ La pile maison actuelle ne fait rien de tout cela. La migration ne touche que la
 - **Favori** : appui long sur un repère de la carte pour l'ajouter à Ma côte (haptique de confirmation).
 - **Mouvement** : seules restent les animations déjà autorisées (pastille verte, halo des bouées en direct). Tout s'arrête avec « Réduire les animations ».
 - **Une main** : les commandes fréquentes sont en bas (panneau, moment, onglets) ; la recherche en haut s'ouvre aussi en tirant le panneau.
+- **Barre d'onglets en bulle** (demande du porteur, 28/11/2026) : une pilule flottante en verre dépoli, posée au-dessus du contenu à 24 px du bas. L'onglet actif est marqué par une bulle dorée qui glisse d'un onglet à l'autre. En sombre : verre nuit. Sur iOS 26, elle utilisera l'effet « Liquid Glass » natif (`expo-glass-effect`, inclus dans Expo Go), avec un repli en verre dépoli.
 
 ## 7. Données nécessaires
 
